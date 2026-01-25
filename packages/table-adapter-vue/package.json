@@ -1,0 +1,60 @@
+{
+  "name": "@insurup/table-adapter-vue",
+  "version": "0.1.0",
+  "description": "Vue bindings for @insurup/table-adapter-core",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "tanstack-table",
+    "vue",
+    "insurup",
+    "adapter",
+    "typescript"
+  ],
+  "author": "InsurUp Engineering",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/InsurUp/ts-toolkit.git",
+    "directory": "packages/table-adapter-vue"
+  },
+  "homepage": "https://github.com/InsurUp/ts-toolkit#readme",
+  "bugs": {
+    "url": "https://github.com/InsurUp/ts-toolkit/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "vue": "^3",
+    "@tanstack/vue-table": "^8"
+  },
+  "devDependencies": {
+    "vue": "^3.5.0",
+    "@tanstack/vue-table": "^8.21.2",
+    "tsup": "^8.5.1"
+  },
+  "dependencies": {
+    "@insurup/table-adapter-core": "workspace:*"
+  }
+}

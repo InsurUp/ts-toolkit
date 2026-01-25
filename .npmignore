@@ -1,0 +1,53 @@
+# Source files
+src/
+
+# Tests
+test/
+*.spec.ts
+*.test.ts
+vitest.config.ts
+
+# Documentation source
+docs/
+typedoc.json
+
+# Examples
+examples/
+
+# Coverage
+coverage/
+
+# Configuration
+tsconfig.json
+tsup.config.ts
+eslint.config.js
+.prettierrc*
+.editorconfig
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+Jenkinsfile
+
+# Misc
+*.log
+*.md
+!README.md
+IMPROVEMENTS.md
+bun.lock

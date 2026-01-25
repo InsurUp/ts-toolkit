@@ -1,0 +1,63 @@
+{
+  "name": "@insurup/table-adapter-core",
+  "version": "0.2.0",
+  "description": "Framework-agnostic TanStack Table adapter for InsurUp SDK with @tanstack/query-core",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "tanstack-table",
+    "tanstack-query",
+    "graphql",
+    "insurup",
+    "sdk",
+    "adapter",
+    "pagination",
+    "typescript"
+  ],
+  "author": "InsurUp Engineering",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/InsurUp/ts-toolkit.git",
+    "directory": "packages/table-adapter-core"
+  },
+  "homepage": "https://github.com/InsurUp/ts-toolkit#readme",
+  "bugs": {
+    "url": "https://github.com/InsurUp/ts-toolkit/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@insurup/sdk": ">=0.0.1",
+    "typescript": "^5"
+  },
+  "devDependencies": {
+    "@insurup/sdk": "workspace:*",
+    "tsup": "^8.5.1"
+  },
+  "dependencies": {
+    "@tanstack/query-core": "^5.90.19",
+    "@tanstack/table-core": "^8.21.3"
+  }
+}
