@@ -94,7 +94,12 @@ async function fetchPolicies() {
         endDate: n.endDate ? String(n.endDate) : null,
         state: n.state ? String(n.state) : null,
       }));
-      pageInfo.value = result.data.pageInfo;
+      pageInfo.value = {
+        hasNextPage: result.data.pageInfo.hasNextPage,
+        hasPreviousPage: result.data.pageInfo.hasPreviousPage,
+        startCursor: result.data.pageInfo.startCursor ?? null,
+        endCursor: result.data.pageInfo.endCursor ?? null,
+      };
 
       countPromise.then((countRes) => {
         if (countRes.isSuccess && countRes.data?.totalCount != null) {

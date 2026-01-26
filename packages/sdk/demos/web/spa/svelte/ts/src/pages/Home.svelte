@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { push } from "svelte-spa-router";
-  import { getAuthState, startLogin } from "$lib/auth";
+  import { navigate } from "$lib/router";
+  import { getAuthState, startLogin } from "$lib/auth/index.svelte";
   import { Button, Card, CardHeader, CardTitle, CardContent, CardDescription } from "$lib/components/ui";
   import { Users, FileText, Shield } from "lucide-svelte";
 
@@ -38,7 +38,7 @@
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       <Card
         class="cursor-pointer hover:bg-muted/50 transition-colors"
-        onclick={() => push("/customers")}
+        onclick={() => navigate("/customers")}
       >
         <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle class="text-sm font-medium">Customers</CardTitle>
@@ -54,7 +54,7 @@
 
       <Card
         class="cursor-pointer hover:bg-muted/50 transition-colors"
-        onclick={() => push("/policies")}
+        onclick={() => navigate("/policies")}
       >
         <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle class="text-sm font-medium">Policies</CardTitle>

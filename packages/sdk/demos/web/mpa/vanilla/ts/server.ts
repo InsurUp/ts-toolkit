@@ -5,7 +5,7 @@
  * Each page has its own entry point that gets bundled when requested.
  */
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3011;
 
 // Map bundle paths to their TypeScript entry points
 const BUNDLE_ENTRIES: Record<string, string> = {

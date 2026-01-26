@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { link, location } from "svelte-spa-router";
   import { Button } from "$lib/components/ui";
   import {
     DropdownMenu,
@@ -9,7 +8,8 @@
     DropdownMenuSeparator,
   } from "$lib/components/ui";
   import { User, LogOut, Moon, Sun } from "lucide-svelte";
-  import { getAuthState, startLogin } from "$lib/auth";
+  import { getAuthState, startLogin } from "$lib/auth/index.svelte";
+  import { navigate, isActive } from "$lib/router";
 
   const THEME_KEY = "insurup-demo-theme";
 
@@ -44,10 +44,6 @@
   function handleLogout() {
     auth.logOut();
   }
-
-  function isActive(path: string): boolean {
-    return $location === path || $location.startsWith(path + "/");
-  }
 </script>
 
 <header
@@ -55,13 +51,12 @@
 >
   <div class="container mx-auto px-4 flex h-14 items-center">
     <div class="mr-4 flex">
-      <a use:link href="/" class="mr-6 flex items-center space-x-2">
+      <a href="/" class="mr-6 flex items-center space-x-2">
         <span class="font-bold">InsurUp SDK Demo</span>
       </a>
       {#if auth.isAuthenticated}
         <nav class="flex items-center space-x-6 text-sm font-medium">
           <a
-            use:link
             href="/customers"
             class={isActive("/customers")
               ? "text-foreground"
@@ -70,7 +65,6 @@
             Customers
           </a>
           <a
-            use:link
             href="/policies"
             class={isActive("/policies")
               ? "text-foreground"
@@ -97,7 +91,7 @@
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onSelect={() => { window.location.hash = "/profile"; }}>
+            <DropdownMenuItem onSelect={() => navigate("/profile")}>
               Profile
             </DropdownMenuItem>
             <DropdownMenuSeparator />

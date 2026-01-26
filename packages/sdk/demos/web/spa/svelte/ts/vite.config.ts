@@ -3,6 +3,8 @@ import { svelte } from "@sveltejs/vite-plugin-svelte";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 
+const PORT = Number(process.env.PORT) || 3001;
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [svelte(), tailwindcss()],
@@ -12,6 +14,8 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3001,
+    port: PORT,
   },
+  // SPA fallback - serve index.html for all routes
+  appType: "spa",
 });

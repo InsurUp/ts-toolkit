@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { push } from "svelte-spa-router";
+  import { navigate } from "$lib/router";
   import { getClient } from "$lib/client";
   import type { Column } from "$lib/types";
   import DataTable from "$lib/components/DataTable.svelte";
@@ -206,7 +206,7 @@
     {sortField}
     {sortDirection}
     onSort={handleSort}
-    onRowClick={(customer) => push(`/customers/${customer.id}`)}
+    onRowClick={(customer) => navigate("/customers/:id", { params: { id: customer.id } })}
     getRowKey={(customer) => customer.id}
   >
     {#snippet renderCell({ item, column })}

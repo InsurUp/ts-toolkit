@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getAuthState, parseIdTokenClaims } from "$lib/auth";
+  import { getAuthState, parseIdTokenClaims } from "$lib/auth/index.svelte";
   import {
     Card,
     CardContent,

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { push } from "svelte-spa-router";
+  import { navigate, route } from "$lib/router";
   import { getClient } from "$lib/client";
   import {
     Button,
@@ -15,34 +15,29 @@
   import { ArrowLeft, Mail, Phone, Calendar, User } from "lucide-svelte";
   import { CustomerType, type GetCustomerResult } from "@insurup/contracts";
 
-  interface Props {
-    params: { id: string };
-  }
-
-  let { params }: Props = $props();
-
   let customer = $state<GetCustomerResult | null>(null);
   let isLoading = $state(true);
 
   const client = getClient();
 
   $effect(() => {
+    const id = route.params.id;
     async function fetchCustomer() {
-      if (!params.id) return;
+      if (!id) return;
 
       isLoading = true;
       try {
-        const result = await client.customers.getCustomer(params.id);
+        const result = await client.customers.getCustomer(id);
         if (result.isSuccess) {
           customer = result.data;
         } else {
           toast.error("Failed to load customer");
-          push("/customers");
+          navigate("/customers");
         }
       } catch (error) {
         toast.error("An error occurred");
         console.error(error);
-        push("/customers");
+        navigate("/customers");
       } finally {
         isLoading = false;
       }
@@ -83,7 +78,7 @@
 {:else if customer}
   <div class="space-y-6 animate-in fade-in-50 duration-300">
     <div class="flex items-center gap-4">
-      <Button variant="ghost" size="icon" onclick={() => push("/customers")}>
+      <Button variant="ghost" size="icon" onclick={() => navigate("/customers")}>
         <ArrowLeft class="h-5 w-5" />
       </Button>
       <div>

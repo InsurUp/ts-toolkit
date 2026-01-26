@@ -28,8 +28,8 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-svelte": "^0.563.0",
+    "sv-router": "^0.13.0",
     "svelte-sonner": "^1.0.7",
-    "svelte-spa-router": "^4.0.1",
     "tailwind-merge": "^3.4.0"
   }
 }

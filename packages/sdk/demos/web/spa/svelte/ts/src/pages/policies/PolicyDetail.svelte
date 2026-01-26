@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { push } from "svelte-spa-router";
+  import { navigate, route } from "$lib/router";
   import { getClient } from "$lib/client";
   import {
     Button,
@@ -22,34 +22,29 @@
   } from "lucide-svelte";
   import type { GetPolicyDetailResult } from "@insurup/contracts";
 
-  interface Props {
-    params: { id: string };
-  }
-
-  let { params }: Props = $props();
-
   let policy = $state<GetPolicyDetailResult | null>(null);
   let isLoading = $state(true);
 
   const client = getClient();
 
   $effect(() => {
+    const id = route.params.id;
     async function fetchPolicy() {
-      if (!params.id) return;
+      if (!id) return;
 
       isLoading = true;
       try {
-        const result = await client.policies.getPolicyDetail({ policyId: params.id });
+        const result = await client.policies.getPolicyDetail({ policyId: id });
         if (result.isSuccess) {
           policy = result.data;
         } else {
           toast.error("Failed to load policy");
-          push("/policies");
+          navigate("/policies");
         }
       } catch (error) {
         toast.error("An error occurred");
         console.error(error);
-        push("/policies");
+        navigate("/policies");
       } finally {
         isLoading = false;
       }
@@ -77,12 +72,12 @@
 {:else if policy}
   <div class="space-y-6 animate-in fade-in-50 duration-300">
     <div class="flex items-center gap-4">
-      <Button variant="ghost" size="icon" onclick={() => push("/policies")}>
+      <Button variant="ghost" size="icon" onclick={() => navigate("/policies")}>
         <ArrowLeft class="h-5 w-5" />
       </Button>
       <div>
         <h1 class="text-3xl font-bold tracking-tight">
-          Policy {policy.insuranceCompanyPolicyNumber || params.id}
+          Policy {policy.insuranceCompanyPolicyNumber || route.params.id}
         </h1>
         <p class="text-muted-foreground font-mono text-sm">ID: {policy.id}</p>
       </div>
@@ -150,7 +145,7 @@
             <Button
               variant="outline"
               size="sm"
-              onclick={() => push(`/customers/${policy!.insurerCustomerId}`)}
+              onclick={() => navigate("/customers/:id", { params: { id: policy!.insurerCustomerId! } })}
             >
               View Customer
             </Button>

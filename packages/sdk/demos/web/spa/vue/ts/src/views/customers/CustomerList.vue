@@ -75,7 +75,12 @@ async function fetchCustomers() {
         primaryPhoneNumber: n.primaryPhoneNumber ?? null,
         createdAt: String(n.createdAt),
       }));
-      pageInfo.value = result.data.pageInfo;
+      pageInfo.value = {
+        hasNextPage: result.data.pageInfo.hasNextPage,
+        hasPreviousPage: result.data.pageInfo.hasPreviousPage,
+        startCursor: result.data.pageInfo.startCursor ?? null,
+        endCursor: result.data.pageInfo.endCursor ?? null,
+      };
 
       countPromise.then((countRes) => {
         if (countRes.isSuccess && countRes.data?.totalCount != null) {

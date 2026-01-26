@@ -33,9 +33,9 @@ export class AuthService {
       useSilentRefresh: true,
       silentRefreshRedirectUri: window.location.origin + '/silent-refresh.html',
       strictDiscoveryDocumentValidation: false,
-      tokenEndpoint: `${environment.authServer}/connect/token`,
-      loginUrl: `${environment.authServer}/connect/authorize`,
-      logoutUrl: `${environment.authServer}/connect/endsession`,
+      tokenEndpoint: `${environment.authServer}connect/token`,
+      loginUrl: `${environment.authServer}connect/authorize`,
+      logoutUrl: `${environment.authServer}connect/endsession`,
       requireHttps: environment.production,
     };
 

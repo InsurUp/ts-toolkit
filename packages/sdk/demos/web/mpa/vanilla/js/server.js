@@ -3,7 +3,7 @@
  * No bundling required - serves files as-is.
  */
 
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3010;
 
 function getContentType(path) {
   if (path.endsWith(".html")) return "text/html";

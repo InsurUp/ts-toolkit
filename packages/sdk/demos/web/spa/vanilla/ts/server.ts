@@ -5,7 +5,7 @@
 
 import index from "./index.html";
 
-const PORT = Number(process.env.PORT) || 3000;
+const PORT = Number(process.env.PORT) || 3004;
 
 const server = Bun.serve({
   port: PORT,

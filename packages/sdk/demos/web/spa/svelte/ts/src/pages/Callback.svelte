@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { replace } from "svelte-spa-router";
-  import { getAuthState, handleCallback } from "$lib/auth";
+  import { navigate } from "$lib/router";
+  import { getAuthState, handleCallback } from "$lib/auth/index.svelte";
 
   const auth = getAuthState();
 
@@ -17,14 +17,14 @@
         auth.setTokens(tokens);
         // Clear the URL params and redirect to home
         window.history.replaceState({}, "", window.location.pathname);
-        replace("/");
+        navigate("/");
       } catch (error) {
         console.error("Callback error:", error);
-        replace("/");
+        navigate("/");
       }
     } else {
       // No code/state, just redirect home
-      replace("/");
+      navigate("/");
     }
   });
 </script>

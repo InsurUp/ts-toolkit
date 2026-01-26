@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { push } from "svelte-spa-router";
+  import { navigate } from "$lib/router";
   import { getClient } from "$lib/client";
   import {
     Button,
@@ -55,7 +55,7 @@
         toast.success("Customer created successfully");
         onOpenChange(false);
         resetForm();
-        push(`/customers/${result.data.id}`);
+        navigate("/customers/:id", { params: { id: result.data.id } });
       } else {
         toast.error("Failed to create customer");
         error = "Failed to create customer";
