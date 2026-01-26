@@ -26,8 +26,27 @@ export default defineConfig([
       },
     },
     rules: {
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^_',
+        },
+      ],
       '@typescript-eslint/consistent-type-imports': 'error',
+      // Disallow the `any` type
+      '@typescript-eslint/no-explicit-any': 'error',
+      // Disallow @ts-ignore, @ts-nocheck, @ts-expect-error comments
+      '@typescript-eslint/ban-ts-comment': [
+        'error',
+        {
+          'ts-expect-error': true,
+          'ts-ignore': true,
+          'ts-nocheck': true,
+          'ts-check': false,
+        },
+      ],
     },
   },
 

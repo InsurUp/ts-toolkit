@@ -57,11 +57,13 @@ describe('Customer Flow Integration Tests', () => {
       }
 
       // Verify create request was made correctly
+      // SDK transforms type -> $type with lowercase discriminator for API
+      const { type: _type, ...restRequest } = createRequest;
       expect(mockFetch).toHaveBeenCalledWith(
         'https://test.api.com/api/customers',
         expect.objectContaining({
           method: 'POST',
-          body: JSON.stringify(createRequest)
+          body: JSON.stringify({ $type: 'individual', ...restRequest })
         })
       );
 

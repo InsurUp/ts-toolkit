@@ -22,7 +22,10 @@
     "build": "tsup",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src/",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "keywords": [
     "tanstack-table",
@@ -54,7 +57,9 @@
   },
   "devDependencies": {
     "@insurup/sdk": "workspace:*",
-    "tsup": "^8.5.1"
+    "@vitest/coverage-v8": "^4.0.17",
+    "tsup": "^8.5.1",
+    "vitest": "^4.0.17"
   },
   "dependencies": {
     "@tanstack/query-core": "^5.90.19",

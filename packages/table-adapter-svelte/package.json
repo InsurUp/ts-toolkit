@@ -24,7 +24,10 @@
     "build": "tsup",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src/",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "keywords": [
     "tanstack-table",
@@ -54,9 +57,10 @@
     "@tanstack/table-core": "^8"
   },
   "devDependencies": {
-    "svelte": "^5.0.0",
     "@tanstack/table-core": "^8.21.3",
-    "tsup": "^8.5.1"
+    "svelte": "^5.0.0",
+    "tsup": "^8.5.1",
+    "vitest": "^4.0.17"
   },
   "dependencies": {
     "@insurup/table-adapter-core": "workspace:*"
