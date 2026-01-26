@@ -58,6 +58,9 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
     "@vitest/coverage-v8": "^4.0.17",
