@@ -225,7 +225,7 @@ export class PolicyListComponent {
     }
   }
 
-  onSearch(value: string): void {
+  onSearch(_value: string): void {
     this.cursor.set(null);
     this.direction.set('forward');
     this.currentPage.set(1);

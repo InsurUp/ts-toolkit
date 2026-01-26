@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { OAuthService, AuthConfig } from 'angular-oauth2-oidc';
-import { BehaviorSubject, Observable } from 'rxjs';
+import type { AuthConfig } from 'angular-oauth2-oidc';
+import { OAuthService } from 'angular-oauth2-oidc';
+import { BehaviorSubject } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 @Injectable({
