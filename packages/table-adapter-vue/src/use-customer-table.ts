@@ -3,7 +3,7 @@
  * @description Provides useCustomerTable composable with automatic lifecycle management
  */
 
-import { shallowRef, onUnmounted, type ShallowRef } from 'vue';
+import { shallowRef, onUnmounted, computed, type ShallowRef } from 'vue';
 import { useVueTable } from '@tanstack/vue-table';
 import type { Table } from '@tanstack/vue-table';
 import {
@@ -35,7 +35,7 @@ export interface UseCustomerTableResult<TColumns extends CustomerColumnDef[]> {
  * - Reactive state via shallowRef
  * - State subscription
  * - Cleanup on unmount
- * - TanStack Table instance creation
+ * - TanStack Table instance creation with reactive data
  *
  * @example
  * ```vue
@@ -91,8 +91,58 @@ export function useCustomerTable<const TColumns extends CustomerColumnDef[]>(
     adapter.destroy();
   });
 
-  // Create TanStack Table instance
-  const table = useVueTable(adapter.getTableOptions());
+  // Get initial table options from adapter
+  const initialOptions = adapter.getTableOptions();
+
+  // Create reactive data ref that updates when state changes
+  // useVueTable (v8.20.0+) supports reactive refs for the data option
+  const reactiveData = computed(() => state.value.rows);
+
+  // Create reactive table options computed
+  // This ensures table state (sorting, pagination) stays in sync with adapter
+  const tableOptions = computed(() => {
+    const adapterOptions = adapter.getTableOptions();
+    return {
+      ...adapterOptions,
+      // Override data with our reactive computed to ensure Vue reactivity
+      data: reactiveData.value,
+    };
+  });
+
+  // Create TanStack Table instance with reactive options
+  // Pass individual reactive properties for proper Vue reactivity
+  const table = useVueTable({
+    get columns() {
+      return initialOptions.columns;
+    },
+    get data() {
+      return reactiveData.value;
+    },
+    get getCoreRowModel() {
+      return initialOptions.getCoreRowModel;
+    },
+    get manualPagination() {
+      return true;
+    },
+    get manualSorting() {
+      return true;
+    },
+    get pageCount() {
+      return state.value.pageCount;
+    },
+    get rowCount() {
+      return state.value.rowCount;
+    },
+    get state() {
+      return tableOptions.value.state;
+    },
+    get onSortingChange() {
+      return initialOptions.onSortingChange;
+    },
+    get onPaginationChange() {
+      return initialOptions.onPaginationChange;
+    },
+  });
 
   return {
     state,

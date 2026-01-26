@@ -1,7 +1,7 @@
 {
   "name": "@insurup/toolkit",
   "type": "module",
-  "workspaces": ["packages/*", "packages/sdk/demos/cli/*", "packages/sdk/demos/simple-cli/*", "packages/sdk/demos/web/spa/*/ts"],
+  "workspaces": ["packages/*", "packages/sdk/demos/cli/*", "packages/sdk/demos/simple-cli/*", "packages/sdk/demos/web/spa/*/ts", "packages/table-adapter-*/demos/spa/ts", "packages/table-adapter-core/demos/vanilla/ts"],
   "private": true,
   "scripts": {
     "build": "bun run --filter '*' build",
