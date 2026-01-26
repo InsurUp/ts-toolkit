@@ -1,6 +1,6 @@
 import { appState } from "./state";
-import { renderApp } from "./components/app";
-import { initCustomerTable } from "./components/customer-table/init";
+import { renderApp } from "./components/app.js";
+import { initCustomerTable } from "./components/customer-table/init.js";
 
 export function navigateTo(page: "home" | "customers"): void {
   appState.currentPage = page;

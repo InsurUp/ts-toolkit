@@ -3,17 +3,15 @@
   "version": "0.1.0",
   "description": "Svelte bindings for @insurup/table-adapter-core",
   "type": "module",
-  "main": "./dist/index.cjs",
+  "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "svelte": "./dist/index.js",
-  "sideEffects": false,
+  "sideEffects": ["**/*.css"],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "svelte": "./dist/index.js",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "svelte": "./dist/index.js"
     }
   },
   "files": [
@@ -21,8 +19,9 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsup",
-    "typecheck": "tsc --noEmit",
+    "build": "svelte-package -i src/lib -o dist",
+    "build:watch": "svelte-package -i src/lib -o dist --watch",
+    "typecheck": "svelte-check --tsconfig ./tsconfig.json",
     "lint": "eslint src/",
     "clean": "rm -rf dist",
     "test": "vitest run",
@@ -57,9 +56,11 @@
     "@tanstack/table-core": "^8"
   },
   "devDependencies": {
+    "@sveltejs/package": "^2.5.7",
+    "@sveltejs/vite-plugin-svelte": "^5.0.0",
     "@tanstack/table-core": "^8.21.3",
     "svelte": "^5.0.0",
-    "tsup": "^8.5.1",
+    "svelte-check": "^4.3.5",
     "vitest": "^4.0.17"
   },
   "dependencies": {

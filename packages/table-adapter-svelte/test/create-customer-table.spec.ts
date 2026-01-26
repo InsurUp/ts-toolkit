@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { createCustomerTable } from '../src/create-customer-table.svelte';
+import { createCustomerTable } from '../src/lib/create-customer-table.svelte.js';
 import type { CustomerTableOptions, CustomerColumnDef } from '@insurup/table-adapter-core';
 import {
   createMockFetchFn,
@@ -43,13 +43,12 @@ describe('createCustomerTable', () => {
       expect(result).toHaveProperty('state');
       expect(result).toHaveProperty('table');
       expect(result).toHaveProperty('adapter');
-      expect(result).toHaveProperty('subscribe');
       expect(result).toHaveProperty('destroy');
 
       result.destroy();
     });
 
-    it('should return state getter with initial adapter state', () => {
+    it('should return reactive state with initial adapter state', () => {
       const options = createTestOptions();
 
       const result = createCustomerTable(options);
@@ -92,100 +91,25 @@ describe('createCustomerTable', () => {
     });
   });
 
-  describe('store contract (subscribe)', () => {
-    it('should call subscriber immediately with current state', () => {
-      const options = createTestOptions();
-      const result = createCustomerTable(options);
-
-      const subscriber = vi.fn();
-      result.subscribe(subscriber);
-
-      expect(subscriber).toHaveBeenCalledTimes(1);
-      expect(subscriber).toHaveBeenCalledWith(result.state);
-
-      result.destroy();
-    });
-
-    it('should return unsubscribe function', () => {
-      const options = createTestOptions();
-      const result = createCustomerTable(options);
-
-      const subscriber = vi.fn();
-      const unsubscribe = result.subscribe(subscriber);
-
-      expect(typeof unsubscribe).toBe('function');
-
-      result.destroy();
-    });
-
-    it('should notify subscribers when state changes', async () => {
-      const mockFetch = createMockFetchFn();
+  describe('reactive state', () => {
+    it('should update state after fetch', async () => {
+      const mockData = createMockConnection([
+        { id: '1', name: 'Test User' },
+        { id: '2', name: 'Another User' },
+      ]);
+      const mockFetch = vi.fn().mockResolvedValue(createSuccessResult(mockData));
       const options = createTestOptions({ fetch: mockFetch });
       const result = createCustomerTable(options);
 
-      const subscriber = vi.fn();
-      result.subscribe(subscriber);
+      // Initial state
+      expect(result.state.rows).toHaveLength(0);
 
-      // Initial call
-      expect(subscriber).toHaveBeenCalledTimes(1);
-
-      // Trigger state change
+      // Fetch data
       await result.adapter.fetch();
       await flushPromises();
 
-      // Should have been called again with updated state
-      expect(subscriber.mock.calls.length).toBeGreaterThan(1);
-
-      result.destroy();
-    });
-
-    it('should stop notifying after unsubscribe', async () => {
-      const mockFetch = createMockFetchFn();
-      const options = createTestOptions({ fetch: mockFetch });
-      const result = createCustomerTable(options);
-
-      const subscriber = vi.fn();
-      const unsubscribe = result.subscribe(subscriber);
-
-      // Initial call
-      expect(subscriber).toHaveBeenCalledTimes(1);
-
-      // Unsubscribe
-      unsubscribe();
-      subscriber.mockClear();
-
-      // Trigger state change
-      await result.adapter.fetch();
-      await flushPromises();
-
-      // Should not have been called after unsubscribe
-      expect(subscriber).not.toHaveBeenCalled();
-
-      result.destroy();
-    });
-
-    it('should support multiple subscribers', async () => {
-      const mockFetch = createMockFetchFn();
-      const options = createTestOptions({ fetch: mockFetch });
-      const result = createCustomerTable(options);
-
-      const subscriber1 = vi.fn();
-      const subscriber2 = vi.fn();
-
-      result.subscribe(subscriber1);
-      result.subscribe(subscriber2);
-
-      // Both should receive initial state
-      expect(subscriber1).toHaveBeenCalledTimes(1);
-      expect(subscriber2).toHaveBeenCalledTimes(1);
-
-      // Trigger state change
-      await result.adapter.fetch();
-      await flushPromises();
-
-      // Both should receive updates
-      expect(subscriber1.mock.calls.length).toBeGreaterThan(1);
-      expect(subscriber2.mock.calls.length).toBeGreaterThan(1);
+      // State should be updated (reactive in Svelte components)
+      expect(result.state.rows).toHaveLength(2);
 
       result.destroy();
     });
@@ -351,21 +275,6 @@ describe('createCustomerTable', () => {
   });
 
   describe('cleanup (destroy)', () => {
-    it('should clear all listeners on destroy', async () => {
-      const options = createTestOptions();
-      const result = createCustomerTable(options);
-
-      const subscriber = vi.fn();
-      result.subscribe(subscriber);
-      subscriber.mockClear();
-
-      result.destroy();
-
-      // After destroy, no more notifications should happen
-      // (we can't easily trigger state change after destroy, but the test verifies no error is thrown)
-      expect(true).toBe(true);
-    });
-
     it('should destroy the adapter on destroy', () => {
       const options = createTestOptions();
       const result = createCustomerTable(options);
@@ -388,8 +297,8 @@ describe('createCustomerTable', () => {
     });
   });
 
-  describe('state getter', () => {
-    it('should return current state via getter', async () => {
+  describe('state reactivity', () => {
+    it('should return current state', async () => {
       const mockFetch = createMockFetchFn();
       const options = createTestOptions({ fetch: mockFetch });
       const result = createCustomerTable(options);

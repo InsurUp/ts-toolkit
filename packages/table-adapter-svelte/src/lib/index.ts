@@ -4,27 +4,30 @@
  * Svelte bindings for @insurup/table-adapter-core.
  * Provides createCustomerTable with Svelte 5 runes ($state) for reactive state.
  *
+ * The `state` property is reactive - no subscription needed!
+ *
  * @example
  * ```svelte
  * <script lang="ts">
  * import { onDestroy } from 'svelte';
  * import { createCustomerTable } from '@insurup/table-adapter-svelte';
  *
- * const customerTable = createCustomerTable({
+ * const ct = createCustomerTable({
  *   columns: (col) => [col.id(), col.name(), col.primaryEmail()],
  *   fetch: (options) => client.customers.getCustomers(options),
  *   autoFetch: true,
  * });
  *
- * onDestroy(() => customerTable.destroy());
- *
- * const { state, table } = customerTable;
+ * onDestroy(() => ct.destroy());
  * </script>
  *
- * {#if state.isLoading}
+ * <!-- ct.state is reactive! -->
+ * {#if ct.state.isLoading}
  *   <p>Loading...</p>
  * {:else}
- *   <table>...</table>
+ *   {#each ct.table.getRowModel().rows as row}
+ *     <tr>{row.id}</tr>
+ *   {/each}
  * {/if}
  * ```
  *
@@ -35,7 +38,7 @@
 // Svelte-specific exports
 // ============================================================================
 
-export { createCustomerTable, type CustomerTableResult } from './create-customer-table.svelte.js';
+export { createCustomerTable, CustomerTableInstance } from './create-customer-table.svelte.js';
 
 // ============================================================================
 // Re-export everything from core for convenience

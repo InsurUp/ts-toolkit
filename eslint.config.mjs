@@ -10,6 +10,8 @@ export default defineConfig([
     '**/dist/**',
     '**/node_modules/**',
     '**/*.d.ts',
+    // Svelte build cache
+    '**/.svelte-kit/**',
     // Demos are standalone example projects
     'packages/**/demos/**',
   ]),

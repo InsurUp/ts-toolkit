@@ -2,7 +2,7 @@ import { createCustomerTable } from "@insurup/table-adapter-core";
 import { createTable, type TableOptionsResolved } from "@tanstack/table-core";
 import { getClient } from "$lib/client";
 import { appState, type CustomerRow } from "../../state";
-import { renderApp } from "../app";
+import { renderApp } from "../app.js";
 
 export function initCustomerTable(): void {
   const client = getClient();

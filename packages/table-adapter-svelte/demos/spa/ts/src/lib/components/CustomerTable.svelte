@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import { createCustomerTable, type AdapterState } from "@insurup/table-adapter-svelte";
+  import { createCustomerTable } from "@insurup/table-adapter-svelte";
   import { getClient } from "$lib/client";
   import { toast } from "svelte-sonner";
   import {
@@ -16,7 +16,8 @@
   const client = getClient();
   let searchInput = $state("");
 
-  const customerTable = createCustomerTable({
+  // Create customer table instance
+  const ct = createCustomerTable({
     columns: (col) => [
       col.id(),
       col.name(),
@@ -31,80 +32,41 @@
     onError: (error) => {
       toast.error(`Failed to load customers: ${error.message}`);
     },
-    // Required TanStack Table state for column pinning
     tableOptions: {
       enableSorting: true,
-      state: {
-        columnPinning: { left: [], right: [] },
-        columnVisibility: {},
-        columnOrder: [],
-      },
     },
   });
 
-  onDestroy(() => customerTable.destroy());
+  onDestroy(() => ct.destroy());
 
-  // Reactive state using Svelte 5 runes with explicit type
-  let adapterState: AdapterState<Record<string, unknown>> = $state(customerTable.state);
-  customerTable.subscribe((s) => (adapterState = s));
-
-  // Get table instance
-  const { adapter } = customerTable;
-
-  // Derived table for reactivity
-  const table = $derived(customerTable.table);
-
-  // Force reactivity: these derivations explicitly depend on adapterState
-  // which updates on every fetch, ensuring table methods are re-evaluated
-  const headerGroups = $derived.by(() => {
-    void adapterState; // access to create reactive dependency
-    return table.getHeaderGroups();
-  });
-
-  const rows = $derived.by(() => {
-    void adapterState; // access to create reactive dependency
-    return table.getRowModel().rows;
-  });
-
-  const canGoPrevious = $derived.by(() => {
-    void adapterState;
-    return table.getCanPreviousPage();
-  });
-
-  const canGoNext = $derived.by(() => {
-    void adapterState;
-    return table.getCanNextPage();
-  });
-
-  const sortingState = $derived.by(() => {
-    void adapterState;
-    return table.getState().sorting;
-  });
-
-  const pageIndex = $derived.by(() => {
-    void adapterState;
-    return table.getState().pagination.pageIndex;
-  });
+  // ct.state is now reactive via $state - no subscription needed!
 
   function handleSearch(value: string): void {
     searchInput = value;
     if (value.trim()) {
-      adapter.setSearch({
+      ct.adapter.setSearch({
         name: { textSearch: { value: value.trim() } },
       });
     } else {
-      adapter.clearSearch();
+      ct.adapter.clearSearch();
     }
   }
 
   function handleRefresh(): void {
-    adapter.invalidate();
+    ct.adapter.invalidate();
     toast.success("Refreshing data...");
   }
 
   function formatDate(dateStr: unknown): string {
     if (typeof dateStr !== "string") return "-";
     return new Date(dateStr).toLocaleDateString();
+  }
+
+  function getSortIcon(columnId: string): "asc" | "desc" | "none" {
+    const sorting = ct.table.getState().sorting;
+    const sortItem = sorting.find((s) => s.id === columnId);
+    if (!sortItem) return "none";
+    return sortItem.desc ? "desc" : "asc";
   }
 </script>
 
@@ -118,10 +80,10 @@
     </div>
     <button
       class="inline-flex items-center gap-2 h-9 px-4 rounded-md border bg-background hover:bg-accent"
-      disabled={adapterState.isLoading}
+      disabled={ct.state.isLoading}
       onclick={handleRefresh}
     >
-      <RefreshCw class="h-4 w-4 {adapterState.isLoading ? 'animate-spin' : ''}" />
+      <RefreshCw class="h-4 w-4 {ct.state.isLoading ? 'animate-spin' : ''}" />
       Refresh
     </button>
   </div>
@@ -142,7 +104,7 @@
   <div class="relative w-full overflow-x-auto">
     <table class="w-full caption-bottom text-sm">
       <thead class="[&_tr]:border-b">
-        {#each headerGroups as headerGroup (headerGroup.id)}
+        {#each ct.table.getHeaderGroups() as headerGroup (headerGroup.id)}
           <tr>
             {#each headerGroup.headers as header (header.id)}
               <th
@@ -158,10 +120,10 @@
                     {/if}
                   {/if}
                   {#if header.column.getCanSort()}
-                    {@const sortItem = sortingState.find((s) => s.id === header.column.id)}
-                    {#if sortItem?.desc === true}
+                    {@const sortDir = getSortIcon(header.column.id)}
+                    {#if sortDir === "desc"}
                       <ArrowDown class="ml-2 h-4 w-4" />
-                    {:else if sortItem?.desc === false}
+                    {:else if sortDir === "asc"}
                       <ArrowUp class="ml-2 h-4 w-4" />
                     {:else}
                       <ArrowUpDown class="ml-2 h-4 w-4" />
@@ -174,36 +136,36 @@
         {/each}
       </thead>
       <tbody class="[&_tr:last-child]:border-0">
-        {#if adapterState.isLoading}
+        {#if ct.state.isLoading}
           {#each {length: 5} as _}
             <tr class="border-b">
-              {#each table.getAllColumns() as _col (_col.id)}
+              {#each ct.table.getAllColumns() as _col (_col.id)}
                 <td class="p-2">
                   <div class="h-4 w-full bg-accent animate-pulse rounded-md"></div>
                 </td>
               {/each}
             </tr>
           {/each}
-        {:else if adapterState.error}
+        {:else if ct.state.error}
           <tr>
             <td
-              colspan={table.getAllColumns().length}
+              colspan={ct.table.getAllColumns().length}
               class="h-24 text-center text-destructive"
             >
-              Error: {adapterState.error.message}
+              Error: {ct.state.error.message}
             </td>
           </tr>
-        {:else if rows.length === 0}
+        {:else if ct.table.getRowModel().rows.length === 0}
           <tr>
             <td
-              colspan={table.getAllColumns().length}
+              colspan={ct.table.getAllColumns().length}
               class="h-24 text-center"
             >
               No customers found.
             </td>
           </tr>
         {:else}
-          {#each rows as row (row.id)}
+          {#each ct.table.getRowModel().rows as row (row.id)}
             <tr class="border-b hover:bg-muted/50">
               {#each row.getVisibleCells() as cell (cell.id)}
                 <td class="p-2 align-middle whitespace-nowrap">
@@ -227,21 +189,21 @@
 
   <div class="flex items-center justify-between">
     <div class="text-sm text-muted-foreground">
-      Page {pageIndex + 1} of {adapterState.pageCount || 1}
+      Page {ct.table.getState().pagination.pageIndex + 1} of {ct.state.pageCount || 1}
     </div>
     <div class="flex items-center space-x-2">
       <button
         class="inline-flex items-center gap-1 h-8 px-3 rounded-md border bg-background hover:bg-accent disabled:opacity-50"
-        disabled={!canGoPrevious || adapterState.isLoading}
-        onclick={() => table.previousPage()}
+        disabled={!ct.table.getCanPreviousPage() || ct.state.isLoading}
+        onclick={() => ct.table.previousPage()}
       >
         <ChevronLeft class="h-4 w-4" />
         Previous
       </button>
       <button
         class="inline-flex items-center gap-1 h-8 px-3 rounded-md border bg-background hover:bg-accent disabled:opacity-50"
-        disabled={!canGoNext || adapterState.isLoading}
-        onclick={() => table.nextPage()}
+        disabled={!ct.table.getCanNextPage() || ct.state.isLoading}
+        onclick={() => ct.table.nextPage()}
       >
         Next
         <ChevronRight class="h-4 w-4" />

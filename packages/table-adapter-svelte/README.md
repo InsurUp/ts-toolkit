@@ -5,20 +5,23 @@ Svelte bindings for [@insurup/table-adapter-core](https://www.npmjs.com/package/
 ## Installation
 
 ```bash
-npm install @insurup/table-adapter-svelte @insurup/sdk @tanstack/svelte-table
+npm install @insurup/table-adapter-svelte @insurup/sdk @tanstack/table-core
 ```
 
 ```bash
-bun add @insurup/table-adapter-svelte @insurup/sdk @tanstack/svelte-table
+bun add @insurup/table-adapter-svelte @insurup/sdk @tanstack/table-core
 ```
 
 ## Usage (Svelte 5)
+
+The `createCustomerTable` function returns a `CustomerTableInstance` with a **reactive** `state` property powered by Svelte 5's `$state` rune.
+
+**No subscription needed!** Just access `ct.state` directly in your template.
 
 ```svelte
 <script lang="ts">
 import { onDestroy } from 'svelte';
 import { createCustomerTable } from '@insurup/table-adapter-svelte';
-import { FlexRender } from '@tanstack/svelte-table';
 import { DefaultInsurUpClient } from '@insurup/sdk';
 
 const client = new DefaultInsurUpClient({
@@ -26,53 +29,47 @@ const client = new DefaultInsurUpClient({
   tokenProvider: () => token,
 });
 
-const customerTable = createCustomerTable({
+// Create the customer table - state is reactive!
+const ct = createCustomerTable({
   columns: (col) => [col.id(), col.name(), col.primaryEmail()],
   fetch: (options) => client.customers.getCustomers(options),
   autoFetch: true,
 });
 
 // Cleanup on unmount
-onDestroy(() => customerTable.destroy());
+onDestroy(() => ct.destroy());
 
-// For Svelte 5: create reactive state
-let state = $state(customerTable.state);
-customerTable.subscribe((s) => (state = s));
-
-// Table is a Svelte store
-const { table } = customerTable;
+// Search handler
+function handleSearch(value: string) {
+  if (value.trim()) {
+    ct.adapter.setSearch({ name: { textSearch: { value: value.trim() } } });
+  } else {
+    ct.adapter.clearSearch();
+  }
+}
 </script>
 
-{#if state.isLoading}
+<!-- ct.state is reactive - no subscription needed! -->
+{#if ct.state.isLoading}
   <p>Loading...</p>
-{:else if state.error}
-  <p>Error: {state.error.message}</p>
+{:else if ct.state.error}
+  <p>Error: {ct.state.error.message}</p>
 {:else}
   <table>
     <thead>
-      {#each $table.getHeaderGroups() as headerGroup}
+      {#each ct.table.getHeaderGroups() as headerGroup}
         <tr>
           {#each headerGroup.headers as header}
-            <th>
-              <FlexRender
-                content={header.column.columnDef.header}
-                context={header.getContext()}
-              />
-            </th>
+            <th>{header.column.columnDef.header}</th>
           {/each}
         </tr>
       {/each}
     </thead>
     <tbody>
-      {#each $table.getRowModel().rows as row}
+      {#each ct.table.getRowModel().rows as row}
         <tr>
           {#each row.getVisibleCells() as cell}
-            <td>
-              <FlexRender
-                content={cell.column.columnDef.cell}
-                context={cell.getContext()}
-              />
-            </td>
+            <td>{cell.getValue()}</td>
           {/each}
         </tr>
       {/each}
@@ -80,11 +77,11 @@ const { table } = customerTable;
   </table>
 
   <div>
-    Page {$table.getState().pagination.pageIndex + 1} of {state.pageCount}
-    <button onclick={() => $table.previousPage()} disabled={!$table.getCanPreviousPage()}>
+    Page {ct.table.getState().pagination.pageIndex + 1} of {ct.state.pageCount}
+    <button onclick={() => ct.table.previousPage()} disabled={!ct.table.getCanPreviousPage()}>
       Previous
     </button>
-    <button onclick={() => $table.nextPage()} disabled={!$table.getCanNextPage()}>
+    <button onclick={() => ct.table.nextPage()} disabled={!ct.table.getCanNextPage()}>
       Next
     </button>
   </div>
@@ -96,18 +93,17 @@ const { table } = customerTable;
 ### createCustomerTable
 
 ```ts
-const customerTable = createCustomerTable(options);
+const ct = createCustomerTable(options);
 ```
 
-**Returns:**
+**Returns a `CustomerTableInstance` with:**
 
-| Property    | Type              | Description                        |
-| ----------- | ----------------- | ---------------------------------- |
-| `state`     | `AdapterState`    | Current adapter state (use getter) |
-| `table`     | `Readable<Table>` | TanStack Table Svelte store        |
-| `adapter`   | `CustomerTable`   | Raw adapter for advanced use       |
-| `subscribe` | `Function`        | Svelte store contract for state    |
-| `destroy`   | `Function`        | Cleanup function                   |
+| Property  | Type            | Description                            |
+| --------- | --------------- | -------------------------------------- |
+| `state`   | `AdapterState`  | **Reactive** adapter state via `$state`|
+| `table`   | `Table`         | TanStack Table instance                |
+| `adapter` | `CustomerTable` | Raw adapter for advanced use           |
+| `destroy` | `Function`      | Cleanup function - call in `onDestroy` |
 
 **`state` properties:**
 
@@ -126,6 +122,21 @@ const customerTable = createCustomerTable(options);
 - `clearSearch()` - Clear search
 - `invalidate()` - Invalidate cache and refetch
 - `refetch({ force })` - Refetch with optional cache bypass
+
+### Reactivity
+
+The `state` property is reactive via Svelte 5's `$state` rune. Access it directly in your template:
+
+```svelte
+<!-- This is reactive - updates automatically when data changes -->
+{#if ct.state.isLoading}
+  <p>Loading...</p>
+{/if}
+
+{#each ct.table.getRowModel().rows as row}
+  ...
+{/each}
+```
 
 This package re-exports everything from `@insurup/table-adapter-core`. See the [core package documentation](https://www.npmjs.com/package/@insurup/table-adapter-core) for full API details.
 
