@@ -1,0 +1,302 @@
+/**
+ * Custom styles for InsurUp SDK MPA Demo
+ * Minimal additions to Pico CSS
+ */
+
+/* Layout */
+:root {
+  --header-height: 4rem;
+}
+
+body {
+  min-height: 100vh;
+}
+
+header.container {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--pico-muted-border-color);
+  margin-bottom: 2rem;
+}
+
+main.container {
+  padding-bottom: 2rem;
+}
+
+/* Navigation */
+#main-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#main-nav .nav-brand {
+  font-weight: 700;
+  font-size: 1.25rem;
+  text-decoration: none;
+  color: var(--pico-primary);
+}
+
+#main-nav .nav-links {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#main-nav .nav-links a {
+  text-decoration: none;
+}
+
+/* Auth status indicator */
+.auth-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.auth-status .status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.auth-status .status-dot.authenticated {
+  background-color: var(--pico-ins-color);
+}
+
+.auth-status .status-dot.unauthenticated {
+  background-color: var(--pico-del-color);
+}
+
+/* Toast notifications */
+#toast-container {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 400px;
+}
+
+.toast {
+  padding: 1rem;
+  border-radius: var(--pico-border-radius);
+  background: var(--pico-card-background-color);
+  border: 1px solid var(--pico-muted-border-color);
+  box-shadow: var(--pico-box-shadow);
+  animation: toast-in 0.3s ease-out;
+}
+
+.toast.success {
+  border-left: 4px solid var(--pico-ins-color);
+}
+
+.toast.error {
+  border-left: 4px solid var(--pico-del-color);
+}
+
+.toast.info {
+  border-left: 4px solid var(--pico-primary);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes toast-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+/* Loading spinner */
+.loading-spinner {
+  display: inline-block;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid var(--pico-muted-border-color);
+  border-top-color: var(--pico-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.loading-spinner.large {
+  width: 3rem;
+  height: 3rem;
+  border-width: 3px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  gap: 1rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Card grid */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+/* Data table enhancements */
+.data-table {
+  overflow-x: auto;
+  position: relative;
+}
+
+.data-table table {
+  margin-bottom: 0;
+}
+
+.data-table th,
+.data-table td {
+  vertical-align: middle;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--pico-muted-border-color);
+}
+
+.pagination-info {
+  color: var(--pico-muted-color);
+  font-size: 0.875rem;
+}
+
+.pagination-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Badge */
+.badge {
+  display: inline-block;
+  padding: 0.25em 0.5em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--pico-border-radius);
+  background: var(--pico-muted-border-color);
+  color: var(--pico-muted-color);
+}
+
+.badge.success {
+  background: var(--pico-ins-color);
+  color: white;
+}
+
+.badge.warning {
+  background: var(--pico-mark-background-color);
+  color: var(--pico-color);
+}
+
+.badge.danger {
+  background: var(--pico-del-color);
+  color: white;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: var(--pico-muted-color);
+}
+
+/* Detail page */
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+.detail-header h1 {
+  margin-bottom: 0.5rem;
+}
+
+/* Table Toolbar */
+.table-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.toolbar-left {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.toolbar-left input[type="search"],
+.toolbar-left select {
+  margin: 0;
+  min-width: 150px;
+}
+
+/* Theme toggle */
+.theme-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .table-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .toolbar-left {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .toolbar-left input[type="search"],
+  .toolbar-left select {
+    width: 100%;
+  }
+}

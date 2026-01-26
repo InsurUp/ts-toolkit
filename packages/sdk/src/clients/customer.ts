@@ -41,6 +41,7 @@ import type {
 } from "@insurup/contracts";
 import {
   ALL_CUSTOMER_FIELDS,
+  CustomerType,
   type CustomerFieldKey,
   type GetCustomersOptions,
   type CustomersConnection,
@@ -63,9 +64,25 @@ export class InsurUpCustomerClient {
     request: CreateCustomerRequest,
     options?: RequestOptions,
   ): Promise<InsurUpResult<CreateCustomerResult>> {
+    // Transform request: type -> $type with lowercase discriminator for API
+    const { type, ...rest } = request;
+
+    let $type: string;
+    switch (type) {
+      case CustomerType.Individual:
+        $type = "individual";
+        break;
+      case CustomerType.Company:
+        $type = "company";
+        break;
+      case CustomerType.Foreign:
+        $type = "foreign";
+        break;
+    }
+
     return this.http.post<CreateCustomerResult>(
       endpoints.customers.createCustomer,
-      request,
+      { $type, ...rest },
       options,
     );
   }

@@ -1,0 +1,20 @@
+{
+  "name": "@insurup/sdk-demo-web-mpa-vanilla-ts",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Vanilla TypeScript MPA demo for InsurUp SDK",
+  "type": "module",
+  "scripts": {
+    "dev": "bun --hot server.ts",
+    "start": "bun server.ts",
+    "build": "bun build:pages",
+    "build:pages": "bun run build-pages.ts"
+  },
+  "dependencies": {
+    "@insurup/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.9.3"
+  }
+}

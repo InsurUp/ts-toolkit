@@ -1,0 +1,34 @@
+{
+  "name": "@insurup/sdk-demo-web-spa-angular-ts",
+  "version": "0.0.1",
+  "description": "Angular TypeScript SPA demo for InsurUp SDK",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve --port 3003",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development"
+  },
+  "private": true,
+  "packageManager": "bun@1.3.6",
+  "dependencies": {
+    "@angular/animations": "^21.1.1",
+    "@angular/cdk": "~21.1.1",
+    "@angular/common": "^21.1.0",
+    "@angular/compiler": "^21.1.0",
+    "@angular/core": "^21.1.0",
+    "@angular/forms": "^21.1.0",
+    "@angular/material": "~21.1.1",
+    "@angular/platform-browser": "^21.1.0",
+    "@angular/router": "^21.1.0",
+    "@insurup/sdk": "workspace:*",
+    "angular-oauth2-oidc": "^20.0.2",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^21.1.1",
+    "@angular/cli": "^21.1.1",
+    "@angular/compiler-cli": "^21.1.0",
+    "typescript": "~5.9.2"
+  }
+}

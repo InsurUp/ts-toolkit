@@ -1,0 +1,12 @@
+{
+  "name": "@insurup/sdk-demo-web-mpa-vanilla-js",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Vanilla JavaScript MPA demo for InsurUp SDK - no build step required",
+  "type": "module",
+  "scripts": {
+    "dev": "bun --hot server.js",
+    "start": "bun server.js"
+  },
+  "devDependencies": {}
+}

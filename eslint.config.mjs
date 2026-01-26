@@ -3,6 +3,7 @@ import eslint from '@eslint/js';
 import { defineConfig, globalIgnores } from 'eslint/config';
 import tseslint from 'typescript-eslint';
 import prettierConfig from 'eslint-config-prettier';
+import globals from 'globals';
 
 export default defineConfig([
   globalIgnores(['**/dist/**', '**/node_modules/**', '**/*.d.ts']),
@@ -16,6 +17,17 @@ export default defineConfig([
     rules: {
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/consistent-type-imports': 'error',
+    },
+  },
+
+  {
+    files: ['**/*.js'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+        Bun: 'readonly',
+      },
     },
   },
 ]);
