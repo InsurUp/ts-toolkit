@@ -56,12 +56,12 @@
     "typescript": "^5"
   },
   "devDependencies": {
-    "@insurup/sdk": "workspace:*",
     "@vitest/coverage-v8": "^4.0.17",
     "tsup": "^8.5.1",
     "vitest": "^4.0.17"
   },
   "dependencies": {
+    "@insurup/sdk": "workspace:*",
     "@tanstack/query-core": "^5.90.19",
     "@tanstack/table-core": "^8.21.3"
   }

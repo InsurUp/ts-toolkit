@@ -211,13 +211,13 @@
     },
     "packages/table-adapter-core": {
       "name": "@insurup/table-adapter-core",
-      "version": "0.2.0",
+      "version": "0.0.1",
       "dependencies": {
+        "@insurup/sdk": "workspace:*",
         "@tanstack/query-core": "^5.90.19",
         "@tanstack/table-core": "^8.21.3",
       },
       "devDependencies": {
-        "@insurup/sdk": "workspace:*",
         "@vitest/coverage-v8": "^4.0.17",
         "tsup": "^8.5.1",
         "vitest": "^4.0.17",
@@ -252,7 +252,7 @@
     },
     "packages/table-adapter-react": {
       "name": "@insurup/table-adapter-react",
-      "version": "0.1.0",
+      "version": "0.0.1",
       "dependencies": {
         "@insurup/table-adapter-core": "workspace:*",
       },
@@ -312,7 +312,7 @@
     },
     "packages/table-adapter-svelte": {
       "name": "@insurup/table-adapter-svelte",
-      "version": "0.1.0",
+      "version": "0.0.1",
       "dependencies": {
         "@insurup/table-adapter-core": "workspace:*",
       },
@@ -357,7 +357,7 @@
     },
     "packages/table-adapter-vue": {
       "name": "@insurup/table-adapter-vue",
-      "version": "0.1.0",
+      "version": "0.0.1",
       "dependencies": {
         "@insurup/table-adapter-core": "workspace:*",
       },
