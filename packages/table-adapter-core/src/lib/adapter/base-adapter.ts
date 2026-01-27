@@ -440,9 +440,11 @@ export class BaseTableAdapter<
       pageCount: this.cachedState.pageCount,
       rowCount: this.cachedState.rowCount,
       state: {
-        // Merge pass-through state first (e.g., rowSelection)
+        // Default state (user can override via tableOptions.state)
+        columnPinning: { left: [], right: [] },
+        // User's pass-through state (e.g., rowSelection, columnVisibility, expanded)
         ...passedState,
-        // Our managed state always takes precedence
+        // Adapter-managed state (always takes precedence - server-side controlled)
         sorting: tanstackSorting,
         pagination: {
           pageIndex: this.pagination.getState().pageIndex,

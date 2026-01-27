@@ -38,7 +38,8 @@
 // Svelte-specific exports
 // ============================================================================
 
-export { createCustomerTable, CustomerTableInstance } from './create-customer-table.svelte.js';
+export { createCustomerTable } from './create-customer-table.svelte.js';
+export type { CustomerTableInstance } from './create-customer-table.svelte.js';
 
 // ============================================================================
 // Re-export everything from core for convenience
