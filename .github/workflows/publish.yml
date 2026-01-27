@@ -32,18 +32,17 @@ jobs:
 
       - run: bun run test
 
-      - name: Setup npm auth
-        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
-
       - name: Publish packages
+        env:
+          NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          # Publish in dependency order
-          cd packages/contracts && npm publish --access public
-          cd ../sdk && npm publish --access public
-          cd ../table-adapter-core && npm publish --access public
-          cd ../table-adapter-react && npm publish --access public
-          cd ../table-adapter-vue && npm publish --access public
-          cd ../table-adapter-svelte && npm publish --access public
+          # Publish in dependency order - bun publish auto-converts workspace:* to versions
+          cd packages/contracts && bun publish --access public
+          cd ../sdk && bun publish --access public
+          cd ../table-adapter-core && bun publish --access public
+          cd ../table-adapter-react && bun publish --access public
+          cd ../table-adapter-vue && bun publish --access public
+          cd ../table-adapter-svelte && bun publish --access public
 
       - name: Commit version changes
         run: |
