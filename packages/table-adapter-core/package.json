@@ -1,6 +1,6 @@
 {
   "name": "@insurup/table-adapter-core",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Framework-agnostic TanStack Table adapter for InsurUp SDK with @tanstack/query-core",
   "type": "module",
   "main": "./dist/index.cjs",
