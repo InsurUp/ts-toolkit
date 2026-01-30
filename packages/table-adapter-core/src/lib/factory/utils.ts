@@ -173,8 +173,18 @@ export function createColumnBuilder<
           header: config.header,
           sortable: config.sortable ?? false,
           hideable: config.hideable ?? true,
+          hiddenByDefault: config.hiddenByDefault ?? false,
           render: (_, row) => config.render(row as PickFields<TEntity, TFields>),
           isComputed: true,
+          // TanStack Table column options
+          size: config.size,
+          minSize: config.minSize,
+          maxSize: config.maxSize,
+          enableResizing: config.enableResizing,
+          sortDescFirst: config.sortDescFirst,
+          enablePinning: config.enablePinning,
+          meta: config.meta,
+          footer: config.footer,
           // Brand properties for type extraction
           __fields: config.uses,
           __field: undefined,
@@ -191,7 +201,17 @@ export function createColumnBuilder<
               header: string;
               sortable?: boolean;
               hideable?: boolean;
+              hiddenByDefault?: boolean;
               render?: (value: unknown, row: unknown) => unknown;
+              // TanStack Table column options
+              size?: number;
+              minSize?: number;
+              maxSize?: number;
+              enableResizing?: boolean;
+              sortDescFirst?: boolean;
+              enablePinning?: boolean;
+              meta?: Record<string, unknown>;
+              footer?: string;
             }
       ): FieldColumnDef<typeof fieldKey & string> => {
         // No args - use field name as header
@@ -202,8 +222,18 @@ export function createColumnBuilder<
             header: fieldKey as string,
             sortable: false,
             hideable: true,
+            hiddenByDefault: false,
             render: undefined,
             isComputed: false,
+            // TanStack Table column options (undefined = use table defaults)
+            size: undefined,
+            minSize: undefined,
+            maxSize: undefined,
+            enableResizing: undefined,
+            sortDescFirst: undefined,
+            enablePinning: undefined,
+            meta: undefined,
+            footer: undefined,
             // Brand properties for type extraction
             __field: fieldKey as typeof fieldKey & string,
             __fields: undefined,
@@ -218,8 +248,18 @@ export function createColumnBuilder<
             header: configOrHeader,
             sortable: false,
             hideable: true,
+            hiddenByDefault: false,
             render: undefined,
             isComputed: false,
+            // TanStack Table column options (undefined = use table defaults)
+            size: undefined,
+            minSize: undefined,
+            maxSize: undefined,
+            enableResizing: undefined,
+            sortDescFirst: undefined,
+            enablePinning: undefined,
+            meta: undefined,
+            footer: undefined,
             // Brand properties for type extraction
             __field: fieldKey as typeof fieldKey & string,
             __fields: undefined,
@@ -233,8 +273,18 @@ export function createColumnBuilder<
           header: configOrHeader.header,
           sortable: configOrHeader.sortable ?? false,
           hideable: configOrHeader.hideable ?? true,
+          hiddenByDefault: configOrHeader.hiddenByDefault ?? false,
           render: configOrHeader.render,
           isComputed: false,
+          // TanStack Table column options
+          size: configOrHeader.size,
+          minSize: configOrHeader.minSize,
+          maxSize: configOrHeader.maxSize,
+          enableResizing: configOrHeader.enableResizing,
+          sortDescFirst: configOrHeader.sortDescFirst,
+          enablePinning: configOrHeader.enablePinning,
+          meta: configOrHeader.meta,
+          footer: configOrHeader.footer,
           // Brand properties for type extraction
           __field: fieldKey as typeof fieldKey & string,
           __fields: undefined,
@@ -246,6 +296,7 @@ export function createColumnBuilder<
   return new Proxy({}, handler) as ColumnBuilder<TEntity, TFieldKey>;
 }
 
+// ============================================================================
 // ============================================================================
 // Table API Factory
 // ============================================================================
@@ -278,9 +329,7 @@ export function createColumnBuilder<
  *   fetchFn,
  *   buildQueryOptions,
  *   columns: internalColumns,
- *   select: fields,
  *   pageSize: options.pageSize ?? 20,
- *   defaultSort: sortingConverters.toSdk(options.defaultSort),
  *   defaultFilter: options.defaultFilter,
  *   defaultSearch: options.defaultSearch,
  *   sortingConverters,
@@ -307,9 +356,7 @@ export function createTableApi<
     TSearchInput
   >(config.fetchFn, config.buildQueryOptions, {
     columns: config.columns,
-    select: config.select,
     pageSize: config.pageSize,
-    defaultSort: config.defaultSort,
     defaultFilter: config.defaultFilter,
     defaultSearch: config.defaultSearch,
     sortingConverters: config.sortingConverters,
@@ -320,7 +367,7 @@ export function createTableApi<
     onError: config.onError,
     onSuccess: config.onSuccess,
     onSettled: config.onSettled,
-    // Pass through TanStack Table options for client-side features
+    // Pass through TanStack Table options (adapter handles column visibility internally)
     tableOptions: config.tableOptions,
     // Auto-fetch on creation
     autoFetch: config.autoFetch,
@@ -345,6 +392,8 @@ export function createTableApi<
     getState: (): AdapterState<TRow> => adapter.getState(),
 
     getTableOptions: () => adapter.getTableOptions(),
+
+    getTable: () => adapter.getTable(),
 
     subscribe: adapter.subscribe,
 
@@ -371,5 +420,8 @@ export function createTableApi<
     setSearch: (search: TSearchInput) => adapter.setSearch(search),
     getSearch: () => adapter.getSearch(),
     clearSearch: () => adapter.clearSearch(),
+
+    // Column info method
+    getColumnInfo: () => adapter.getColumnInfo(),
   };
 }

@@ -12,4 +12,12 @@ export default defineConfig({
   server: {
     port: 4003,
   },
+  build: {
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, "index.html"),
+        infinite: path.resolve(__dirname, "infinite.html"),
+      },
+    },
+  },
 });

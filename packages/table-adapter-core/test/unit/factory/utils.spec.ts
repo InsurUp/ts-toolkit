@@ -13,7 +13,7 @@ import {
 import { createSortingConverters } from '../../../src/lib/sorting/converters.js';
 import type { InsurUpGraphQLResult, Connection } from '@insurup/sdk';
 import { InsurUpClientErrorType } from '@insurup/sdk';
-import type { InternalColumnDef } from '../../../src/lib/types.js';
+import type { AnyColumnDef } from '../../../src/lib/types.js';
 
 // ============================================================================
 // Mock Types
@@ -34,6 +34,15 @@ interface MockSortInput {
   name?: 'ASC' | 'DESC';
 }
 
+interface MockQueryOptions {
+  first: number;
+  after?: string | null;
+  order?: MockSortInput[];
+  select?: string[];
+  filter?: unknown;
+  search?: unknown;
+}
+
 // ============================================================================
 // Test Helpers
 // ============================================================================
@@ -44,7 +53,7 @@ function createSuccessResult<T>(data: T): InsurUpGraphQLResult<T> {
     isSuccess: true,
     message: 'Success',
     data,
-  };
+  } as InsurUpGraphQLResult<T>;
 }
 
 function createMockConnection(nodes: MockEntity[]): Connection<MockEntity> {
@@ -204,7 +213,9 @@ describe('getFetchFn', () => {
   });
 
   it('should throw error when neither fetch nor client is provided', () => {
-    expect(() => getFetchFn({} as { fetch?: never; client?: never })).toThrow(
+    // Test runtime validation by passing an invalid config through unknown
+    const invalidConfig = {} as unknown as Parameters<typeof getFetchFn>[0];
+    expect(() => getFetchFn(invalidConfig)).toThrow(
       'Either fetch function or client configuration must be provided'
     );
   });
@@ -280,7 +291,7 @@ describe('createTableApi', () => {
     );
   }
 
-  function createMockColumns(): InternalColumnDef[] {
+  function createMockColumns(): AnyColumnDef<keyof MockEntity>[] {
     return [
       {
         key: 'id',
@@ -288,14 +299,15 @@ describe('createTableApi', () => {
         header: 'ID',
         sortable: false,
         hideable: true,
+        hiddenByDefault: false,
         isComputed: false,
       },
-    ];
+    ] as AnyColumnDef<keyof MockEntity>[];
   }
 
   it('should create table API with all methods', () => {
     const fetchFn = createMockFetchFn();
-    const api = createTableApi({
+    const api = createTableApi<MockEntity, MockEntity, MockQueryOptions, MockSortInput>({
       fetchFn,
       buildQueryOptions: (params) => ({
         first: params.first,
@@ -306,7 +318,6 @@ describe('createTableApi', () => {
         search: params.search,
       }),
       columns: createMockColumns(),
-      select: ['id'],
       pageSize: 10,
       sortingConverters,
       queryKeyPrefix: 'test',
@@ -336,7 +347,7 @@ describe('createTableApi', () => {
 
   it('should return frozen columns', () => {
     const fetchFn = createMockFetchFn();
-    const api = createTableApi({
+    const api = createTableApi<MockEntity, MockEntity, MockQueryOptions, MockSortInput>({
       fetchFn,
       buildQueryOptions: (params) => ({
         first: params.first,
@@ -347,7 +358,6 @@ describe('createTableApi', () => {
         search: params.search,
       }),
       columns: createMockColumns(),
-      select: ['id'],
       pageSize: 10,
       sortingConverters,
       queryKeyPrefix: 'test',
@@ -364,7 +374,7 @@ describe('createTableApi', () => {
 
   it('should return same columns reference on multiple accesses', () => {
     const fetchFn = createMockFetchFn();
-    const api = createTableApi({
+    const api = createTableApi<MockEntity, MockEntity, MockQueryOptions, MockSortInput>({
       fetchFn,
       buildQueryOptions: (params) => ({
         first: params.first,
@@ -375,7 +385,6 @@ describe('createTableApi', () => {
         search: params.search,
       }),
       columns: createMockColumns(),
-      select: ['id'],
       pageSize: 10,
       sortingConverters,
       queryKeyPrefix: 'test',
@@ -391,7 +400,7 @@ describe('createTableApi', () => {
 
   it('should delegate methods to adapter', async () => {
     const fetchFn = createMockFetchFn();
-    const api = createTableApi({
+    const api = createTableApi<MockEntity, MockEntity, MockQueryOptions, MockSortInput>({
       fetchFn,
       buildQueryOptions: (params) => ({
         first: params.first,
@@ -402,7 +411,6 @@ describe('createTableApi', () => {
         search: params.search,
       }),
       columns: createMockColumns(),
-      select: ['id'],
       pageSize: 10,
       sortingConverters,
       queryKeyPrefix: 'test',
@@ -433,7 +441,7 @@ describe('createTableApi', () => {
     const onSettled = vi.fn();
 
     const fetchFn = createMockFetchFn();
-    const api = createTableApi({
+    const api = createTableApi<MockEntity, MockEntity, MockQueryOptions, MockSortInput>({
       fetchFn,
       buildQueryOptions: (params) => ({
         first: params.first,
@@ -444,7 +452,6 @@ describe('createTableApi', () => {
         search: params.search,
       }),
       columns: createMockColumns(),
-      select: ['id'],
       pageSize: 10,
       sortingConverters,
       queryKeyPrefix: 'test',
@@ -465,7 +472,7 @@ describe('createTableApi', () => {
 
   it('should auto-fetch when autoFetch is true', async () => {
     const fetchFn = createMockFetchFn();
-    const api = createTableApi({
+    const api = createTableApi<MockEntity, MockEntity, MockQueryOptions, MockSortInput>({
       fetchFn,
       buildQueryOptions: (params) => ({
         first: params.first,
@@ -476,7 +483,6 @@ describe('createTableApi', () => {
         search: params.search,
       }),
       columns: createMockColumns(),
-      select: ['id'],
       pageSize: 10,
       sortingConverters,
       queryKeyPrefix: 'test',

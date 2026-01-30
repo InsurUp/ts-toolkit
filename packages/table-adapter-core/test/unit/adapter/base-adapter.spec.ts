@@ -7,8 +7,8 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { BaseTableAdapter } from '../../../src/lib/adapter/base-adapter.js';
 import { createSortingConverters } from '../../../src/lib/sorting/converters.js';
 import type { BaseTableAdapterOptions } from '../../../src/lib/adapter/types.js';
-import type { InternalColumnDef, FetchFn, QueryOptionsBuilder } from '../../../src/lib/types.js';
-import type { InsurUpGraphQLResult, Connection } from '@insurup/sdk';
+import type { AnyColumnDef, FetchFn, QueryOptionsBuilder } from '../../../src/lib/types.js';
+import type { Connection, Success, ClientError } from '@insurup/sdk';
 import { InsurUpClientErrorType } from '@insurup/sdk';
 import { flushPromises, spyOnConsoleWarn } from '../../utils/helpers.js';
 
@@ -21,6 +21,9 @@ interface MockEntity {
   name: string;
   email: string;
 }
+
+/** Field keys for MockEntity */
+type MockEntityFieldKey = keyof MockEntity;
 
 interface MockSortInput {
   id?: 'ASC' | 'DESC';
@@ -50,7 +53,7 @@ interface MockQueryOptions {
 
 const sortingConverters = createSortingConverters<MockSortInput>();
 
-function createMockColumns(): InternalColumnDef[] {
+function createMockColumns(): AnyColumnDef<MockEntityFieldKey>[] {
   return [
     {
       key: 'id',
@@ -58,6 +61,7 @@ function createMockColumns(): InternalColumnDef[] {
       header: 'ID',
       sortable: true,
       hideable: false,
+      hiddenByDefault: false,
       isComputed: false,
     },
     {
@@ -66,12 +70,13 @@ function createMockColumns(): InternalColumnDef[] {
       header: 'Name',
       sortable: true,
       hideable: true,
+      hiddenByDefault: false,
       isComputed: false,
     },
-  ];
+  ] as AnyColumnDef<MockEntityFieldKey>[];
 }
 
-function createSuccessResult<T>(data: T): InsurUpGraphQLResult<T> {
+function createSuccessResult<T>(data: T): Success<T> {
   return {
     kind: 'success',
     isSuccess: true,
@@ -128,11 +133,10 @@ function createMockBuildQueryOptions(): QueryOptionsBuilder<
 }
 
 function createAdapterOptions(
-  overrides: Partial<BaseTableAdapterOptions<MockEntity, MockSortInput, MockFilterInput, MockSearchInput>> = {}
-): BaseTableAdapterOptions<MockEntity, MockSortInput, MockFilterInput, MockSearchInput> {
+  overrides: Partial<BaseTableAdapterOptions<MockEntity, MockEntity, MockSortInput, MockFilterInput, MockSearchInput>> = {}
+): BaseTableAdapterOptions<MockEntity, MockEntity, MockSortInput, MockFilterInput, MockSearchInput> {
   return {
     columns: createMockColumns(),
-    select: ['id', 'name'],
     pageSize: 10,
     sortingConverters,
     queryKeyPrefix: 'test',
@@ -462,13 +466,13 @@ describe('BaseTableAdapter', () => {
       expect(options).toHaveProperty('manualPagination', true);
       expect(options).toHaveProperty('manualSorting', true);
       expect(options).toHaveProperty('paginationMode', 'cursor');
-      expect(options).toHaveProperty('onSortingChange');
-      expect(options).toHaveProperty('onPaginationChange');
+      // onStateChange handles all state changes including pagination
+      expect(options).toHaveProperty('onStateChange');
 
       adapter.destroy();
     });
 
-    it('should return memoized options when state has not changed', async () => {
+    it('should return consistent options values across calls', async () => {
       const adapter = new BaseTableAdapter(
         fetchFn,
         buildQueryOptions,
@@ -481,7 +485,11 @@ describe('BaseTableAdapter', () => {
       const options1 = adapter.getTableOptions();
       const options2 = adapter.getTableOptions();
 
-      expect(options1).toBe(options2);
+      // Options should have the same values (stable data and columns references)
+      expect(options1.data).toBe(options2.data);
+      expect(options1.columns).toBe(options2.columns);
+      expect(options1.pageCount).toBe(options2.pageCount);
+      expect(options1.rowCount).toBe(options2.rowCount);
 
       adapter.destroy();
     });
@@ -737,7 +745,7 @@ describe('BaseTableAdapter', () => {
   describe('error handling', () => {
     it('should call onError callback on fetch failure', async () => {
       const onError = vi.fn();
-      const errorResponse: InsurUpGraphQLResult<never> = {
+      const errorResponse: ClientError = {
         kind: 'client-error',
         isSuccess: false,
         message: 'Network error',
@@ -801,7 +809,7 @@ describe('BaseTableAdapter', () => {
     });
 
     it('should update error state on failure', async () => {
-      const errorResponse: InsurUpGraphQLResult<never> = {
+      const errorResponse: ClientError = {
         kind: 'client-error',
         isSuccess: false,
         message: 'Test error',
@@ -846,14 +854,19 @@ describe('BaseTableAdapter', () => {
         createAdapterOptions({ pageSize: 10 })
       );
 
+      // Create table instance (required for handleTableStateChange)
+      const table = adapter.getTable();
+
       await adapter.fetch();
       await flushPromises();
 
-      // Get table options and simulate pagination change
+      // Simulate pagination change via onStateChange (attempt to jump 3 pages)
+      const currentState = table.getState();
       const options = adapter.getTableOptions();
-
-      // Attempt to jump 3 pages
-      options.onPaginationChange?.({ pageIndex: 3, pageSize: 10 });
+      options.onStateChange?.({
+        ...currentState,
+        pagination: { pageIndex: 3, pageSize: 10 },
+      });
 
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('Cursor pagination only supports sequential navigation')

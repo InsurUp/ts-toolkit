@@ -25,6 +25,14 @@ function createTestOptions(
   } as CustomerTableOptions<CustomerColumnDef[]>;
 }
 
+// Helper to wrap options in a getter function (required by the new API)
+function createTestOptionsGetter(
+  overrides: Partial<CustomerTableOptions<CustomerColumnDef[]>> = {}
+): () => CustomerTableOptions<CustomerColumnDef[]> {
+  const options = createTestOptions(overrides);
+  return () => options;
+}
+
 describe('createCustomerTable', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -36,11 +44,10 @@ describe('createCustomerTable', () => {
 
   describe('factory function', () => {
     it('should create result with all required properties', () => {
-      const options = createTestOptions();
+      const result = createCustomerTable(createTestOptionsGetter());
 
-      const result = createCustomerTable(options);
-
-      expect(result).toHaveProperty('state');
+      expect(result).toHaveProperty('rows');
+      expect(result).toHaveProperty('isLoading');
       expect(result).toHaveProperty('table');
       expect(result).toHaveProperty('adapter');
       expect(result).toHaveProperty('destroy');
@@ -49,23 +56,18 @@ describe('createCustomerTable', () => {
     });
 
     it('should return reactive state with initial adapter state', () => {
-      const options = createTestOptions();
+      const result = createCustomerTable(createTestOptionsGetter());
 
-      const result = createCustomerTable(options);
-
-      expect(result.state).toBeDefined();
-      expect(result.state.rows).toEqual([]);
-      expect(result.state.isLoading).toBe(false);
-      expect(result.state.isFetching).toBe(false);
-      expect(result.state.error).toBeNull();
+      expect(result.rows).toEqual([]);
+      expect(result.isLoading).toBe(false);
+      expect(result.isFetching).toBe(false);
+      expect(result.error).toBeNull();
 
       result.destroy();
     });
 
     it('should return TanStack Table instance', () => {
-      const options = createTestOptions();
-
-      const result = createCustomerTable(options);
+      const result = createCustomerTable(createTestOptionsGetter());
 
       expect(result.table).toBeDefined();
       expect(typeof result.table.getHeaderGroups).toBe('function');
@@ -76,9 +78,7 @@ describe('createCustomerTable', () => {
     });
 
     it('should return adapter with methods', () => {
-      const options = createTestOptions();
-
-      const result = createCustomerTable(options);
+      const result = createCustomerTable(createTestOptionsGetter());
 
       expect(result.adapter).toBeDefined();
       expect(typeof result.adapter.fetch).toBe('function');
@@ -98,18 +98,17 @@ describe('createCustomerTable', () => {
         { id: '2', name: 'Another User' },
       ]);
       const mockFetch = vi.fn().mockResolvedValue(createSuccessResult(mockData));
-      const options = createTestOptions({ fetch: mockFetch });
-      const result = createCustomerTable(options);
+      const result = createCustomerTable(createTestOptionsGetter({ fetch: mockFetch }));
 
       // Initial state
-      expect(result.state.rows).toHaveLength(0);
+      expect(result.rows).toHaveLength(0);
 
       // Fetch data
       await result.adapter.fetch();
       await flushPromises();
 
       // State should be updated (reactive in Svelte components)
-      expect(result.state.rows).toHaveLength(2);
+      expect(result.rows).toHaveLength(2);
 
       result.destroy();
     });
@@ -117,14 +116,13 @@ describe('createCustomerTable', () => {
 
   describe('table integration', () => {
     it('should create table with columns', () => {
-      const options = createTestOptions();
-      const result = createCustomerTable(options);
+      const result = createCustomerTable(createTestOptionsGetter());
 
       // Table should have the columns defined
       const allColumns = result.table.getAllColumns();
       expect(allColumns).toHaveLength(2);
-      expect(allColumns[0].id).toBe('id');
-      expect(allColumns[1].id).toBe('name');
+      expect(allColumns[0]!.id).toBe('id');
+      expect(allColumns[1]!.id).toBe('name');
 
       result.destroy();
     });
@@ -135,8 +133,7 @@ describe('createCustomerTable', () => {
         { id: '2', name: 'Another User' },
       ]);
       const mockFetch = vi.fn().mockResolvedValue(createSuccessResult(mockData));
-      const options = createTestOptions({ fetch: mockFetch });
-      const result = createCustomerTable(options);
+      const result = createCustomerTable(createTestOptionsGetter({ fetch: mockFetch }));
 
       // Initial state - no rows
       expect(result.table.getRowModel().rows).toHaveLength(0);
@@ -152,8 +149,7 @@ describe('createCustomerTable', () => {
     });
 
     it('should expose table pagination methods', () => {
-      const options = createTestOptions();
-      const result = createCustomerTable(options);
+      const result = createCustomerTable(createTestOptionsGetter());
 
       expect(typeof result.table.getCanNextPage).toBe('function');
       expect(typeof result.table.getCanPreviousPage).toBe('function');
@@ -164,8 +160,7 @@ describe('createCustomerTable', () => {
     });
 
     it('should expose table sorting methods', () => {
-      const options = createTestOptions();
-      const result = createCustomerTable(options);
+      const result = createCustomerTable(createTestOptionsGetter());
 
       expect(typeof result.table.setSorting).toBe('function');
       expect(typeof result.table.getSortedRowModel).toBe('function');
@@ -177,22 +172,20 @@ describe('createCustomerTable', () => {
   describe('data fetching', () => {
     it('should fetch data through adapter', async () => {
       const mockFetch = createMockFetchFn();
-      const options = createTestOptions({ fetch: mockFetch });
-      const result = createCustomerTable(options);
+      const result = createCustomerTable(createTestOptionsGetter({ fetch: mockFetch }));
 
       await result.adapter.fetch();
       await flushPromises();
 
       expect(mockFetch).toHaveBeenCalled();
-      expect(result.state.rows).toHaveLength(2);
+      expect(result.rows).toHaveLength(2);
 
       result.destroy();
     });
 
     it('should auto-fetch when autoFetch is true', async () => {
       const mockFetch = createMockFetchFn();
-      const options = createTestOptions({ fetch: mockFetch, autoFetch: true });
-      const result = createCustomerTable(options);
+      const result = createCustomerTable(createTestOptionsGetter({ fetch: mockFetch, autoFetch: true }));
 
       await flushPromises();
 
@@ -204,15 +197,14 @@ describe('createCustomerTable', () => {
     it('should update state after fetch', async () => {
       const mockData = createMockConnection([{ id: '1', name: 'Test' }], {}, 1);
       const mockFetch = vi.fn().mockResolvedValue(createSuccessResult(mockData));
-      const options = createTestOptions({ fetch: mockFetch });
-      const result = createCustomerTable(options);
+      const result = createCustomerTable(createTestOptionsGetter({ fetch: mockFetch }));
 
       await result.adapter.fetch();
       await flushPromises();
 
-      expect(result.state.rows).toHaveLength(1);
-      expect(result.state.rowCount).toBe(1);
-      expect(result.state.isSuccess).toBe(true);
+      expect(result.rows).toHaveLength(1);
+      expect(result.rowCount).toBe(1);
+      expect(result.isSuccess).toBe(true);
 
       result.destroy();
     });
@@ -221,8 +213,7 @@ describe('createCustomerTable', () => {
   describe('adapter methods', () => {
     it('should expose setFilter method', async () => {
       const mockFetch = createMockFetchFn();
-      const options = createTestOptions({ fetch: mockFetch });
-      const result = createCustomerTable(options);
+      const result = createCustomerTable(createTestOptionsGetter({ fetch: mockFetch }));
 
       result.adapter.setFilter({ name: { contains: 'test' } });
       await flushPromises();
@@ -239,15 +230,14 @@ describe('createCustomerTable', () => {
 
     it('should expose setSearch method', async () => {
       const mockFetch = createMockFetchFn();
-      const options = createTestOptions({ fetch: mockFetch });
-      const result = createCustomerTable(options);
+      const result = createCustomerTable(createTestOptionsGetter({ fetch: mockFetch }));
 
-      result.adapter.setSearch('test query');
+      result.adapter.setSearch({ name: { textSearch: { value: 'test query' } } });
       await flushPromises();
 
       expect(mockFetch).toHaveBeenCalledWith(
         expect.objectContaining({
-          search: 'test query',
+          search: { name: { textSearch: { value: 'test query' } } },
         }),
         expect.any(Object)
       );
@@ -257,8 +247,7 @@ describe('createCustomerTable', () => {
 
     it('should expose setPageSize method', async () => {
       const mockFetch = createMockFetchFn();
-      const options = createTestOptions({ fetch: mockFetch, pageSize: 10 });
-      const result = createCustomerTable(options);
+      const result = createCustomerTable(createTestOptionsGetter({ fetch: mockFetch, pageSize: 10 }));
 
       result.adapter.setPageSize(25);
       await flushPromises();
@@ -276,8 +265,7 @@ describe('createCustomerTable', () => {
 
   describe('cleanup (destroy)', () => {
     it('should destroy the adapter on destroy', () => {
-      const options = createTestOptions();
-      const result = createCustomerTable(options);
+      const result = createCustomerTable(createTestOptionsGetter());
 
       const destroySpy = vi.spyOn(result.adapter, 'destroy');
 
@@ -287,8 +275,7 @@ describe('createCustomerTable', () => {
     });
 
     it('should not throw when destroy is called multiple times', () => {
-      const options = createTestOptions();
-      const result = createCustomerTable(options);
+      const result = createCustomerTable(createTestOptionsGetter());
 
       expect(() => {
         result.destroy();
@@ -300,18 +287,65 @@ describe('createCustomerTable', () => {
   describe('state reactivity', () => {
     it('should return current state', async () => {
       const mockFetch = createMockFetchFn();
-      const options = createTestOptions({ fetch: mockFetch });
-      const result = createCustomerTable(options);
+      const result = createCustomerTable(createTestOptionsGetter({ fetch: mockFetch }));
 
       // Initial state
-      expect(result.state.rows).toEqual([]);
+      expect(result.rows).toEqual([]);
 
       // After fetch
       await result.adapter.fetch();
       await flushPromises();
 
       // State should be updated
-      expect(result.state.rows).toHaveLength(2);
+      expect(result.rows).toHaveLength(2);
+
+      result.destroy();
+    });
+  });
+
+  describe('fine-grained state signals', () => {
+    it('should expose fine-grained state signals', () => {
+      const result = createCustomerTable(createTestOptionsGetter());
+
+      // Should have individual reactive signals
+      expect(result.isLoading).toBe(false);
+      expect(result.isFetching).toBe(false);
+      expect(result.isError).toBe(false);
+      expect(result.isSuccess).toBe(false);
+      expect(result.rows).toEqual([]);
+      expect(result.rowCount).toBe(0);
+      expect(result.pageCount).toBe(0);
+      expect(result.error).toBeNull();
+
+      result.destroy();
+    });
+
+    it('should expose derived values', () => {
+      const result = createCustomerTable(createTestOptionsGetter());
+
+      // Should have derived computed values
+      expect(result.isEmpty).toBe(false); // false because isSuccess is false
+      expect(result.hasData).toBe(false);
+      expect(result.canLoadMore).toBe(false);
+
+      result.destroy();
+    });
+
+    it('should update fine-grained signals after fetch', async () => {
+      const mockData = createMockConnection([
+        { id: '1', name: 'Test User' },
+      ]);
+      const mockFetch = vi.fn().mockResolvedValue(createSuccessResult(mockData));
+      const result = createCustomerTable(createTestOptionsGetter({ fetch: mockFetch }));
+
+      await result.adapter.fetch();
+      await flushPromises();
+
+      // Fine-grained signals should be updated
+      expect(result.rows).toHaveLength(1);
+      expect(result.rowCount).toBe(1);
+      expect(result.isSuccess).toBe(true);
+      expect(result.hasData).toBe(true);
 
       result.destroy();
     });

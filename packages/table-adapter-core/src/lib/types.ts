@@ -24,7 +24,7 @@ export type {
 } from '@insurup/sdk';
 
 // Re-export error types from adapter
-export type { TableError, ErrorCallbacks, AdapterState } from './adapter/types.js';
+export type { TableError, ErrorCallbacks, AdapterState, ColumnInfo } from './adapter/types.js';
 
 // ============================================================================
 // Column Configuration Types
@@ -50,6 +50,8 @@ export interface ColumnConfig<TEntity, TField extends DeepFieldKeys<TEntity>, TF
   sortable?: boolean;
   /** Column visibility */
   hideable?: boolean;
+  /** Column is hidden by default (not fetched until shown) */
+  hiddenByDefault?: boolean;
   /**
    * Custom cell renderer - receives the typed field value.
    *
@@ -76,6 +78,27 @@ export interface ColumnConfig<TEntity, TField extends DeepFieldKeys<TEntity>, TF
    * ```
    */
   render?: (value: TFieldType, row: PickFields<TEntity, readonly [TField]>) => unknown;
+
+  // ============================================================================
+  // TanStack Table Column Options
+  // ============================================================================
+
+  /** Default column width in pixels */
+  size?: number;
+  /** Minimum column width in pixels */
+  minSize?: number;
+  /** Maximum column width in pixels */
+  maxSize?: number;
+  /** Enable column resizing (default: inherits from table options) */
+  enableResizing?: boolean;
+  /** Sort descending on first click (default: false - ascending first) */
+  sortDescFirst?: boolean;
+  /** Enable column pinning left/right */
+  enablePinning?: boolean;
+  /** Custom metadata object for this column */
+  meta?: Record<string, unknown>;
+  /** Footer content for this column */
+  footer?: string;
 }
 
 /**
@@ -106,6 +129,8 @@ export interface ComputedColumnConfig<TEntity, TFields extends readonly DeepFiel
   sortable?: boolean;
   /** Column visibility */
   hideable?: boolean;
+  /** Column is hidden by default (not fetched until shown) */
+  hiddenByDefault?: boolean;
   /**
    * Custom cell renderer - receives the row with the declared fields.
    *
@@ -117,6 +142,27 @@ export interface ComputedColumnConfig<TEntity, TFields extends readonly DeepFiel
    * @returns Cell content (string, number, or React element)
    */
   render: (row: PickFields<TEntity, TFields>) => unknown;
+
+  // ============================================================================
+  // TanStack Table Column Options
+  // ============================================================================
+
+  /** Default column width in pixels */
+  size?: number;
+  /** Minimum column width in pixels */
+  minSize?: number;
+  /** Maximum column width in pixels */
+  maxSize?: number;
+  /** Enable column resizing (default: inherits from table options) */
+  enableResizing?: boolean;
+  /** Sort descending on first click (default: false - ascending first) */
+  sortDescFirst?: boolean;
+  /** Enable column pinning left/right */
+  enablePinning?: boolean;
+  /** Custom metadata object for this column */
+  meta?: Record<string, unknown>;
+  /** Footer content for this column */
+  footer?: string;
 }
 
 // ============================================================================
@@ -137,10 +183,33 @@ interface BaseInternalColumnDef {
   sortable: boolean;
   /** Whether hiding is enabled */
   hideable: boolean;
+  /** Whether column is hidden by default (not fetched until shown) */
+  hiddenByDefault: boolean;
   /** Cell render function (if any) */
   render?: (value: unknown, row: unknown) => unknown;
   /** Whether this is a computed column */
   isComputed: boolean;
+
+  // ============================================================================
+  // TanStack Table Column Options
+  // ============================================================================
+
+  /** Default column width in pixels */
+  size?: number;
+  /** Minimum column width in pixels */
+  minSize?: number;
+  /** Maximum column width in pixels */
+  maxSize?: number;
+  /** Enable column resizing */
+  enableResizing?: boolean;
+  /** Sort descending on first click */
+  sortDescFirst?: boolean;
+  /** Enable column pinning */
+  enablePinning?: boolean;
+  /** Custom metadata object */
+  meta?: Record<string, unknown>;
+  /** Footer content */
+  footer?: string;
 }
 
 /**
@@ -172,11 +241,6 @@ export type ColumnDef<
   TField extends string = string,
   TFields extends readonly string[] = readonly string[],
 > = FieldColumnDef<TField> | ComputedColumnDef<TFields>;
-
-/**
- * Legacy alias for internal column def (unbranded)
- */
-export type InternalColumnDef = BaseInternalColumnDef;
 
 /**
  * Extract fields from a column definition
@@ -351,8 +415,6 @@ export interface TableAdapterOptionsBase<
   columns: (col: ColumnBuilder<TEntity, TFieldKey>) => TColumns;
   /** Number of items per page (default: 20) */
   pageSize?: number;
-  /** Default sorting state */
-  defaultSort?: Array<{ id: string; desc: boolean }>;
   /** Default filter criteria */
   defaultFilter?: TFilterInput;
   /** Default search criteria */

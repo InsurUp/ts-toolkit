@@ -1,14 +1,16 @@
 /**
  * @fileoverview Adapter Types
- * @description Types specific to the BaseTableAdapter
+ * @description Types specific to the BaseTableAdapter and shared interfaces
  */
 
 import type {
   TableOptions as TanStackTableOptions,
   TableOptionsResolved,
+  ColumnDef,
+  Table,
 } from '@tanstack/table-core';
-import type { GraphQLErrors, ClientError } from '@insurup/sdk';
-import type { InternalColumnDef } from '../types.js';
+import type { GraphQLErrors, ClientError, DeepFieldKeys } from '@insurup/sdk';
+import type { AnyColumnDef } from '../types.js';
 import type { SortingConverters } from '../sorting/types.js';
 
 // ============================================================================
@@ -89,27 +91,46 @@ export type TableOptions<TRow> = TanStackTableOptions<TRow> & {
   paginationMode: 'cursor';
 };
 
+// ============================================================================
+// Column Info Types
+// ============================================================================
+
+/**
+ * Column information for visibility -> fields mapping
+ * Used to compute which GraphQL fields to select based on visible columns
+ */
+export interface ColumnInfo {
+  /** Column key (matches TanStack column id) */
+  key: string;
+  /** Column header text */
+  header: string;
+  /** GraphQL fields this column requires */
+  fields: string[];
+  /** Whether the column can be hidden */
+  hideable: boolean;
+  /** Whether column is hidden by default */
+  hiddenByDefault: boolean;
+}
+
 /**
  * Options for BaseTableAdapter constructor
+ * @template TEntity - The full entity type (for field key derivation)
  * @template TRow - The row type (for callback typing)
  * @template TSortInput - The SDK sort input type
  * @template TFilterInput - The SDK filter input type
  * @template TSearchInput - The SDK search input type
  */
 export interface BaseTableAdapterOptions<
+  TEntity,
   TRow,
   TSortInput,
   TFilterInput = unknown,
   TSearchInput = unknown,
 > extends ErrorCallbacks<TRow> {
-  /** Internal column definitions (converted from schema) */
-  columns: InternalColumnDef[];
-  /** Fields to select from GraphQL */
-  select: string[];
+  /** Column definitions from the builder */
+  columns: AnyColumnDef<DeepFieldKeys<TEntity> & string>[];
   /** Page size */
   pageSize: number;
-  /** Default sorting in SDK format */
-  defaultSort?: TSortInput[];
   /** Default filter criteria */
   defaultFilter?: TFilterInput;
   /** Default search criteria */
@@ -131,4 +152,111 @@ export interface BaseTableAdapterOptions<
    * @default false
    */
   autoFetch?: boolean;
+}
+
+// ============================================================================
+// Shared Adapter Interface
+// ============================================================================
+
+/**
+ * Shared interface for all table adapters (Base and Infinite)
+ * Both adapters implement this interface for consistent API
+ *
+ * @template TRow - The row type with selected fields
+ * @template TFilterInput - The SDK filter input type
+ * @template TSearchInput - The SDK search input type
+ */
+export interface ITableAdapter<TRow, TFilterInput = unknown, TSearchInput = unknown> {
+  // ============================================================================
+  // TanStack Table Integration
+  // ============================================================================
+
+  /** TanStack ColumnDef[] - converted from entity columns (frozen, immutable) */
+  readonly columns: readonly ColumnDef<TRow, unknown>[];
+
+  /**
+   * Get managed TanStack Table instance.
+   * Creates a table instance on first call and returns the same instance on subsequent calls.
+   * The table is automatically synced when adapter state changes.
+   */
+  getTable(): Table<TRow>;
+
+  /**
+   * Get TanStack Table options - includes data, columns, getCoreRowModel, and onStateChange.
+   * Use once for initialization with useReactTable() or createTable().
+   * After init, use the table instance directly for state changes.
+   */
+  getTableOptions(): TableOptions<TRow>;
+
+  // ============================================================================
+  // State Management (useSyncExternalStore compatible)
+  // ============================================================================
+
+  /** Get current adapter state */
+  getState(): AdapterState<TRow>;
+
+  /** Get state snapshot (compatible with useSyncExternalStore) */
+  getSnapshot(): AdapterState<TRow>;
+
+  /** Get server snapshot (compatible with useSyncExternalStore SSR) */
+  getServerSnapshot(): AdapterState<TRow>;
+
+  /** Subscribe to state changes (compatible with useSyncExternalStore) */
+  subscribe(listener: () => void): () => void;
+
+  // ============================================================================
+  // Data Operations
+  // ============================================================================
+
+  /** Trigger a manual fetch */
+  fetch(): Promise<void>;
+
+  /** Invalidate cache and refetch */
+  invalidate(): Promise<void>;
+
+  /** Refetch data with optional force bypass of cache */
+  refetch(options?: { force?: boolean }): Promise<void>;
+
+  // ============================================================================
+  // Pagination
+  // ============================================================================
+
+  /** Change page size and reset to first page */
+  setPageSize(size: number): void;
+
+  // ============================================================================
+  // Filtering & Search
+  // ============================================================================
+
+  /** Set filter criteria and refetch (resets pagination) */
+  setFilter(filter: TFilterInput): void;
+
+  /** Get current filter criteria */
+  getFilter(): TFilterInput | undefined;
+
+  /** Clear filter criteria and refetch (resets pagination) */
+  clearFilter(): void;
+
+  /** Set search criteria and refetch (resets pagination) */
+  setSearch(search: TSearchInput): void;
+
+  /** Get current search criteria */
+  getSearch(): TSearchInput | undefined;
+
+  /** Clear search criteria and refetch (resets pagination) */
+  clearSearch(): void;
+
+  // ============================================================================
+  // Column Info
+  // ============================================================================
+
+  /** Get column metadata for UI (e.g., column visibility toggle) */
+  getColumnInfo(): ColumnInfo[];
+
+  // ============================================================================
+  // Lifecycle
+  // ============================================================================
+
+  /** Destroy the adapter and clean up resources */
+  destroy(): void;
 }

@@ -6,8 +6,32 @@
 import type { ColumnDef } from '@tanstack/table-core';
 import type { GraphQLErrors, ClientError } from '@insurup/sdk';
 import { InsurUpClientErrorType, InsurUpGraphQLErrorCode } from '@insurup/sdk';
-import type { InternalColumnDef } from '../types.js';
+import type { AnyColumnDef } from '../types.js';
 import type { TableError } from './types.js';
+
+/**
+ * Base column definition shape - used for internal processing
+ * All column types (FieldColumnDef, ComputedColumnDef) extend this shape
+ */
+interface BaseColumnShape {
+  key: string;
+  fields: string[];
+  header: string;
+  sortable: boolean;
+  hideable: boolean;
+  hiddenByDefault: boolean;
+  render?: (value: unknown, row: unknown) => unknown;
+  isComputed: boolean;
+  // TanStack Table column options
+  size?: number;
+  minSize?: number;
+  maxSize?: number;
+  enableResizing?: boolean;
+  sortDescFirst?: boolean;
+  enablePinning?: boolean;
+  meta?: Record<string, unknown>;
+  footer?: string;
+}
 
 // ============================================================================
 // Schema Conversion Utilities
@@ -39,10 +63,10 @@ function isHeaderString(config: unknown): config is string {
  * @param schema - The column schema object
  * @returns Array of internal column definitions
  */
-export function schemaToInternalColumns<TSchema extends Record<string, unknown>>(
+export function schemaToColumnDefs<TSchema extends Record<string, unknown>>(
   schema: TSchema
-): InternalColumnDef[] {
-  const columns: InternalColumnDef[] = [];
+): AnyColumnDef<string>[] {
+  const columns: BaseColumnShape[] = [];
 
   for (const [key, config] of Object.entries(schema)) {
     if (config === undefined) continue;
@@ -55,19 +79,47 @@ export function schemaToInternalColumns<TSchema extends Record<string, unknown>>
         header: config,
         sortable: false,
         hideable: true,
+        hiddenByDefault: false,
         render: undefined,
         isComputed: false,
       });
     } else if (isComputedColumn(config)) {
       // Computed column with multiple fields
+      const computedConfig = config as {
+        uses: readonly string[];
+        header: string;
+        sortable?: boolean;
+        hideable?: boolean;
+        hiddenByDefault?: boolean;
+        render: (row: unknown) => unknown;
+        // TanStack Table options
+        size?: number;
+        minSize?: number;
+        maxSize?: number;
+        enableResizing?: boolean;
+        sortDescFirst?: boolean;
+        enablePinning?: boolean;
+        meta?: Record<string, unknown>;
+        footer?: string;
+      };
       columns.push({
         key,
-        fields: [...config.uses],
-        header: config.header,
-        sortable: (config as { sortable?: boolean }).sortable ?? false,
-        hideable: (config as { hideable?: boolean }).hideable ?? true,
-        render: (_, row) => config.render(row),
+        fields: [...computedConfig.uses],
+        header: computedConfig.header,
+        sortable: computedConfig.sortable ?? false,
+        hideable: computedConfig.hideable ?? true,
+        hiddenByDefault: computedConfig.hiddenByDefault ?? false,
+        render: (_, row) => computedConfig.render(row),
         isComputed: true,
+        // TanStack Table options
+        size: computedConfig.size,
+        minSize: computedConfig.minSize,
+        maxSize: computedConfig.maxSize,
+        enableResizing: computedConfig.enableResizing,
+        sortDescFirst: computedConfig.sortDescFirst,
+        enablePinning: computedConfig.enablePinning,
+        meta: computedConfig.meta,
+        footer: computedConfig.footer,
       });
     } else if (typeof config === 'object' && config !== null) {
       // Regular column config
@@ -75,7 +127,17 @@ export function schemaToInternalColumns<TSchema extends Record<string, unknown>>
         header: string;
         sortable?: boolean;
         hideable?: boolean;
+        hiddenByDefault?: boolean;
         render?: (value: unknown, row: unknown) => unknown;
+        // TanStack Table options
+        size?: number;
+        minSize?: number;
+        maxSize?: number;
+        enableResizing?: boolean;
+        sortDescFirst?: boolean;
+        enablePinning?: boolean;
+        meta?: Record<string, unknown>;
+        footer?: string;
       };
       columns.push({
         key,
@@ -83,20 +145,31 @@ export function schemaToInternalColumns<TSchema extends Record<string, unknown>>
         header: colConfig.header,
         sortable: colConfig.sortable ?? false,
         hideable: colConfig.hideable ?? true,
+        hiddenByDefault: colConfig.hiddenByDefault ?? false,
         render: colConfig.render,
         isComputed: false,
+        // TanStack Table options
+        size: colConfig.size,
+        minSize: colConfig.minSize,
+        maxSize: colConfig.maxSize,
+        enableResizing: colConfig.enableResizing,
+        sortDescFirst: colConfig.sortDescFirst,
+        enablePinning: colConfig.enablePinning,
+        meta: colConfig.meta,
+        footer: colConfig.footer,
       });
     }
   }
 
-  return columns;
+  // Cast to AnyColumnDef - at runtime these objects satisfy the shape
+  return columns as unknown as AnyColumnDef<string>[];
 }
 
 /**
- * Extract all unique fields from internal column definitions
+ * Extract all unique fields from column definitions
  * Used to build the GraphQL select query
  */
-export function extractFieldsFromInternalColumns(columns: InternalColumnDef[]): string[] {
+export function extractFieldsFromColumns(columns: AnyColumnDef<string>[]): string[] {
   const fieldsSet = new Set<string>();
   for (const col of columns) {
     for (const field of col.fields) {
@@ -107,11 +180,11 @@ export function extractFieldsFromInternalColumns(columns: InternalColumnDef[]): 
 }
 
 /**
- * Convert internal column definitions to TanStack ColumnDef array
+ * Convert column definitions to TanStack ColumnDef array
  * @template TRow - The row type
  */
-export function internalColumnsToColumnDefs<TRow>(
-  columns: InternalColumnDef[]
+export function columnsToTanStackColumnDefs<TRow>(
+  columns: AnyColumnDef<string>[]
 ): ColumnDef<TRow, unknown>[] {
   return columns.map((col) => {
     const columnDef: ColumnDef<TRow, unknown> = {
@@ -122,6 +195,15 @@ export function internalColumnsToColumnDefs<TRow>(
       header: col.header,
       enableSorting: col.sortable,
       enableHiding: col.hideable,
+      // TanStack Table column options - pass through if defined
+      ...(col.size !== undefined && { size: col.size }),
+      ...(col.minSize !== undefined && { minSize: col.minSize }),
+      ...(col.maxSize !== undefined && { maxSize: col.maxSize }),
+      ...(col.enableResizing !== undefined && { enableResizing: col.enableResizing }),
+      ...(col.sortDescFirst !== undefined && { sortDescFirst: col.sortDescFirst }),
+      ...(col.enablePinning !== undefined && { enablePinning: col.enablePinning }),
+      ...(col.meta !== undefined && { meta: col.meta }),
+      ...(col.footer !== undefined && { footer: col.footer }),
     };
 
     // Add cell renderer if provided

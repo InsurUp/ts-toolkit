@@ -4,6 +4,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Home } from "@/pages/Home";
 import { Callback } from "@/pages/Callback";
 import { CustomerTable } from "@/pages/CustomerTable";
+import { CustomerTableInfinite } from "@/pages/CustomerTableInfinite";
 
 function App(): React.ReactElement {
   return (
@@ -18,6 +19,7 @@ function App(): React.ReactElement {
           {/* Protected routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="/customers" element={<CustomerTable />} />
+            <Route path="/customers-infinite" element={<CustomerTableInfinite />} />
           </Route>
         </Routes>
       </main>

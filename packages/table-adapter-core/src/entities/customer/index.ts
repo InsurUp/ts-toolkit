@@ -3,6 +3,7 @@
  */
 
 export { createCustomerTable, type CustomerTable } from './factory.js';
+export { createInfiniteCustomerTable, type InfiniteCustomerTable } from './infinite-factory.js';
 
 export type {
   CustomerColumnDef,

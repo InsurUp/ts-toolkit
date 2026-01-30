@@ -24,7 +24,7 @@
     "build": "svelte-package -i src/lib -o dist",
     "build:watch": "svelte-package -i src/lib -o dist --watch",
     "typecheck": "svelte-check --tsconfig ./tsconfig.json",
-    "lint": "eslint src/",
+    "lint": "eslint src/ test/",
     "clean": "rm -rf dist",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -3,8 +3,14 @@
  * @description Framework-agnostic table adapter with TanStack Query integration
  */
 
-import type { SortingState, ColumnDef, Updater, TableOptionsResolved } from '@tanstack/table-core';
-import { getCoreRowModel } from '@tanstack/table-core';
+import type {
+  ColumnDef,
+  Updater,
+  TableOptionsResolved,
+  Table,
+  TableState,
+} from '@tanstack/table-core';
+import { getCoreRowModel, createTable } from '@tanstack/table-core';
 import type { DeepFieldKeys, InsurUpGraphQLResult, Connection } from '@insurup/sdk';
 import { InsurUpClientErrorType } from '@insurup/sdk';
 import { QueryManager } from '../query/manager.js';
@@ -15,10 +21,12 @@ import type {
   BaseTableAdapterOptions,
   ErrorCallbacks,
   TableError,
+  ColumnInfo,
+  ITableAdapter,
 } from './types.js';
-import type { FetchFn, QueryOptionsBuilder as FetchQueryOptionsBuilder } from '../types.js';
+import type { FetchFn, QueryOptionsBuilder as FetchQueryOptionsBuilder, AnyColumnDef } from '../types.js';
 import type { SortingConverters } from '../sorting/types.js';
-import { internalColumnsToColumnDefs, createTableError } from './utils.js';
+import { columnsToTanStackColumnDefs, createTableError } from './utils.js';
 
 /**
  * BaseTableAdapter - Core adapter logic for TanStack Table integration
@@ -48,7 +56,7 @@ export class BaseTableAdapter<
   TSortInput,
   TFilterInput = unknown,
   TSearchInput = unknown,
-> {
+> implements ITableAdapter<TRow, TFilterInput, TSearchInput> {
   /** Static server snapshot for SSR - frozen for referential stability */
   private static readonly SERVER_SNAPSHOT: AdapterState<unknown> = Object.freeze({
     rows: [],
@@ -58,14 +66,13 @@ export class BaseTableAdapter<
     isFetching: false,
     error: null,
     isError: false,
-    isSuccess: false,
+    isSuccess: false
   });
 
   readonly columns: ColumnDef<TRow, unknown>[];
-  private select: DeepFieldKeys<TEntity>[];
+  /** Original column definitions (for field mapping, visibility) */
+  private readonly internalColumns: AnyColumnDef<DeepFieldKeys<TEntity> & string>[];
   private pagination: ReturnType<typeof createCursorPagination>;
-  /** Sorting stored in SDK format for type safety */
-  private sorting: TSortInput[] | undefined;
   /** Filter stored in SDK format */
   private filter: TFilterInput | undefined;
   /** Search stored in SDK format */
@@ -75,74 +82,53 @@ export class BaseTableAdapter<
   private queryManager: QueryManager<InsurUpGraphQLResult<Connection<TRow>>, TQueryOptions>;
   private pageSize: number;
   private listeners: Set<() => void> = new Set();
-  private cachedState: AdapterState<TRow>;
+  private state: AdapterState<TRow>;
   private callbacks: ErrorCallbacks<TRow>;
   private unsubscribeQueryManager: (() => void) | null = null;
   /** Pass-through TanStack Table options for client-side features */
-  private tableOptions:
+  private initialTableOptions:
     | Partial<Omit<TableOptionsResolved<TRow>, 'data' | 'columns' | 'getCoreRowModel'>>
     | undefined;
   /** Cached getCoreRowModel result - stable reference for React */
   private coreRowModel: ReturnType<typeof getCoreRowModel<TRow>>;
-  /** Cached table options - stable reference for React */
-  private cachedTableOptions: TableOptions<TRow> | null = null;
-  /** Last state used to build cachedTableOptions - for comparison */
-  private lastOptionsState: {
-    rows: TRow[];
-    pageCount: number;
-    rowCount: number;
-    sorting: TSortInput[] | undefined;
-    pageIndex: number;
-    pageSize: number;
-    passedState: object | undefined;
-  } | null = null;
+  /** Managed TanStack Table instance (created lazily by getTable) */
+  private tableInstance: Table<TRow> | null = null;
+  /** User's onStateChange callback from tableOptions */
+  private userOnStateChange: ((updater: Updater<TableState>) => void) | undefined;
 
   /**
-   * Handle sorting change from TanStack Table
-   * Bound method for stable reference in React
+   * Compute visible fields from column visibility state
+   * Reads visibility from tableState (internal state managed via onStateChange)
+   * Falls back to tableOptions.state for initial visibility before table is created
+   * @returns Array of field keys for visible columns
    */
-  private handleSortingChange = (updater: Updater<SortingState>): void => {
-    const tanstackSorting = this.sortingConverters.toTanStack(this.sorting);
-    const newTanStackSorting = typeof updater === 'function' ? updater(tanstackSorting) : updater;
-    // Convert TanStack sorting to SDK format for storage
-    this.sorting = this.sortingConverters.toSdk(newTanStackSorting);
-    this.pagination.reset();
-    void this.fetch();
-  };
+  private computeVisibleFields(): DeepFieldKeys<TEntity>[] {
+    // Use tableState if available (after getTable() is called), otherwise fall back to initial options
+    const visibility = this.tableInstance?.getState().columnVisibility ?? this.initialTableOptions?.state?.columnVisibility ?? {};
+    const visibleFields: string[] = [];
+    for (const col of this.internalColumns) {
+      // Column is visible if not explicitly set to false
+      if (visibility[col.key] !== false) {
+        for (const field of col.fields) {
+          if (!visibleFields.includes(field)) {
+            visibleFields.push(field);
+          }
+        }
+      }
+    }
+    return visibleFields as DeepFieldKeys<TEntity>[];
+  }
 
   /**
-   * Handle pagination change from TanStack Table
-   * Bound method for stable reference in React
+   * Check if two field arrays are equal
    */
-  private handlePaginationChange = (
-    updater: Updater<{ pageIndex: number; pageSize: number }>
-  ): void => {
-    const current = {
-      pageIndex: this.pagination.getState().pageIndex,
-      pageSize: this.pageSize,
-    };
-    const newPagination = typeof updater === 'function' ? updater(current) : updater;
-
-    const pageDiff = Math.abs(newPagination.pageIndex - current.pageIndex);
-
-    // Warn if attempting to jump multiple pages (cursor pagination limitation)
-    if (pageDiff > 1) {
-      console.warn(
-        `[tanstack-table-adapter] Cursor pagination only supports sequential navigation. ` +
-          `Attempted to jump ${pageDiff} pages (from ${current.pageIndex} to ${newPagination.pageIndex}). ` +
-          `Moving one page instead. Check paginationMode to disable page-jump UI controls.`
-      );
+  private areFieldsEqual(a: DeepFieldKeys<TEntity>[], b: DeepFieldKeys<TEntity>[]): boolean {
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) {
+      if (a[i] !== b[i]) return false;
     }
-
-    // Move one step in requested direction
-    if (newPagination.pageIndex > current.pageIndex && this.pagination.canGoNext()) {
-      this.pagination.next();
-    } else if (newPagination.pageIndex < current.pageIndex && this.pagination.canGoPrevious()) {
-      this.pagination.previous();
-    }
-
-    void this.fetch();
-  };
+    return true;
+  }
 
   constructor(
     private fetchFn: FetchFn<TRow, TQueryOptions>,
@@ -153,7 +139,7 @@ export class BaseTableAdapter<
       TFilterInput,
       TSearchInput
     >,
-    options: BaseTableAdapterOptions<TRow, TSortInput, TFilterInput, TSearchInput>
+    options: BaseTableAdapterOptions<TEntity, TRow, TSortInput, TFilterInput, TSearchInput>
   ) {
     // Input validation
     if (options.pageSize <= 0) {
@@ -167,14 +153,19 @@ export class BaseTableAdapter<
     this.sortingConverters = options.sortingConverters;
     this.queryKeyPrefix = options.queryKeyPrefix ?? 'table';
 
-    // Store select fields from options (already extracted from schema)
-    this.select = options.select as DeepFieldKeys<TEntity>[];
+    // Store original column definitions
+    this.internalColumns = options.columns;
 
-    // Convert internal columns to TanStack ColumnDef
-    this.columns = internalColumnsToColumnDefs<TRow>(options.columns);
+    // Convert to TanStack ColumnDef
+    this.columns = columnsToTanStackColumnDefs<TRow>(options.columns);
 
-    // Store sorting, filter, and search in SDK format directly
-    this.sorting = options.defaultSort;
+    // Store pass-through table options (select fields are computed dynamically from columnVisibility)
+    // Extract and store user's onStateChange separately for proper forwarding
+    const { onStateChange: userOnStateChange, ...restTableOptions } = options.tableOptions ?? {};
+    this.userOnStateChange = userOnStateChange;
+    this.initialTableOptions = restTableOptions;
+
+    // Store filter and search in SDK format directly
     this.filter = options.defaultFilter;
     this.search = options.defaultSearch;
     this.pagination = createCursorPagination({ pageSize: options.pageSize });
@@ -186,14 +177,11 @@ export class BaseTableAdapter<
       onSettled: options.onSettled,
     };
 
-    // Store pass-through table options
-    this.tableOptions = options.tableOptions;
-
     // Cache getCoreRowModel result - stable reference for React
     this.coreRowModel = getCoreRowModel();
 
     // Initialize cached state
-    this.cachedState = {
+    this.state = {
       rows: [],
       rowCount: 0,
       pageCount: 0,
@@ -222,7 +210,7 @@ export class BaseTableAdapter<
 
     // Forward query manager subscriptions and update cached state
     this.unsubscribeQueryManager = this.queryManager.subscribe(() => {
-      this.updateCachedState();
+      this.updateState();
       this.notifyListeners();
     });
 
@@ -237,7 +225,7 @@ export class BaseTableAdapter<
    * Extracts rows, calculates pageCount, and handles errors from SDK result
    * Calls error callbacks when appropriate
    */
-  private updateCachedState(): void {
+  private updateState(): void {
     const queryState = this.queryManager.getState();
     const sdkResult = queryState.data;
 
@@ -273,10 +261,10 @@ export class BaseTableAdapter<
       } as TableError;
     }
 
-    const previousState = this.cachedState;
+    const previousState = this.state;
     const isSuccess = queryState.isSuccess && (sdkResult?.isSuccess ?? false);
 
-    this.cachedState = {
+    this.state = {
       rows,
       rowCount,
       pageCount,
@@ -292,22 +280,46 @@ export class BaseTableAdapter<
       if (tableError) {
         this.callbacks.onError?.(tableError);
       } else if (isSuccess) {
-        this.callbacks.onSuccess?.(this.cachedState);
+        this.callbacks.onSuccess?.(this.state);
       }
-      this.callbacks.onSettled?.(isSuccess ? this.cachedState : undefined, tableError);
+      this.callbacks.onSettled?.(isSuccess ? this.state : undefined, tableError);
     }
+
+    // Sync table instance with new data
+    this.syncTableInstance();
+  }
+
+  /**
+   * Sync table instance with current adapter state
+   * Called when data changes (after fetch) to update the table's data and pagination
+   *
+   * Uses getTableOptions() which preserves runtime options and state changes,
+   * only overriding adapter-managed properties (data, pagination counts, pagination state).
+   */
+  private syncTableInstance(): void {
+    if (!this.tableInstance) return;
+
+    this.tableInstance.setOptions((prev) => ({
+      ...prev,
+      ...this.getTableOptions(),
+    }));
   }
 
   /**
    * Get unique query key for caching
    * Uses queryKeyPrefix to prevent cache collisions between different entity types
-   * Includes filter and search for proper cache isolation
+   * Includes sorting (from tableState), select (derived from visibility), filter and search for proper cache isolation
    */
   private getQueryKey(): unknown[] {
+    // Read sorting from tableState (internal state managed via onStateChange)
+    // Falls back to initialTableOptions.state for initial sorting before table is created
+    const sorting = this.tableInstance?.getState().sorting ?? this.initialTableOptions?.state?.sorting;
+    // Compute select fields dynamically from column visibility
+    const fields = this.computeVisibleFields();
     return [
       this.queryKeyPrefix,
-      this.select,
-      this.sorting,
+      fields,
+      sorting,
       this.filter,
       this.search,
       this.pagination.getState().pageIndex,
@@ -316,14 +328,23 @@ export class BaseTableAdapter<
 
   /**
    * Build query variables for fetch
-   * Uses SDK sorting, filter, and search formats directly (no transformation needed)
+   * Reads sorting from tableState and converts to SDK format at fetch time
+   * Computes select fields dynamically from column visibility
    */
   private buildVariables(): TQueryOptions {
+    // Read sorting from tableState (internal state managed via onStateChange)
+    // Falls back to initialTableOptions.state for initial sorting before table is created
+    const tanstackSorting = this.tableInstance?.getState().sorting ?? this.initialTableOptions?.state?.sorting;
+    const sdkSorting = tanstackSorting ? this.sortingConverters.toSdk(tanstackSorting) : undefined;
+
+    // Compute select fields dynamically from column visibility
+    const select = this.computeVisibleFields();
+
     return this.buildFetchQueryOptions({
       first: this.pageSize,
       after: this.pagination.getState().cursor,
-      order: this.sorting,
-      select: this.select,
+      order: sdkSorting,
+      select,
       filter: this.filter,
       search: this.search,
     });
@@ -377,96 +398,231 @@ export class BaseTableAdapter<
   /**
    * Get TanStack Table options
    *
-   * Returns a complete options object that can be spread directly into useReactTable().
-   * Includes data, columns, getCoreRowModel, and any pass-through options.
+   * Returns a complete options object for initializing TanStack Table.
+   * Includes data, columns, getCoreRowModel, onStateChange, and any pass-through options.
    *
-   * The returned object is memoized - the same reference is returned if the underlying
-   * state hasn't changed, preventing unnecessary React re-renders.
+   * If a table instance exists (via getTable()), returns the table's current runtime state.
+   * This ensures consumers calling table.setOptions(adapter.getTableOptions()) preserve
+   * any state changes made during runtime (e.g., column reordering, visibility changes).
+   *
+   * After initialization, use the table instance directly for state changes.
+   * The adapter's onStateChange hook handles:
+   * - Sorting changes → reset pagination → refetch
+   * - Visibility changes → refetch if fields changed
+   * - Internal state sync
    *
    * @example
    * ```tsx
-   * // One-liner usage!
-   * const table = useReactTable(customerTable.getTableOptions())
+   * // Initialize table once
+   * const table = useReactTable(adapter.getTableOptions())
+   *
+   * // Or use getTable() for simpler integration
+   * const table = adapter.getTable()
    * ```
    */
   getTableOptions(): TableOptions<TRow> {
-    // Extract state from pass-through options (excluding sorting/pagination which we control)
-    const { state: passedState, ...otherTableOptions } = this.tableOptions ?? {};
+    // Extract initial options for first-time initialization
+    const { state: initialUserState, ...initialOtherOptions } = this.initialTableOptions ?? {};
 
-    // Current state for comparison
-    const currentState = {
-      rows: this.cachedState.rows,
-      pageCount: this.cachedState.pageCount,
-      rowCount: this.cachedState.rowCount,
-      sorting: this.sorting,
-      pageIndex: this.pagination.getState().pageIndex,
-      pageSize: this.pageSize,
-      passedState: passedState as object | undefined,
-    };
+    // If table instance exists, use its current options and state to preserve runtime changes.
+    // This ensures both option changes (e.g., enableColumnResizing) and state changes
+    // (e.g., columnOrder, sorting) are preserved when consumers call getTableOptions().
+    const currentOptions = this.tableInstance?.options;
+    const currentState = this.tableInstance?.getState();
 
-    // Return cached options if state hasn't changed
-    if (this.cachedTableOptions && this.lastOptionsState) {
-      const last = this.lastOptionsState;
-      if (
-        last.rows === currentState.rows &&
-        last.pageCount === currentState.pageCount &&
-        last.rowCount === currentState.rowCount &&
-        last.sorting === currentState.sorting &&
-        last.pageIndex === currentState.pageIndex &&
-        last.pageSize === currentState.pageSize &&
-        last.passedState === currentState.passedState
-      ) {
-        return this.cachedTableOptions;
-      }
-    }
-
-    // Convert SDK sorting to TanStack format for the table state
-    const tanstackSorting = this.sortingConverters.toTanStack(this.sorting);
-
-    // Build new options object
-    this.cachedTableOptions = {
-      // Spread pass-through options first (for row selection, column visibility, etc.)
-      // Note: manualPagination, manualSorting, state handlers come after to ensure they aren't overwritten
-      ...otherTableOptions,
-      // Data and columns - no need to pass separately!
-      data: this.cachedState.rows,
+    return {
+      // Start with current options if table exists, otherwise use initial options.
+      // This preserves runtime option changes (enableColumnResizing, columnResizeMode, etc.)
+      ...(currentOptions ?? initialOtherOptions),
+      // Adapter-managed options always take precedence
+      data: this.state.rows,
       columns: this.columns,
-      // Core row model - cached reference, no need to import separately!
       getCoreRowModel: this.coreRowModel,
-      // Server-side settings (these override any pass-through values)
       manualPagination: true as const,
       manualSorting: true as const,
       paginationMode: 'cursor',
-      pageCount: this.cachedState.pageCount,
-      rowCount: this.cachedState.rowCount,
+      pageCount: this.state.pageCount,
+      rowCount: this.state.rowCount,
       state: {
-        // Default state (user can override via tableOptions.state)
-        columnPinning: { left: [], right: [] },
-        // User's pass-through state (e.g., rowSelection, columnVisibility, expanded)
-        ...passedState,
-        // Adapter-managed state (always takes precedence - server-side controlled)
-        sorting: tanstackSorting,
+        // Use current table state if available, otherwise use initial user state
+        ...(currentState ?? initialUserState),
+        // Adapter-managed pagination always takes precedence
         pagination: {
           pageIndex: this.pagination.getState().pageIndex,
           pageSize: this.pageSize,
         },
       },
-      // Use bound methods for stable references
-      onSortingChange: this.handleSortingChange,
-      onPaginationChange: this.handlePaginationChange,
+      // Adapter's onStateChange - handles sorting/visibility/pagination changes and triggers refetch
+      onStateChange: this.handleTableStateChange,
+    };
+  }
+
+  /**
+   * Check if two sorting states are equal
+   */
+  private isSortingEqual(
+    a: { id: string; desc: boolean }[] | undefined,
+    b: { id: string; desc: boolean }[] | undefined
+  ): boolean {
+    if (!a && !b) return true;
+    if (!a || !b) return false;
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) {
+      const aItem = a[i];
+      const bItem = b[i];
+      if (!aItem || !bItem) return false;
+      if (aItem.id !== bItem.id || aItem.desc !== bItem.desc) return false;
+    }
+    return true;
+  }
+
+  /**
+   * Handle table state change from TanStack Table
+   * Detects sorting/visibility/pagination changes and triggers refetch when needed
+   * Forwards to user's onStateChange callback if provided
+   * Bound method for stable reference
+   */
+  private handleTableStateChange = (updater: Updater<TableState>): void => {
+    if (!this.tableInstance) return;
+
+    const prevState = this.tableInstance.getState();
+
+    // Get fields BEFORE state change (for visibility comparison)
+    const prevFields = this.computeVisibleFields();
+
+    // Compute new state from updater
+    // Note: TanStack Table does NOT auto-update internal state when onStateChange is provided.
+    // We must apply the new state back to the table via setOptions() after processing.
+    const newState = typeof updater === 'function' ? updater(prevState) : updater;
+
+    // Apply new state to the table instance
+    // This is required because TanStack Table's createTable() does not auto-update
+    // internal state when onStateChange is provided - it expects controlled state management.
+    this.tableInstance.setOptions((prev) => ({
+      ...prev,
+      state: newState,
+    }));
+
+    let needsRefetch = false;
+
+    // Detect sorting change - reset pagination and refetch
+    if (!this.isSortingEqual(prevState.sorting, newState.sorting)) {
+      this.pagination.reset();
+      needsRefetch = true;
+    }
+
+    // Check if visibility changed and fields are different - trigger refetch
+    const newFields = this.computeVisibleFields();
+    if (!this.areFieldsEqual(prevFields, newFields)) {
+      this.pagination.reset();
+      needsRefetch = true;
+    }
+
+    // Handle pagination change (replaces handlePaginationChange)
+    const prevPagination = prevState.pagination;
+    const newPagination = newState.pagination;
+    if (prevPagination && newPagination) {
+      // Handle page size change
+      if (newPagination.pageSize !== prevPagination.pageSize) {
+        this.pageSize = newPagination.pageSize;
+        this.pagination.setPageSize(newPagination.pageSize);
+        needsRefetch = true;
+      }
+      // Handle page index change (cursor navigation)
+      else if (newPagination.pageIndex !== prevPagination.pageIndex) {
+        const pageDiff = Math.abs(newPagination.pageIndex - prevPagination.pageIndex);
+
+        // Warn if attempting to jump multiple pages (cursor pagination limitation)
+        if (pageDiff > 1) {
+          console.warn(
+            `[tanstack-table-adapter] Cursor pagination only supports sequential navigation. ` +
+              `Attempted to jump ${pageDiff} pages (from ${prevPagination.pageIndex} to ${newPagination.pageIndex}). ` +
+              `Moving one page instead. Check paginationMode to disable page-jump UI controls.`
+          );
+        }
+
+        // Move one step in requested direction
+        if (newPagination.pageIndex > prevPagination.pageIndex && this.pagination.canGoNext()) {
+          this.pagination.next();
+          needsRefetch = true;
+        } else if (newPagination.pageIndex < prevPagination.pageIndex && this.pagination.canGoPrevious()) {
+          this.pagination.previous();
+          needsRefetch = true;
+        }
+      }
+    }
+
+    if (needsRefetch) {
+      void this.fetch();
+    }
+
+    this.state = {
+      ...this.state,
     };
 
-    // Store current state for next comparison
-    this.lastOptionsState = currentState;
+    // Forward to user's onStateChange callback if provided
+    this.userOnStateChange?.(updater);
 
-    return this.cachedTableOptions;
+    // Notify listeners for re-render
+    this.notifyListeners();
+  };
+
+  /**
+   * Get managed TanStack Table instance
+   *
+   * Creates a TanStack Table instance on first call and returns the same instance
+   * on subsequent calls. The table is automatically synced when adapter state changes
+   * via syncTableInstance() called from updateState().
+   *
+   * The table's initialState is used to seed internal state management, matching
+   * TanStack's useReactTable pattern for proper client-side state persistence.
+   *
+   * After initialization, use the table instance directly for state changes:
+   * - table.setSorting() - sorting changes trigger refetch via onStateChange
+   * - table.setColumnVisibility() - visibility changes trigger refetch if fields change
+   * - table.nextPage() / table.previousPage() - pagination via adapter
+   *
+   * @example
+   * ```ts
+   * const adapter = createCustomerTable({ ... });
+   * const table = adapter.getTable();
+   *
+   * // Subscribe to re-render (table is auto-synced)
+   * adapter.subscribe(() => render());
+   *
+   * // Use table directly for state changes
+   * table.setSorting([{ id: 'name', desc: false }]);
+   * ```
+   */
+  getTable(): Table<TRow> {
+    if (!this.tableInstance) {
+      // Create table with initial options (includes onStateChange hook)
+      const table = createTable({
+        ...this.getTableOptions(),
+        renderFallbackValue: null,
+      } as TableOptionsResolved<TRow>);
+
+      // Merge initialState into active state
+      // createTable doesn't auto-merge initialState like useReactTable does,
+      // so we need to explicitly merge it for features like columnPinning to work
+      table.setOptions((prev) => ({
+        ...prev,
+        state: {
+          ...table.initialState,
+          ...prev.state,
+        },
+      }));
+
+      this.tableInstance = table;
+    }
+    return this.tableInstance;
   }
 
   /**
    * Get current adapter state
    */
   getState(): AdapterState<TRow> {
-    return this.cachedState;
+    return this.state;
   }
 
   /**
@@ -486,7 +642,7 @@ export class BaseTableAdapter<
    * Returns a cached reference to avoid infinite loops
    */
   getSnapshot = (): AdapterState<TRow> => {
-    return this.cachedState;
+    return this.state;
   };
 
   /**
@@ -570,6 +726,25 @@ export class BaseTableAdapter<
     this.search = undefined;
     this.pagination.reset();
     void this.fetch();
+  }
+
+  // ============================================================================
+  // Column Info Methods
+  // ============================================================================
+
+  /**
+   * Get column info for UI rendering (e.g., column visibility dropdown)
+   * Derived from internal column definitions
+   * @returns Array of column info objects
+   */
+  getColumnInfo(): ColumnInfo[] {
+    return this.internalColumns.map((col) => ({
+      key: col.key,
+      header: col.header,
+      fields: [...col.fields],
+      hideable: col.hideable,
+      hiddenByDefault: col.hiddenByDefault,
+    }));
   }
 
   /**

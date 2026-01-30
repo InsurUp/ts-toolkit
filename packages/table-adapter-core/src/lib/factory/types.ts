@@ -3,9 +3,9 @@
  * @description Types for entity-specific table factory creation
  */
 
-import type { ColumnDef, TableOptionsResolved } from '@tanstack/table-core';
-import type { AdapterState, ErrorCallbacks, TableOptions } from '../adapter/types.js';
-import type { InternalColumnDef, FetchFn, QueryOptionsBuilder } from '../types.js';
+import type { ColumnDef, Table, TableOptionsResolved } from '@tanstack/table-core';
+import type { AdapterState, ErrorCallbacks, TableOptions, ColumnInfo } from '../adapter/types.js';
+import type { AnyColumnDef, FetchFn, QueryOptionsBuilder, DeepFieldKeys } from '../types.js';
 import type { SortingConverters } from '../sorting/types.js';
 
 /**
@@ -35,14 +35,10 @@ export interface TableApiConfig<
     TFilterInput,
     TSearchInput
   >;
-  /** Internal column definitions (converted from schema) */
-  columns: InternalColumnDef[];
-  /** Fields to select from GraphQL */
-  select: string[];
+  /** Column definitions from the builder */
+  columns: AnyColumnDef<DeepFieldKeys<TEntity> & string>[];
   /** Number of items per page */
   pageSize: number;
-  /** Default sorting in SDK format */
-  defaultSort?: TSortInput[];
   /** Default filter criteria */
   defaultFilter?: TFilterInput;
   /** Default search criteria */
@@ -80,8 +76,9 @@ export interface TableApi<TRow, TFilterInput = unknown, TSearchInput = unknown> 
   /** Get current adapter state */
   getState: () => AdapterState<TRow>;
   /**
-   * Get TanStack Table options - includes data, columns, and getCoreRowModel.
-   * Can be spread directly into useReactTable() for one-liner setup.
+   * Get TanStack Table options - includes data, columns, getCoreRowModel, and onStateChange.
+   * Use once for initialization with useReactTable() or createTable().
+   * After init, use the table instance directly for state changes.
    *
    * @example
    * ```tsx
@@ -89,6 +86,20 @@ export interface TableApi<TRow, TFilterInput = unknown, TSearchInput = unknown> 
    * ```
    */
   getTableOptions: () => TableOptions<TRow>;
+  /**
+   * Get managed TanStack Table instance.
+   * Creates a table instance on first call and returns the same instance on subsequent calls.
+   * The table is automatically synced when adapter state changes.
+   *
+   * Use this for simpler integration without manually syncing table options.
+   *
+   * @example
+   * ```ts
+   * const table = customerTable.getTable();
+   * adapter.subscribe(() => render()); // Table is auto-synced
+   * ```
+   */
+  getTable: () => Table<TRow>;
   /** Subscribe to state changes (compatible with useSyncExternalStore) */
   subscribe: (listener: () => void) => () => void;
   /** Get state snapshot (compatible with useSyncExternalStore) */
@@ -127,4 +138,14 @@ export interface TableApi<TRow, TFilterInput = unknown, TSearchInput = unknown> 
   getSearch: () => TSearchInput | undefined;
   /** Clear search criteria and refetch (resets pagination) */
   clearSearch: () => void;
+
+  // ============================================================================
+  // Column Info Methods
+  // ============================================================================
+
+  /** Get column metadata for UI (e.g., column visibility toggle) */
+  getColumnInfo: () => ColumnInfo[];
 }
+
+// Re-export ColumnInfo from adapter types for convenience
+export type { ColumnInfo } from '../adapter/types.js';

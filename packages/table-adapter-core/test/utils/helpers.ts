@@ -3,8 +3,10 @@
  * @description Utility functions for testing the table adapter
  */
 
+import { vi } from 'vitest';
 import type { BaseTableAdapterOptions } from '../../src/lib/adapter/types.js';
-import type { InternalColumnDef } from '../../src/lib/types.js';
+import type { AnyColumnDef } from '../../src/lib/types.js';
+import type { DeepFieldKeys } from '@insurup/sdk';
 import {
   createMockColumns,
   mockSortingConverters,
@@ -23,12 +25,11 @@ import {
  */
 export function createMockAdapterOptions(
   overrides: Partial<
-    BaseTableAdapterOptions<MockEntity, MockSortInput, MockFilterInput, MockSearchInput>
+    BaseTableAdapterOptions<MockEntity, MockEntity, MockSortInput, MockFilterInput, MockSearchInput>
   > = {}
-): BaseTableAdapterOptions<MockEntity, MockSortInput, MockFilterInput, MockSearchInput> {
+): BaseTableAdapterOptions<MockEntity, MockEntity, MockSortInput, MockFilterInput, MockSearchInput> {
   return {
-    columns: createMockColumns(),
-    select: ['id', 'name', 'email'],
+    columns: createMockColumns() as AnyColumnDef<DeepFieldKeys<MockEntity> & string>[],
     pageSize: 10,
     sortingConverters: mockSortingConverters,
     queryKeyPrefix: 'test',
@@ -39,7 +40,7 @@ export function createMockAdapterOptions(
 /**
  * Create a minimal set of columns for testing
  */
-export function createMinimalColumns(): InternalColumnDef[] {
+export function createMinimalColumns(): AnyColumnDef<string>[] {
   return [
     {
       key: 'id',
@@ -47,10 +48,11 @@ export function createMinimalColumns(): InternalColumnDef[] {
       header: 'ID',
       sortable: false,
       hideable: true,
+      hiddenByDefault: false,
       render: undefined,
       isComputed: false,
     },
-  ];
+  ] as AnyColumnDef<string>[];
 }
 
 // ============================================================================

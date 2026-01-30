@@ -3,9 +3,10 @@
  * @description Mock implementations for testing the table adapter
  */
 
-import type { InsurUpGraphQLResult, Connection, PageInfo } from '@insurup/sdk';
+import { vi, type Mock } from 'vitest';
+import type { InsurUpGraphQLResult, Connection, PageInfo, Success, ClientError, GraphQLErrors } from '@insurup/sdk';
 import { InsurUpClientErrorType, InsurUpGraphQLErrorCode } from '@insurup/sdk';
-import type { InternalColumnDef } from '../../src/lib/types.js';
+import type { AnyColumnDef } from '../../src/lib/types.js';
 
 // ============================================================================
 // Mock Types
@@ -112,7 +113,7 @@ export function createMockConnection<T>(
 /**
  * Create a successful GraphQL result
  */
-export function createSuccessResult<T>(data: T): InsurUpGraphQLResult<T> {
+export function createSuccessResult<T>(data: T): Success<T> {
   return {
     kind: 'success',
     isSuccess: true,
@@ -127,7 +128,7 @@ export function createSuccessResult<T>(data: T): InsurUpGraphQLResult<T> {
 export function createClientError(
   type: InsurUpClientErrorType = InsurUpClientErrorType.Unknown,
   message = 'Client error'
-): InsurUpGraphQLResult<never> {
+): ClientError {
   return {
     kind: 'client-error',
     isSuccess: false,
@@ -142,7 +143,7 @@ export function createClientError(
 export function createGraphQLError(
   code: InsurUpGraphQLErrorCode = InsurUpGraphQLErrorCode.Unknown,
   message = 'GraphQL error'
-): InsurUpGraphQLResult<never> {
+): GraphQLErrors {
   return {
     kind: 'graphql-error',
     isSuccess: false,
@@ -163,9 +164,9 @@ export function createGraphQLError(
 // ============================================================================
 
 /**
- * Create mock internal column definitions
+ * Create mock column definitions
  */
-export function createMockColumns(): InternalColumnDef[] {
+export function createMockColumns(): AnyColumnDef<string>[] {
   return [
     {
       key: 'id',
@@ -173,6 +174,7 @@ export function createMockColumns(): InternalColumnDef[] {
       header: 'ID',
       sortable: true,
       hideable: false,
+      hiddenByDefault: false,
       render: undefined,
       isComputed: false,
     },
@@ -182,6 +184,7 @@ export function createMockColumns(): InternalColumnDef[] {
       header: 'Name',
       sortable: true,
       hideable: true,
+      hiddenByDefault: false,
       render: undefined,
       isComputed: false,
     },
@@ -191,16 +194,17 @@ export function createMockColumns(): InternalColumnDef[] {
       header: 'Email',
       sortable: false,
       hideable: true,
+      hiddenByDefault: false,
       render: (value) => String(value).toLowerCase(),
       isComputed: false,
     },
-  ];
+  ] as AnyColumnDef<string>[];
 }
 
 /**
- * Create mock internal column definitions with computed column
+ * Create mock column definitions with computed column
  */
-export function createMockColumnsWithComputed(): InternalColumnDef[] {
+export function createMockColumnsWithComputed(): AnyColumnDef<string>[] {
   return [
     ...createMockColumns(),
     {
@@ -209,12 +213,13 @@ export function createMockColumnsWithComputed(): InternalColumnDef[] {
       header: 'Location',
       sortable: false,
       hideable: true,
+      hiddenByDefault: false,
       render: (_, row) => {
         const entity = row as MockEntity;
         return `${entity.cityText}, ${entity.districtText}`;
       },
       isComputed: true,
-    },
+    } as AnyColumnDef<string>,
   ];
 }
 
@@ -222,24 +227,28 @@ export function createMockColumnsWithComputed(): InternalColumnDef[] {
 // Mock Fetch Function
 // ============================================================================
 
+/** Type for mock fetch function */
+type MockFetchFn<TRow> = Mock<
+  (options: unknown, requestOptions?: unknown) => Promise<InsurUpGraphQLResult<Connection<TRow>>>
+>;
+
 /**
  * Create a mock fetch function that returns successful results
  */
 export function createMockFetchFn<TRow = MockEntity>(
   responseData?: Connection<TRow>
-): jest.Mock<Promise<InsurUpGraphQLResult<Connection<TRow>>>> {
-  const defaultData = createMockConnection(createMockEntities(10) as TRow[]);
-  const mockFn = vi.fn().mockResolvedValue(createSuccessResult(responseData ?? defaultData));
-  return mockFn;
+): MockFetchFn<TRow> {
+  const defaultData = createMockConnection(createMockEntities(10)) as Connection<TRow>;
+  return vi.fn().mockResolvedValue(createSuccessResult(responseData ?? defaultData));
 }
 
 /**
  * Create a mock fetch function that returns an error
  */
-export function createMockErrorFetchFn(
-  error: InsurUpGraphQLResult<never> = createClientError()
-): jest.Mock<Promise<InsurUpGraphQLResult<never>>> {
-  return vi.fn().mockResolvedValue(error);
+export function createMockErrorFetchFn(): Mock<
+  (options: unknown, requestOptions?: unknown) => Promise<ClientError>
+> {
+  return vi.fn().mockResolvedValue(createClientError());
 }
 
 // ============================================================================

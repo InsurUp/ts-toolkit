@@ -1,13 +1,13 @@
 /**
- * @fileoverview React hook for Customer Table
- * @description Provides useCustomerTable hook with automatic lifecycle management
+ * @fileoverview React hook for Infinite Customer Table
+ * @description Provides useInfiniteCustomerTable hook with automatic row accumulation
  */
 
 import { useRef, useEffect, useSyncExternalStore, useState } from 'react';
 import type { Table } from '@tanstack/react-table';
 import {
-  createCustomerTable as createCustomerTableCore,
-  type CustomerTable,
+  createInfiniteCustomerTable as createInfiniteCustomerTableCore,
+  type InfiniteCustomerTable,
   type CustomerTableOptions,
   type CustomerColumnDef,
   type CustomerRowType,
@@ -15,88 +15,80 @@ import {
 } from '@insurup/table-adapter-core';
 
 /**
- * Return type for useCustomerTable hook
+ * Return type for useInfiniteCustomerTable hook
  */
-export interface UseCustomerTableResult<TColumns extends CustomerColumnDef[]> {
-  /** Current adapter state (loading, error, rows, pageCount, etc.) */
+export interface UseInfiniteCustomerTableResult<TColumns extends CustomerColumnDef[]> {
+  /** Current adapter state (loading, error, rows with accumulation, etc.) */
   state: AdapterState<CustomerRowType<TColumns>>;
   /** TanStack Table instance with all table methods */
   table: Table<CustomerRowType<TColumns>>;
   /** Raw adapter for advanced use (setFilter, invalidate, etc.) */
-  adapter: CustomerTable<TColumns>;
+  adapter: InfiniteCustomerTable<TColumns>;
 }
 
 /**
- * React hook for creating and managing a customer table
+ * React hook for creating and managing an infinite scroll customer table
+ *
+ * Unlike useCustomerTable which replaces rows on each page, this hook
+ * accumulates rows across page fetches for infinite scroll behavior.
+ * Rows are automatically reset when filters, search, or sorting change.
  *
  * Handles:
  * - Adapter creation (stable across re-renders)
+ * - Row accumulation across pages (state.rows contains ALL loaded rows)
+ * - Auto-reset on filter/search/sort changes
  * - State subscription (via useSyncExternalStore)
  * - Cleanup on unmount
  * - TanStack Table instance creation
  *
  * @example
  * ```tsx
- * import { useCustomerTable } from '@insurup/table-adapter-react';
+ * import { useInfiniteCustomerTable } from '@insurup/table-adapter-react';
  *
- * function CustomersPage() {
- *   const { state, table, adapter } = useCustomerTable({
+ * function CustomersInfinite() {
+ *   const { state, table, adapter } = useInfiniteCustomerTable({
  *     columns: (col) => [col.id(), col.name(), col.primaryEmail()],
  *     fetch: (options) => client.customers.getCustomers(options),
+ *     pageSize: 50,
  *     autoFetch: true,
  *   });
  *
- *   if (state.isLoading) return <div>Loading...</div>;
- *   if (state.error) return <div>Error: {state.error.message}</div>;
+ *   // Load more when scrolling near bottom
+ *   const loadMore = () => {
+ *     if (table.getCanNextPage() && !state.isFetching) {
+ *       table.nextPage();
+ *     }
+ *   };
  *
+ *   // state.rows contains ALL accumulated rows, not just current page
  *   return (
- *     <table>
- *       <thead>
- *         {table.getHeaderGroups().map(headerGroup => (
- *           <tr key={headerGroup.id}>
- *             {headerGroup.headers.map(header => (
- *               <th key={header.id}>
- *                 {flexRender(header.column.columnDef.header, header.getContext())}
- *               </th>
- *             ))}
- *           </tr>
- *         ))}
- *       </thead>
- *       <tbody>
- *         {table.getRowModel().rows.map(row => (
- *           <tr key={row.id}>
- *             {row.getVisibleCells().map(cell => (
- *               <td key={cell.id}>
- *                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
- *               </td>
- *             ))}
- *           </tr>
- *         ))}
- *       </tbody>
- *     </table>
+ *     <div>
+ *       {state.rows.map(row => <CustomerRow key={row.id} data={row} />)}
+ *       {table.getCanNextPage() && <LoadMoreButton onClick={loadMore} />}
+ *     </div>
  *   );
  * }
  * ```
  */
-export function useCustomerTable<const TColumns extends CustomerColumnDef[]>(
+export function useInfiniteCustomerTable<const TColumns extends CustomerColumnDef[]>(
   options: CustomerTableOptions<TColumns>
-): UseCustomerTableResult<TColumns> {
+): UseInfiniteCustomerTableResult<TColumns> {
   const optionsRef = useRef(options);
   optionsRef.current = options;
 
   // Ref to ensure only one adapter is created per mount (handles Strict Mode double-invoke)
-  const adapterRef = useRef<CustomerTable<TColumns> | null>(null);
+  const adapterRef = useRef<InfiniteCustomerTable<TColumns> | null>(null);
 
   // Track if adapter was destroyed (for Strict Mode remount)
   const destroyedRef = useRef(false);
 
   // Initialize adapter lazily with idempotent creation
   // The ref check prevents duplicate creation from Strict Mode's double-invoke of initializers
-  const [adapter, setAdapter] = useState<CustomerTable<TColumns>>(() => {
+  const [adapter, setAdapter] = useState<InfiniteCustomerTable<TColumns>>(() => {
     if (adapterRef.current && !destroyedRef.current) {
       return adapterRef.current;
     }
-    const newAdapter = createCustomerTableCore(optionsRef.current);
+    const newAdapter = createInfiniteCustomerTableCore(optionsRef.current);
     adapterRef.current = newAdapter;
     destroyedRef.current = false;
     return newAdapter;
@@ -107,7 +99,7 @@ export function useCustomerTable<const TColumns extends CustomerColumnDef[]>(
     // If adapter was destroyed by previous cleanup (Strict Mode), recreate it
     if (destroyedRef.current) {
       destroyedRef.current = false;
-      const newAdapter = createCustomerTableCore(optionsRef.current);
+      const newAdapter = createInfiniteCustomerTableCore(optionsRef.current);
       adapterRef.current = newAdapter;
       setAdapter(newAdapter);
       return; // Exit early - new effect will run with new adapter
