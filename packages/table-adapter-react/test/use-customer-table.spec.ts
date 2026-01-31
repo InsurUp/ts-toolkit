@@ -118,7 +118,7 @@ describe('useCustomerTable', () => {
       const options = {
         columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
         fetch: vi.fn(),
-        pageSize: 10,
+        pagination: { type: 'cursor' as const, pageSize: 10 },
       };
 
       useCustomerTable(options as never);
@@ -130,7 +130,7 @@ describe('useCustomerTable', () => {
       const options = {
         columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
         fetch: vi.fn(),
-        pageSize: 20,
+        pagination: { type: 'cursor' as const, pageSize: 20 },
         autoFetch: true,
       };
 
@@ -145,13 +145,13 @@ describe('useCustomerTable', () => {
       const options = {
         columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
         fetch: vi.fn(),
-        pageSize: 25,
+        pagination: { type: 'cursor' as const, pageSize: 25 },
       };
 
       useCustomerTable(options as never);
 
       expect(createCustomerTable).toHaveBeenCalledWith(
-        expect.objectContaining({ pageSize: 25 })
+        expect.objectContaining({ pagination: { type: 'cursor', pageSize: 25 } })
       );
     });
   });
@@ -161,7 +161,7 @@ describe('useCustomerTable', () => {
       const options = {
         columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
         fetch: vi.fn(),
-        pageSize: 10,
+        pagination: { type: 'cursor' as const, pageSize: 10 },
       };
 
       const result = useCustomerTable(options as never);
@@ -175,7 +175,7 @@ describe('useCustomerTable', () => {
       const options = {
         columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
         fetch: vi.fn(),
-        pageSize: 10,
+        pagination: { type: 'cursor' as const, pageSize: 10 },
       };
 
       const result = useCustomerTable(options as never);
@@ -187,7 +187,7 @@ describe('useCustomerTable', () => {
       const options = {
         columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
         fetch: vi.fn(),
-        pageSize: 10,
+        pagination: { type: 'cursor' as const, pageSize: 10 },
       };
 
       const result = useCustomerTable(options as never);
@@ -209,7 +209,7 @@ describe('useCustomerTable', () => {
       const options = {
         columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
         fetch: vi.fn(),
-        pageSize: 10,
+        pagination: { type: 'cursor' as const, pageSize: 10 },
       };
 
       const result = useCustomerTable(options as never);
@@ -227,7 +227,7 @@ describe('useCustomerTable', () => {
       const options = {
         columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
         fetch: vi.fn(),
-        pageSize: 10,
+        pagination: { type: 'cursor' as const, pageSize: 10 },
       };
 
       const result = useCustomerTable(options as never);
@@ -240,7 +240,7 @@ describe('useCustomerTable', () => {
       const options = {
         columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
         fetch: vi.fn(),
-        pageSize: 10,
+        pagination: { type: 'cursor' as const, pageSize: 10 },
       };
 
       const result = useCustomerTable(options as never);
@@ -253,7 +253,7 @@ describe('useCustomerTable', () => {
       const options = {
         columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
         fetch: vi.fn(),
-        pageSize: 10,
+        pagination: { type: 'cursor' as const, pageSize: 10 },
       };
 
       const result = useCustomerTable(options as never);
@@ -266,7 +266,7 @@ describe('useCustomerTable', () => {
       const options = {
         columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
         fetch: vi.fn(),
-        pageSize: 10,
+        pagination: { type: 'cursor' as const, pageSize: 10 },
       };
 
       const result = useCustomerTable(options as never);
@@ -279,7 +279,7 @@ describe('useCustomerTable', () => {
       const options = {
         columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
         fetch: vi.fn(),
-        pageSize: 10,
+        pagination: { type: 'cursor' as const, pageSize: 10 },
       };
 
       const result = useCustomerTable(options as never);
@@ -292,7 +292,7 @@ describe('useCustomerTable', () => {
       const options = {
         columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
         fetch: vi.fn(),
-        pageSize: 10,
+        pagination: { type: 'cursor' as const, pageSize: 10 },
       };
 
       const result = useCustomerTable(options as never);
@@ -307,7 +307,7 @@ describe('useCustomerTable', () => {
       const options = {
         columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
         fetch: vi.fn(),
-        pageSize: 10,
+        pagination: { type: 'cursor' as const, pageSize: 10 },
       };
 
       const result = useCustomerTable(options as never);
@@ -320,7 +320,7 @@ describe('useCustomerTable', () => {
       const options = {
         columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
         fetch: vi.fn(),
-        pageSize: 10,
+        pagination: { type: 'cursor' as const, pageSize: 10 },
       };
 
       const result = useCustomerTable(options as never);
@@ -333,7 +333,7 @@ describe('useCustomerTable', () => {
       const options = {
         columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
         fetch: vi.fn(),
-        pageSize: 10,
+        pagination: { type: 'cursor' as const, pageSize: 10 },
       };
 
       const result = useCustomerTable(options as never);
@@ -348,7 +348,7 @@ describe('useCustomerTable', () => {
       const options = {
         columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
         fetch: vi.fn(),
-        pageSize: 10,
+        pagination: { type: 'cursor' as const, pageSize: 10 },
       };
 
       const result = useCustomerTable(options as never);

@@ -49,7 +49,7 @@ export interface UseInfiniteCustomerTableResult<TColumns extends CustomerColumnD
  *   const { state, table, adapter } = useInfiniteCustomerTable({
  *     columns: (col) => [col.id(), col.name(), col.primaryEmail()],
  *     fetch: (options) => client.customers.getCustomers(options),
- *     pageSize: 50,
+ *     pagination: { type: 'cursor', pageSize: 50 },
  *     autoFetch: true,
  *   });
  *

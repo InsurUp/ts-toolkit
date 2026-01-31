@@ -318,7 +318,7 @@ describe('createTableApi', () => {
         search: params.search,
       }),
       columns: createMockColumns(),
-      pageSize: 10,
+      pagination: { type: 'cursor', pageSize: 10 },
       sortingConverters,
       queryKeyPrefix: 'test',
     });
@@ -358,7 +358,7 @@ describe('createTableApi', () => {
         search: params.search,
       }),
       columns: createMockColumns(),
-      pageSize: 10,
+      pagination: { type: 'cursor', pageSize: 10 },
       sortingConverters,
       queryKeyPrefix: 'test',
     });
@@ -385,7 +385,7 @@ describe('createTableApi', () => {
         search: params.search,
       }),
       columns: createMockColumns(),
-      pageSize: 10,
+      pagination: { type: 'cursor', pageSize: 10 },
       sortingConverters,
       queryKeyPrefix: 'test',
     });
@@ -411,7 +411,7 @@ describe('createTableApi', () => {
         search: params.search,
       }),
       columns: createMockColumns(),
-      pageSize: 10,
+      pagination: { type: 'cursor', pageSize: 10 },
       sortingConverters,
       queryKeyPrefix: 'test',
     });
@@ -452,7 +452,7 @@ describe('createTableApi', () => {
         search: params.search,
       }),
       columns: createMockColumns(),
-      pageSize: 10,
+      pagination: { type: 'cursor', pageSize: 10 },
       sortingConverters,
       queryKeyPrefix: 'test',
       onError,
@@ -483,7 +483,7 @@ describe('createTableApi', () => {
         search: params.search,
       }),
       columns: createMockColumns(),
-      pageSize: 10,
+      pagination: { type: 'cursor', pageSize: 10 },
       sortingConverters,
       queryKeyPrefix: 'test',
       autoFetch: true,

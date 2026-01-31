@@ -7,6 +7,7 @@ import type { ColumnDef, Table, TableOptionsResolved } from '@tanstack/table-cor
 import type { AdapterState, ErrorCallbacks, TableOptions, ColumnInfo } from '../adapter/types.js';
 import type { AnyColumnDef, FetchFn, QueryOptionsBuilder, DeepFieldKeys } from '../types.js';
 import type { SortingConverters } from '../sorting/types.js';
+import type { PaginationManager, PaginationOptions } from '../pagination/types.js';
 
 /**
  * Configuration for creating a table API (schema-based)
@@ -16,14 +17,16 @@ import type { SortingConverters } from '../sorting/types.js';
  * @template TSortInput - The SDK sort input type
  * @template TFilterInput - The SDK filter input type
  * @template TSearchInput - The SDK search input type
+ * @template TPaginationOptions - The pagination options type
  */
 export interface TableApiConfig<
   TEntity,
   TRow,
   TQueryOptions,
   TSortInput,
-  TFilterInput = unknown,
-  TSearchInput = unknown,
+  TFilterInput,
+  TSearchInput,
+  TPaginationOptions extends PaginationOptions,
 > extends ErrorCallbacks<TRow> {
   /** The fetch function to use */
   fetchFn: FetchFn<TRow, TQueryOptions>;
@@ -37,8 +40,8 @@ export interface TableApiConfig<
   >;
   /** Column definitions from the builder */
   columns: AnyColumnDef<DeepFieldKeys<TEntity> & string>[];
-  /** Number of items per page */
-  pageSize: number;
+  /** Pagination strategy configuration */
+  pagination: TPaginationOptions;
   /** Default filter criteria */
   defaultFilter?: TFilterInput;
   /** Default search criteria */
@@ -69,8 +72,14 @@ export interface TableApiConfig<
  * @template TRow - The row type with selected fields
  * @template TFilterInput - The SDK filter input type
  * @template TSearchInput - The SDK search input type
+ * @template TPagination - The pagination manager type (CursorPaginationManager, etc.)
  */
-export interface TableApi<TRow, TFilterInput = unknown, TSearchInput = unknown> {
+export interface TableApi<
+  TRow,
+  TFilterInput,
+  TSearchInput,
+  TPagination extends PaginationManager,
+> {
   /** TanStack ColumnDef[] - converted from entity columns (frozen, immutable) */
   readonly columns: readonly ColumnDef<TRow, unknown>[];
   /** Get current adapter state */
@@ -114,6 +123,25 @@ export interface TableApi<TRow, TFilterInput = unknown, TSearchInput = unknown> 
   refetch: (options?: { force?: boolean }) => Promise<void>;
   /** Destroy the adapter and clean up resources */
   destroy: () => void;
+  /**
+   * Pagination manager - single source of truth for pagination state.
+   * Use this to navigate pages, check if next/previous is available, etc.
+   *
+   * @example
+   * ```ts
+   * // Navigate to next page
+   * table.pagination.next();
+   * table.fetch();
+   *
+   * // Check if can go next
+   * const canNext = table.pagination.canGoNext();
+   *
+   * // Get current page
+   * const page = table.pagination.getState().pageIndex;
+   * ```
+   */
+  readonly pagination: TPagination;
+
   /** Change page size and reset to first page */
   setPageSize: (size: number) => void;
 

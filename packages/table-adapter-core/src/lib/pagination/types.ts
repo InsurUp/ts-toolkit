@@ -1,6 +1,6 @@
 /**
  * @fileoverview Pagination Types
- * @description Types for cursor-based pagination state management
+ * @description Types for pagination state management with support for multiple strategies
  */
 
 import type { PageInfo } from '@insurup/sdk';
@@ -21,21 +21,39 @@ export interface PaginationState {
 }
 
 /**
- * Options for creating a cursor pagination manager
+ * Options for cursor pagination strategy
  */
 export interface CursorPaginationOptions {
+  /** Pagination strategy type */
+  type: 'cursor';
   /** Number of items per page (default: 20) */
   pageSize?: number;
 }
 
+// Future: OffsetPaginationOptions with type: 'offset'
+
 /**
- * Cursor pagination manager interface
+ * Union of all pagination strategy options
+ * Currently only cursor pagination is supported
  */
-export interface CursorPaginationManager {
+export type PaginationOptions = CursorPaginationOptions;
+
+/**
+ * Map pagination options to the corresponding manager type
+ * Used for type inference in adapters and factories
+ */
+export type PaginationManagerFromOptions<T extends PaginationOptions> =
+  T extends CursorPaginationOptions
+    ? CursorPaginationManager
+    : PaginationManager; // fallback for future types
+
+/**
+ * Base pagination manager interface
+ * Common API for all pagination strategies (cursor, offset, etc.)
+ */
+export interface PaginationManager {
   /** Get the current pagination state */
   getState(): PaginationState;
-  /** Update cursor history with new page info (call after each successful fetch) */
-  update(pageInfo: PageInfo): void;
   /** Navigate to the next page */
   next(): PaginationState;
   /** Navigate to the previous page */
@@ -48,4 +66,15 @@ export interface CursorPaginationManager {
   reset(): PaginationState;
   /** Change page size and reset to first page */
   setPageSize(size: number): PaginationState;
+  /** Subscribe to state changes */
+  subscribe(listener: () => void): () => void;
+}
+
+/**
+ * Cursor pagination manager interface
+ * Extends base PaginationManager with cursor-specific methods for GraphQL connections
+ */
+export interface CursorPaginationManager extends PaginationManager {
+  /** Update cursor history with new page info (call after each successful fetch) */
+  update(pageInfo: PageInfo): void;
 }

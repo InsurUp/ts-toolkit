@@ -6,7 +6,6 @@
 import type {
   PaginationState,
   PageInfo,
-  CursorPaginationOptions,
   CursorPaginationManager,
 } from './types.js';
 
@@ -39,7 +38,7 @@ const DEFAULT_MAX_CURSOR_HISTORY = 500;
  * @returns CursorPaginationManager instance
  */
 export function createCursorPagination(
-  options: CursorPaginationOptions = {}
+  options: { pageSize?: number } = {}
 ): CursorPaginationManager {
   const pageSize = options.pageSize ?? DEFAULT_PAGE_SIZE;
 
@@ -52,6 +51,26 @@ export function createCursorPagination(
   // Page 0 has no entry (undefined cursor)
   // Page 1 needs the endCursor from page 0, etc.
   const cursorHistory = new Map<number, string>();
+
+  // Subscription listeners for state changes
+  const listeners = new Set<() => void>();
+
+  /**
+   * Notify all listeners of state change
+   */
+  function notifyListeners(): void {
+    listeners.forEach((listener) => listener());
+  }
+
+  /**
+   * Subscribe to state changes
+   * @param listener - Callback to invoke when state changes
+   * @returns Unsubscribe function
+   */
+  function subscribe(listener: () => void): () => void {
+    listeners.add(listener);
+    return () => listeners.delete(listener);
+  }
 
   /**
    * Get the current pagination state
@@ -103,6 +122,7 @@ export function createCursorPagination(
 
     // Trim cursor history to prevent unbounded growth
     trimCursorHistory();
+    notifyListeners();
   }
 
   /**
@@ -111,6 +131,7 @@ export function createCursorPagination(
   function next(): PaginationState {
     if (hasNextPage) {
       currentPageIndex++;
+      notifyListeners();
     }
     return getState();
   }
@@ -121,6 +142,7 @@ export function createCursorPagination(
   function previous(): PaginationState {
     if (currentPageIndex > 0) {
       currentPageIndex--;
+      notifyListeners();
     }
     return getState();
   }
@@ -148,6 +170,7 @@ export function createCursorPagination(
     hasNextPage = false;
     cursorHistory.clear();
     // Page 0 has no cursor (undefined), so no need to set an entry
+    notifyListeners();
     return getState();
   }
 
@@ -161,6 +184,7 @@ export function createCursorPagination(
       throw new Error('pageSize must be greater than 0');
     }
     currentPageSize = size;
+    // reset() will call notifyListeners()
     return reset();
   }
 
@@ -173,5 +197,6 @@ export function createCursorPagination(
     canGoPrevious,
     reset,
     setPageSize,
+    subscribe,
   };
 }

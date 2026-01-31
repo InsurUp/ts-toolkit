@@ -22,7 +22,7 @@ function createTestOptions(
   return {
     columns: (col) => [col.id(), col.name()],
     fetch: createMockFetchFn(),
-    pageSize: 10,
+    pagination: { type: 'cursor' as const, pageSize: 10 },
     ...overrides,
   } as CustomerTableOptions<CustomerColumnDef[]>;
 }
@@ -331,7 +331,7 @@ describe('useCustomerTable', () => {
 
     it('should expose setPageSize method', async () => {
       const mockFetch = createMockFetchFn();
-      const options = createTestOptions({ fetch: mockFetch, pageSize: 10 });
+      const options = createTestOptions({ fetch: mockFetch, pagination: { type: 'cursor' as const, pageSize: 10 } });
       const TestComponent = createTestComponent(options);
 
       const wrapper = mount(TestComponent);

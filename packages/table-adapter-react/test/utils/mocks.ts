@@ -77,7 +77,7 @@ export function createMockOptions(overrides: Record<string, unknown> = {}) {
   return {
     columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
     fetch: createMockFetchFn(),
-    pageSize: 10,
+    pagination: { type: 'cursor' as const, pageSize: 10 },
     ...overrides,
   };
 }

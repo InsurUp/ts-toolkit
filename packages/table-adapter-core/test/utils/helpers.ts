@@ -6,6 +6,7 @@
 import { vi } from 'vitest';
 import type { BaseTableAdapterOptions } from '../../src/lib/adapter/types.js';
 import type { AnyColumnDef } from '../../src/lib/types.js';
+import type { CursorPaginationOptions } from '../../src/lib/pagination/types.js';
 import type { DeepFieldKeys } from '@insurup/sdk';
 import {
   createMockColumns,
@@ -25,12 +26,12 @@ import {
  */
 export function createMockAdapterOptions(
   overrides: Partial<
-    BaseTableAdapterOptions<MockEntity, MockEntity, MockSortInput, MockFilterInput, MockSearchInput>
+    BaseTableAdapterOptions<MockEntity, MockEntity, MockSortInput, MockFilterInput, MockSearchInput, CursorPaginationOptions>
   > = {}
-): BaseTableAdapterOptions<MockEntity, MockEntity, MockSortInput, MockFilterInput, MockSearchInput> {
+): BaseTableAdapterOptions<MockEntity, MockEntity, MockSortInput, MockFilterInput, MockSearchInput, CursorPaginationOptions> {
   return {
     columns: createMockColumns() as AnyColumnDef<DeepFieldKeys<MockEntity> & string>[],
-    pageSize: 10,
+    pagination: { type: 'cursor', pageSize: 10 },
     sortingConverters: mockSortingConverters,
     queryKeyPrefix: 'test',
     ...overrides,

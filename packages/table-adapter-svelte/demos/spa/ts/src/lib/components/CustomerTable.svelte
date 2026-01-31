@@ -75,7 +75,7 @@
       }),
     ],
     fetch: (options) => client.customers.getCustomers(options),
-    pageSize: 10,
+    pagination: { type: 'cursor', pageSize: 10 },
     autoFetch: true,
     onError: (error) => {
       toast.error(`Failed to load customers: ${error.message}`);

@@ -23,7 +23,7 @@
  *     })
  *   ],
  *   fetch: (options) => client.customers.getCustomers(options),
- *   pageSize: 10,
+ *   pagination: { type: 'cursor', pageSize: 10 },
  * })
  *
  * // state.rows[0] only has: id, name, type, cityText, districtText ✅
@@ -147,11 +147,14 @@ export type {
 // Pagination & Sorting
 // ============================================================================
 
-export { createCursorPagination } from './lib/pagination/index.js';
+export { createCursorPagination, createPaginationManager } from './lib/pagination/index.js';
 export type {
+  PaginationManager,
   PaginationState,
   CursorPaginationOptions,
   CursorPaginationManager,
+  PaginationOptions,
+  PaginationManagerFromOptions,
 } from './lib/pagination/index.js';
 
 export type { SortingState } from './lib/sorting/index.js';

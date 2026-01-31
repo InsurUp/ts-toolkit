@@ -27,6 +27,7 @@ import {
   type TableApi,
 } from '../../lib/factory/index.js';
 import { createSortingConverters } from '../../lib/sorting/index.js';
+import type { CursorPaginationManager, CursorPaginationOptions } from '../../lib/pagination/index.js';
 
 // ============================================================================
 // Sorting Converters
@@ -96,7 +97,7 @@ function getCustomerFetchFn<TColumns extends CustomerColumnDef[]>(
  *     })
  *   ],
  *   fetch: (options) => client.customers.getCustomers(options),
- *   pageSize: 10,
+ *   pagination: { type: 'cursor', pageSize: 10 },
  *   defaultFilter: { type: { eq: CustomerType.Corporate } },
  *   defaultSearch: 'Acme',
  * })
@@ -129,12 +130,13 @@ export function createCustomerTable<const TColumns extends CustomerColumnDef[]>(
     GetCustomersOptions<TFields[]>,
     QueryCustomerModelSortInput,
     CustomerFilterInput,
-    CustomerSearchInput
+    CustomerSearchInput,
+    CursorPaginationOptions
   >({
     fetchFn,
     buildQueryOptions: buildCustomerQueryOptions,
     columns,
-    pageSize: options.pageSize ?? 20,
+    pagination: options.pagination,
     defaultFilter: options.defaultFilter,
     defaultSearch: options.defaultSearch,
     sortingConverters: customerSortingConverters,
@@ -157,5 +159,6 @@ export function createCustomerTable<const TColumns extends CustomerColumnDef[]>(
 export type CustomerTable<TColumns extends CustomerColumnDef[] = CustomerColumnDef[]> = TableApi<
   CustomerRowType<TColumns>,
   CustomerFilterInput,
-  CustomerSearchInput
+  CustomerSearchInput,
+  CursorPaginationManager
 >;

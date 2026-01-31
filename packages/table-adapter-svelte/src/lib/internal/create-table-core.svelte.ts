@@ -9,7 +9,7 @@
  */
 
 import type { Table } from '@tanstack/table-core';
-import type { ITableAdapter, TableError } from '@insurup/table-adapter-core';
+import type { ITableAdapter, TableError, PaginationManager } from '@insurup/table-adapter-core';
 import { TableState } from './table-state.svelte.js';
 
 /**
@@ -21,7 +21,7 @@ export interface CreateTableCoreOptions<TRow, TOptions> {
   /** Getter function for options (enables reactive tableOptions) */
   getOptions: () => TOptions;
   /** Factory function to create the core adapter */
-  createAdapter: (options: TOptions) => ITableAdapter<TRow>;
+  createAdapter: (options: TOptions) => ITableAdapter<TRow, unknown, unknown, PaginationManager>;
   /** Extract tableOptions.state from options for reactive syncing */
   getTableOptionsState: (options: TOptions) => Record<string, unknown> | undefined;
 }
@@ -33,7 +33,7 @@ export interface CreateTableCoreOptions<TRow, TOptions> {
  * @template TRow - The row type with selected fields
  * @template TAdapter - The specific adapter type (CustomerTable or InfiniteCustomerTable)
  */
-export interface TableCoreResult<TRow, TAdapter extends ITableAdapter<TRow>> {
+export interface TableCoreResult<TRow, TAdapter extends ITableAdapter<TRow, unknown, unknown, PaginationManager>> {
   // ============================================================================
   // Fine-grained state signals (from TableState)
   // ============================================================================
@@ -79,6 +79,13 @@ export interface TableCoreResult<TRow, TAdapter extends ITableAdapter<TRow>> {
   readonly hasNextPage: boolean;
 
   // ============================================================================
+  // Pagination
+  // ============================================================================
+
+  /** Pagination manager - reactive via createSubscriber pattern */
+  readonly pagination: PaginationManager;
+
+  // ============================================================================
   // Table and adapter
   // ============================================================================
 
@@ -118,7 +125,7 @@ export interface TableCoreResult<TRow, TAdapter extends ITableAdapter<TRow>> {
 export function createTableCore<
   TRow,
   TOptions,
-  TAdapter extends ITableAdapter<TRow>,
+  TAdapter extends ITableAdapter<TRow, unknown, unknown, PaginationManager>,
 >(
   options: CreateTableCoreOptions<TRow, TOptions>
 ): TableCoreResult<TRow, TAdapter> {
@@ -197,14 +204,19 @@ export function createTableCore<
       return tableState.hasNextPage;
     },
 
+    // Pagination - delegates to TableState's reactive getter
+    get pagination() {
+      return tableState.pagination;
+    },
+
     // Table - delegates to TableState's reactive getter
     get table() {
       return tableState.table;
     },
 
-    // Adapter
+    // Adapter - delegates to TableState's reactive getter
     get adapter() {
-      return adapter;
+      return tableState.adapter as TAdapter;
     },
 
     // Lifecycle

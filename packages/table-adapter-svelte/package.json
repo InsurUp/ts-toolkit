@@ -12,6 +12,7 @@
   ],
   "exports": {
     ".": {
+      "development": "./src/lib/index.ts",
       "types": "./dist/index.d.ts",
       "svelte": "./dist/index.js"
     }

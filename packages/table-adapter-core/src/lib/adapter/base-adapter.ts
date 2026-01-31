@@ -14,7 +14,8 @@ import { getCoreRowModel, createTable } from '@tanstack/table-core';
 import type { DeepFieldKeys, InsurUpGraphQLResult, Connection } from '@insurup/sdk';
 import { InsurUpClientErrorType } from '@insurup/sdk';
 import { QueryManager } from '../query/manager.js';
-import { createCursorPagination } from '../pagination/cursor.js';
+import { createPaginationManager } from '../pagination/factory.js';
+import type { PaginationOptions, PaginationManagerFromOptions } from '../pagination/types.js';
 import type {
   AdapterState,
   TableOptions,
@@ -54,9 +55,10 @@ export class BaseTableAdapter<
   TRow,
   TQueryOptions,
   TSortInput,
-  TFilterInput = unknown,
-  TSearchInput = unknown,
-> implements ITableAdapter<TRow, TFilterInput, TSearchInput> {
+  TFilterInput,
+  TSearchInput,
+  TPaginationOptions extends PaginationOptions,
+> implements ITableAdapter<TRow, TFilterInput, TSearchInput, PaginationManagerFromOptions<TPaginationOptions>> {
   /** Static server snapshot for SSR - frozen for referential stability */
   private static readonly SERVER_SNAPSHOT: AdapterState<unknown> = Object.freeze({
     rows: [],
@@ -72,7 +74,7 @@ export class BaseTableAdapter<
   readonly columns: ColumnDef<TRow, unknown>[];
   /** Original column definitions (for field mapping, visibility) */
   private readonly internalColumns: AnyColumnDef<DeepFieldKeys<TEntity> & string>[];
-  private pagination: ReturnType<typeof createCursorPagination>;
+  private _pagination: PaginationManagerFromOptions<TPaginationOptions>;
   /** Filter stored in SDK format */
   private filter: TFilterInput | undefined;
   /** Search stored in SDK format */
@@ -85,6 +87,9 @@ export class BaseTableAdapter<
   private state: AdapterState<TRow>;
   private callbacks: ErrorCallbacks<TRow>;
   private unsubscribeQueryManager: (() => void) | null = null;
+  private unsubscribePagination: (() => void) | null = null;
+  /** Flag to prevent double-notification when pagination change originates from TanStack table */
+  private isPaginationChangeFromTable = false;
   /** Pass-through TanStack Table options for client-side features */
   private initialTableOptions:
     | Partial<Omit<TableOptionsResolved<TRow>, 'data' | 'columns' | 'getCoreRowModel'>>
@@ -139,17 +144,19 @@ export class BaseTableAdapter<
       TFilterInput,
       TSearchInput
     >,
-    options: BaseTableAdapterOptions<TEntity, TRow, TSortInput, TFilterInput, TSearchInput>
+    options: BaseTableAdapterOptions<TEntity, TRow, TSortInput, TFilterInput, TSearchInput, TPaginationOptions>
   ) {
     // Input validation
-    if (options.pageSize <= 0) {
-      throw new Error('pageSize must be greater than 0');
-    }
     if (!options.columns || options.columns.length === 0) {
       throw new Error('At least one column must be provided');
     }
 
-    this.pageSize = options.pageSize;
+    // Get pageSize from pagination options with default
+    const DEFAULT_PAGE_SIZE = 20;
+    this.pageSize = options.pagination.pageSize ?? DEFAULT_PAGE_SIZE;
+    if (this.pageSize <= 0) {
+      throw new Error('pageSize must be greater than 0');
+    }
     this.sortingConverters = options.sortingConverters;
     this.queryKeyPrefix = options.queryKeyPrefix ?? 'table';
 
@@ -168,7 +175,7 @@ export class BaseTableAdapter<
     // Store filter and search in SDK format directly
     this.filter = options.defaultFilter;
     this.search = options.defaultSearch;
-    this.pagination = createCursorPagination({ pageSize: options.pageSize });
+    this._pagination = createPaginationManager(options.pagination);
 
     // Store error callbacks
     this.callbacks = {
@@ -198,7 +205,7 @@ export class BaseTableAdapter<
         const result = await this.fetchFn(vars, { signal: context.signal });
         // Update pagination state on success
         if (result.isSuccess) {
-          this.pagination.update(result.data.pageInfo);
+          this._pagination.update(result.data.pageInfo);
         }
         return result;
       },
@@ -212,6 +219,16 @@ export class BaseTableAdapter<
     this.unsubscribeQueryManager = this.queryManager.subscribe(() => {
       this.updateState();
       this.notifyListeners();
+    });
+
+    // Subscribe to pagination changes for bidirectional sync
+    // When pagination changes directly (not via TanStack table), sync table and refetch
+    this.unsubscribePagination = this._pagination.subscribe(() => {
+      if (!this.isPaginationChangeFromTable) {
+        this.syncTableInstance();
+        this.notifyListeners();
+        void this.fetch();
+      }
     });
 
     // Auto-fetch on creation if enabled
@@ -322,7 +339,7 @@ export class BaseTableAdapter<
       sorting,
       this.filter,
       this.search,
-      this.pagination.getState().pageIndex,
+      this._pagination.getState().pageIndex,
     ];
   }
 
@@ -342,7 +359,7 @@ export class BaseTableAdapter<
 
     return this.buildFetchQueryOptions({
       first: this.pageSize,
-      after: this.pagination.getState().cursor,
+      after: this._pagination.getState().cursor,
       order: sdkSorting,
       select,
       filter: this.filter,
@@ -382,6 +399,27 @@ export class BaseTableAdapter<
   }
 
   /**
+   * Pagination manager - single source of truth for pagination state.
+   * Use this to navigate pages, check if next/previous is available, etc.
+   *
+   * @example
+   * ```ts
+   * // Navigate to next page
+   * adapter.pagination.next();
+   * adapter.fetch();
+   *
+   * // Check if can go next
+   * const canNext = adapter.pagination.canGoNext();
+   *
+   * // Get current page
+   * const page = adapter.pagination.getState().pageIndex;
+   * ```
+   */
+  get pagination(): PaginationManagerFromOptions<TPaginationOptions> {
+    return this._pagination;
+  }
+
+  /**
    * Change page size and reset to first page
    * @param size - New page size (must be greater than 0)
    * @throws Error if size is not greater than 0
@@ -391,7 +429,7 @@ export class BaseTableAdapter<
       throw new Error('pageSize must be greater than 0');
     }
     this.pageSize = size;
-    this.pagination.setPageSize(size);
+    this._pagination.setPageSize(size);
     void this.fetch();
   }
 
@@ -448,7 +486,7 @@ export class BaseTableAdapter<
         ...(currentState ?? initialUserState),
         // Adapter-managed pagination always takes precedence
         pagination: {
-          pageIndex: this.pagination.getState().pageIndex,
+          pageIndex: this._pagination.getState().pageIndex,
           pageSize: this.pageSize,
         },
       },
@@ -505,51 +543,59 @@ export class BaseTableAdapter<
 
     let needsRefetch = false;
 
-    // Detect sorting change - reset pagination and refetch
-    if (!this.isSortingEqual(prevState.sorting, newState.sorting)) {
-      this.pagination.reset();
-      needsRefetch = true;
-    }
+    // Set flag to prevent pagination subscription from double-handling these changes
+    // The subscription auto-fetches, but we handle fetching here after all state changes
+    this.isPaginationChangeFromTable = true;
 
-    // Check if visibility changed and fields are different - trigger refetch
-    const newFields = this.computeVisibleFields();
-    if (!this.areFieldsEqual(prevFields, newFields)) {
-      this.pagination.reset();
-      needsRefetch = true;
-    }
-
-    // Handle pagination change (replaces handlePaginationChange)
-    const prevPagination = prevState.pagination;
-    const newPagination = newState.pagination;
-    if (prevPagination && newPagination) {
-      // Handle page size change
-      if (newPagination.pageSize !== prevPagination.pageSize) {
-        this.pageSize = newPagination.pageSize;
-        this.pagination.setPageSize(newPagination.pageSize);
+    try {
+      // Detect sorting change - reset pagination and refetch
+      if (!this.isSortingEqual(prevState.sorting, newState.sorting)) {
+        this._pagination.reset();
         needsRefetch = true;
       }
-      // Handle page index change (cursor navigation)
-      else if (newPagination.pageIndex !== prevPagination.pageIndex) {
-        const pageDiff = Math.abs(newPagination.pageIndex - prevPagination.pageIndex);
 
-        // Warn if attempting to jump multiple pages (cursor pagination limitation)
-        if (pageDiff > 1) {
-          console.warn(
-            `[tanstack-table-adapter] Cursor pagination only supports sequential navigation. ` +
-              `Attempted to jump ${pageDiff} pages (from ${prevPagination.pageIndex} to ${newPagination.pageIndex}). ` +
-              `Moving one page instead. Check paginationMode to disable page-jump UI controls.`
-          );
+      // Check if visibility changed and fields are different - trigger refetch
+      const newFields = this.computeVisibleFields();
+      if (!this.areFieldsEqual(prevFields, newFields)) {
+        this._pagination.reset();
+        needsRefetch = true;
+      }
+
+      // Handle pagination change (replaces handlePaginationChange)
+      const prevPagination = prevState.pagination;
+      const newPagination = newState.pagination;
+      if (prevPagination && newPagination) {
+        // Handle page size change
+        if (newPagination.pageSize !== prevPagination.pageSize) {
+          this.pageSize = newPagination.pageSize;
+          this._pagination.setPageSize(newPagination.pageSize);
+          needsRefetch = true;
         }
+        // Handle page index change (cursor navigation)
+        else if (newPagination.pageIndex !== prevPagination.pageIndex) {
+          const pageDiff = Math.abs(newPagination.pageIndex - prevPagination.pageIndex);
 
-        // Move one step in requested direction
-        if (newPagination.pageIndex > prevPagination.pageIndex && this.pagination.canGoNext()) {
-          this.pagination.next();
-          needsRefetch = true;
-        } else if (newPagination.pageIndex < prevPagination.pageIndex && this.pagination.canGoPrevious()) {
-          this.pagination.previous();
-          needsRefetch = true;
+          // Warn if attempting to jump multiple pages (cursor pagination limitation)
+          if (pageDiff > 1) {
+            console.warn(
+              `[tanstack-table-adapter] Cursor pagination only supports sequential navigation. ` +
+                `Attempted to jump ${pageDiff} pages (from ${prevPagination.pageIndex} to ${newPagination.pageIndex}). ` +
+                `Moving one page instead. Check paginationMode to disable page-jump UI controls.`
+            );
+          }
+
+          // Move one step in requested direction
+          if (newPagination.pageIndex > prevPagination.pageIndex && this._pagination.canGoNext()) {
+            this._pagination.next();
+            needsRefetch = true;
+          } else if (newPagination.pageIndex < prevPagination.pageIndex && this._pagination.canGoPrevious()) {
+            this._pagination.previous();
+            needsRefetch = true;
+          }
         }
       }
+    } finally {
+      this.isPaginationChangeFromTable = false;
     }
 
     if (needsRefetch) {
@@ -673,7 +719,7 @@ export class BaseTableAdapter<
    */
   setFilter(filter: TFilterInput): void {
     this.filter = filter;
-    this.pagination.reset();
+    this._pagination.reset();
     void this.fetch();
   }
 
@@ -691,7 +737,7 @@ export class BaseTableAdapter<
    */
   clearFilter(): void {
     this.filter = undefined;
-    this.pagination.reset();
+    this._pagination.reset();
     void this.fetch();
   }
 
@@ -706,7 +752,7 @@ export class BaseTableAdapter<
    */
   setSearch(search: TSearchInput): void {
     this.search = search;
-    this.pagination.reset();
+    this._pagination.reset();
     void this.fetch();
   }
 
@@ -724,7 +770,7 @@ export class BaseTableAdapter<
    */
   clearSearch(): void {
     this.search = undefined;
-    this.pagination.reset();
+    this._pagination.reset();
     void this.fetch();
   }
 
@@ -753,6 +799,7 @@ export class BaseTableAdapter<
    */
   destroy(): void {
     this.unsubscribeQueryManager?.();
+    this.unsubscribePagination?.();
     this.queryManager.destroy();
     this.listeners.clear();
   }

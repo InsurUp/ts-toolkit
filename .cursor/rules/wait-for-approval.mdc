@@ -1,0 +1,40 @@
+---
+description: Wait for explicit approval before executing plans
+globs: 
+alwaysApply: true
+---
+
+# Wait for Explicit Approval
+
+When proposing a plan or approach, **DO NOT** start executing it automatically.
+
+## Process
+
+1. **Present** the plan or proposal
+2. **Wait** for explicit approval ("do it", "go ahead", "yes", etc.)
+3. **Only then** execute
+
+## Examples
+
+```
+❌ BAD
+User: "How should we refactor this?"
+Agent: "Here's the plan: ... [immediately starts editing files]"
+
+✅ GOOD  
+User: "How should we refactor this?"
+Agent: "Here's the plan: ..."
+User: "Do it"
+Agent: [now executes the plan]
+```
+
+## What Counts as Approval
+
+- "Do it", "Go ahead", "Yes", "Proceed", "Execute", "Make it so"
+- Explicit confirmation of the proposed approach
+
+## What Does NOT Count
+
+- Asking a question about the plan
+- Silence / no response
+- "What do you think?" or similar

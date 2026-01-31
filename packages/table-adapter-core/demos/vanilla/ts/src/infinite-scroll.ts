@@ -114,7 +114,7 @@ function initCustomerTable(): void {
       col.createdAt({ header: "Created", sortable: true }),
     ],
     fetch: (options) => getClient().customers.getCustomers(options),
-    pageSize: 50, // Larger page size for infinite scroll
+    pagination: { type: 'cursor', pageSize: 50 }, // Larger page size for infinite scroll
     autoFetch: true,
     onError: (error) => console.error("Failed to load customers:", error.message),
     tableOptions: { enableSorting: true },

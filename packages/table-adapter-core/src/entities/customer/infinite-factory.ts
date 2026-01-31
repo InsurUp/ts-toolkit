@@ -29,6 +29,7 @@ import {
 } from '../../lib/factory/index.js';
 import { createSortingConverters } from '../../lib/sorting/index.js';
 import { InfiniteTableAdapter } from '../../lib/adapter/infinite-adapter/index.js';
+import type { CursorPaginationManager, CursorPaginationOptions, PaginationOptions, PaginationManagerFromOptions } from '../../lib/pagination/index.js';
 
 // ============================================================================
 // Sorting Converters (shared with regular factory)
@@ -85,21 +86,23 @@ function createInfiniteTableApi<
   TRow,
   TQueryOptions,
   TSortInput,
-  TFilterInput = unknown,
-  TSearchInput = unknown,
+  TFilterInput,
+  TSearchInput,
+  TPaginationOptions extends PaginationOptions,
 >(
-  config: TableApiConfig<TEntity, TRow, TQueryOptions, TSortInput, TFilterInput, TSearchInput>
-): TableApi<TRow, TFilterInput, TSearchInput> {
+  config: TableApiConfig<TEntity, TRow, TQueryOptions, TSortInput, TFilterInput, TSearchInput, TPaginationOptions>
+): TableApi<TRow, TFilterInput, TSearchInput, PaginationManagerFromOptions<TPaginationOptions>> {
   const adapter = new InfiniteTableAdapter<
     TEntity,
     TRow,
     TQueryOptions,
     TSortInput,
     TFilterInput,
-    TSearchInput
+    TSearchInput,
+    TPaginationOptions
   >(config.fetchFn, config.buildQueryOptions, {
     columns: config.columns,
-    pageSize: config.pageSize,
+    pagination: config.pagination,
     defaultFilter: config.defaultFilter,
     defaultSearch: config.defaultSearch,
     sortingConverters: config.sortingConverters,
@@ -148,6 +151,10 @@ function createInfiniteTableApi<
 
     destroy: () => adapter.destroy(),
 
+    get pagination() {
+      return adapter.pagination;
+    },
+
     setPageSize: (size: number) => adapter.setPageSize(size),
 
     // Filter methods
@@ -184,7 +191,7 @@ function createInfiniteTableApi<
  *     col.type({ header: 'Type' }),
  *   ],
  *   fetch: (options) => client.customers.getCustomers(options),
- *   pageSize: 50,  // Larger page size for infinite scroll
+ *   pagination: { type: 'cursor', pageSize: 50 },  // Larger page size for infinite scroll
  *   autoFetch: true,
  * })
  *
@@ -216,12 +223,13 @@ export function createInfiniteCustomerTable<const TColumns extends CustomerColum
     GetCustomersOptions<TFields[]>,
     QueryCustomerModelSortInput,
     CustomerFilterInput,
-    CustomerSearchInput
+    CustomerSearchInput,
+    CursorPaginationOptions
   >({
     fetchFn,
     buildQueryOptions: buildCustomerQueryOptions,
     columns,
-    pageSize: options.pageSize ?? 50, // Default larger page size for infinite scroll
+    pagination: options.pagination,
     defaultFilter: options.defaultFilter,
     defaultSearch: options.defaultSearch,
     sortingConverters: customerSortingConverters,
@@ -241,4 +249,4 @@ export function createInfiniteCustomerTable<const TColumns extends CustomerColum
  * Uses ITableAdapter for consistent API across pagination and infinite scroll modes
  */
 export type InfiniteCustomerTable<TColumns extends CustomerColumnDef[] = CustomerColumnDef[]> =
-  TableApi<CustomerRowType<TColumns>, CustomerFilterInput, CustomerSearchInput>;
+  TableApi<CustomerRowType<TColumns>, CustomerFilterInput, CustomerSearchInput, CursorPaginationManager>;

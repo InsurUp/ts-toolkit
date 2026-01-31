@@ -1,0 +1,46 @@
+---
+description: Ask permission before using alternative or unconventional fixes
+globs: 
+alwaysApply: true
+---
+
+# Ask Before Using Workarounds
+
+When the standard approach to fix an error doesn't work, **STOP** before trying alternative solutions.
+
+## Process
+
+1. **Attempt** the straightforward fix
+2. **If it fails**, explain why it didn't work
+3. **Propose** the alternative approach with reasoning
+4. **Wait** for explicit permission before proceeding
+
+## Example
+
+```
+❌ BAD
+Agent: "The normal fix didn't work, so I'll try [weird hack]..."
+[immediately applies unconventional solution]
+
+✅ GOOD
+Agent: "The standard approach failed because [reason].
+
+I could try an alternative: [describe approach].
+
+This works by [explanation] but it's unconventional because [trade-offs].
+
+Should I proceed with this approach?"
+```
+
+## What Requires Permission
+
+- Workarounds that deviate from standard patterns
+- Fixes that feel "hacky" or unusual
+- Solutions that have trade-offs or side effects
+- Approaches you're not confident about
+
+## Never
+
+- Chain multiple failed attempts without stopping
+- Apply workarounds silently
+- Assume unconventional = acceptable

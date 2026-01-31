@@ -11,6 +11,9 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Dev mode: resolve workspace packages to source for instant HMR
+      "@insurup/sdk": path.resolve(__dirname, "../../../../src/index.ts"),
+      "@insurup/contracts": path.resolve(__dirname, "../../../../../contracts/src/index.ts"),
     },
     dedupe: ["react", "react-dom"],
   },

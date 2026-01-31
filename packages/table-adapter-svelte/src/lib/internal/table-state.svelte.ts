@@ -12,7 +12,7 @@
 
 import { createSubscriber } from 'svelte/reactivity';
 import type { Table, TableOptionsResolved } from '@tanstack/table-core';
-import type { TableError, ITableAdapter, AdapterState } from '@insurup/table-adapter-core';
+import type { TableError, ITableAdapter, AdapterState, PaginationManager } from '@insurup/table-adapter-core';
 
 /**
  * Fine-grained reactive state for table adapters.
@@ -111,8 +111,31 @@ export class TableState<TRow> {
   }
 
   // ============================================================================
-  // Pagination state (for canLoadMore reactivity)
+  // Pagination (with createSubscriber reactivity)
   // ============================================================================
+
+  /** Subscriber function for pagination reactivity */
+  #subscribeToPagination: () => void = () => {};
+
+  /** Trigger function to notify subscribers that pagination has changed */
+  #triggerPaginationUpdate: () => void = () => {};
+
+  /**
+   * Pagination manager - reactive via createSubscriber pattern.
+   * Calling this getter in an effect/template makes it re-run when adapter state changes.
+   *
+   * @example
+   * ```svelte
+   * <button disabled={!ct.pagination.canGoNext()} onclick={() => { ct.pagination.next(); ct.adapter.fetch(); }}>
+   *   Next
+   * </button>
+   * <span>Page {ct.pagination.getState().pageIndex + 1}</span>
+   * ```
+   */
+  get pagination(): PaginationManager {
+    this.#subscribeToPagination();
+    return this.#adapter.pagination;
+  }
 
   /** Whether there's a next page available */
   hasNextPage = $state(false);
@@ -131,13 +154,25 @@ export class TableState<TRow> {
   canLoadMore = $derived(!this.isFetching && this.hasNextPage);
 
   // ============================================================================
-  // Internal adapter reference
+  // Adapter (with createSubscriber reactivity)
   // ============================================================================
 
-  readonly #adapter: ITableAdapter<TRow>;
+  readonly #adapter: ITableAdapter<TRow, unknown, unknown, PaginationManager>;
 
-  /** Raw adapter for advanced use (setFilter, setSearch, invalidate, etc.) */
-  get adapter(): ITableAdapter<TRow> {
+  /** Subscriber function for adapter reactivity */
+  #subscribeToAdapter: () => void = () => {};
+
+  /** Trigger function to notify subscribers that adapter state has changed */
+  #triggerAdapterUpdate: () => void = () => {};
+
+  /**
+   * Raw adapter for advanced use (setFilter, setSearch, invalidate, etc.)
+   * Reactive via createSubscriber pattern - re-renders when adapter state changes.
+   *
+   * Use this for accessing adapter.pagination when you need reactivity.
+   */
+  get adapter(): ITableAdapter<TRow, unknown, unknown, PaginationManager> {
+    this.#subscribeToAdapter();
     return this.#adapter;
   }
 
@@ -151,7 +186,7 @@ export class TableState<TRow> {
   // Constructor
   // ============================================================================
 
-  constructor(adapter: ITableAdapter<TRow>) {
+  constructor(adapter: ITableAdapter<TRow, unknown, unknown, PaginationManager>) {
     this.#adapter = adapter;
     this.#table = adapter.getTable();
 
@@ -168,11 +203,32 @@ export class TableState<TRow> {
       return () => {};
     });
 
-    // Single subscription for both fine-grained state updates and table reactivity
+    // Create a subscriber for pagination reactivity
+    // Reuses the same trigger mechanism since pagination changes when adapter state changes
+    this.#subscribeToPagination = createSubscriber((update) => {
+      // Store update function - will be called when adapter state changes
+      this.#triggerPaginationUpdate = update;
+      return () => {};
+    });
+
+    // Create a subscriber for adapter reactivity
+    // Triggered when pagination changes so adapter.pagination is reactive
+    this.#subscribeToAdapter = createSubscriber((update) => {
+      this.#triggerAdapterUpdate = update;
+      return () => {};
+    });
+
+    // Single subscription for fine-grained state updates, table, and pagination reactivity
     this.#unsubscribe = adapter.subscribe(() => {
       this.#updateState(adapter.getSnapshot());
-      // Trigger table reactivity for components that accessed ct.table
       this.#triggerTableUpdate();
+    });
+
+    // Pagination subscription triggers both pagination and adapter updates
+    // This ensures adapter.pagination is also reactive
+    adapter.pagination.subscribe(() => {
+      this.#triggerPaginationUpdate();
+      this.#triggerAdapterUpdate();
     });
   }
 

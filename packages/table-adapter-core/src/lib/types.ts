@@ -12,6 +12,7 @@ import type {
 } from '@insurup/sdk';
 import type { TableOptionsResolved } from '@tanstack/table-core';
 import type { ErrorCallbacks } from './adapter/types.js';
+import type { PaginationOptions } from './pagination/types.js';
 
 // Re-export SDK types for convenience
 export type {
@@ -402,19 +403,21 @@ export type QueryOptionsBuilder<
  * @template TRow - The row type (inferred from columns)
  * @template TFilterInput - The SDK filter input type
  * @template TSearchInput - The SDK search input type
+ * @template TPaginationOptions - The pagination options type
  */
 export interface TableAdapterOptionsBase<
   TEntity,
   TFieldKey extends DeepFieldKeys<TEntity>,
   TColumns extends AnyColumnDef<TFieldKey & string>[],
   TRow,
-  TFilterInput = unknown,
-  TSearchInput = unknown,
+  TFilterInput,
+  TSearchInput,
+  TPaginationOptions extends PaginationOptions,
 > extends ErrorCallbacks<TRow> {
   /** Column definitions using builder function */
   columns: (col: ColumnBuilder<TEntity, TFieldKey>) => TColumns;
-  /** Number of items per page (default: 20) */
-  pageSize?: number;
+  /** Pagination strategy configuration */
+  pagination: TPaginationOptions;
   /** Default filter criteria */
   defaultFilter?: TFilterInput;
   /** Default search criteria */
@@ -454,9 +457,10 @@ export interface TableAdapterClientModeOptions<
   TFieldKey extends DeepFieldKeys<TEntity>,
   TColumns extends AnyColumnDef<TFieldKey & string>[],
   TRow,
-  TFilterInput = unknown,
-  TSearchInput = unknown,
-> extends TableAdapterOptionsBase<TEntity, TFieldKey, TColumns, TRow, TFilterInput, TSearchInput> {
+  TFilterInput,
+  TSearchInput,
+  TPaginationOptions extends PaginationOptions,
+> extends TableAdapterOptionsBase<TEntity, TFieldKey, TColumns, TRow, TFilterInput, TSearchInput, TPaginationOptions> {
   /** InsurUp client configuration */
   client: InsurUpClientOptions;
   fetch?: never;
@@ -470,10 +474,11 @@ export interface TableAdapterFetchModeOptions<
   TFieldKey extends DeepFieldKeys<TEntity>,
   TColumns extends AnyColumnDef<TFieldKey & string>[],
   TRow,
-  TFetchFn = unknown,
-  TFilterInput = unknown,
-  TSearchInput = unknown,
-> extends TableAdapterOptionsBase<TEntity, TFieldKey, TColumns, TRow, TFilterInput, TSearchInput> {
+  TFetchFn,
+  TFilterInput,
+  TSearchInput,
+  TPaginationOptions extends PaginationOptions,
+> extends TableAdapterOptionsBase<TEntity, TFieldKey, TColumns, TRow, TFilterInput, TSearchInput, TPaginationOptions> {
   /** Custom fetch function */
   fetch: TFetchFn;
   client?: never;
@@ -487,11 +492,12 @@ export type TableAdapterOptions<
   TFieldKey extends DeepFieldKeys<TEntity>,
   TColumns extends AnyColumnDef<TFieldKey & string>[],
   TRow,
-  TFetchFn = unknown,
-  TFilterInput = unknown,
-  TSearchInput = unknown,
+  TFetchFn,
+  TFilterInput,
+  TSearchInput,
+  TPaginationOptions extends PaginationOptions,
 > =
-  | TableAdapterClientModeOptions<TEntity, TFieldKey, TColumns, TRow, TFilterInput, TSearchInput>
+  | TableAdapterClientModeOptions<TEntity, TFieldKey, TColumns, TRow, TFilterInput, TSearchInput, TPaginationOptions>
   | TableAdapterFetchModeOptions<
       TEntity,
       TFieldKey,
@@ -499,7 +505,8 @@ export type TableAdapterOptions<
       TRow,
       TFetchFn,
       TFilterInput,
-      TSearchInput
+      TSearchInput,
+      TPaginationOptions
     >;
 
 // ============================================================================
@@ -544,7 +551,8 @@ export type EntityTableOptions<
   TFieldKey extends DeepFieldKeys<TEntity>,
   TColumns extends AnyColumnDef<TFieldKey & string>[],
   TRow,
-  TFetchFn = unknown,
-  TFilterInput = unknown,
-  TSearchInput = unknown,
-> = TableAdapterOptions<TEntity, TFieldKey, TColumns, TRow, TFetchFn, TFilterInput, TSearchInput>;
+  TFetchFn,
+  TFilterInput,
+  TSearchInput,
+  TPaginationOptions extends PaginationOptions,
+> = TableAdapterOptions<TEntity, TFieldKey, TColumns, TRow, TFetchFn, TFilterInput, TSearchInput, TPaginationOptions>;

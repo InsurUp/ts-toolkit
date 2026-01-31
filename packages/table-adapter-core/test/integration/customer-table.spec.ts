@@ -137,6 +137,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id(), col.name('Customer Name')],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       expect(table).toBeDefined();
@@ -149,6 +150,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id(), col.name('Name'), col.primaryEmail('Email')],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       await table.fetch();
@@ -175,6 +177,7 @@ describe('createCustomerTable', () => {
           }),
         ],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       await table.fetch();
@@ -195,6 +198,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id(), col.name('Name')],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       await table.fetch();
@@ -211,6 +215,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       await table.fetch();
@@ -229,7 +234,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
-        pageSize: 50,
+        pagination: { type: 'cursor', pageSize: 50 },
       });
 
       await table.fetch();
@@ -250,6 +255,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
         defaultFilter: { name: { contains: 'Corp' } },
       });
 
@@ -269,6 +275,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       await table.fetch();
@@ -291,6 +298,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
         defaultFilter: { name: { contains: 'test' } },
       });
 
@@ -304,6 +312,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
         defaultFilter: { name: { contains: 'test' } },
       });
 
@@ -338,6 +347,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
         defaultSearch: searchInput,
       });
 
@@ -357,6 +367,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       await table.fetch();
@@ -379,6 +390,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
         defaultSearch: searchInput,
       });
 
@@ -392,6 +404,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
         defaultSearch: searchInput,
       });
 
@@ -418,6 +431,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id(), col.name('Name')],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
         tableOptions: {
           state: {
             sorting: [{ id: 'name', desc: false }],
@@ -449,6 +463,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id(), col.name('Name')],
         fetch: localMock,
+        pagination: { type: 'cursor' },
       });
 
       await table.fetch();
@@ -472,6 +487,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
         tableOptions: {
           enableRowSelection: true,
           getRowId,
@@ -492,6 +508,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       const state = table.getState();
@@ -512,6 +529,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       const listener = vi.fn();
@@ -530,6 +548,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       const serverSnapshot = table.getServerSnapshot();
@@ -548,6 +567,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
         onSuccess,
       });
 
@@ -566,6 +586,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: errorFetch,
+        pagination: { type: 'cursor' },
         onError,
       });
 
@@ -583,6 +604,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
         onSettled,
       });
 
@@ -600,6 +622,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
         autoFetch: true,
       });
 
@@ -614,6 +637,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       expect(mockFetch).not.toHaveBeenCalled();
@@ -627,7 +651,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
-        pageSize: 10,
+        pagination: { type: 'cursor', pageSize: 10 },
       });
 
       await table.fetch();
@@ -652,6 +676,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       await table.fetch();
@@ -670,6 +695,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       await table.fetch();
@@ -684,6 +710,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       await table.fetch();
@@ -700,6 +727,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       expect(() => table.destroy()).not.toThrow();

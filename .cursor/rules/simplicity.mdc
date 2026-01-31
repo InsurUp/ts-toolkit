@@ -1,0 +1,60 @@
+---
+description: Prefer simple, readable, minimal solutions
+globs: 
+alwaysApply: true
+---
+
+# Simplicity First
+
+Always prefer the simplest solution that solves the problem.
+
+## Less Code
+
+- Avoid over-engineering and premature abstraction
+- Don't add layers, wrappers, or patterns "just in case"
+- If 10 lines solve it, don't write 50
+
+```typescript
+// ❌ Over-engineered
+class UserNameFormatterFactory {
+  createFormatter(): UserNameFormatter { ... }
+}
+
+// ✅ Simple
+function formatUserName(user: User): string {
+  return `${user.firstName} ${user.lastName}`;
+}
+```
+
+## Readable
+
+- Clear, descriptive names over clever abbreviations
+- Obvious logic over clever tricks
+- Easy to follow at first glance
+
+```typescript
+// ❌ Clever but unclear
+const n = u.fn[0] + u.ln;
+
+// ✅ Clear
+const displayName = user.firstName + ' ' + user.lastName;
+```
+
+## Minimal Dependencies
+
+- Don't add a package when simple code works
+- Prefer standard library / built-in solutions
+- Each dependency is a liability
+
+```typescript
+// ❌ Adding lodash for one function
+import { isEmpty } from 'lodash';
+if (isEmpty(arr)) { ... }
+
+// ✅ Just use JavaScript
+if (arr.length === 0) { ... }
+```
+
+## Guiding Principle
+
+> "Can this be simpler?" — Ask this before every solution.

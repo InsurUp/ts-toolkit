@@ -24,6 +24,7 @@ import type {
   ComputedColumnDef,
 } from '../types.js';
 import type { TableApiConfig, TableApi } from './types.js';
+import type { PaginationOptions, PaginationManagerFromOptions } from '../pagination/types.js';
 
 /**
  * Create a fetch function for client mode
@@ -324,12 +325,13 @@ export function createColumnBuilder<
  *   GetCustomersOptions<TFields>,
  *   QueryCustomerModelSortInput,
  *   QueryCustomerModelFilterInput,
- *   QueryCustomerModelSearchInput
+ *   QueryCustomerModelSearchInput,
+ *   CursorPaginationOptions
  * >({
  *   fetchFn,
  *   buildQueryOptions,
  *   columns: internalColumns,
- *   pageSize: options.pageSize ?? 20,
+ *   pagination: { type: 'cursor', pageSize: options.pageSize ?? 20 },
  *   defaultFilter: options.defaultFilter,
  *   defaultSearch: options.defaultSearch,
  *   sortingConverters,
@@ -342,21 +344,23 @@ export function createTableApi<
   TRow,
   TQueryOptions,
   TSortInput,
-  TFilterInput = unknown,
-  TSearchInput = unknown,
+  TFilterInput,
+  TSearchInput,
+  TPaginationOptions extends PaginationOptions,
 >(
-  config: TableApiConfig<TEntity, TRow, TQueryOptions, TSortInput, TFilterInput, TSearchInput>
-): TableApi<TRow, TFilterInput, TSearchInput> {
+  config: TableApiConfig<TEntity, TRow, TQueryOptions, TSortInput, TFilterInput, TSearchInput, TPaginationOptions>
+): TableApi<TRow, TFilterInput, TSearchInput, PaginationManagerFromOptions<TPaginationOptions>> {
   const adapter = new BaseTableAdapter<
     TEntity,
     TRow,
     TQueryOptions,
     TSortInput,
     TFilterInput,
-    TSearchInput
+    TSearchInput,
+    TPaginationOptions
   >(config.fetchFn, config.buildQueryOptions, {
     columns: config.columns,
-    pageSize: config.pageSize,
+    pagination: config.pagination,
     defaultFilter: config.defaultFilter,
     defaultSearch: config.defaultSearch,
     sortingConverters: config.sortingConverters,
@@ -408,6 +412,10 @@ export function createTableApi<
     refetch: (options?: { force?: boolean }) => adapter.refetch(options),
 
     destroy: () => adapter.destroy(),
+
+    get pagination() {
+      return adapter.pagination;
+    },
 
     setPageSize: (size: number) => adapter.setPageSize(size),
 

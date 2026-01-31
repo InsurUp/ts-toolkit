@@ -38,7 +38,7 @@
       col.createdAt({ header: "Created", sortable: true }),
     ],
     fetch: (options) => client.customers.getCustomers(options),
-    pageSize: 10,
+    pagination: { type: 'cursor', pageSize: 10 },
     autoFetch: true,
     tableOptions: {
       state: { columnOrder },
@@ -152,6 +152,73 @@
     </div>
   </div>
 
+  <!-- Pagination Debug Panel -->
+  <div class="rounded-md border bg-amber-50 dark:bg-amber-950/30 p-4">
+    <p class="text-sm font-medium mb-3">Pagination Debug</p>
+    <div class="grid grid-cols-3 gap-4 text-sm font-mono">
+      <div class="space-y-2">
+        <p class="font-semibold text-amber-700 dark:text-amber-400">ct.pagination (manager)</p>
+        <div class="bg-background rounded p-2 space-y-1">
+          <p>pageIndex: <span class="text-blue-600">{ct.pagination.getState().pageIndex}</span></p>
+          <p>pageSize: <span class="text-blue-600">{ct.pagination.getState().pageSize}</span></p>
+          <p>cursor: <span class="text-blue-600 text-xs break-all">{ct.pagination.getState().cursor ?? 'undefined'}</span></p>
+          <p>canGoNext: <span class={ct.pagination.canGoNext() ? 'text-green-600' : 'text-red-600'}>{ct.pagination.canGoNext()}</span></p>
+          <p>canGoPrevious: <span class={ct.pagination.canGoPrevious() ? 'text-green-600' : 'text-red-600'}>{ct.pagination.canGoPrevious()}</span></p>
+        </div>
+      </div>
+      <div class="space-y-2">
+        <p class="font-semibold text-amber-700 dark:text-amber-400">table.getState().pagination</p>
+        <div class="bg-background rounded p-2 space-y-1">
+          <p>pageIndex: <span class="text-blue-600">{ct.table.getState().pagination.pageIndex}</span></p>
+          <p>pageSize: <span class="text-blue-600">{ct.table.getState().pagination.pageSize}</span></p>
+          <p>getCanNextPage: <span class={ct.table.getCanNextPage() ? 'text-green-600' : 'text-red-600'}>{ct.table.getCanNextPage()}</span></p>
+          <p>getCanPreviousPage: <span class={ct.table.getCanPreviousPage() ? 'text-green-600' : 'text-red-600'}>{ct.table.getCanPreviousPage()}</span></p>
+        </div>
+      </div>
+      <div class="space-y-2">
+        <p class="font-semibold text-amber-700 dark:text-amber-400">TableState (derived)</p>
+        <div class="bg-background rounded p-2 space-y-1">
+          <p>rowCount: <span class="text-purple-600">{ct.rowCount}</span></p>
+          <p>pageCount: <span class="text-purple-600">{ct.pageCount}</span></p>
+          <p>hasNextPage: <span class={ct.hasNextPage ? 'text-green-600' : 'text-red-600'}>{ct.hasNextPage}</span></p>
+          <p>canLoadMore: <span class={ct.canLoadMore ? 'text-green-600' : 'text-red-600'}>{ct.canLoadMore}</span></p>
+          <p>hasData: <span class={ct.hasData ? 'text-green-600' : 'text-red-600'}>{ct.hasData}</span></p>
+          <p>isEmpty: <span class={ct.isEmpty ? 'text-orange-600' : 'text-gray-600'}>{ct.isEmpty}</span></p>
+        </div>
+      </div>
+    </div>
+    <!-- Debug navigation buttons -->
+    <div class="mt-4 flex items-center gap-2 border-t pt-4">
+      <span class="text-sm font-medium text-amber-700 dark:text-amber-400">Actions:</span>
+      <button
+        class="inline-flex items-center gap-1 h-7 px-3 text-xs rounded-md border bg-background hover:bg-accent disabled:opacity-50"
+        disabled={!ct.pagination.canGoPrevious() || ct.isLoading}
+        onclick={() => ct.pagination.previous()}
+      >
+        <ChevronLeft class="h-3 w-3" />
+        Prev
+      </button>
+      <button
+        class="inline-flex items-center gap-1 h-7 px-3 text-xs rounded-md border bg-background hover:bg-accent disabled:opacity-50"
+        disabled={!ct.pagination.canGoNext() || ct.isLoading}
+        onclick={() => ct.pagination.next()}
+      >
+        Next
+        <ChevronRight class="h-3 w-3" />
+      </button>
+      <button
+        class="inline-flex items-center gap-1 h-7 px-3 text-xs rounded-md border bg-background hover:bg-accent disabled:opacity-50"
+        disabled={ct.isLoading}
+        onclick={() => ct.pagination.reset()}
+      >
+        Reset
+      </button>
+      <span class="ml-auto text-xs text-muted-foreground">
+        {ct.isLoading ? 'Loading...' : ct.isFetching ? 'Fetching...' : 'Idle'}
+      </span>
+    </div>
+  </div>
+
   <div class="relative w-full overflow-x-auto rounded-md border">
     <table class="w-full caption-bottom text-sm">
       <thead class="[&_tr]:border-b bg-muted/50">
@@ -225,7 +292,7 @@
 
   <div class="flex items-center justify-between">
     <div class="text-sm text-muted-foreground">
-      Page {ct.table.getState().pagination.pageIndex + 1} of {ct.pageCount || 1}
+      Page {ct.pagination.getState().pageIndex + 1} of {ct.pageCount || 1}
       {#if ct.rowCount > 0}
         <span class="ml-2">({ct.rowCount} rows)</span>
       {/if}
@@ -233,16 +300,16 @@
     <div class="flex items-center space-x-2">
       <button
         class="inline-flex items-center gap-1 h-8 px-3 rounded-md border bg-background hover:bg-accent disabled:opacity-50"
-        disabled={!ct.table.getCanPreviousPage() || ct.isLoading}
-        onclick={() => ct.table.previousPage()}
+        disabled={!ct.pagination.canGoPrevious() || ct.isLoading}
+        onclick={() => ct.pagination.previous()}
       >
         <ChevronLeft class="h-4 w-4" />
         Previous
       </button>
       <button
         class="inline-flex items-center gap-1 h-8 px-3 rounded-md border bg-background hover:bg-accent disabled:opacity-50"
-        disabled={!ct.table.getCanNextPage() || ct.isLoading}
-        onclick={() => ct.table.nextPage()}
+        disabled={!ct.pagination.canGoNext() || ct.isLoading}
+        onclick={() => ct.pagination.next()}
       >
         Next
         <ChevronRight class="h-4 w-4" />

@@ -109,7 +109,7 @@ export function CustomerTableInfinite(): React.ReactElement {
       }),
     ],
     fetch: (options) => client.customers.getCustomers(options),
-    pageSize: 100,
+    pagination: { type: 'cursor', pageSize: 100 },
     autoFetch: true,
     onError: (error) => {
       toast.error(`Failed to load customers: ${error.message}`);

@@ -7,6 +7,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { BaseTableAdapter } from '../../../src/lib/adapter/base-adapter.js';
 import { createSortingConverters } from '../../../src/lib/sorting/converters.js';
 import type { BaseTableAdapterOptions } from '../../../src/lib/adapter/types.js';
+import type { CursorPaginationOptions } from '../../../src/lib/pagination/types.js';
 import type { AnyColumnDef, FetchFn, QueryOptionsBuilder } from '../../../src/lib/types.js';
 import type { Connection, Success, ClientError } from '@insurup/sdk';
 import { InsurUpClientErrorType } from '@insurup/sdk';
@@ -133,11 +134,11 @@ function createMockBuildQueryOptions(): QueryOptionsBuilder<
 }
 
 function createAdapterOptions(
-  overrides: Partial<BaseTableAdapterOptions<MockEntity, MockEntity, MockSortInput, MockFilterInput, MockSearchInput>> = {}
-): BaseTableAdapterOptions<MockEntity, MockEntity, MockSortInput, MockFilterInput, MockSearchInput> {
+  overrides: Partial<BaseTableAdapterOptions<MockEntity, MockEntity, MockSortInput, MockFilterInput, MockSearchInput, CursorPaginationOptions>> = {}
+): BaseTableAdapterOptions<MockEntity, MockEntity, MockSortInput, MockFilterInput, MockSearchInput, CursorPaginationOptions> {
   return {
     columns: createMockColumns(),
-    pageSize: 10,
+    pagination: { type: 'cursor', pageSize: 10 },
     sortingConverters,
     queryKeyPrefix: 'test',
     ...overrides,
@@ -172,11 +173,11 @@ describe('BaseTableAdapter', () => {
 
     it('should throw error for pageSize <= 0', () => {
       expect(() => {
-        new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions({ pageSize: 0 }));
+        new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions({ pagination: { type: 'cursor', pageSize: 0 } }));
       }).toThrow('pageSize must be greater than 0');
 
       expect(() => {
-        new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions({ pageSize: -5 }));
+        new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions({ pagination: { type: 'cursor', pageSize: -5 } }));
       }).toThrow('pageSize must be greater than 0');
     });
 
@@ -279,7 +280,7 @@ describe('BaseTableAdapter', () => {
       const adapter = new BaseTableAdapter(
         fetchFn,
         buildQueryOptions,
-        createAdapterOptions({ pageSize: 25 })
+        createAdapterOptions({ pagination: { type: 'cursor', pageSize: 25 } })
       );
 
       await adapter.fetch();
@@ -308,7 +309,7 @@ describe('BaseTableAdapter', () => {
       const adapter = new BaseTableAdapter(
         fetchFn,
         buildQueryOptions,
-        createAdapterOptions({ pageSize: 10 })
+        createAdapterOptions({ pagination: { type: 'cursor', pageSize: 10 } })
       );
 
       await adapter.fetch();
@@ -379,7 +380,7 @@ describe('BaseTableAdapter', () => {
       const adapter = new BaseTableAdapter(
         fetchFn,
         buildQueryOptions,
-        createAdapterOptions({ pageSize: 10 })
+        createAdapterOptions({ pagination: { type: 'cursor', pageSize: 10 } })
       );
 
       adapter.setPageSize(25);
@@ -419,7 +420,7 @@ describe('BaseTableAdapter', () => {
       const adapter = new BaseTableAdapter(
         fetchFn,
         buildQueryOptions,
-        createAdapterOptions({ pageSize: 10 })
+        createAdapterOptions({ pagination: { type: 'cursor', pageSize: 10 } })
       );
 
       // Fetch and go to next page
@@ -851,7 +852,7 @@ describe('BaseTableAdapter', () => {
       const adapter = new BaseTableAdapter(
         fetchFn,
         buildQueryOptions,
-        createAdapterOptions({ pageSize: 10 })
+        createAdapterOptions({ pagination: { type: 'cursor', pageSize: 10 } })
       );
 
       // Create table instance (required for handleTableStateChange)

@@ -17,6 +17,7 @@ import type {
   EntityFetchFn,
   EntityTableOptions,
 } from '../../lib/types.js';
+import type { CursorPaginationOptions } from '../../lib/pagination/types.js';
 
 // Re-export filter and search types for convenience
 export type { QueryCustomerModelFilterInput, QueryCustomerModelSearchInput } from '@insurup/sdk';
@@ -73,5 +74,6 @@ export type CustomerTableOptions<TColumns extends CustomerColumnDef[]> = EntityT
   CustomerRowType<TColumns>,
   CustomerFetchFn<CustomerRowType<TColumns>, CustomerExtractFields<TColumns>[]>,
   CustomerFilterInput,
-  CustomerSearchInput
+  CustomerSearchInput,
+  CursorPaginationOptions
 >;

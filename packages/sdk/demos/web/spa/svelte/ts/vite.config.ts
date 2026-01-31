@@ -11,6 +11,9 @@ export default defineConfig({
   resolve: {
     alias: {
       $lib: path.resolve(__dirname, "./src/lib"),
+      // Dev mode: resolve workspace packages to source for instant HMR
+      "@insurup/sdk": path.resolve(__dirname, "../../../../src/index.ts"),
+      "@insurup/contracts": path.resolve(__dirname, "../../../../../contracts/src/index.ts"),
     },
   },
   server: {

@@ -12,6 +12,7 @@ import type {
 import type { GraphQLErrors, ClientError, DeepFieldKeys } from '@insurup/sdk';
 import type { AnyColumnDef } from '../types.js';
 import type { SortingConverters } from '../sorting/types.js';
+import type { PaginationManager, PaginationOptions } from '../pagination/types.js';
 
 // ============================================================================
 // Error Types
@@ -119,18 +120,20 @@ export interface ColumnInfo {
  * @template TSortInput - The SDK sort input type
  * @template TFilterInput - The SDK filter input type
  * @template TSearchInput - The SDK search input type
+ * @template TPaginationOptions - The pagination options type
  */
 export interface BaseTableAdapterOptions<
   TEntity,
   TRow,
   TSortInput,
-  TFilterInput = unknown,
-  TSearchInput = unknown,
+  TFilterInput,
+  TSearchInput,
+  TPaginationOptions extends PaginationOptions,
 > extends ErrorCallbacks<TRow> {
   /** Column definitions from the builder */
   columns: AnyColumnDef<DeepFieldKeys<TEntity> & string>[];
-  /** Page size */
-  pageSize: number;
+  /** Pagination strategy configuration */
+  pagination: TPaginationOptions;
   /** Default filter criteria */
   defaultFilter?: TFilterInput;
   /** Default search criteria */
@@ -165,8 +168,14 @@ export interface BaseTableAdapterOptions<
  * @template TRow - The row type with selected fields
  * @template TFilterInput - The SDK filter input type
  * @template TSearchInput - The SDK search input type
+ * @template TPagination - The pagination manager type (CursorPaginationManager, etc.)
  */
-export interface ITableAdapter<TRow, TFilterInput = unknown, TSearchInput = unknown> {
+export interface ITableAdapter<
+  TRow,
+  TFilterInput,
+  TSearchInput,
+  TPagination extends PaginationManager,
+> {
   // ============================================================================
   // TanStack Table Integration
   // ============================================================================
@@ -220,6 +229,25 @@ export interface ITableAdapter<TRow, TFilterInput = unknown, TSearchInput = unkn
   // ============================================================================
   // Pagination
   // ============================================================================
+
+  /**
+   * Pagination manager - single source of truth for pagination state.
+   * Use this to navigate pages, check if next/previous is available, etc.
+   *
+   * @example
+   * ```ts
+   * // Navigate to next page
+   * adapter.pagination.next();
+   * adapter.fetch();
+   *
+   * // Check if can go next
+   * const canNext = adapter.pagination.canGoNext();
+   *
+   * // Get current page
+   * const page = adapter.pagination.getState().pageIndex;
+   * ```
+   */
+  readonly pagination: TPagination;
 
   /** Change page size and reset to first page */
   setPageSize(size: number): void;

@@ -20,7 +20,7 @@ function createTestOptions(
   return {
     columns: (col) => [col.id(), col.name()],
     fetch: createMockFetchFn(),
-    pageSize: 10,
+    pagination: { type: 'cursor', pageSize: 10 },
     ...overrides,
   } as CustomerTableOptions<CustomerColumnDef[]>;
 }

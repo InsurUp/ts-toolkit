@@ -13,6 +13,7 @@ import type {
   ITableAdapter,
 } from '../types.js';
 import type { FetchFn, QueryOptionsBuilder } from '../../types.js';
+import type { PaginationOptions, PaginationManagerFromOptions } from '../../pagination/types.js';
 
 /**
  * InfiniteTableAdapter - Adapter for infinite scroll with row accumulation
@@ -26,15 +27,17 @@ import type { FetchFn, QueryOptionsBuilder } from '../../types.js';
  * @template TSortInput - The SDK sort input type
  * @template TFilterInput - The SDK filter input type
  * @template TSearchInput - The SDK search input type
+ * @template TPaginationOptions - The pagination options type
  */
 export class InfiniteTableAdapter<
   TEntity,
   TRow,
   TQueryOptions,
   TSortInput,
-  TFilterInput = unknown,
-  TSearchInput = unknown,
-> implements ITableAdapter<TRow, TFilterInput, TSearchInput> {
+  TFilterInput,
+  TSearchInput,
+  TPaginationOptions extends PaginationOptions,
+> implements ITableAdapter<TRow, TFilterInput, TSearchInput, PaginationManagerFromOptions<TPaginationOptions>> {
   /** Wrapped base adapter - handles all core functionality */
   private readonly baseAdapter: BaseTableAdapter<
     TEntity,
@@ -42,7 +45,8 @@ export class InfiniteTableAdapter<
     TQueryOptions,
     TSortInput,
     TFilterInput,
-    TSearchInput
+    TSearchInput,
+    TPaginationOptions
   >;
 
   /** Accumulated rows across all fetched pages */
@@ -69,10 +73,10 @@ export class InfiniteTableAdapter<
       TFilterInput,
       TSearchInput
     >,
-    options: BaseTableAdapterOptions<TEntity, TRow, TSortInput, TFilterInput, TSearchInput>
+    options: BaseTableAdapterOptions<TEntity, TRow, TSortInput, TFilterInput, TSearchInput, TPaginationOptions>
   ) {
     // Create base adapter with autoFetch disabled - we control the first fetch
-    this.baseAdapter = new BaseTableAdapter(fetchFn, buildQueryOptions, {
+    this.baseAdapter = new BaseTableAdapter<TEntity, TRow, TQueryOptions, TSortInput, TFilterInput, TSearchInput, TPaginationOptions>(fetchFn, buildQueryOptions, {
       ...options,
       autoFetch: false,
     });
@@ -209,6 +213,10 @@ export class InfiniteTableAdapter<
   // ============================================================================
   // ITableAdapter Implementation - Pagination
   // ============================================================================
+
+  get pagination(): PaginationManagerFromOptions<TPaginationOptions> {
+    return this.baseAdapter.pagination;
+  }
 
   setPageSize(size: number): void {
     this.resetRows();
