@@ -60,6 +60,21 @@ const mockAdapter = {
     onSortingChange: vi.fn(),
     onPaginationChange: vi.fn(),
   })),
+  getTable: vi.fn(() => ({
+    getHeaderGroups: vi.fn(() => [{ id: 'header', headers: [
+      { id: 'id', accessorKey: 'id', header: 'ID' },
+      { id: 'name', accessorKey: 'name', header: 'Name' },
+    ] }]),
+    getRowModel: vi.fn(() => ({ rows: [{ id: '0', original: { id: '1', name: 'Test' } }] })),
+    getAllColumns: vi.fn(() => [
+      { id: 'id', accessorKey: 'id', header: 'ID' },
+      { id: 'name', accessorKey: 'name', header: 'Name' },
+    ]),
+    getCanNextPage: vi.fn(() => false),
+    getCanPreviousPage: vi.fn(() => false),
+    nextPage: vi.fn(),
+    previousPage: vi.fn(),
+  })),
   subscribe: vi.fn((_callback: () => void) => {
     return () => {};
   }),
@@ -89,7 +104,7 @@ vi.mock('react', () => ({
     const cleanup = effect();
     return cleanup;
   }),
-  useSyncExternalStore: vi.fn((subscribe, getSnapshot) => getSnapshot()),
+  useSyncExternalStore: vi.fn((_subscribe, getSnapshot) => getSnapshot()),
 }));
 
 vi.mock('@tanstack/react-table', () => ({
@@ -257,9 +272,9 @@ describe('useCustomerTable', () => {
       };
 
       const result = useCustomerTable(options as never);
-      result.adapter.setSearch('test query');
+      result.adapter.setSearch({ name: { textSearch: { value: 'test query' } } });
 
-      expect(mockAdapter.setSearch).toHaveBeenCalledWith('test query');
+      expect(mockAdapter.setSearch).toHaveBeenCalledWith({ name: { textSearch: { value: 'test query' } } });
     });
 
     it('should call clearSearch on adapter', () => {

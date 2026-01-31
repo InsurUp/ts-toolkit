@@ -6,6 +6,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createCustomerTable } from '../src/lib/create-customer-table.svelte.js';
 import type { CustomerTableOptions, CustomerColumnDef } from '@insurup/table-adapter-core';
+import type { CustomerTestFetchModeOptions } from './utils/mocks';
 import {
   createMockFetchFn,
   createMockConnection,
@@ -15,19 +16,19 @@ import {
 
 // Helper to create options with proper typing
 function createTestOptions(
-  overrides: Partial<CustomerTableOptions<CustomerColumnDef[]>> = {}
+  overrides: Partial<CustomerTestFetchModeOptions> = {}
 ): CustomerTableOptions<CustomerColumnDef[]> {
   return {
     columns: (col) => [col.id(), col.name()],
     fetch: createMockFetchFn(),
     pagination: { type: 'cursor', pageSize: 10 },
     ...overrides,
-  } as CustomerTableOptions<CustomerColumnDef[]>;
+  };
 }
 
 // Helper to wrap options in a getter function (required by the new API)
 function createTestOptionsGetter(
-  overrides: Partial<CustomerTableOptions<CustomerColumnDef[]>> = {}
+  overrides: Partial<CustomerTestFetchModeOptions> = {}
 ): () => CustomerTableOptions<CustomerColumnDef[]> {
   const options = createTestOptions(overrides);
   return () => options;
@@ -247,7 +248,7 @@ describe('createCustomerTable', () => {
 
     it('should expose setPageSize method', async () => {
       const mockFetch = createMockFetchFn();
-      const result = createCustomerTable(createTestOptionsGetter({ fetch: mockFetch, pageSize: 10 }));
+      const result = createCustomerTable(createTestOptionsGetter({ fetch: mockFetch }));
 
       result.adapter.setPageSize(25);
       await flushPromises();

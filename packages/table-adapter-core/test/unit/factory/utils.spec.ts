@@ -14,6 +14,7 @@ import { createSortingConverters } from '../../../src/lib/sorting/converters.js'
 import type { InsurUpGraphQLResult, Connection } from '@insurup/sdk';
 import { InsurUpClientErrorType } from '@insurup/sdk';
 import type { AnyColumnDef } from '../../../src/lib/types.js';
+import type { CursorPaginationOptions } from '../../../src/lib/pagination/types.js';
 
 // ============================================================================
 // Mock Types
@@ -29,6 +30,15 @@ interface MockEntity {
 
 type MockFieldKey = keyof MockEntity;
 
+interface MockFilterInput {
+  name?: { contains: string };
+  email?: { equals: string };
+}
+
+interface MockSearchInput {
+  name?: { textSearch: { value: string } };
+}
+
 interface MockSortInput {
   id?: 'ASC' | 'DESC';
   name?: 'ASC' | 'DESC';
@@ -39,8 +49,8 @@ interface MockQueryOptions {
   after?: string | null;
   order?: MockSortInput[];
   select?: string[];
-  filter?: unknown;
-  search?: unknown;
+  filter?: MockFilterInput;
+  search?: MockSearchInput;
 }
 
 // ============================================================================
@@ -307,7 +317,7 @@ describe('createTableApi', () => {
 
   it('should create table API with all methods', () => {
     const fetchFn = createMockFetchFn();
-    const api = createTableApi<MockEntity, MockEntity, MockQueryOptions, MockSortInput>({
+    const api = createTableApi<MockEntity, MockEntity, MockQueryOptions, MockSortInput, MockFilterInput, MockSearchInput, CursorPaginationOptions>({
       fetchFn,
       buildQueryOptions: (params) => ({
         first: params.first,
@@ -347,7 +357,7 @@ describe('createTableApi', () => {
 
   it('should return frozen columns', () => {
     const fetchFn = createMockFetchFn();
-    const api = createTableApi<MockEntity, MockEntity, MockQueryOptions, MockSortInput>({
+    const api = createTableApi<MockEntity, MockEntity, MockQueryOptions, MockSortInput, MockFilterInput, MockSearchInput, CursorPaginationOptions>({
       fetchFn,
       buildQueryOptions: (params) => ({
         first: params.first,
@@ -374,7 +384,7 @@ describe('createTableApi', () => {
 
   it('should return same columns reference on multiple accesses', () => {
     const fetchFn = createMockFetchFn();
-    const api = createTableApi<MockEntity, MockEntity, MockQueryOptions, MockSortInput>({
+    const api = createTableApi<MockEntity, MockEntity, MockQueryOptions, MockSortInput, MockFilterInput, MockSearchInput, CursorPaginationOptions>({
       fetchFn,
       buildQueryOptions: (params) => ({
         first: params.first,
@@ -400,7 +410,7 @@ describe('createTableApi', () => {
 
   it('should delegate methods to adapter', async () => {
     const fetchFn = createMockFetchFn();
-    const api = createTableApi<MockEntity, MockEntity, MockQueryOptions, MockSortInput>({
+    const api = createTableApi<MockEntity, MockEntity, MockQueryOptions, MockSortInput, MockFilterInput, MockSearchInput, CursorPaginationOptions>({
       fetchFn,
       buildQueryOptions: (params) => ({
         first: params.first,
@@ -441,7 +451,7 @@ describe('createTableApi', () => {
     const onSettled = vi.fn();
 
     const fetchFn = createMockFetchFn();
-    const api = createTableApi<MockEntity, MockEntity, MockQueryOptions, MockSortInput>({
+    const api = createTableApi<MockEntity, MockEntity, MockQueryOptions, MockSortInput, MockFilterInput, MockSearchInput, CursorPaginationOptions>({
       fetchFn,
       buildQueryOptions: (params) => ({
         first: params.first,
@@ -472,7 +482,7 @@ describe('createTableApi', () => {
 
   it('should auto-fetch when autoFetch is true', async () => {
     const fetchFn = createMockFetchFn();
-    const api = createTableApi<MockEntity, MockEntity, MockQueryOptions, MockSortInput>({
+    const api = createTableApi<MockEntity, MockEntity, MockQueryOptions, MockSortInput, MockFilterInput, MockSearchInput, CursorPaginationOptions>({
       fetchFn,
       buildQueryOptions: (params) => ({
         first: params.first,

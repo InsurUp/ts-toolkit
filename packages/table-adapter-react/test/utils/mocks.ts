@@ -3,6 +3,7 @@
  * @description Mock implementations for testing the React hook
  */
 
+import { vi } from 'vitest';
 import type { InsurUpGraphQLResult, Connection, PageInfo } from '@insurup/sdk';
 
 // ============================================================================
@@ -51,7 +52,7 @@ export function createSuccessResult<T>(data: T): InsurUpGraphQLResult<T> {
     isSuccess: true,
     message: 'Success',
     data,
-  };
+  } as InsurUpGraphQLResult<T>;
 }
 
 // ============================================================================
