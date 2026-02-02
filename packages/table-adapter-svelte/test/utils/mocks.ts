@@ -3,7 +3,19 @@
  * @description Mock implementations for testing the Svelte wrapper
  */
 
+import { vi } from 'vitest';
+import type { Mock } from 'vitest';
 import type { InsurUpGraphQLResult, Connection, PageInfo } from '@insurup/sdk';
+import type { CustomerTableOptions, CustomerColumnDef } from '@insurup/table-adapter-core';
+
+// Extract the fetch-mode variant from the CustomerTableOptions union (tests always use fetch mode)
+export type CustomerTestFetchModeOptions = Extract<
+  CustomerTableOptions<CustomerColumnDef[]>,
+  { fetch: Function }
+>;
+
+// Extract the exact fetch type from the fetch-mode variant
+type CustomerTestFetchFn = CustomerTestFetchModeOptions['fetch'];
 
 // ============================================================================
 // Mock Types
@@ -51,7 +63,7 @@ export function createSuccessResult<T>(data: T): InsurUpGraphQLResult<T> {
     isSuccess: true,
     message: 'Success',
     data,
-  };
+  } as InsurUpGraphQLResult<T>;
 }
 
 // ============================================================================
@@ -60,24 +72,24 @@ export function createSuccessResult<T>(data: T): InsurUpGraphQLResult<T> {
 
 export function createMockFetchFn(
   data?: Connection<MockCustomer>
-): ReturnType<typeof vi.fn> {
+): Mock<CustomerTestFetchFn> {
   const defaultData = createMockConnection<MockCustomer>([
     { id: '1', name: 'John Doe', email: 'john@example.com' },
     { id: '2', name: 'Jane Smith', email: 'jane@example.com' },
   ]);
 
-  return vi.fn().mockResolvedValue(createSuccessResult(data ?? defaultData));
+  return vi.fn().mockResolvedValue(createSuccessResult(data ?? defaultData)) as Mock<CustomerTestFetchFn>;
 }
 
 // ============================================================================
 // Mock Options Factory
 // ============================================================================
 
-export function createMockOptions(overrides: Record<string, unknown> = {}) {
+export function createMockOptions(overrides: Partial<CustomerTableOptions<CustomerColumnDef[]>> = {}) {
   return {
     columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
     fetch: createMockFetchFn(),
-    pageSize: 10,
+    pagination: { type: 'cursor' as const, pageSize: 10 },
     ...overrides,
   };
 }

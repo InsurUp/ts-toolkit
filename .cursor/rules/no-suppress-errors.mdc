@@ -1,0 +1,70 @@
+---
+description: Never suppress linter or type errors - fix them properly
+globs: **/*.{ts,tsx,svelte,vue}
+alwaysApply: false
+---
+
+# No Suppressing Errors or Warnings
+
+Linter and type errors exist for a reason. Always fix the root cause.
+
+## Forbidden Suppressions
+
+```typescript
+// ❌ NEVER use these
+// @ts-ignore
+// @ts-nocheck
+// @ts-expect-error
+// eslint-disable
+// eslint-disable-next-line
+/* eslint-disable */
+// prettier-ignore (for hiding issues)
+```
+
+## What To Do Instead
+
+```typescript
+// ❌ BAD - Suppressing the error
+// @ts-ignore
+const value = obj.maybeUndefined.property;
+
+// ✅ GOOD - Fix the actual issue
+const value = obj.maybeUndefined?.property;
+
+// ✅ GOOD - Proper type narrowing
+if (obj.maybeUndefined) {
+  const value = obj.maybeUndefined.property;
+}
+```
+
+## Never Use `any`
+
+```typescript
+// ❌ NEVER - No exceptions
+const data: any = fetchData();
+function process(input: any): any { }
+
+// ✅ GOOD - Use proper types
+const data: unknown = fetchData();
+function process<T>(input: T): Result<T> { }
+
+// ✅ GOOD - Use unknown and narrow
+if (typeof data === 'string') {
+  // data is now string
+}
+```
+
+## Rules
+
+- Fix type errors with proper types, guards, or refactoring
+- Fix linter warnings by following the lint rule's guidance
+- If a lint rule seems wrong for the project, discuss removing it from config - don't suppress it inline
+- **Never use `any`** - use `unknown`, generics, or proper type definitions instead
+
+## Exception Process
+
+If an error is truly unfixable due to technical limitations:
+
+1. **STOP** - Do not add any suppression comment
+2. **ASK** - Explain the technical reason why it cannot be fixed
+3. **WAIT** - Only add suppression if explicitly permitted by the user

@@ -46,8 +46,16 @@ const customerTable = createCustomerTable({
   ],
   fetch: (options) => client.customers.getCustomers(options),
   pageSize: 10,
-  defaultSort: [{ id: 'createdAt', desc: true }],
   autoFetch: true,
+  // Sorting is managed by the consumer via tableOptions.state.sorting
+  tableOptions: {
+    state: {
+      sorting: [{ id: 'createdAt', desc: true }],
+    },
+    onSortingChange: (updater) => {
+      // Update your sorting state here
+    },
+  },
 });
 
 // Subscribe to state changes
@@ -77,7 +85,6 @@ const customerTable = createCustomerTable({
 
   // Optional
   pageSize?: number,                // Items per page (default: 20)
-  defaultSort?: SortingState,       // Initial sort state
   defaultFilter?: FilterInput,      // Initial filter
   defaultSearch?: SearchInput,      // Initial search
   staleTime?: number,               // Cache stale time in ms (default: 30000)

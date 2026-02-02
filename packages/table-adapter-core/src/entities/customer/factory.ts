@@ -19,7 +19,7 @@ import type {
   CustomerFilterInput,
   CustomerSearchInput,
 } from './types.js';
-import type { QueryOptionsBuilderArgs, FetchFn, InternalColumnDef } from '../../lib/types.js';
+import type { QueryOptionsBuilderArgs, FetchFn } from '../../lib/types.js';
 import {
   getFetchFn,
   createColumnBuilder,
@@ -27,7 +27,7 @@ import {
   type TableApi,
 } from '../../lib/factory/index.js';
 import { createSortingConverters } from '../../lib/sorting/index.js';
-import { extractFieldsFromInternalColumns } from '../../lib/adapter/utils.js';
+import type { CursorPaginationManager, CursorPaginationOptions } from '../../lib/pagination/index.js';
 
 // ============================================================================
 // Sorting Converters
@@ -97,7 +97,7 @@ function getCustomerFetchFn<TColumns extends CustomerColumnDef[]>(
  *     })
  *   ],
  *   fetch: (options) => client.customers.getCustomers(options),
- *   pageSize: 10,
+ *   pagination: { type: 'cursor', pageSize: 10 },
  *   defaultFilter: { type: { eq: CustomerType.Corporate } },
  *   defaultSearch: 'Acme',
  * })
@@ -119,10 +119,7 @@ export function createCustomerTable<const TColumns extends CustomerColumnDef[]>(
 
   // Create the column builder and get column definitions
   const columnBuilder = createColumnBuilder<QueryCustomerModel, CustomerFieldKey>();
-  const columns = options.columns(columnBuilder) as unknown as InternalColumnDef[];
-
-  // Extract fields from columns for GraphQL selection
-  const fields = extractFieldsFromInternalColumns(columns) as CustomerFieldKey[];
+  const columns = options.columns(columnBuilder);
 
   // Create fetch function based on mode
   const fetchFn = getCustomerFetchFn(options);
@@ -133,16 +130,13 @@ export function createCustomerTable<const TColumns extends CustomerColumnDef[]>(
     GetCustomersOptions<TFields[]>,
     QueryCustomerModelSortInput,
     CustomerFilterInput,
-    CustomerSearchInput
+    CustomerSearchInput,
+    CursorPaginationOptions
   >({
     fetchFn,
     buildQueryOptions: buildCustomerQueryOptions,
     columns,
-    select: fields,
-    pageSize: options.pageSize ?? 20,
-    defaultSort: options.defaultSort
-      ? customerSortingConverters.toSdk(options.defaultSort)
-      : undefined,
+    pagination: options.pagination,
     defaultFilter: options.defaultFilter,
     defaultSearch: options.defaultSearch,
     sortingConverters: customerSortingConverters,
@@ -152,9 +146,7 @@ export function createCustomerTable<const TColumns extends CustomerColumnDef[]>(
     onError: options.onError,
     onSuccess: options.onSuccess,
     onSettled: options.onSettled,
-    // Pass through TanStack Table options for client-side features
     tableOptions: options.tableOptions,
-    // Auto-fetch on creation
     autoFetch: options.autoFetch,
   }) as CustomerTable<TColumns>;
 }
@@ -167,5 +159,6 @@ export function createCustomerTable<const TColumns extends CustomerColumnDef[]>(
 export type CustomerTable<TColumns extends CustomerColumnDef[] = CustomerColumnDef[]> = TableApi<
   CustomerRowType<TColumns>,
   CustomerFilterInput,
-  CustomerSearchInput
+  CustomerSearchInput,
+  CursorPaginationManager
 >;

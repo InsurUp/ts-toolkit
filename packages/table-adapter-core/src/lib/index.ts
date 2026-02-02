@@ -50,7 +50,6 @@ export type {
   FieldColumnDef,
   ComputedColumnDef,
   ColumnDef,
-  InternalColumnDef,
   // Field extraction
   ExtractFieldFromColumnDef,
   ExtractFieldsFromColumnDefs,
@@ -86,9 +85,9 @@ export type {
 // Adapter Utilities
 // ============================================================================
 export {
-  schemaToInternalColumns,
-  extractFieldsFromInternalColumns,
-  internalColumnsToColumnDefs,
+  schemaToColumnDefs,
+  extractFieldsFromColumns,
+  columnsToTanStackColumnDefs,
   createTableError,
   isRetryable,
 } from './adapter/utils.js';

@@ -3,8 +3,9 @@
  * @description Unit tests for the QueryManager class
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
 import { QueryManager } from '../../../src/lib/query/manager.js';
+import type { QueryFnContext } from '../../../src/lib/query/types.js';
 import { flushPromises } from '../../utils/helpers.js';
 
 // Mock query variables type
@@ -20,9 +21,9 @@ interface MockData {
 }
 
 describe('QueryManager', () => {
-  let queryFn: ReturnType<typeof vi.fn>;
-  let getQueryKey: ReturnType<typeof vi.fn>;
-  let getVariables: ReturnType<typeof vi.fn>;
+  let queryFn: Mock<(vars: MockVariables, context: QueryFnContext) => Promise<MockData>>;
+  let getQueryKey: Mock<() => unknown[]>;
+  let getVariables: Mock<() => MockVariables>;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -220,8 +221,8 @@ describe('QueryManager', () => {
         getVariables,
       });
 
-      // Should not throw
-      await expect(manager.refetch()).resolves.not.toThrow();
+      // Should not throw - just resolves without error
+      await expect(manager.refetch()).resolves.toBeUndefined();
 
       manager.destroy();
     });

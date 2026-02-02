@@ -5,59 +5,112 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createCustomerTable } from '../../src/entities/customer/factory.js';
-import type { InsurUpGraphQLResult, Connection } from '@insurup/sdk';
+import type {
+  Connection,
+  QueryCustomerModelSearchInput,
+  InsurUpGraphQLResult,
+  CustomerFieldKey,
+  GetCustomersOptions,
+} from '@insurup/sdk';
 import { flushPromises } from '../utils/helpers.js';
+import {
+  createMockPageInfo,
+  createSuccessResult,
+  createClientError,
+} from '../utils/mocks.js';
+import type {
+  CustomerFetchFn,
+  CustomerRowType,
+  CustomerColumnDef,
+} from '../../src/entities/customer/types.js';
 
 // ============================================================================
-// Mock Data
+// Mock Customer Data Types
 // ============================================================================
 
-interface MockCustomer {
-  id: string;
-  name: string;
-  email: string;
-  type: string;
-  cityText: string;
-  districtText: string;
-}
+/**
+ * The row type when all CustomerFieldKey fields are selected.
+ * This matches what CustomerTableOptions expects for the fetch function.
+ */
+type FullCustomerRow = CustomerRowType<CustomerColumnDef[]>;
 
-function createMockCustomer(overrides: Partial<MockCustomer> = {}): MockCustomer {
+/**
+ * The fetch function type expected by CustomerTableOptions
+ */
+type ExpectedFetchFn = CustomerFetchFn<FullCustomerRow, CustomerFieldKey[]>;
+
+// ============================================================================
+// Mock Customer Data
+// ============================================================================
+
+/**
+ * Create a mock customer with all fields as required (matching FullCustomerRow)
+ */
+function createMockCustomer(
+  overrides: Partial<FullCustomerRow> = {}
+): FullCustomerRow {
   return {
     id: 'CUST-001',
     name: 'John Doe',
-    email: 'john@example.com',
+    primaryEmail: 'john@example.com',
     type: 'Individual',
     cityText: 'New York',
     districtText: 'Manhattan',
+    agentBranchId: null,
+    identityNumber: null,
+    taxNumber: null,
+    primaryPhoneNumber: null,
+    primaryPhoneNumberCountryCode: null,
+    cityValue: null,
+    districtValue: null,
+    createdAt: '2024-01-01T00:00:00Z',
+    birthDate: null,
+    gender: null,
+    educationStatus: null,
+    nationality: null,
+    maritalStatus: null,
+    job: null,
+    passportNumber: null,
+    searchScore: null,
     ...overrides,
-  };
+  } as FullCustomerRow;
 }
 
-function createMockConnection(
-  nodes: MockCustomer[],
+/**
+ * Create a mock customer connection
+ */
+function createCustomerConnection(
+  customers: FullCustomerRow[],
   hasNextPage = false,
   totalCount?: number
-): Connection<MockCustomer> {
+): Connection<FullCustomerRow> {
   return {
-    nodes,
-    pageInfo: {
+    nodes: customers,
+    pageInfo: createMockPageInfo({
       hasNextPage,
-      hasPreviousPage: false,
-      startCursor: nodes.length > 0 ? 'start' : null,
       endCursor: hasNextPage ? 'next-cursor' : null,
-    },
-    totalCount: totalCount ?? nodes.length,
-    edges: nodes.map((node, i) => ({ node, cursor: `cursor-${i}` })),
+    }),
+    totalCount: totalCount ?? customers.length,
+    edges: customers.map((node, i) => ({ node, cursor: `cursor-${i}` })),
   };
 }
 
-function createSuccessResult<T>(data: T): InsurUpGraphQLResult<T> {
-  return {
-    kind: 'success',
-    isSuccess: true,
-    message: 'Success',
-    data,
-  };
+// ============================================================================
+// Mock Fetch Function Factory
+// ============================================================================
+
+/**
+ * Create a mock fetch function with the correct type signature
+ */
+function createCustomerFetchMock(
+  response: InsurUpGraphQLResult<Connection<FullCustomerRow>>
+): ExpectedFetchFn {
+  return vi.fn<
+    (
+      options: GetCustomersOptions<CustomerFieldKey[]>,
+      requestOptions?: { signal?: AbortSignal }
+    ) => Promise<InsurUpGraphQLResult<Connection<FullCustomerRow>>>
+  >().mockResolvedValue(response);
 }
 
 // ============================================================================
@@ -65,13 +118,13 @@ function createSuccessResult<T>(data: T): InsurUpGraphQLResult<T> {
 // ============================================================================
 
 describe('createCustomerTable', () => {
-  let mockFetch: ReturnType<typeof vi.fn>;
+  let mockFetch: ExpectedFetchFn;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockFetch = vi.fn().mockResolvedValue(
+    mockFetch = createCustomerFetchMock(
       createSuccessResult(
-        createMockConnection([
+        createCustomerConnection([
           createMockCustomer({ id: 'CUST-001', name: 'John Doe' }),
           createMockCustomer({ id: 'CUST-002', name: 'Jane Smith' }),
         ])
@@ -84,6 +137,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id(), col.name('Customer Name')],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       expect(table).toBeDefined();
@@ -94,8 +148,9 @@ describe('createCustomerTable', () => {
 
     it('should extract fields from column definitions', async () => {
       const table = createCustomerTable({
-        columns: (col) => [col.id(), col.name('Name'), col.email('Email')],
+        columns: (col) => [col.id(), col.name('Name'), col.primaryEmail('Email')],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       await table.fetch();
@@ -103,7 +158,7 @@ describe('createCustomerTable', () => {
       // Check that fetch was called with correct select fields
       expect(mockFetch).toHaveBeenCalledWith(
         expect.objectContaining({
-          select: expect.arrayContaining(['id', 'name', 'email']),
+          select: expect.arrayContaining(['id', 'name', 'primaryEmail']),
         }),
         expect.any(Object)
       );
@@ -122,6 +177,7 @@ describe('createCustomerTable', () => {
           }),
         ],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       await table.fetch();
@@ -142,6 +198,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id(), col.name('Name')],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       await table.fetch();
@@ -158,6 +215,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       await table.fetch();
@@ -176,7 +234,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
-        pageSize: 50,
+        pagination: { type: 'cursor', pageSize: 50 },
       });
 
       await table.fetch();
@@ -197,6 +255,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
         defaultFilter: { name: { contains: 'Corp' } },
       });
 
@@ -216,10 +275,11 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       await table.fetch();
-      mockFetch.mockClear();
+      (mockFetch as ReturnType<typeof vi.fn>).mockClear();
 
       table.setFilter({ type: { eq: 'Corporate' } });
       await flushPromises();
@@ -238,6 +298,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
         defaultFilter: { name: { contains: 'test' } },
       });
 
@@ -251,11 +312,12 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
         defaultFilter: { name: { contains: 'test' } },
       });
 
       await table.fetch();
-      mockFetch.mockClear();
+      (mockFetch as ReturnType<typeof vi.fn>).mockClear();
 
       table.clearFilter();
       await flushPromises();
@@ -273,18 +335,27 @@ describe('createCustomerTable', () => {
   });
 
   describe('searching', () => {
+    const searchInput: QueryCustomerModelSearchInput = {
+      name: { textSearch: { value: 'Acme' } },
+    };
+
+    const johnDoeSearch: QueryCustomerModelSearchInput = {
+      name: { textSearch: { value: 'john doe' } },
+    };
+
     it('should apply default search', async () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
-        defaultSearch: 'Acme',
+        pagination: { type: 'cursor' },
+        defaultSearch: searchInput,
       });
 
       await table.fetch();
 
       expect(mockFetch).toHaveBeenCalledWith(
         expect.objectContaining({
-          search: 'Acme',
+          search: searchInput,
         }),
         expect.any(Object)
       );
@@ -296,17 +367,18 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       await table.fetch();
-      mockFetch.mockClear();
+      (mockFetch as ReturnType<typeof vi.fn>).mockClear();
 
-      table.setSearch('john doe');
+      table.setSearch(johnDoeSearch);
       await flushPromises();
 
       expect(mockFetch).toHaveBeenCalledWith(
         expect.objectContaining({
-          search: 'john doe',
+          search: johnDoeSearch,
         }),
         expect.any(Object)
       );
@@ -318,11 +390,12 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
-        defaultSearch: 'test search',
+        pagination: { type: 'cursor' },
+        defaultSearch: searchInput,
       });
 
       const search = table.getSearch();
-      expect(search).toBe('test search');
+      expect(search).toEqual(searchInput);
 
       table.destroy();
     });
@@ -331,11 +404,12 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
-        defaultSearch: 'test',
+        pagination: { type: 'cursor' },
+        defaultSearch: searchInput,
       });
 
       await table.fetch();
-      mockFetch.mockClear();
+      (mockFetch as ReturnType<typeof vi.fn>).mockClear();
 
       table.clearSearch();
       await flushPromises();
@@ -353,11 +427,16 @@ describe('createCustomerTable', () => {
   });
 
   describe('sorting', () => {
-    it('should apply default sort', async () => {
+    it('should apply sorting from tableOptions.state.sorting', async () => {
       const table = createCustomerTable({
         columns: (col) => [col.id(), col.name('Name')],
         fetch: mockFetch,
-        defaultSort: [{ id: 'name', desc: false }],
+        pagination: { type: 'cursor' },
+        tableOptions: {
+          state: {
+            sorting: [{ id: 'name', desc: false }],
+          },
+        },
       });
 
       await table.fetch();
@@ -375,15 +454,16 @@ describe('createCustomerTable', () => {
 
   describe('table options', () => {
     it('should return valid table options for TanStack Table', async () => {
-      mockFetch.mockResolvedValue(
+      const localMock = createCustomerFetchMock(
         createSuccessResult(
-          createMockConnection([createMockCustomer()], false, 1)
+          createCustomerConnection([createMockCustomer()], false, 1)
         )
       );
 
       const table = createCustomerTable({
         columns: (col) => [col.id(), col.name('Name')],
-        fetch: mockFetch,
+        fetch: localMock,
+        pagination: { type: 'cursor' },
       });
 
       await table.fetch();
@@ -407,6 +487,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
         tableOptions: {
           enableRowSelection: true,
           getRowId,
@@ -427,6 +508,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       const state = table.getState();
@@ -447,6 +529,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       const listener = vi.fn();
@@ -465,6 +548,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       const serverSnapshot = table.getServerSnapshot();
@@ -483,6 +567,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
         onSuccess,
       });
 
@@ -496,16 +581,12 @@ describe('createCustomerTable', () => {
 
     it('should call onError callback on failure', async () => {
       const onError = vi.fn();
-      const errorFetch = vi.fn().mockResolvedValue({
-        kind: 'client-error',
-        isSuccess: false,
-        message: 'Network error',
-        type: 'Unknown',
-      });
+      const errorFetch = createCustomerFetchMock(createClientError());
 
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: errorFetch,
+        pagination: { type: 'cursor' },
         onError,
       });
 
@@ -523,6 +604,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
         onSettled,
       });
 
@@ -540,6 +622,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
         autoFetch: true,
       });
 
@@ -554,6 +637,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       expect(mockFetch).not.toHaveBeenCalled();
@@ -567,11 +651,11 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
-        pageSize: 10,
+        pagination: { type: 'cursor', pageSize: 10 },
       });
 
       await table.fetch();
-      mockFetch.mockClear();
+      (mockFetch as ReturnType<typeof vi.fn>).mockClear();
 
       table.setPageSize(25);
       await flushPromises();
@@ -592,15 +676,17 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       await table.fetch();
-      const firstCallCount = mockFetch.mock.calls.length;
+      const mockedFetch = mockFetch as ReturnType<typeof vi.fn>;
+      const firstCallCount = mockedFetch.mock.calls.length;
 
       await table.invalidate();
       await flushPromises();
 
-      expect(mockFetch.mock.calls.length).toBeGreaterThanOrEqual(firstCallCount);
+      expect(mockedFetch.mock.calls.length).toBeGreaterThanOrEqual(firstCallCount);
 
       table.destroy();
     });
@@ -609,6 +695,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       await table.fetch();
@@ -623,6 +710,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       await table.fetch();
@@ -639,6 +727,7 @@ describe('createCustomerTable', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
+        pagination: { type: 'cursor' },
       });
 
       expect(() => table.destroy()).not.toThrow();

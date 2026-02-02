@@ -34,6 +34,10 @@
 // ============================================================================
 
 export { useCustomerTable, type UseCustomerTableResult } from './use-customer-table.js';
+export {
+  useInfiniteCustomerTable,
+  type UseInfiniteCustomerTableResult,
+} from './use-infinite-customer-table.js';
 
 // ============================================================================
 // Re-export everything from core for convenience
@@ -41,6 +45,10 @@ export { useCustomerTable, type UseCustomerTableResult } from './use-customer-ta
 
 // Core factory (for advanced use cases)
 export { createCustomerTable, type CustomerTable } from '@insurup/table-adapter-core';
+export {
+  createInfiniteCustomerTable,
+  type InfiniteCustomerTable,
+} from '@insurup/table-adapter-core';
 
 // Entity types
 export type {

@@ -23,7 +23,7 @@
  *     })
  *   ],
  *   fetch: (options) => client.customers.getCustomers(options),
- *   pageSize: 10,
+ *   pagination: { type: 'cursor', pageSize: 10 },
  * })
  *
  * // state.rows[0] only has: id, name, type, cityText, districtText ✅
@@ -37,8 +37,14 @@
 // Entity Table Factories
 // ============================================================================
 
-// Customer entity
+// Customer entity - Pagination mode
 export { createCustomerTable, type CustomerTable } from './entities/customer/index.js';
+
+// Customer entity - Infinite scroll mode
+export {
+  createInfiniteCustomerTable,
+  type InfiniteCustomerTable,
+} from './entities/customer/index.js';
 
 // ============================================================================
 // Entity-Specific Types
@@ -64,10 +70,12 @@ export type { GetCustomersOptions, CustomerFieldKey, QueryCustomerModel } from '
 
 export {
   BaseTableAdapter,
+  InfiniteTableAdapter,
   type BaseTableAdapterOptions,
   type TableOptions,
   type TableError,
   type ErrorCallbacks,
+  type ITableAdapter,
 } from './lib/adapter/index.js';
 
 // ============================================================================
@@ -86,10 +94,10 @@ export {
   createClientFetchFn,
   createFetchFnFromClient,
   createTableApi,
-  extractFieldsFromInternalColumns,
+  extractFieldsFromColumns,
 } from './lib/index.js';
 
-export type { TableApi, TableApiConfig } from './lib/factory/index.js';
+export type { TableApi, TableApiConfig, ColumnInfo } from './lib/factory/index.js';
 
 // ============================================================================
 // Shared Types
@@ -103,7 +111,6 @@ export type {
   FieldColumnDef,
   ComputedColumnDef,
   ColumnDef,
-  InternalColumnDef,
   // Field extraction
   ExtractFieldFromColumnDef,
   ExtractFieldsFromColumnDefs,
@@ -140,11 +147,14 @@ export type {
 // Pagination & Sorting
 // ============================================================================
 
-export { createCursorPagination } from './lib/pagination/index.js';
+export { createCursorPagination, createPaginationManager } from './lib/pagination/index.js';
 export type {
+  PaginationManager,
   PaginationState,
   CursorPaginationOptions,
   CursorPaginationManager,
+  PaginationOptions,
+  PaginationManagerFromOptions,
 } from './lib/pagination/index.js';
 
 export type { SortingState } from './lib/sorting/index.js';

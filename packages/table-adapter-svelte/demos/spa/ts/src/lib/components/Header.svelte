@@ -57,10 +57,22 @@
       {#if isAuthenticated}
         <nav class="flex items-center space-x-6 text-sm font-medium">
           <a
-            href={p("/customers")}
-            class="transition-colors hover:text-foreground {isActive('/customers') ? 'text-foreground' : 'text-foreground/60'}"
+            href={p("/customers/basic")}
+            class="transition-colors hover:text-foreground {isActive('/customers/basic') ? 'text-foreground' : 'text-foreground/60'}"
           >
-            Customers
+            Basic
+          </a>
+          <a
+            href={p("/customers")}
+            class="transition-colors hover:text-foreground {isActive('/customers') && !isActive('/customers/infinite') && !isActive('/customers/basic') ? 'text-foreground' : 'text-foreground/60'}"
+          >
+            Advanced
+          </a>
+          <a
+            href={p("/customers/infinite")}
+            class="transition-colors hover:text-foreground {isActive('/customers/infinite') ? 'text-foreground' : 'text-foreground/60'}"
+          >
+            Infinite
           </a>
         </nav>
       {/if}

@@ -10,4 +10,4 @@ export {
   createTableApi,
 } from './utils.js';
 
-export type { TableApiConfig, TableApi } from './types.js';
+export type { TableApiConfig, TableApi, ColumnInfo } from './types.js';

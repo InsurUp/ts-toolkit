@@ -108,7 +108,7 @@ describe('createSortingConverters', () => {
 
       // Should only get one result (the first key)
       expect(result).toHaveLength(1);
-      expect(result[0].id).toBe('name');
+      expect(result[0]!.id).toBe('name');
     });
   });
 

@@ -4,7 +4,6 @@
  */
 
 import { useRef, useEffect, useSyncExternalStore, useState } from 'react';
-import { useReactTable } from '@tanstack/react-table';
 import type { Table } from '@tanstack/react-table';
 import {
   createCustomerTable as createCustomerTableCore,
@@ -97,7 +96,6 @@ export function useCustomerTable<const TColumns extends CustomerColumnDef[]>(
     if (adapterRef.current && !destroyedRef.current) {
       return adapterRef.current;
     }
-    console.log('[useCustomerTable] Creating adapter...');
     const newAdapter = createCustomerTableCore(optionsRef.current);
     adapterRef.current = newAdapter;
     destroyedRef.current = false;
@@ -108,7 +106,6 @@ export function useCustomerTable<const TColumns extends CustomerColumnDef[]>(
   useEffect(() => {
     // If adapter was destroyed by previous cleanup (Strict Mode), recreate it
     if (destroyedRef.current) {
-      console.log('[useCustomerTable] Adapter was previously destroyed, recreating...');
       destroyedRef.current = false;
       const newAdapter = createCustomerTableCore(optionsRef.current);
       adapterRef.current = newAdapter;
@@ -117,7 +114,6 @@ export function useCustomerTable<const TColumns extends CustomerColumnDef[]>(
     }
 
     return () => {
-      console.log('[useCustomerTable] Cleaning up adapter, destroying instance...');
       destroyedRef.current = true;
       adapterRef.current = null;
       adapter.destroy();
@@ -131,8 +127,7 @@ export function useCustomerTable<const TColumns extends CustomerColumnDef[]>(
     adapter.getServerSnapshot
   );
 
-  // Create TanStack Table instance
-  const table = useReactTable(adapter.getTableOptions());
+  const table = adapter.getTable();
 
   return {
     state,

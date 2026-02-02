@@ -2,9 +2,10 @@
  * @insurup/table-adapter-svelte
  *
  * Svelte bindings for @insurup/table-adapter-core.
- * Provides createCustomerTable with Svelte 5 runes ($state) for reactive state.
+ * Provides createCustomerTable with Svelte 5 runes for fine-grained reactive state.
  *
- * The `state` property is reactive - no subscription needed!
+ * Each property is an individual reactive signal, allowing components to
+ * subscribe to only what they need for optimal re-render performance.
  *
  * @example
  * ```svelte
@@ -12,18 +13,19 @@
  * import { onDestroy } from 'svelte';
  * import { createCustomerTable } from '@insurup/table-adapter-svelte';
  *
- * const ct = createCustomerTable({
+ * const ct = createCustomerTable(() => ({
  *   columns: (col) => [col.id(), col.name(), col.primaryEmail()],
  *   fetch: (options) => client.customers.getCustomers(options),
  *   autoFetch: true,
- * });
+ * }));
  *
  * onDestroy(() => ct.destroy());
  * </script>
  *
- * <!-- ct.state is reactive! -->
- * {#if ct.state.isLoading}
+ * {#if ct.isLoading}
  *   <p>Loading...</p>
+ * {:else if ct.isEmpty}
+ *   <p>No data found</p>
  * {:else}
  *   {#each ct.table.getRowModel().rows as row}
  *     <tr>{row.id}</tr>
@@ -41,6 +43,9 @@
 export { createCustomerTable } from './create-customer-table.svelte.js';
 export type { CustomerTableInstance } from './create-customer-table.svelte.js';
 
+export { createInfiniteCustomerTable } from './create-infinite-customer-table.svelte.js';
+export type { InfiniteCustomerTableInstance } from './create-infinite-customer-table.svelte.js';
+
 // ============================================================================
 // Re-export everything from core for convenience
 // ============================================================================
@@ -48,6 +53,10 @@ export type { CustomerTableInstance } from './create-customer-table.svelte.js';
 // Core factory (for advanced use cases)
 export { createCustomerTable as createCustomerTableCore } from '@insurup/table-adapter-core';
 export type { CustomerTable } from '@insurup/table-adapter-core';
+
+// Infinite scroll core factory (for advanced use cases)
+export { createInfiniteCustomerTable as createInfiniteCustomerTableCore } from '@insurup/table-adapter-core';
+export type { InfiniteCustomerTable } from '@insurup/table-adapter-core';
 
 // Entity types
 export type {
@@ -78,6 +87,7 @@ export type {
   ColumnDef,
   ColumnConfig,
   ComputedColumnConfig,
+  ColumnInfo,
 } from '@insurup/table-adapter-core';
 
 // SDK re-exports

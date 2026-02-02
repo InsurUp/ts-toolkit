@@ -3,22 +3,22 @@
  * @description Unit tests for the adapter utility functions
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
-  schemaToInternalColumns,
-  extractFieldsFromInternalColumns,
-  internalColumnsToColumnDefs,
+  schemaToColumnDefs,
+  extractFieldsFromColumns,
+  columnsToTanStackColumnDefs,
   isRetryable,
   createTableError,
 } from '../../../src/lib/adapter/utils.js';
 import { InsurUpClientErrorType, InsurUpGraphQLErrorCode } from '@insurup/sdk';
 import type { GraphQLErrors, ClientError } from '@insurup/sdk';
-import type { InternalColumnDef } from '../../../src/lib/types.js';
+import type { AnyColumnDef } from '../../../src/lib/types.js';
 
-describe('schemaToInternalColumns', () => {
+describe('schemaToColumnDefs', () => {
   it('should convert simple header string', () => {
     const schema = { name: 'Name' };
-    const result = schemaToInternalColumns(schema);
+    const result = schemaToColumnDefs(schema);
 
     expect(result).toHaveLength(1);
     expect(result[0]).toMatchObject({
@@ -39,7 +39,7 @@ describe('schemaToInternalColumns', () => {
         hideable: false,
       },
     };
-    const result = schemaToInternalColumns(schema);
+    const result = schemaToColumnDefs(schema);
 
     expect(result).toHaveLength(1);
     expect(result[0]).toMatchObject({
@@ -60,10 +60,10 @@ describe('schemaToInternalColumns', () => {
         render: renderFn,
       },
     };
-    const result = schemaToInternalColumns(schema);
+    const result = schemaToColumnDefs(schema);
 
     expect(result).toHaveLength(1);
-    expect(result[0].render).toBeDefined();
+    expect(result[0]!.render).toBeDefined();
   });
 
   it('should convert computed columns with uses array', () => {
@@ -75,7 +75,7 @@ describe('schemaToInternalColumns', () => {
           `${row.cityText}, ${row.districtText}`,
       },
     };
-    const result = schemaToInternalColumns(schema);
+    const result = schemaToColumnDefs(schema);
 
     expect(result).toHaveLength(1);
     expect(result[0]).toMatchObject({
@@ -92,7 +92,7 @@ describe('schemaToInternalColumns', () => {
       email: undefined,
       type: 'Type',
     };
-    const result = schemaToInternalColumns(schema);
+    const result = schemaToColumnDefs(schema);
 
     expect(result).toHaveLength(2);
     expect(result.map((c) => c.key)).toEqual(['name', 'type']);
@@ -104,32 +104,33 @@ describe('schemaToInternalColumns', () => {
       name: { header: 'Name', sortable: true },
       email: 'Email',
     };
-    const result = schemaToInternalColumns(schema);
+    const result = schemaToColumnDefs(schema);
 
     expect(result).toHaveLength(3);
-    expect(result[0].key).toBe('id');
-    expect(result[1].key).toBe('name');
-    expect(result[2].key).toBe('email');
+    expect(result[0]!.key).toBe('id');
+    expect(result[1]!.key).toBe('name');
+    expect(result[2]!.key).toBe('email');
   });
 
   it('should use default sortable and hideable values', () => {
     const schema = { name: { header: 'Name' } };
-    const result = schemaToInternalColumns(schema);
+    const result = schemaToColumnDefs(schema);
 
-    expect(result[0].sortable).toBe(false);
-    expect(result[0].hideable).toBe(true);
+    expect(result[0]!.sortable).toBe(false);
+    expect(result[0]!.hideable).toBe(true);
   });
 });
 
-describe('extractFieldsFromInternalColumns', () => {
+describe('extractFieldsFromColumns', () => {
   it('should extract fields from simple columns', () => {
-    const columns: InternalColumnDef[] = [
+    const columns = [
       {
         key: 'id',
         fields: ['id'],
         header: 'ID',
         sortable: false,
         hideable: true,
+        hiddenByDefault: false,
         isComputed: false,
       },
       {
@@ -138,38 +139,41 @@ describe('extractFieldsFromInternalColumns', () => {
         header: 'Name',
         sortable: false,
         hideable: true,
+        hiddenByDefault: false,
         isComputed: false,
       },
-    ];
+    ] as AnyColumnDef<string>[];
 
-    const result = extractFieldsFromInternalColumns(columns);
+    const result = extractFieldsFromColumns(columns);
     expect(result).toEqual(['id', 'name']);
   });
 
   it('should extract fields from computed columns', () => {
-    const columns: InternalColumnDef[] = [
+    const columns = [
       {
         key: 'location',
         fields: ['cityText', 'districtText'],
         header: 'Location',
         sortable: false,
         hideable: true,
+        hiddenByDefault: false,
         isComputed: true,
       },
-    ];
+    ] as AnyColumnDef<string>[];
 
-    const result = extractFieldsFromInternalColumns(columns);
+    const result = extractFieldsFromColumns(columns);
     expect(result).toEqual(['cityText', 'districtText']);
   });
 
   it('should deduplicate fields', () => {
-    const columns: InternalColumnDef[] = [
+    const columns = [
       {
         key: 'name',
         fields: ['name'],
         header: 'Name',
         sortable: false,
         hideable: true,
+        hiddenByDefault: false,
         isComputed: false,
       },
       {
@@ -177,35 +181,37 @@ describe('extractFieldsFromInternalColumns', () => {
         fields: ['name', 'email'],
         header: 'Computed',
         sortable: false,
+        hiddenByDefault: false,
         hideable: true,
         isComputed: true,
       },
-    ];
+    ] as AnyColumnDef<string>[];
 
-    const result = extractFieldsFromInternalColumns(columns);
+    const result = extractFieldsFromColumns(columns);
     expect(result).toEqual(['name', 'email']);
   });
 
   it('should return empty array for empty columns', () => {
-    const result = extractFieldsFromInternalColumns([]);
+    const result = extractFieldsFromColumns([]);
     expect(result).toEqual([]);
   });
 });
 
-describe('internalColumnsToColumnDefs', () => {
+describe('columnsToTanStackColumnDefs', () => {
   it('should create TanStack ColumnDef with correct properties', () => {
-    const columns: InternalColumnDef[] = [
+    const columns = [
       {
         key: 'name',
         fields: ['name'],
         header: 'Name',
         sortable: true,
         hideable: false,
+        hiddenByDefault: false,
         isComputed: false,
       },
-    ];
+    ] as AnyColumnDef<string>[];
 
-    const result = internalColumnsToColumnDefs(columns);
+    const result = columnsToTanStackColumnDefs(columns);
 
     expect(result).toHaveLength(1);
     expect(result[0]).toMatchObject({
@@ -218,82 +224,87 @@ describe('internalColumnsToColumnDefs', () => {
   });
 
   it('should use accessorFn for computed columns', () => {
-    const columns: InternalColumnDef[] = [
+    const columns = [
       {
         key: 'location',
         fields: ['cityText', 'districtText'],
         header: 'Location',
         sortable: false,
         hideable: true,
+        hiddenByDefault: false,
         isComputed: true,
       },
-    ];
+    ] as AnyColumnDef<string>[];
 
-    const result = internalColumnsToColumnDefs(columns);
+    const result = columnsToTanStackColumnDefs(columns);
 
-    expect(result[0].accessorKey).toBeUndefined();
-    expect(result[0].accessorFn).toBeDefined();
+    const col = result[0] as unknown as Record<string, unknown>;
+    expect(col['accessorKey']).toBeUndefined();
+    expect(col['accessorFn']).toBeDefined();
 
     // Test accessorFn returns the row
     const row = { cityText: 'City', districtText: 'District' };
-    expect(result[0].accessorFn!(row, 0)).toBe(row);
+    expect((col['accessorFn'] as (row: unknown, index: number) => unknown)(row, 0)).toBe(row);
   });
 
   it('should wrap cell renderer for regular columns', () => {
     const renderFn = vi.fn((value: unknown) => String(value).toUpperCase());
-    const columns: InternalColumnDef[] = [
+    const columns = [
       {
         key: 'name',
         fields: ['name'],
         header: 'Name',
         sortable: false,
         hideable: true,
-        render: renderFn,
+        hiddenByDefault: false,
+        render: renderFn as (value: unknown, row: unknown) => unknown,
         isComputed: false,
       },
-    ];
+    ] as AnyColumnDef<string>[];
 
-    const result = internalColumnsToColumnDefs(columns);
+    const result = columnsToTanStackColumnDefs(columns);
 
-    expect(result[0].cell).toBeDefined();
+    expect(result[0]!.cell).toBeDefined();
   });
 
   it('should wrap cell renderer for computed columns', () => {
     const renderFn = vi.fn(
       (_: unknown, row: { cityText: string }) => `Location: ${row.cityText}`
     );
-    const columns: InternalColumnDef[] = [
+    const columns = [
       {
         key: 'location',
         fields: ['cityText'],
         header: 'Location',
         sortable: false,
         hideable: true,
-        render: renderFn,
+        hiddenByDefault: false,
+        render: renderFn as (value: unknown, row: unknown) => unknown,
         isComputed: true,
       },
-    ];
+    ] as AnyColumnDef<string>[];
 
-    const result = internalColumnsToColumnDefs(columns);
+    const result = columnsToTanStackColumnDefs(columns);
 
-    expect(result[0].cell).toBeDefined();
+    expect(result[0]!.cell).toBeDefined();
   });
 
   it('should not add cell property when no render function', () => {
-    const columns: InternalColumnDef[] = [
+    const columns = [
       {
         key: 'name',
         fields: ['name'],
         header: 'Name',
         sortable: false,
         hideable: true,
+        hiddenByDefault: false,
         isComputed: false,
       },
-    ];
+    ] as AnyColumnDef<string>[];
 
-    const result = internalColumnsToColumnDefs(columns);
+    const result = columnsToTanStackColumnDefs(columns);
 
-    expect(result[0].cell).toBeUndefined();
+    expect(result[0]!.cell).toBeUndefined();
   });
 });
 
@@ -385,7 +396,7 @@ describe('isRetryable', () => {
         errors: [
           {
             message: 'Invalid input',
-            extensions: { code: InsurUpGraphQLErrorCode.ValidationFailed },
+            extensions: { code: InsurUpGraphQLErrorCode.ValidationError },
           },
         ],
       };
