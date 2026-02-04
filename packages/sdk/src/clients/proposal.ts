@@ -514,6 +514,7 @@ export class InsurUpProposalClient {
     const fields = (requestOptions?.select ??
       ALL_PROPOSAL_FIELDS) as ProposalFieldKey[];
     const fieldSelection = buildFieldSelection(fields);
+    const hasFieldSelection = fieldSelection.length > 0;
 
     const query = `
       query GetProposals(
@@ -541,12 +542,12 @@ export class InsurUpProposalClient {
             endCursor
           }
           totalCount
-          edges {
+          ${hasFieldSelection ? `edges {
             cursor
             node {
               ${fieldSelection}
             }
-          }
+          }` : ""}
         }
       }
     `;

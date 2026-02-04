@@ -43,11 +43,11 @@ export class TableState<TRow> {
   /** Array of entity rows */
   rows = $state.raw<TRow[]>([]);
 
-  /** Total number of rows */
-  rowCount = $state(0);
+  /** Total number of rows (null while loading when splitTotalCount is enabled) */
+  rowCount = $state<number | null>(0);
 
-  /** Total number of pages */
-  pageCount = $state(0);
+  /** Total number of pages (null while loading when splitTotalCount is enabled) */
+  pageCount = $state<number | null>(0);
 
   /** Initial loading state */
   isLoading = $state(false);
@@ -63,6 +63,9 @@ export class TableState<TRow> {
 
   /** Whether data was successfully fetched */
   isSuccess = $state(false);
+
+  /** Whether total count is currently being fetched separately (only when splitTotalCount is enabled) */
+  isCountLoading = $state(false);
 
   // ============================================================================
   // Table reference (with createSubscriber reactivity)
@@ -261,6 +264,9 @@ export class TableState<TRow> {
     }
     if (this.isSuccess !== snapshot.isSuccess) {
       this.isSuccess = snapshot.isSuccess;
+    }
+    if (this.isCountLoading !== snapshot.isCountLoading) {
+      this.isCountLoading = snapshot.isCountLoading;
     }
     // Update pagination state for canLoadMore reactivity
     const canNextPage = this.#table.getCanNextPage();

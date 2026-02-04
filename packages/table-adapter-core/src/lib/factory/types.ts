@@ -65,6 +65,13 @@ export interface TableApiConfig<
    * @default false
    */
   autoFetch?: boolean;
+  /**
+   * When true, fetches total count in a separate query for faster initial data load.
+   * The main query will return data immediately, while count loads asynchronously.
+   * Use `isCountLoading` state to show loading indicator for the count.
+   * @default false
+   */
+  splitTotalCount?: boolean;
 }
 
 /**

@@ -467,6 +467,7 @@ export class InsurUpPolicyClient {
     const fields = (requestOptions?.select ??
       ALL_POLICY_FIELDS) as PolicyFieldKey[];
     const fieldSelection = buildFieldSelection(fields);
+    const hasFieldSelection = fieldSelection.length > 0;
     const includeTotalCount = requestOptions?.includeTotalCount !== false;
 
     const query = `
@@ -495,12 +496,12 @@ export class InsurUpPolicyClient {
             endCursor
           }
           ${includeTotalCount ? "totalCount" : ""}
-          edges {
+          ${hasFieldSelection ? `edges {
             cursor
             node {
               ${fieldSelection}
             }
-          }
+          }` : ""}
         }
       }
     `;
@@ -563,6 +564,7 @@ export class InsurUpPolicyClient {
     const fields = (requestOptions?.select ??
       ALL_POLICY_TRANSFER_FIELDS) as PolicyTransferFieldKey[];
     const fieldSelection = buildFieldSelection(fields);
+    const hasFieldSelection = fieldSelection.length > 0;
 
     const query = `
       query GetPolicyTransfers(
@@ -590,12 +592,12 @@ export class InsurUpPolicyClient {
             endCursor
           }
           totalCount
-          edges {
+          ${hasFieldSelection ? `edges {
             cursor
             node {
               ${fieldSelection}
             }
-          }
+          }` : ""}
         }
       }
     `;
@@ -660,6 +662,7 @@ export class InsurUpPolicyClient {
     const fields = (requestOptions?.select ??
       ALL_FILE_POLICY_TRANSFER_FIELDS) as FilePolicyTransferFieldKey[];
     const fieldSelection = buildFieldSelection(fields);
+    const hasFieldSelection = fieldSelection.length > 0;
 
     const query = `
       query GetFilePolicyTransfers(
@@ -687,12 +690,12 @@ export class InsurUpPolicyClient {
             endCursor
           }
           totalCount
-          edges {
+          ${hasFieldSelection ? `edges {
             cursor
             node {
               ${fieldSelection}
             }
-          }
+          }` : ""}
         }
       }
     `;

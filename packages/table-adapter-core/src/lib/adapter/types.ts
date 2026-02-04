@@ -53,10 +53,10 @@ export interface ErrorCallbacks<TRow> {
 export interface AdapterState<TRow> {
   /** Array of entity rows */
   rows: TRow[];
-  /** Total number of rows */
-  rowCount: number;
-  /** Total number of pages */
-  pageCount: number;
+  /** Total number of rows (null while loading when splitTotalCount is enabled) */
+  rowCount: number | null;
+  /** Total number of pages (null while loading when splitTotalCount is enabled) */
+  pageCount: number | null;
   /** Initial loading state */
   isLoading: boolean;
   /** Fetching state (includes refetches) */
@@ -67,6 +67,8 @@ export interface AdapterState<TRow> {
   isError: boolean;
   /** Whether data was successfully fetched */
   isSuccess: boolean;
+  /** Whether total count is currently being fetched separately (only when splitTotalCount is enabled) */
+  isCountLoading: boolean;
 }
 
 /**
@@ -155,6 +157,13 @@ export interface BaseTableAdapterOptions<
    * @default false
    */
   autoFetch?: boolean;
+  /**
+   * When true, fetches total count in a separate query for faster initial data load.
+   * The main query will return data immediately, while count loads asynchronously.
+   * Use `isCountLoading` state to show loading indicator for the count.
+   * @default false
+   */
+  splitTotalCount?: boolean;
 }
 
 // ============================================================================

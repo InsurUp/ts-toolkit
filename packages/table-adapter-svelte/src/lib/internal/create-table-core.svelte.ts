@@ -41,11 +41,11 @@ export interface TableCoreResult<TRow, TAdapter extends ITableAdapter<TRow, unkn
   /** Array of entity rows */
   readonly rows: TRow[];
 
-  /** Total number of rows */
-  readonly rowCount: number;
+  /** Total number of rows (null while loading when splitTotalCount is enabled) */
+  readonly rowCount: number | null;
 
-  /** Total number of pages */
-  readonly pageCount: number;
+  /** Total number of pages (null while loading when splitTotalCount is enabled) */
+  readonly pageCount: number | null;
 
   /** Initial loading state */
   readonly isLoading: boolean;
@@ -61,6 +61,9 @@ export interface TableCoreResult<TRow, TAdapter extends ITableAdapter<TRow, unkn
 
   /** Whether data was successfully fetched */
   readonly isSuccess: boolean;
+
+  /** Whether total count is currently being fetched separately (only when splitTotalCount is enabled) */
+  readonly isCountLoading: boolean;
 
   // ============================================================================
   // Derived computed values
@@ -188,6 +191,9 @@ export function createTableCore<
     },
     get isSuccess() {
       return tableState.isSuccess;
+    },
+    get isCountLoading() {
+      return tableState.isCountLoading;
     },
 
     // Derived values

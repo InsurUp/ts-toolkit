@@ -61,7 +61,7 @@ export class QueryManager<TData, TVars> {
   }
 
   /**
-   * Trigger a fetch with current query key and variables
+   * Trigger a fetch with current query key and variables.
    */
   async fetch(): Promise<void> {
     // Update query options with current key and variables

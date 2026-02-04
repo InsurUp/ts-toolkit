@@ -371,6 +371,8 @@ export interface QueryOptionsBuilderArgs<
   filter: TFilterInput | undefined;
   /** Search criteria using SDK's search input type */
   search: TSearchInput | undefined;
+  /** Whether to include total count in the query (default: true) */
+  includeTotalCount: boolean;
 }
 
 /**
@@ -447,6 +449,13 @@ export interface TableAdapterOptionsBase<
    * @default false
    */
   autoFetch?: boolean;
+  /**
+   * When true, fetches total count in a separate query for faster initial data load.
+   * The main query will return data immediately, while count loads asynchronously.
+   * Use `isCountLoading` state to show loading indicator for the count.
+   * @default false
+   */
+  splitTotalCount?: boolean;
 }
 
 /**

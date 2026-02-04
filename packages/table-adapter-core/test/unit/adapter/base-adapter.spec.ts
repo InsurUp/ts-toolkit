@@ -46,6 +46,7 @@ interface MockQueryOptions {
   select?: string[];
   filter?: MockFilterInput;
   search?: MockSearchInput;
+  includeTotalCount?: boolean;
 }
 
 // ============================================================================
@@ -130,6 +131,7 @@ function createMockBuildQueryOptions(): QueryOptionsBuilder<
     select: params.select as string[],
     filter: params.filter,
     search: params.search,
+    includeTotalCount: params.includeTotalCount,
   });
 }
 
@@ -197,8 +199,8 @@ describe('BaseTableAdapter', () => {
       const state = adapter.getState();
 
       expect(state.rows).toEqual([]);
-      expect(state.rowCount).toBe(0);
-      expect(state.pageCount).toBe(0);
+      expect(state.rowCount).toBeNull(); // null until data loaded
+      expect(state.pageCount).toBeNull(); // null until data loaded
       expect(state.isLoading).toBe(false);
       expect(state.isFetching).toBe(false);
       expect(state.error).toBeNull();
@@ -890,6 +892,356 @@ describe('BaseTableAdapter', () => {
       adapter.subscribe(listener);
 
       expect(() => adapter.destroy()).not.toThrow();
+    });
+  });
+
+  describe('splitTotalCount', () => {
+    it('should initialize with null counts when splitTotalCount is enabled', () => {
+      const adapter = new BaseTableAdapter(
+        fetchFn,
+        buildQueryOptions,
+        createAdapterOptions({ splitTotalCount: true })
+      );
+
+      const state = adapter.getState();
+
+      expect(state.rowCount).toBeNull();
+      expect(state.pageCount).toBeNull();
+      expect(state.isCountLoading).toBe(false);
+
+      adapter.destroy();
+    });
+
+    it('should not include totalCount in main query when splitTotalCount is enabled', async () => {
+      const mockBuildQueryOptions = vi.fn((params) => ({
+        first: params.first,
+        after: params.after,
+        order: params.order,
+        select: params.select as string[],
+        filter: params.filter,
+        search: params.search,
+        includeTotalCount: params.includeTotalCount,
+      }));
+
+      const adapter = new BaseTableAdapter(
+        fetchFn,
+        mockBuildQueryOptions,
+        createAdapterOptions({ splitTotalCount: true })
+      );
+
+      await adapter.fetch();
+      await flushPromises();
+
+      expect(mockBuildQueryOptions).toHaveBeenCalledWith(
+        expect.objectContaining({
+          includeTotalCount: false,
+        })
+      );
+
+      adapter.destroy();
+    });
+
+    it('should include totalCount in main query when splitTotalCount is disabled', async () => {
+      const mockBuildQueryOptions = vi.fn((params) => ({
+        first: params.first,
+        after: params.after,
+        order: params.order,
+        select: params.select as string[],
+        filter: params.filter,
+        search: params.search,
+        includeTotalCount: params.includeTotalCount,
+      }));
+
+      const adapter = new BaseTableAdapter(
+        fetchFn,
+        mockBuildQueryOptions,
+        createAdapterOptions({ splitTotalCount: false })
+      );
+
+      await adapter.fetch();
+      await flushPromises();
+
+      expect(mockBuildQueryOptions).toHaveBeenCalledWith(
+        expect.objectContaining({
+          includeTotalCount: true,
+        })
+      );
+
+      adapter.destroy();
+    });
+
+    it('should fire count query in parallel with main data fetch', async () => {
+      const mockData = createMockConnection(
+        [{ id: '1', name: 'Test', email: 'test@example.com' }],
+        false,
+        null,
+        0 // totalCount in main query - will be ignored
+      );
+
+      const countData = createMockConnection(
+        [{ id: '1', name: 'Test', email: 'test@example.com' }],
+        false,
+        null,
+        42 // totalCount from count query
+      );
+
+      // Both calls happen in parallel
+      fetchFn = vi.fn().mockImplementation((vars) => {
+        // Count query uses first: 1
+        if (vars.first === 1 && vars.includeTotalCount === true) {
+          return Promise.resolve(createSuccessResult(countData));
+        }
+        // Main query
+        return Promise.resolve(createSuccessResult(mockData));
+      });
+
+      const adapter = new BaseTableAdapter(
+        fetchFn,
+        buildQueryOptions,
+        createAdapterOptions({ splitTotalCount: true })
+      );
+
+      await adapter.fetch();
+      await flushPromises();
+
+      // Should have made two calls: main fetch + count fetch (in parallel)
+      expect(fetchFn).toHaveBeenCalledTimes(2);
+
+      const state = adapter.getState();
+      expect(state.rowCount).toBe(42);
+      expect(state.pageCount).toBe(5); // 42 / 10 = 4.2, rounded up = 5
+      expect(state.isCountLoading).toBe(false);
+
+      adapter.destroy();
+    });
+
+    it('should update isCountLoading state during count fetch', async () => {
+      const mockData = createMockConnection(
+        [{ id: '1', name: 'Test', email: 'test@example.com' }],
+        false,
+        null,
+        0
+      );
+
+      // Control when count query resolves
+      let resolveCount!: () => void;
+      const countGate = new Promise<void>((resolve) => {
+        resolveCount = resolve;
+      });
+
+      // Track isCountLoading values seen during fetch
+      const seenIsCountLoading: boolean[] = [];
+
+      fetchFn = vi.fn().mockImplementation((vars) => {
+        // Count query uses first: 1
+        if (vars.first === 1 && vars.includeTotalCount === true) {
+          // Count query waits for gate
+          return countGate.then(() =>
+            Promise.resolve(createSuccessResult(createMockConnection([], false, null, 100)))
+          );
+        }
+        // Main query resolves immediately
+        return Promise.resolve(createSuccessResult(mockData));
+      });
+
+      const adapter = new BaseTableAdapter(
+        fetchFn,
+        buildQueryOptions,
+        createAdapterOptions({ splitTotalCount: true })
+      );
+
+      // Subscribe to track state changes
+      adapter.subscribe(() => {
+        seenIsCountLoading.push(adapter.getState().isCountLoading);
+      });
+
+      // Start fetch (don't await yet)
+      const fetchPromise = adapter.fetch();
+      await flushPromises(); // Let main query complete
+
+      // isCountLoading should have been true at some point
+      expect(seenIsCountLoading).toContain(true);
+
+      // Resolve count query
+      resolveCount();
+      await fetchPromise;
+      await flushPromises();
+
+      // Final state should show count loaded
+      const state = adapter.getState();
+      expect(state.isCountLoading).toBe(false);
+      expect(state.rowCount).toBe(100);
+
+      adapter.destroy();
+    });
+
+    it('should handle count query failure gracefully', async () => {
+      const mockData = createMockConnection(
+        [{ id: '1', name: 'Test', email: 'test@example.com' }],
+        false,
+        null,
+        0
+      );
+
+      fetchFn = vi.fn().mockImplementation((vars) => {
+        // Count query uses first: 1
+        if (vars.first === 1 && vars.includeTotalCount === true) {
+          // Count query fails
+          return Promise.reject(new Error('Count query failed'));
+        }
+        // Main query succeeds
+        return Promise.resolve(createSuccessResult(mockData));
+      });
+
+      const adapter = new BaseTableAdapter(
+        fetchFn,
+        buildQueryOptions,
+        createAdapterOptions({ splitTotalCount: true })
+      );
+
+      await adapter.fetch();
+      await flushPromises();
+
+      // Data should still be available even if count query fails
+      const state = adapter.getState();
+      expect(state.rows).toHaveLength(1);
+      expect(state.isSuccess).toBe(true);
+      expect(state.isCountLoading).toBe(false);
+      expect(state.rowCount).toBeNull(); // Count stays null on error
+
+      adapter.destroy();
+    });
+
+    it('should use empty select for count query', async () => {
+      const mockData = createMockConnection(
+        [{ id: '1', name: 'Test', email: 'test@example.com' }],
+        false,
+        null,
+        0
+      );
+
+      const allQueryOptions: MockQueryOptions[] = [];
+      fetchFn = vi.fn().mockImplementation((options) => {
+        allQueryOptions.push(options);
+        return Promise.resolve(createSuccessResult(mockData));
+      });
+
+      const adapter = new BaseTableAdapter(
+        fetchFn,
+        buildQueryOptions,
+        createAdapterOptions({ splitTotalCount: true })
+      );
+
+      await adapter.fetch();
+      await flushPromises();
+
+      // Should have made two calls: main fetch + count fetch (in parallel)
+      expect(allQueryOptions).toHaveLength(2);
+
+      // Find the count query (has first: 1 and includeTotalCount: true)
+      const countOptions = allQueryOptions.find((opts) => opts.first === 1 && opts.includeTotalCount === true);
+      expect(countOptions).toBeDefined();
+      expect(countOptions?.after).toBeUndefined();
+      // Count query uses empty select - only needs totalCount
+      expect(countOptions?.select).toHaveLength(0);
+
+      adapter.destroy();
+    });
+
+    it('should not refetch count query on pagination changes', async () => {
+      // First page data - has next page
+      const page1Data = createMockConnection(
+        [{ id: '1', name: 'Test 1', email: 'test1@example.com' }],
+        true,
+        'cursor1',
+        50
+      );
+      // Second page data
+      const page2Data = createMockConnection(
+        [{ id: '2', name: 'Test 2', email: 'test2@example.com' }],
+        true,
+        'cursor2',
+        50
+      );
+
+      let fetchCallCount = 0;
+      let countQueryCallCount = 0;
+      
+      fetchFn = vi.fn().mockImplementation((vars) => {
+        fetchCallCount++;
+        // Count query uses first: 1
+        if (vars.first === 1 && vars.includeTotalCount === true) {
+          countQueryCallCount++;
+          return Promise.resolve(createSuccessResult(page1Data));
+        }
+        // Main query - return different data based on cursor
+        if (vars.after === 'cursor1') {
+          return Promise.resolve(createSuccessResult(page2Data));
+        }
+        return Promise.resolve(createSuccessResult(page1Data));
+      });
+
+      const adapter = new BaseTableAdapter(
+        fetchFn,
+        buildQueryOptions,
+        createAdapterOptions({ splitTotalCount: true })
+      );
+
+      // Initial fetch - should fetch both main and count
+      await adapter.fetch();
+      await flushPromises();
+
+      expect(countQueryCallCount).toBe(1);
+      const initialFetchCount = fetchCallCount;
+
+      // Go to next page - should NOT refetch count
+      adapter.pagination.next();
+      await adapter.fetch();
+      await flushPromises();
+
+      // Count query should NOT have been called again
+      expect(countQueryCallCount).toBe(1);
+      // But main query should have been called
+      expect(fetchCallCount).toBe(initialFetchCount + 1);
+
+      adapter.destroy();
+    });
+
+    it('should refetch count query when filter changes', async () => {
+      const mockData = createMockConnection(
+        [{ id: '1', name: 'Test', email: 'test@example.com' }],
+        false,
+        null,
+        50
+      );
+
+      let countQueryCallCount = 0;
+      
+      fetchFn = vi.fn().mockImplementation((vars) => {
+        if (vars.first === 1 && vars.includeTotalCount === true) {
+          countQueryCallCount++;
+        }
+        return Promise.resolve(createSuccessResult(mockData));
+      });
+
+      const adapter = new BaseTableAdapter(
+        fetchFn,
+        buildQueryOptions,
+        createAdapterOptions({ splitTotalCount: true })
+      );
+
+      // Initial fetch
+      await adapter.fetch();
+      await flushPromises();
+      expect(countQueryCallCount).toBe(1);
+
+      // Change filter - should trigger count refetch
+      adapter.setFilter({ name: { contains: 'test' } });
+      await flushPromises();
+
+      expect(countQueryCallCount).toBe(2);
+
+      adapter.destroy();
     });
   });
 });

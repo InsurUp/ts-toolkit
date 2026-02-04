@@ -193,6 +193,7 @@ export class InsurUpWebhookClient {
     const fields = (requestOptions?.select ??
       ALL_WEBHOOK_DELIVERY_FIELDS) as WebhookDeliveryFieldKey[];
     const fieldSelection = buildFieldSelection(fields);
+    const hasFieldSelection = fieldSelection.length > 0;
 
     const query = `
       query GetWebhookDeliveries(
@@ -220,12 +221,12 @@ export class InsurUpWebhookClient {
             endCursor
           }
           totalCount
-          edges {
+          ${hasFieldSelection ? `edges {
             cursor
             node {
               ${fieldSelection}
             }
-          }
+          }` : ""}
         }
       }
     `;
