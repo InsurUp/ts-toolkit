@@ -382,8 +382,11 @@ export class BaseTableAdapter<
    */
   private getQueryKey(): unknown[] {
     // Read sorting from tableState (internal state managed via onStateChange)
-    // Falls back to initialTableOptions.state for initial sorting before table is created
-    const sorting = this.tableInstance?.getState().sorting ?? this.initialTableOptions?.state?.sorting;
+    // Falls back to initialTableOptions.state or initialState for initial sorting before table is created
+    const sorting =
+      this.tableInstance?.getState().sorting ??
+      this.initialTableOptions?.state?.sorting ??
+      this.initialTableOptions?.initialState?.sorting;
     // Compute select fields dynamically from column visibility
     const fields = this.computeVisibleFields();
     return [
@@ -403,8 +406,11 @@ export class BaseTableAdapter<
    */
   private buildVariables(): TQueryOptions {
     // Read sorting from tableState (internal state managed via onStateChange)
-    // Falls back to initialTableOptions.state for initial sorting before table is created
-    const tanstackSorting = this.tableInstance?.getState().sorting ?? this.initialTableOptions?.state?.sorting;
+    // Falls back to initialTableOptions.state or initialState for initial sorting before table is created
+    const tanstackSorting =
+      this.tableInstance?.getState().sorting ??
+      this.initialTableOptions?.state?.sorting ??
+      this.initialTableOptions?.initialState?.sorting;
     const sdkSorting = tanstackSorting ? this.sortingConverters.toSdk(tanstackSorting) : undefined;
 
     // Compute select fields dynamically from column visibility

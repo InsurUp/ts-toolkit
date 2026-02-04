@@ -86,11 +86,8 @@
       columnResizeMode: "onChange",
       enableColumnResizing: true,
       enablePinning: true,
-    },
-    initialState: {
-      columnPinning: {
-        left: [],
-        right: [],
+      initialState: {
+        sorting: [{ id: 'createdAt', desc: true }]
       },
     },
   }));
