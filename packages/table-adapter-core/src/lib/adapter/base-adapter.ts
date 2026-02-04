@@ -90,6 +90,8 @@ export class BaseTableAdapter<
   private unsubscribePagination: (() => void) | null = null;
   /** Flag to prevent double-notification when pagination change originates from TanStack table */
   private isPaginationChangeFromTable = false;
+  /** Flag to prevent refetch loop when pagination is updated after fetch completes */
+  private isPaginationUpdateFromFetch = false;
   /** Pass-through TanStack Table options for client-side features */
   private initialTableOptions:
     | Partial<Omit<TableOptionsResolved<TRow>, 'data' | 'columns' | 'getCoreRowModel'>>
@@ -204,8 +206,14 @@ export class BaseTableAdapter<
       queryFn: async (vars, context) => {
         const result = await this.fetchFn(vars, { signal: context.signal });
         // Update pagination state on success
+        // Set flag to prevent pagination subscription from triggering another fetch
         if (result.isSuccess) {
-          this._pagination.update(result.data.pageInfo);
+          this.isPaginationUpdateFromFetch = true;
+          try {
+            this._pagination.update(result.data.pageInfo);
+          } finally {
+            this.isPaginationUpdateFromFetch = false;
+          }
         }
         return result;
       },
@@ -224,7 +232,8 @@ export class BaseTableAdapter<
     // Subscribe to pagination changes for bidirectional sync
     // When pagination changes directly (not via TanStack table), sync table and refetch
     this.unsubscribePagination = this._pagination.subscribe(() => {
-      if (!this.isPaginationChangeFromTable) {
+      // Skip if change is from table state handler or from fetch completion
+      if (!this.isPaginationChangeFromTable && !this.isPaginationUpdateFromFetch) {
         this.syncTableInstance();
         this.notifyListeners();
         void this.fetch();

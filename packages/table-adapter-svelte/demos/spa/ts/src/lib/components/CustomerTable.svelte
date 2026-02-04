@@ -163,9 +163,6 @@
 
   // Keep dndItems in sync with table headers (but not during drag)
   $effect(() => {
-    // #region agent log
-    fetch('http://127.0.0.1:7249/ingest/f6903c78-7cee-4eee-9f24-304da23f0a01',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CustomerTable.svelte:$effect',message:'Effect running',data:{isDragging,dndItemsCount:dndItems.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D'})}).catch(()=>{});
-    // #endregion
     if (isDragging) return;
     const newHeaders = getDndHeaders();
     // Only update if the IDs actually changed (not just the reference)
@@ -175,18 +172,12 @@
       .join(",");
     const newIds = newHeaders.map((i) => i.id).join(",");
     if (currentIds !== newIds) {
-      // #region agent log
-      fetch('http://127.0.0.1:7249/ingest/f6903c78-7cee-4eee-9f24-304da23f0a01',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CustomerTable.svelte:$effect',message:'Effect UPDATING dndItems',data:{currentIds,newIds},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D'})}).catch(()=>{});
-      // #endregion
       dndItems = newHeaders;
     }
   });
 
   function handleDndConsider(e: CustomEvent<DndEvent<DndHeaderItem>>): void {
     isDragging = true;
-    // #region agent log
-    fetch('http://127.0.0.1:7249/ingest/f6903c78-7cee-4eee-9f24-304da23f0a01',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CustomerTable.svelte:handleDndConsider',message:'DnD consider - items received',data:{itemCount:e.detail.items.length,items:e.detail.items.map(i=>({id:i.id,isShadow:!!i[SHADOW_ITEM_MARKER_PROPERTY_NAME]}))},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A,C'})}).catch(()=>{});
-    // #endregion
     dndItems = e.detail.items;
   }
 
@@ -196,9 +187,6 @@
     const finalItems = e.detail.items.filter(
       (item) => !item[SHADOW_ITEM_MARKER_PROPERTY_NAME]
     );
-    // #region agent log
-    fetch('http://127.0.0.1:7249/ingest/f6903c78-7cee-4eee-9f24-304da23f0a01',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CustomerTable.svelte:handleDndFinalize',message:'DnD finalize - final items',data:{rawCount:e.detail.items.length,finalCount:finalItems.length,finalItems:finalItems.map(i=>i.id)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A,C'})}).catch(()=>{});
-    // #endregion
     dndItems = finalItems;
     const newOrder = finalItems.map((item) => item.id);
     ct.table.setColumnOrder(newOrder);
@@ -208,11 +196,7 @@
   function getHeader(columnId: string) {
     const headerGroups = ct.table.getHeaderGroups();
     if (headerGroups.length === 0) return null;
-    const header = headerGroups[0].headers.find((h) => h.column.id === columnId) ?? null;
-    // #region agent log
-    if (!header) { fetch('http://127.0.0.1:7249/ingest/f6903c78-7cee-4eee-9f24-304da23f0a01',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CustomerTable.svelte:getHeader',message:'Header NOT FOUND for columnId',data:{columnId,availableHeaders:headerGroups[0]?.headers.map(h=>h.column.id)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B'})}).catch(()=>{}); }
-    // #endregion
-    return header;
+    return headerGroups[0].headers.find((h) => h.column.id === columnId) ?? null;
   }
 
   // Calculate percentage width for a header
