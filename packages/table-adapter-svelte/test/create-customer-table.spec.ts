@@ -314,8 +314,8 @@ describe('createCustomerTable', () => {
       expect(result.isError).toBe(false);
       expect(result.isSuccess).toBe(false);
       expect(result.rows).toEqual([]);
-      expect(result.rowCount).toBe(0);
-      expect(result.pageCount).toBe(0);
+      expect(result.rowCount).toBeNull(); // null until data loaded
+      expect(result.pageCount).toBeNull(); // null until data loaded
       expect(result.error).toBeNull();
 
       result.destroy();
@@ -327,7 +327,8 @@ describe('createCustomerTable', () => {
       // Should have derived computed values
       expect(result.isEmpty).toBe(false); // false because isSuccess is false
       expect(result.hasData).toBe(false);
-      expect(result.canLoadMore).toBe(false);
+      // canLoadMore is true initially because pageCount is unknown (-1 to TanStack Table)
+      expect(result.canLoadMore).toBe(true);
 
       result.destroy();
     });

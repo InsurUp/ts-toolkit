@@ -128,10 +128,12 @@ export function useCustomerTable<const TColumns extends CustomerColumnDef[]>(
       return true;
     },
     get pageCount() {
-      return state.value.pageCount;
+      // TanStack Table expects undefined, not null
+      return state.value.pageCount ?? undefined;
     },
     get rowCount() {
-      return state.value.rowCount;
+      // TanStack Table expects undefined, not null
+      return state.value.rowCount ?? undefined;
     },
     get state() {
       return tableOptions.value.state;

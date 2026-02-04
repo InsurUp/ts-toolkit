@@ -614,6 +614,7 @@ export class InsurUpCustomerClient {
     const fields = (requestOptions?.select ??
       ALL_CUSTOMER_FIELDS) as CustomerFieldKey[];
     const fieldSelection = buildFieldSelection(fields);
+    const hasFieldSelection = fieldSelection.length > 0;
     const includeTotalCount = requestOptions?.includeTotalCount !== false;
 
     const query = `
@@ -642,12 +643,12 @@ export class InsurUpCustomerClient {
             endCursor
           }
           ${includeTotalCount ? "totalCount" : ""}
-          edges {
+          ${hasFieldSelection ? `edges {
             cursor
             node {
               ${fieldSelection}
             }
-          }
+          }` : ""}
         }
       }
     `;

@@ -54,6 +54,7 @@ function buildCustomerQueryOptions<TFields extends CustomerFieldKey[]>(
     select: params.select as TFields,
     filter: params.filter,
     search: params.search,
+    includeTotalCount: params.includeTotalCount,
   };
 }
 
@@ -148,6 +149,7 @@ export function createCustomerTable<const TColumns extends CustomerColumnDef[]>(
     onSettled: options.onSettled,
     tableOptions: options.tableOptions,
     autoFetch: options.autoFetch,
+    splitTotalCount: options.splitTotalCount,
   }) as CustomerTable<TColumns>;
 }
 

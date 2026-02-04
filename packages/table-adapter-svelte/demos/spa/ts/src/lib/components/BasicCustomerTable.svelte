@@ -292,8 +292,8 @@
 
   <div class="flex items-center justify-between">
     <div class="text-sm text-muted-foreground">
-      Page {ct.pagination.getState().pageIndex + 1} of {ct.pageCount || 1}
-      {#if ct.rowCount > 0}
+      Page {ct.pagination.getState().pageIndex + 1}{#if ct.pageCount != null} of {ct.pageCount}{/if}
+      {#if ct.rowCount != null && ct.rowCount > 0}
         <span class="ml-2">({ct.rowCount} rows)</span>
       {/if}
     </div>

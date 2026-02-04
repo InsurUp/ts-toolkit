@@ -62,13 +62,14 @@ export class BaseTableAdapter<
   /** Static server snapshot for SSR - frozen for referential stability */
   private static readonly SERVER_SNAPSHOT: AdapterState<unknown> = Object.freeze({
     rows: [],
-    rowCount: 0,
-    pageCount: 0,
+    rowCount: null,
+    pageCount: null,
     isLoading: true,
     isFetching: false,
     error: null,
     isError: false,
-    isSuccess: false
+    isSuccess: false,
+    isCountLoading: false,
   });
 
   readonly columns: ColumnDef<TRow, unknown>[];
@@ -82,11 +83,14 @@ export class BaseTableAdapter<
   private sortingConverters: SortingConverters<TSortInput>;
   private queryKeyPrefix: string;
   private queryManager: QueryManager<InsurUpGraphQLResult<Connection<TRow>>, TQueryOptions>;
+  /** Second QueryManager for count query (when splitTotalCount is enabled) */
+  private countQueryManager: QueryManager<InsurUpGraphQLResult<Connection<TRow>>, TQueryOptions> | null = null;
   private pageSize: number;
   private listeners: Set<() => void> = new Set();
   private state: AdapterState<TRow>;
   private callbacks: ErrorCallbacks<TRow>;
   private unsubscribeQueryManager: (() => void) | null = null;
+  private unsubscribeCountQueryManager: (() => void) | null = null;
   private unsubscribePagination: (() => void) | null = null;
   /** Flag to prevent double-notification when pagination change originates from TanStack table */
   private isPaginationChangeFromTable = false;
@@ -102,6 +106,10 @@ export class BaseTableAdapter<
   private tableInstance: Table<TRow> | null = null;
   /** User's onStateChange callback from tableOptions */
   private userOnStateChange: ((updater: Updater<TableState>) => void) | undefined;
+  /** Whether to split total count fetching from data fetching */
+  private splitTotalCount: boolean;
+  /** Last count query key - used to avoid redundant count fetches on pagination */
+  private lastCountQueryKey: unknown[] | null = null;
 
   /**
    * Compute visible fields from column visibility state
@@ -189,19 +197,23 @@ export class BaseTableAdapter<
     // Cache getCoreRowModel result - stable reference for React
     this.coreRowModel = getCoreRowModel();
 
-    // Initialize cached state
+    // Store splitTotalCount option
+    this.splitTotalCount = options.splitTotalCount ?? false;
+
+    // Initialize cached state - rowCount/pageCount null until data loaded
     this.state = {
       rows: [],
-      rowCount: 0,
-      pageCount: 0,
+      rowCount: null,
+      pageCount: null,
       isLoading: false,
       isFetching: false,
       error: null,
       isError: false,
       isSuccess: false,
+      isCountLoading: false,
     };
 
-    // Initialize query manager - stores SDK result directly
+    // Initialize main query manager - stores SDK result directly
     this.queryManager = new QueryManager({
       queryFn: async (vars, context) => {
         const result = await this.fetchFn(vars, { signal: context.signal });
@@ -222,6 +234,22 @@ export class BaseTableAdapter<
       staleTime: options.staleTime,
       gcTime: options.gcTime,
     });
+
+    // Initialize count query manager when splitTotalCount is enabled
+    if (this.splitTotalCount) {
+      this.countQueryManager = new QueryManager({
+        queryFn: (vars, context) => this.fetchFn(vars, { signal: context.signal }),
+        getQueryKey: () => this.getCountQueryKey(),
+        getVariables: () => this.buildCountVariables(),
+        staleTime: options.staleTime,
+        gcTime: options.gcTime,
+      });
+
+      this.unsubscribeCountQueryManager = this.countQueryManager.subscribe(() => {
+        this.updateState();
+        this.notifyListeners();
+      });
+    }
 
     // Forward query manager subscriptions and update cached state
     this.unsubscribeQueryManager = this.queryManager.subscribe(() => {
@@ -253,23 +281,38 @@ export class BaseTableAdapter<
    */
   private updateState(): void {
     const queryState = this.queryManager.getState();
+    const countQueryState = this.countQueryManager?.getState();
     const sdkResult = queryState.data;
 
     // Handle SDK result - extract data or use defaults
     let rows: TRow[] = [];
-    let rowCount = 0;
-    let pageCount = 0;
+    let rowCount: number | null = null;
+    let pageCount: number | null = null;
     let tableError: TableError | null = null;
 
     if (sdkResult?.isSuccess) {
       const data = sdkResult.data;
       rows = (data.nodes ?? []).filter((node): node is NonNullable<typeof node> => node !== null);
-      rowCount = data.totalCount;
-      pageCount = Math.ceil(rowCount / this.pageSize);
+
+      if (this.splitTotalCount && countQueryState) {
+        // When splitTotalCount is enabled, totalCount comes from count QueryManager
+        const countResult = countQueryState.data;
+        if (countResult?.isSuccess) {
+          rowCount = countResult.data.totalCount;
+          pageCount = Math.ceil(rowCount / this.pageSize);
+        }
+      } else {
+        // Normal mode: totalCount comes from the main query
+        rowCount = data.totalCount;
+        pageCount = Math.ceil(rowCount / this.pageSize);
+      }
     } else if (sdkResult && !sdkResult.isSuccess) {
       // SDK returned an error - create TableError
       tableError = createTableError(sdkResult);
     }
+
+    // isCountLoading: true when count is unknown (null) and we're fetching
+    const isCountLoading = rowCount === null && (queryState.isFetching || (countQueryState?.isFetching ?? false));
 
     // Also check for query-level errors (network errors caught by query manager)
     if (queryState.error && !tableError) {
@@ -299,6 +342,7 @@ export class BaseTableAdapter<
       error: tableError,
       isError: tableError !== null,
       isSuccess,
+      isCountLoading,
     };
 
     // Call callbacks only when fetch completes (not during loading)
@@ -373,21 +417,94 @@ export class BaseTableAdapter<
       select,
       filter: this.filter,
       search: this.search,
+      // When splitTotalCount is enabled, don't include total count in main query
+      includeTotalCount: !this.splitTotalCount,
     });
   }
 
   /**
-   * Trigger a fetch
+   * Build minimal query variables for count query.
+   * Uses first: 1 and empty select - only need totalCount.
+   * No sorting needed since count is independent of sort order.
    */
-  async fetch(): Promise<void> {
-    await this.queryManager.fetch();
+  private buildCountVariables(): TQueryOptions {
+    return this.buildFetchQueryOptions({
+      first: 1,
+      after: undefined,
+      order: undefined,
+      select: [],
+      filter: this.filter,
+      search: this.search,
+      includeTotalCount: true,
+    });
   }
 
   /**
-   * Invalidate cache and refetch
+   * Get query key for count query.
+   * Excludes pagination and sorting since count doesn't change with page or sort order.
+   */
+  private getCountQueryKey(): unknown[] {
+    return [
+      this.queryKeyPrefix,
+      'count',
+      this.filter,
+      this.search,
+    ];
+  }
+
+  /**
+   * Check if count query key has changed since last fetch.
+   * Uses JSON.stringify for deep comparison of objects (filter, search).
+   */
+  private hasCountQueryKeyChanged(): boolean {
+    const currentKey = this.getCountQueryKey();
+    if (this.lastCountQueryKey === null) {
+      return true;
+    }
+    // Use JSON.stringify for deep comparison of objects
+    return JSON.stringify(currentKey) !== JSON.stringify(this.lastCountQueryKey);
+  }
+
+  /**
+   * Trigger a fetch. When splitTotalCount is enabled, only fetches count if query key changed.
+   */
+  async fetch(): Promise<void> {
+    if (this.countQueryManager) {
+      // Only fetch count if the count query key has changed (filter/sort/search changed)
+      const shouldFetchCount = this.hasCountQueryKeyChanged();
+      
+      if (shouldFetchCount) {
+        // Update the last count query key
+        this.lastCountQueryKey = this.getCountQueryKey();
+        // Fire both queries in parallel
+        await Promise.all([
+          this.queryManager.fetch(),
+          this.countQueryManager.fetch(),
+        ]);
+      } else {
+        // Only fetch main data, count is cached
+        await this.queryManager.fetch();
+      }
+    } else {
+      await this.queryManager.fetch();
+    }
+  }
+
+  /**
+   * Invalidate cache and refetch. Also invalidates count query if splitTotalCount is enabled.
    */
   async invalidate(): Promise<void> {
-    await this.queryManager.invalidate();
+    // Reset count key tracking so next fetch will refetch count
+    this.lastCountQueryKey = null;
+    
+    if (this.countQueryManager) {
+      await Promise.all([
+        this.queryManager.invalidate(),
+        this.countQueryManager.invalidate(),
+      ]);
+    } else {
+      await this.queryManager.invalidate();
+    }
   }
 
   /**
@@ -401,9 +518,19 @@ export class BaseTableAdapter<
    */
   async refetch(options?: { force?: boolean }): Promise<void> {
     if (options?.force) {
-      await this.queryManager.refetch({ throwOnError: false });
+      // Force refetch - reset count key tracking too
+      this.lastCountQueryKey = null;
+      
+      if (this.countQueryManager) {
+        await Promise.all([
+          this.queryManager.refetch({ throwOnError: false }),
+          this.countQueryManager.refetch({ throwOnError: false }),
+        ]);
+      } else {
+        await this.queryManager.refetch({ throwOnError: false });
+      }
     } else {
-      await this.queryManager.fetch();
+      await this.fetch();
     }
   }
 
@@ -488,8 +615,9 @@ export class BaseTableAdapter<
       manualPagination: true as const,
       manualSorting: true as const,
       paginationMode: 'cursor',
-      pageCount: this.state.pageCount,
-      rowCount: this.state.rowCount,
+      // TanStack Table expects number, use -1 for unknown (when splitTotalCount is loading)
+      pageCount: this.state.pageCount ?? -1,
+      rowCount: this.state.rowCount ?? undefined,
       state: {
         // Use current table state if available, otherwise use initial user state
         ...(currentState ?? initialUserState),
@@ -808,8 +936,10 @@ export class BaseTableAdapter<
    */
   destroy(): void {
     this.unsubscribeQueryManager?.();
+    this.unsubscribeCountQueryManager?.();
     this.unsubscribePagination?.();
     this.queryManager.destroy();
+    this.countQueryManager?.destroy();
     this.listeners.clear();
   }
 }

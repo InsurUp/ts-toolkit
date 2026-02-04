@@ -443,6 +443,7 @@ export class InsurUpCaseClient {
     const fields = (requestOptions?.select ??
       ALL_CASE_FIELDS) as CaseFieldKey[];
     const fieldSelection = buildFieldSelection(fields);
+    const hasFieldSelection = fieldSelection.length > 0;
 
     const query = `
       query GetCases(
@@ -470,12 +471,12 @@ export class InsurUpCaseClient {
             endCursor
           }
           totalCount
-          edges {
+          ${hasFieldSelection ? `edges {
             cursor
             node {
               ${fieldSelection}
             }
-          }
+          }` : ""}
         }
       }
     `;

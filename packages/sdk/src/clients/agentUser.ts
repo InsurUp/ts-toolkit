@@ -311,6 +311,7 @@ export class InsurUpAgentUserClient {
     const fields = (requestOptions?.select ??
       ALL_AGENT_USER_FIELDS) as AgentUserFieldKey[];
     const fieldSelection = buildFieldSelection(fields);
+    const hasFieldSelection = fieldSelection.length > 0;
 
     const query = `
       query GetAgentUsers(
@@ -338,12 +339,12 @@ export class InsurUpAgentUserClient {
             endCursor
           }
           totalCount
-          edges {
+          ${hasFieldSelection ? `edges {
             cursor
             node {
               ${fieldSelection}
             }
-          }
+          }` : ""}
         }
       }
     `;

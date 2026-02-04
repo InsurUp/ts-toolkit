@@ -77,6 +77,7 @@
     fetch: (options) => client.customers.getCustomers(options),
     pagination: { type: 'cursor', pageSize: 10 },
     autoFetch: true,
+    splitTotalCount: true,
     onError: (error) => {
       toast.error(`Failed to load customers: ${error.message}`);
     },
@@ -547,7 +548,7 @@
   <div class="flex items-center justify-between">
     <div class="flex items-center gap-4">
       <div class="text-sm text-muted-foreground">
-        Page {ct.table.getState().pagination.pageIndex + 1} of {ct.pageCount || 1}
+        Page {ct.table.getState().pagination.pageIndex + 1}{#if ct.pageCount != null} of {ct.pageCount}{:else if ct.isCountLoading}<span class="inline-block w-6 h-4 bg-accent animate-pulse rounded mx-1"></span>{/if}
       </div>
 
       <!-- Page size selector -->

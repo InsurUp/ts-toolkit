@@ -375,6 +375,8 @@ export function createTableApi<
     tableOptions: config.tableOptions,
     // Auto-fetch on creation
     autoFetch: config.autoFetch,
+    // Split total count fetching
+    splitTotalCount: config.splitTotalCount,
   });
 
   // Cached frozen columns for referential stability
