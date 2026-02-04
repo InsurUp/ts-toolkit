@@ -450,6 +450,58 @@ describe('createCustomerTable', () => {
 
       table.destroy();
     });
+
+    it('should apply sorting from tableOptions.initialState.sorting', async () => {
+      const table = createCustomerTable({
+        columns: (col) => [col.id(), col.name('Name')],
+        fetch: mockFetch,
+        pagination: { type: 'cursor' },
+        tableOptions: {
+          initialState: {
+            sorting: [{ id: 'name', desc: true }],
+          },
+        },
+      });
+
+      await table.fetch();
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.objectContaining({
+          order: [{ name: 'DESC' }],
+        }),
+        expect.any(Object)
+      );
+
+      table.destroy();
+    });
+
+    it('should prefer tableOptions.state.sorting over initialState.sorting', async () => {
+      const table = createCustomerTable({
+        columns: (col) => [col.id(), col.name('Name')],
+        fetch: mockFetch,
+        pagination: { type: 'cursor' },
+        tableOptions: {
+          state: {
+            sorting: [{ id: 'name', desc: false }],
+          },
+          initialState: {
+            sorting: [{ id: 'name', desc: true }],
+          },
+        },
+      });
+
+      await table.fetch();
+
+      // state.sorting should take precedence over initialState.sorting
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.objectContaining({
+          order: [{ name: 'ASC' }],
+        }),
+        expect.any(Object)
+      );
+
+      table.destroy();
+    });
   });
 
   describe('table options', () => {
