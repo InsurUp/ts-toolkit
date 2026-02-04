@@ -38,15 +38,17 @@
   ],
   "exports": {
     ".": {
-      "development": "./src/index.ts",
       "types": "./dist/index.d.ts",
+      "development": "./src/index.ts",
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
     },
     "./browser": {
-      "development": "./src/index.ts",
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.browser.js"
+      "development": "./src/index.ts",
+      "import": "./dist/index.browser.js",
+      "default": "./dist/index.browser.js"
     }
   },
   "scripts": {
