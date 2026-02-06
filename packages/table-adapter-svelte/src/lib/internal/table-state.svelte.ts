@@ -104,11 +104,38 @@ export class TableState<TRow> {
    * Use this method instead of calling table.setOptions() directly
    * to ensure Svelte re-renders components that depend on the table.
    *
+   * When `hasStateChange` is true and the update includes state,
+   * routes the state through the table's onStateChange handler so the
+   * adapter can detect changes that require a server refetch
+   * (sorting reset, field changes, etc.).
+   *
    * @param updater - Function that receives previous options and returns new options
+   * @param hasStateChange - Whether the state in this update actually differs
+   *   from the previous update. Change detection is handled by the caller
+   *   (create-table-core) using $state.snapshot() to properly unwrap Svelte proxies.
    */
   updateTableOptions(
-    updater: (prev: TableOptionsResolved<TRow>) => TableOptionsResolved<TRow>
+    updater: (prev: TableOptionsResolved<TRow>) => TableOptionsResolved<TRow>,
+    hasStateChange = false,
   ): void {
+    if (hasStateChange) {
+      const onStateChange = this.#table.options.onStateChange;
+      if (onStateChange) {
+        const newOptions = updater(this.#table.options);
+        if (newOptions.state) {
+          // Route state through onStateChange BEFORE setOptions so the adapter
+          // can compare previous vs new state and trigger refetch when needed
+          // (e.g., sorting change → reset pagination + refetch,
+          //  visibility change → field selection change → refetch).
+          // handleTableStateChange applies the state via setOptions internally.
+          const partialState = newOptions.state;
+          onStateChange((prev) => ({ ...prev, ...partialState }));
+        }
+      }
+    }
+
+    // Always apply the full updater so non-state option changes
+    // (enableSorting, columnResizeMode, etc.) are never dropped.
     this.#table.setOptions(updater);
     this.#triggerTableUpdate();
   }

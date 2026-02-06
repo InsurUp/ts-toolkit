@@ -143,19 +143,38 @@ export function createTableCore<
 
   // Watch for tableOptions changes and sync to table.
   // Using $effect.pre ensures options are applied before render.
+  //
+  // Change detection uses $state.snapshot() to unwrap Svelte proxies
+  // and structurally compares with the cached previous snapshot.
+  // This prevents:
+  // 1. Calling onStateChange during initialization (TDZ safety)
+  // 2. Redundant onStateChange calls on sync-back from userOnStateChange
+  // Seed with the initial state so the first effect run sees no change,
+  // preventing onStateChange from firing before the consumer's `ct` is assigned (TDZ).
+  const initialState = getTableOptionsState(getOptions());
+  let prevStateSnapshot: Record<string, unknown> | undefined = initialState
+    ? ($state.snapshot(initialState) as Record<string, unknown>)
+    : undefined;
+
   $effect.pre(() => {
     const currentOptions = getOptions();
     const tableOptionsState = getTableOptionsState(currentOptions);
 
     if (tableOptionsState) {
-      // Use updateTableOptions to both update the table and trigger reactivity
-      tableState.updateTableOptions((prev) => ({
-        ...prev,
-        state: {
-          ...prev.state,
-          ...tableOptionsState,
-        },
-      }));
+      const snapshot = $state.snapshot(tableOptionsState) as Record<string, unknown>;
+      const hasStateChange = !isEqual(snapshot, prevStateSnapshot);
+      prevStateSnapshot = snapshot;
+
+      tableState.updateTableOptions(
+        (prev) => ({
+          ...prev,
+          state: {
+            ...prev.state,
+            ...tableOptionsState,
+          },
+        }),
+        hasStateChange,
+      );
     }
   });
 
@@ -228,4 +247,27 @@ export function createTableCore<
     // Lifecycle
     destroy,
   };
+}
+
+/**
+ * Lightweight structural equality check.
+ * Faster than JSON.stringify for small objects — short-circuits on first
+ * mismatch and avoids string allocation entirely.
+ */
+function isEqual(a: unknown, b: unknown): boolean {
+  if (Object.is(a, b)) return true;
+  if (a == null || b == null || typeof a !== 'object' || typeof b !== 'object') return false;
+
+  if (Array.isArray(a)) {
+    if (!Array.isArray(b) || a.length !== b.length) return false;
+    return a.every((v, i) => isEqual(v, (b as unknown[])[i]));
+  }
+
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
+  if (keysA.length !== keysB.length) return false;
+
+  const recA = a as Record<string, unknown>;
+  const recB = b as Record<string, unknown>;
+  return keysA.every((k) => isEqual(recA[k], recB[k]));
 }
