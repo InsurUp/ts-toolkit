@@ -64,9 +64,15 @@
           </a>
           <a
             href={p("/customers")}
-            class="transition-colors hover:text-foreground {isActive('/customers') && !isActive('/customers/infinite') && !isActive('/customers/basic') ? 'text-foreground' : 'text-foreground/60'}"
+            class="transition-colors hover:text-foreground {isActive('/customers') && !isActive('/customers/infinite') && !isActive('/customers/basic') && !isActive('/customers/controlled') ? 'text-foreground' : 'text-foreground/60'}"
           >
             Advanced
+          </a>
+          <a
+            href={p("/customers/controlled")}
+            class="transition-colors hover:text-foreground {isActive('/customers/controlled') ? 'text-foreground' : 'text-foreground/60'}"
+          >
+            Controlled
           </a>
           <a
             href={p("/customers/infinite")}
