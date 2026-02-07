@@ -21,6 +21,18 @@ export * from "./coverage.js";
 export * from "./insurance.js";
 export * from "./proposals.js";
 
+// Meta types (hand-written)
+export type {
+  FieldMeta,
+  ModelMeta,
+  StringFieldMeta,
+  NumberFieldMeta,
+  BooleanFieldMeta,
+  DateTimeFieldMeta,
+  DateOnlyFieldMeta,
+  EnumFieldMeta,
+} from "./meta-types.js";
+
 // GraphQL types
 export * from "./graphql/index.js";
 

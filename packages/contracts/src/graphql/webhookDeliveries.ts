@@ -30,6 +30,7 @@ export enum WebhookDeliveryState {
 
 // === Output Types ===
 
+/** @meta */
 export interface QueryWebhookDeliveryResult {
   id: string;
   webhookId: string;

@@ -34,11 +34,13 @@ export interface CustomerAgentBranchInfo {
   parentName?: string | null;
 }
 
+/** @meta */
 export interface QueryCustomerConsentModel {
   consentType: ConsentType;
   isActive: boolean;
 }
 
+/** @meta */
 export interface QueryCustomerModel {
   agentBranch?: CustomerAgentBranchInfo | null;
   agentBranchId?: string | null;

@@ -174,6 +174,72 @@ import type {
 
 ---
 
+## Runtime Field Metadata
+
+Every `Query*Model` / `Query*Result` interface has an auto-generated runtime metadata object that describes its fields -- their types, nullability, and enum values. Useful for building dynamic UIs, filters, column configuration, and validation without hard-coding field info.
+
+### Using `getModelMeta`
+
+Look up any model's metadata by name with full autocomplete and type safety:
+
+```typescript
+import { getModelMeta } from '@insurup/contracts';
+
+const meta = getModelMeta("QueryCustomerModel");
+
+meta.id.type;           // "string"
+meta.createdAt.type;    // "DateTime"
+meta.gender.type;       // "enum"
+meta.gender.values;     // readonly ["UNKNOWN", "MALE", "FEMALE", "OTHER"]
+meta.gender.nullable;   // true
+```
+
+### Importing Individual Meta Objects
+
+```typescript
+import {
+  QueryCustomerModelMeta,
+  QueryPoliciesResultMeta,
+} from '@insurup/contracts';
+
+// Check if a field is an enum
+if (QueryCustomerModelMeta.type.type === "enum") {
+  console.log(QueryCustomerModelMeta.type.values);
+  // ["INDIVIDUAL", "COMPANY", "FOREIGN"]
+}
+```
+
+### Available Meta Objects
+
+| Meta Object | Source Interface |
+|---|---|
+| `QueryCustomerModelMeta` | `QueryCustomerModel` |
+| `QueryCustomerConsentModelMeta` | `QueryCustomerConsentModel` |
+| `QueryCaseModelMeta` | `QueryCaseModel` |
+| `QueryPoliciesResultMeta` | `QueryPoliciesResult` |
+| `QueryProposalsResultMeta` | `QueryProposalsResult` |
+| `QueryAgentUserResultMeta` | `QueryAgentUserResult` |
+| `QueryWebhookDeliveryResultMeta` | `QueryWebhookDeliveryResult` |
+| `QueryPolicyTransfersResultMeta` | `QueryPolicyTransfersResult` |
+| `QueryFilePolicyTransfersResultMeta` | `QueryFilePolicyTransfersResult` |
+
+### Field Types
+
+Each field in a meta object has a `type` discriminant:
+
+| `type` | Description | Extra Properties |
+|---|---|---|
+| `"string"` | String field | `nullable?` |
+| `"number"` | Number field | `nullable?` |
+| `"boolean"` | Boolean field | `nullable?` |
+| `"DateTime"` | ISO 8601 date-time | `nullable?` |
+| `"DateOnly"` | Date-only (YYYY-MM-DD) | `nullable?` |
+| `"enum"` | Enum field | `values`, `nullable?` |
+
+> **Note:** Meta objects are auto-generated from interfaces marked with `@meta` JSDoc tags. Object and array properties are excluded -- only primitive, date, and enum fields are included.
+
+---
+
 ## Enums
 
 All enums are exported as both types and runtime values:

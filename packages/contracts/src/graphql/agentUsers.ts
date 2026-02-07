@@ -33,6 +33,7 @@ export interface AgentUserBranchInfo {
   hierarchy: string;
 }
 
+/** @meta */
 export interface QueryAgentUserResult {
   id: string;
   email: string;

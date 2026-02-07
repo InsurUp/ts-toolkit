@@ -49,15 +49,20 @@
     }
   },
   "scripts": {
-    "build": "tsup",
-    "check-types": "tsc --noEmit"
+    "build": "bun run generate-meta && tsup",
+    "generate-meta": "bun run scripts/generate-meta.ts src/graphql test/unit/meta",
+    "check-types": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "publishConfig": {
     "access": "public"
   },
   "devDependencies": {
+    "ts-morph": "^27.0.2",
     "tsup": "^8.5.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   },
   "dependencies": {}
 }

@@ -25,6 +25,7 @@ export interface FilePolicyTransferUserReference {
   userType?: UserType | null;
 }
 
+/** @meta */
 export interface QueryFilePolicyTransfersResult {
   id: string;
   insuranceCompanyId: number;

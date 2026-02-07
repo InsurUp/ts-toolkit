@@ -48,6 +48,7 @@ export enum UserType {
   Customer = "CUSTOMER",
 }
 
+/** @meta */
 export interface QueryPoliciesResult {
   agentBranch?: PolicyAgentBranchInfo | null;
   agentBranchId?: string | null;
