@@ -36,6 +36,7 @@ export interface ProposalUserReference {
   userType?: UserType | null;
 }
 
+/** @meta */
 export interface QueryProposalsResult {
   agentBranch?: ProposalAgentBranchInfo | null;
   agentBranchId?: string | null;

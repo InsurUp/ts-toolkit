@@ -52,6 +52,7 @@ export interface PriorityRuleHit {
   score: number;
 }
 
+/** @meta */
 export interface QueryCaseModel {
   agentBranch?: CaseAgentBranchInfo | null;
   agentBranchId?: string | null;

@@ -17,6 +17,7 @@ import type { DateTime } from "../common.date.js";
 
 // === Output Types ===
 
+/** @meta */
 export interface QueryPolicyTransfersResult {
   id: string;
   startDate?: DateTime | null;
