@@ -291,7 +291,7 @@ export class IntegrationTestHelper {
         try {
           step.assertions(result);
         } catch (error) {
-          throw new Error(`Step ${index + 1} (${step.description}) failed: ${(error as Error).message}`);
+          throw new Error(`Step ${index + 1} (${step.description}) failed: ${(error as Error).message}`, { cause: error });
         }
       }
     };

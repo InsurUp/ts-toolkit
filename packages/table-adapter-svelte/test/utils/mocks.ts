@@ -11,7 +11,7 @@ import type { CustomerTableOptions, CustomerColumnDef } from '@insurup/table-ada
 // Extract the fetch-mode variant from the CustomerTableOptions union (tests always use fetch mode)
 export type CustomerTestFetchModeOptions = Extract<
   CustomerTableOptions<CustomerColumnDef[]>,
-  { fetch: Function }
+  { fetch: (...args: never[]) => unknown }
 >;
 
 // Extract the exact fetch type from the fetch-mode variant
