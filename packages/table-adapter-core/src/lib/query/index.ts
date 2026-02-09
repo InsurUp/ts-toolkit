@@ -3,4 +3,4 @@
  */
 
 export { QueryManager } from './manager.js';
-export type { QueryManagerOptions, QueryState } from './types.js';
+export type { QueryManagerOptions, QueryState, QueryFnContext } from './types.js';
