@@ -72,6 +72,8 @@ export type {
   RequestOptions,
   BackoffStrategy,
   RetryOptions,
+  LogLevel,
+  Logger,
 } from "./core/options.js";
 
 // Re-export all contract types from @insurup/contracts

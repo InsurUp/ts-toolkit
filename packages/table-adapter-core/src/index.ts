@@ -83,7 +83,7 @@ export {
 // ============================================================================
 
 export { QueryManager } from './lib/query/index.js';
-export type { QueryManagerOptions, QueryState } from './lib/query/index.js';
+export type { QueryManagerOptions, QueryState, QueryFnContext } from './lib/query/index.js';
 
 // ============================================================================
 // Core Utilities (for creating custom entity table factories)
@@ -157,5 +157,5 @@ export type {
   PaginationManagerFromOptions,
 } from './lib/pagination/index.js';
 
-export type { SortingState } from './lib/sorting/index.js';
+export type { SortingState, SortingConverters } from './lib/sorting/index.js';
 export { SortEnumType, SortDirection } from './lib/sorting/index.js';

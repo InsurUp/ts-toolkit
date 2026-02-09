@@ -46,6 +46,8 @@ export type { CustomerTableInstance } from './create-customer-table.svelte.js';
 export { createInfiniteCustomerTable } from './create-infinite-customer-table.svelte.js';
 export type { InfiniteCustomerTableInstance } from './create-infinite-customer-table.svelte.js';
 
+export type { TableCoreResult } from './internal/create-table-core.svelte.js';
+
 // ============================================================================
 // Re-export everything from core for convenience
 // ============================================================================
