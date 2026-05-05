@@ -1244,4 +1244,141 @@ describe('BaseTableAdapter', () => {
       adapter.destroy();
     });
   });
+
+  describe('keepPreviousData', () => {
+    // Object wrapper avoids TS narrowing `let resolve = null` to `never` —
+    // assignments inside the Promise executor are not visible to flow analysis.
+    type Deferred<T> = { resolve: ((value: T) => void) | null };
+
+    function pageFetchFn(
+      first: Connection<MockEntity>,
+      deferredSecond: Deferred<Connection<MockEntity>>
+    ): FetchFn<MockEntity, MockQueryOptions> {
+      let callCount = 0;
+      return vi.fn().mockImplementation(() => {
+        callCount += 1;
+        if (callCount === 1) return Promise.resolve(createSuccessResult(first));
+        return new Promise<Connection<MockEntity>>((resolve) => {
+          deferredSecond.resolve = resolve;
+        }).then((data) => createSuccessResult(data));
+      });
+    }
+
+    it('should clear rows on query-key change by default (current behavior)', async () => {
+      const firstPage = createMockConnection(
+        [{ id: '1', name: 'Alice', email: 'alice@example.com' }],
+        true,
+        'cursor-0',
+        2
+      );
+      const secondPage = createMockConnection(
+        [{ id: '2', name: 'Bob', email: 'bob@example.com' }],
+        false,
+        null,
+        2
+      );
+
+      const deferred: Deferred<Connection<MockEntity>> = { resolve: null };
+      const adapter = new BaseTableAdapter(
+        pageFetchFn(firstPage, deferred),
+        buildQueryOptions,
+        createAdapterOptions()
+      );
+
+      await adapter.fetch();
+      await flushPromises();
+      expect(adapter.getState().rows).toHaveLength(1);
+
+      // Trigger a query-key change via filter; do not await the fetch.
+      adapter.setFilter({ name: { contains: 'B' } });
+      await flushPromises();
+
+      // Default behavior: rows go empty while the new query is in flight.
+      const inFlight = adapter.getState();
+      expect(inFlight.rows).toEqual([]);
+      expect(inFlight.isFetching).toBe(true);
+
+      // Resolve the in-flight fetch and let the test exit cleanly.
+      deferred.resolve?.(secondPage);
+      await flushPromises();
+      adapter.destroy();
+    });
+
+    it('should preserve rows during query-key transitions when keepPreviousData=true', async () => {
+      const firstPage = createMockConnection(
+        [{ id: '1', name: 'Alice', email: 'alice@example.com' }],
+        true,
+        'cursor-0',
+        2
+      );
+      const secondPage = createMockConnection(
+        [{ id: '2', name: 'Bob', email: 'bob@example.com' }],
+        false,
+        null,
+        2
+      );
+
+      const deferred: Deferred<Connection<MockEntity>> = { resolve: null };
+      const adapter = new BaseTableAdapter(
+        pageFetchFn(firstPage, deferred),
+        buildQueryOptions,
+        createAdapterOptions({ keepPreviousData: true })
+      );
+
+      await adapter.fetch();
+      await flushPromises();
+      const firstState = adapter.getState();
+      expect(firstState.rows).toEqual(firstPage.nodes);
+      expect(firstState.isLoading).toBe(false);
+
+      // Change filter to trigger a query-key change.
+      adapter.setFilter({ name: { contains: 'B' } });
+      await flushPromises();
+
+      // With keepPreviousData, previous rows are kept while the new query loads.
+      const inFlight = adapter.getState();
+      expect(inFlight.rows).toEqual(firstPage.nodes);
+      expect(inFlight.isFetching).toBe(true);
+      // isLoading must stay false — data is defined via placeholder.
+      expect(inFlight.isLoading).toBe(false);
+
+      // Resolve the in-flight fetch — rows should switch to the new page.
+      deferred.resolve?.(secondPage);
+      await flushPromises();
+      const finalState = adapter.getState();
+      expect(finalState.rows).toEqual(secondPage.nodes);
+      expect(finalState.isFetching).toBe(false);
+
+      adapter.destroy();
+    });
+
+    it('should keep isLoading=true on the very first fetch even with keepPreviousData=true', async () => {
+      const deferred: Deferred<Connection<MockEntity>> = { resolve: null };
+      const blockedFetch: FetchFn<MockEntity, MockQueryOptions> = vi.fn().mockImplementation(
+        () =>
+          new Promise<Connection<MockEntity>>((resolve) => {
+            deferred.resolve = resolve;
+          }).then((data) => createSuccessResult(data))
+      );
+
+      const adapter = new BaseTableAdapter(
+        blockedFetch,
+        buildQueryOptions,
+        createAdapterOptions({ keepPreviousData: true })
+      );
+
+      void adapter.fetch();
+      await flushPromises();
+
+      // No previous data exists yet → first fetch still reports isLoading.
+      const state = adapter.getState();
+      expect(state.rows).toEqual([]);
+      expect(state.isLoading).toBe(true);
+      expect(state.isFetching).toBe(true);
+
+      deferred.resolve?.(createMockConnection([{ id: '1', name: 'A', email: 'a@x.com' }]));
+      await flushPromises();
+      adapter.destroy();
+    });
+  });
 });

@@ -72,6 +72,13 @@ export interface TableApiConfig<
    * @default false
    */
   splitTotalCount?: boolean;
+  /**
+   * When true, the table preserves previously fetched rows during query-key
+   * transitions instead of flashing to an empty state while the new query
+   * loads. Implemented via TanStack Query's `placeholderData: keepPreviousData`.
+   * @default false
+   */
+  keepPreviousData?: boolean;
 }
 
 /**

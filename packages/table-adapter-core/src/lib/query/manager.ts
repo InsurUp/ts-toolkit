@@ -3,7 +3,12 @@
  * @description Manages query state using @tanstack/query-core for caching and state management
  */
 
-import { QueryClient, QueryObserver, type QueryObserverResult } from '@tanstack/query-core';
+import {
+  QueryClient,
+  QueryObserver,
+  keepPreviousData,
+  type QueryObserverResult,
+} from '@tanstack/query-core';
 import type { QueryManagerOptions, QueryState } from './types.js';
 
 /**
@@ -44,6 +49,9 @@ export class QueryManager<TData, TVars> {
         queryKey: options.getQueryKey() as readonly unknown[],
         queryFn: (context) => options.queryFn(options.getVariables(), { signal: context.signal }),
         enabled: false, // Manual fetch only
+        // When opted in, serve previous query's data while a new key is loading
+        // so UI doesn't flash to empty during sort/page/filter transitions.
+        ...(options.keepPreviousData ? { placeholderData: keepPreviousData } : {}),
       }
     );
 
@@ -69,6 +77,9 @@ export class QueryManager<TData, TVars> {
       queryKey: this.options.getQueryKey() as readonly unknown[],
       queryFn: (context) => this.options.queryFn(this.options.getVariables(), { signal: context.signal }),
       enabled: true,
+      // Re-apply on every setOptions; setOptions performs a shallow replace so
+      // omitting placeholderData here would clear the previous-data behavior.
+      ...(this.options.keepPreviousData ? { placeholderData: keepPreviousData } : {}),
     });
 
     await this.observer.refetch();
