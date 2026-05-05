@@ -114,6 +114,7 @@ function createInfiniteTableApi<
     onSettled: config.onSettled,
     tableOptions: config.tableOptions,
     autoFetch: config.autoFetch,
+    keepPreviousData: config.keepPreviousData,
   });
 
   // Cached frozen columns for referential stability
@@ -241,6 +242,7 @@ export function createInfiniteCustomerTable<const TColumns extends CustomerColum
     onSettled: options.onSettled,
     tableOptions: options.tableOptions,
     autoFetch: options.autoFetch,
+    keepPreviousData: options.keepPreviousData,
   }) as InfiniteCustomerTable<TColumns>;
 }
 

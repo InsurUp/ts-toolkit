@@ -150,6 +150,7 @@ export function createCustomerTable<const TColumns extends CustomerColumnDef[]>(
     tableOptions: options.tableOptions,
     autoFetch: options.autoFetch,
     splitTotalCount: options.splitTotalCount,
+    keepPreviousData: options.keepPreviousData,
   }) as CustomerTable<TColumns>;
 }
 

@@ -25,6 +25,15 @@ export interface QueryManagerOptions<TData, TVars> {
   staleTime?: number;
   /** Time until inactive data is garbage collected (ms) */
   gcTime?: number;
+  /**
+   * When true, serves the previous query's data as `placeholderData` while a new
+   * query (different key) is in flight. Prevents UI from flashing to an empty
+   * state during sort/page/filter/search transitions.
+   *
+   * Implemented via TanStack Query's `placeholderData: keepPreviousData`.
+   * @default false
+   */
+  keepPreviousData?: boolean;
 }
 
 /**

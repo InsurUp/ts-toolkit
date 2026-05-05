@@ -164,6 +164,18 @@ export interface BaseTableAdapterOptions<
    * @default false
    */
   splitTotalCount?: boolean;
+  /**
+   * When true, the table preserves previously fetched rows during query-key
+   * transitions (sort, page, filter, search, visibility) instead of flashing
+   * to an empty state while the new query loads. `state.rows` will hold the
+   * previous result until the new fetch resolves; `state.isFetching` indicates
+   * the background load.
+   *
+   * Recommended for paginated/sortable UI tables. Implemented via TanStack
+   * Query's `placeholderData: keepPreviousData`.
+   * @default false
+   */
+  keepPreviousData?: boolean;
 }
 
 // ============================================================================

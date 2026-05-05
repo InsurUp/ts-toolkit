@@ -363,6 +363,126 @@ describe('QueryManager', () => {
     });
   });
 
+  describe('keepPreviousData', () => {
+    // Object wrapper avoids TS narrowing `let pending = null` to `never` —
+    // assignments inside the Promise executor are not visible to flow analysis.
+    type Deferred<T> = { resolve: ((value: T) => void) | null };
+
+    function blockedQueryFn<T>(deferred: Deferred<T>) {
+      return () =>
+        new Promise<T>((resolve) => {
+          deferred.resolve = resolve;
+        });
+    }
+
+    it('should not be enabled by default (data clears when key changes)', async () => {
+      const firstResult: MockData = { items: ['a'], totalCount: 1 };
+      const secondResult: MockData = { items: ['b'], totalCount: 1 };
+
+      // Mutable key so we can simulate a query-key change.
+      let key = ['k1'];
+      const deferred: Deferred<MockData> = { resolve: null };
+      queryFn.mockImplementation(blockedQueryFn(deferred));
+      getQueryKey.mockImplementation(() => key);
+
+      const manager = new QueryManager<MockData, MockVariables>({
+        queryFn,
+        getQueryKey,
+        getVariables,
+        // Default: keepPreviousData is unset
+      });
+
+      // Resolve first fetch
+      const firstFetch = manager.fetch();
+      deferred.resolve?.(firstResult);
+      await firstFetch;
+      await flushPromises();
+      expect(manager.getState().data).toEqual(firstResult);
+
+      // Change key and start second fetch (do not resolve yet)
+      key = ['k2'];
+      const secondFetch = manager.fetch();
+      await flushPromises();
+
+      // Without keepPreviousData, switching keys clears data
+      expect(manager.getState().data).toBeUndefined();
+
+      // Cleanup
+      deferred.resolve?.(secondResult);
+      await secondFetch;
+      manager.destroy();
+    });
+
+    it('should keep previous data when query key changes (keepPreviousData=true)', async () => {
+      const firstResult: MockData = { items: ['a'], totalCount: 1 };
+      const secondResult: MockData = { items: ['b'], totalCount: 1 };
+
+      let key = ['k1'];
+      const deferred: Deferred<MockData> = { resolve: null };
+      queryFn.mockImplementation(blockedQueryFn(deferred));
+      getQueryKey.mockImplementation(() => key);
+
+      const manager = new QueryManager<MockData, MockVariables>({
+        queryFn,
+        getQueryKey,
+        getVariables,
+        keepPreviousData: true,
+      });
+
+      // Resolve first fetch
+      const firstFetch = manager.fetch();
+      deferred.resolve?.(firstResult);
+      await firstFetch;
+      await flushPromises();
+      expect(manager.getState().data).toEqual(firstResult);
+
+      // Change key and start second fetch (do not resolve yet)
+      key = ['k2'];
+      const secondFetch = manager.fetch();
+      await flushPromises();
+
+      // While the new key is in flight, previous data is served as placeholder
+      const inFlight = manager.getState();
+      expect(inFlight.data).toEqual(firstResult);
+      expect(inFlight.isFetching).toBe(true);
+      // isLoading is false because data is defined (via placeholder)
+      expect(inFlight.isLoading).toBe(false);
+
+      // Resolve second fetch and confirm switch-over
+      deferred.resolve?.(secondResult);
+      await secondFetch;
+      await flushPromises();
+      expect(manager.getState().data).toEqual(secondResult);
+
+      manager.destroy();
+    });
+
+    it('should leave isLoading=true on the very first fetch even with keepPreviousData=true', async () => {
+      const deferred: Deferred<MockData> = { resolve: null };
+      queryFn.mockImplementation(blockedQueryFn(deferred));
+
+      const manager = new QueryManager<MockData, MockVariables>({
+        queryFn,
+        getQueryKey,
+        getVariables,
+        keepPreviousData: true,
+      });
+
+      const firstFetch = manager.fetch();
+      await flushPromises();
+
+      // No previous data exists yet → isLoading should be true on first fetch
+      const initial = manager.getState();
+      expect(initial.data).toBeUndefined();
+      expect(initial.isLoading).toBe(true);
+      expect(initial.isFetching).toBe(true);
+
+      deferred.resolve?.({ items: ['x'], totalCount: 1 });
+      await firstFetch;
+      manager.destroy();
+    });
+  });
+
   describe('state comparison', () => {
     it('should not update cached state if values are equal', async () => {
       const manager = new QueryManager<MockData, MockVariables>({

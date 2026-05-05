@@ -377,6 +377,8 @@ export function createTableApi<
     autoFetch: config.autoFetch,
     // Split total count fetching
     splitTotalCount: config.splitTotalCount,
+    // Keep previous rows during query-key transitions to avoid empty-flash
+    keepPreviousData: config.keepPreviousData,
   });
 
   // Cached frozen columns for referential stability

@@ -213,7 +213,9 @@ export class BaseTableAdapter<
       isCountLoading: false,
     };
 
-    // Initialize main query manager - stores SDK result directly
+    // Initialize main query manager - stores SDK result directly.
+    // `keepPreviousData` is forwarded only to the main (data) query; the count
+    // query is not user-visible and isn't affected by the empty-flash issue.
     this.queryManager = new QueryManager({
       queryFn: async (vars, context) => {
         const result = await this.fetchFn(vars, { signal: context.signal });
@@ -233,6 +235,7 @@ export class BaseTableAdapter<
       getVariables: () => this.buildVariables(),
       staleTime: options.staleTime,
       gcTime: options.gcTime,
+      keepPreviousData: options.keepPreviousData,
     });
 
     // Initialize count query manager when splitTotalCount is enabled
