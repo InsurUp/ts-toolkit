@@ -1,6 +1,6 @@
 {
   "name": "@insurup/sdk",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Type-safe TypeScript SDK for the InsurUp insurance platform with GraphQL support. Tree-shakeable, works everywhere.",
   "keywords": [
     "insurup",
