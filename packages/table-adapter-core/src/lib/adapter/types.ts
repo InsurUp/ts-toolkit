@@ -9,7 +9,7 @@ import type {
   ColumnDef,
   Table,
 } from '@tanstack/table-core';
-import type { GraphQLErrors, ClientError, DeepFieldKeys } from '@insurup/sdk';
+import type { ClientError, DeepFieldKeys, GraphQLErrors, ServerError } from '@insurup/sdk';
 import type { AnyColumnDef } from '../types.js';
 import type { SortingConverters } from '../sorting/types.js';
 import type { PaginationManager, PaginationOptions } from '../pagination/types.js';
@@ -23,8 +23,8 @@ import type { PaginationManager, PaginationOptions } from '../pagination/types.j
  * Extends Error for compatibility with existing error handling patterns
  */
 export interface TableError extends Error {
-  /** The original SDK error (GraphQL or Client error) */
-  cause: GraphQLErrors | ClientError;
+  /** The original SDK error (GraphQL, Client, or Server error) */
+  cause: GraphQLErrors | ClientError | ServerError;
   /** Whether this error is retryable (network errors, timeouts, server errors) */
   retryable: boolean;
 }
