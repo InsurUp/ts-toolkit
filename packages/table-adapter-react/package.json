@@ -55,14 +55,15 @@
   },
   "devDependencies": {
     "@tanstack/react-table": "^8.21.2",
-    "@testing-library/react": "^16.0.0",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
-    "jsdom": "^26.0.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "@testing-library/react": "^16.3.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitest/coverage-v8": "^4.1.6",
+    "jsdom": "^29.1.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
     "tsup": "^8.5.1",
-    "vitest": "^4.0.17"
+    "vitest": "^4.1.6"
   },
   "dependencies": {
     "@insurup/table-adapter-core": "workspace:*"

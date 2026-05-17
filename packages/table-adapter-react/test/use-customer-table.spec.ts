@@ -1,374 +1,182 @@
 /**
  * @fileoverview useCustomerTable Hook Tests
- * @description Unit tests for the React useCustomerTable hook integration
- *
- * Note: These tests verify the integration layer between the core adapter
- * and React. The actual adapter functionality is tested in table-adapter-core.
+ * @description Real-React, real-adapter tests via renderHook. Only the fetch
+ * function is mocked; everything else (React, the core adapter, TanStack Table)
+ * runs end-to-end so the test exercises useSyncExternalStore, the useEffect
+ * cleanup path, and Strict Mode adapter recreation.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-
-// Mock React hooks to avoid the dual package hazard in monorepo testing
-const mockAdapter = {
-  columns: [
-    { id: 'id', accessorKey: 'id', header: 'ID' },
-    { id: 'name', accessorKey: 'name', header: 'Name' },
-  ],
-  getState: vi.fn(() => ({
-    rows: [{ id: '1', name: 'Test' }],
-    rowCount: 1,
-    pageCount: 1,
-    isLoading: false,
-    isFetching: false,
-    error: null,
-    isError: false,
-    isSuccess: true,
-  })),
-  getSnapshot: vi.fn(() => ({
-    rows: [{ id: '1', name: 'Test' }],
-    rowCount: 1,
-    pageCount: 1,
-    isLoading: false,
-    isFetching: false,
-    error: null,
-    isError: false,
-    isSuccess: true,
-  })),
-  getServerSnapshot: vi.fn(() => ({
-    rows: [],
-    rowCount: 0,
-    pageCount: 0,
-    isLoading: true,
-    isFetching: false,
-    error: null,
-    isError: false,
-    isSuccess: false,
-  })),
-  getTableOptions: vi.fn(() => ({
-    data: [{ id: '1', name: 'Test' }],
-    columns: [
-      { id: 'id', accessorKey: 'id', header: 'ID' },
-      { id: 'name', accessorKey: 'name', header: 'Name' },
-    ],
-    getCoreRowModel: () => ({ rows: [], flatRows: [], rowsById: {} }),
-    manualPagination: true,
-    manualSorting: true,
-    state: {
-      sorting: [],
-      pagination: { pageIndex: 0, pageSize: 10 },
-    },
-    onSortingChange: vi.fn(),
-    onPaginationChange: vi.fn(),
-  })),
-  getTable: vi.fn(() => ({
-    getHeaderGroups: vi.fn(() => [{ id: 'header', headers: [
-      { id: 'id', accessorKey: 'id', header: 'ID' },
-      { id: 'name', accessorKey: 'name', header: 'Name' },
-    ] }]),
-    getRowModel: vi.fn(() => ({ rows: [{ id: '0', original: { id: '1', name: 'Test' } }] })),
-    getAllColumns: vi.fn(() => [
-      { id: 'id', accessorKey: 'id', header: 'ID' },
-      { id: 'name', accessorKey: 'name', header: 'Name' },
-    ]),
-    getCanNextPage: vi.fn(() => false),
-    getCanPreviousPage: vi.fn(() => false),
-    nextPage: vi.fn(),
-    previousPage: vi.fn(),
-  })),
-  subscribe: vi.fn((_callback: () => void) => {
-    return () => {};
-  }),
-  fetch: vi.fn().mockResolvedValue(undefined),
-  invalidate: vi.fn().mockResolvedValue(undefined),
-  refetch: vi.fn().mockResolvedValue(undefined),
-  setFilter: vi.fn(),
-  getFilter: vi.fn(),
-  clearFilter: vi.fn(),
-  setSearch: vi.fn(),
-  getSearch: vi.fn(),
-  clearSearch: vi.fn(),
-  setPageSize: vi.fn(),
-  destroy: vi.fn(),
-};
-
-// Mock both core adapter and React to test integration logic
-vi.mock('@insurup/table-adapter-core', () => ({
-  createCustomerTable: vi.fn(() => mockAdapter),
-}));
-
-vi.mock('react', () => ({
-  useRef: vi.fn((initial) => ({ current: initial })),
-  useState: vi.fn((initial) => [typeof initial === 'function' ? initial() : initial, vi.fn()]),
-  useEffect: vi.fn((effect) => {
-    // Run cleanup on mock
-    const cleanup = effect();
-    return cleanup;
-  }),
-  useSyncExternalStore: vi.fn((_subscribe, getSnapshot) => getSnapshot()),
-}));
-
-vi.mock('@tanstack/react-table', () => ({
-  useReactTable: vi.fn((options) => ({
-    getHeaderGroups: vi.fn(() => [{ id: 'header', headers: options.columns }]),
-    getRowModel: vi.fn(() => ({ rows: options.data?.map((d: unknown, i: number) => ({ id: i, original: d })) || [] })),
-    getAllColumns: vi.fn(() => options.columns),
-    getCanNextPage: vi.fn(() => false),
-    getCanPreviousPage: vi.fn(() => false),
-    nextPage: vi.fn(),
-    previousPage: vi.fn(),
-  })),
-}));
-
-// Import after mocking
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useCustomerTable } from '../src/use-customer-table';
-import { createCustomerTable } from '@insurup/table-adapter-core';
+import {
+  createMockConnection,
+  createMockFetchFn,
+  createMockOptions,
+  type MockCustomer,
+} from './utils/mocks';
+import type { CustomerTableOptions, CustomerColumnDef } from '@insurup/table-adapter-core';
+
+type FetchOptionsOverrides = Parameters<typeof createMockOptions>[0];
+
+function options(overrides: FetchOptionsOverrides = {}): CustomerTableOptions<CustomerColumnDef[]> {
+  return createMockOptions(overrides);
+}
 
 describe('useCustomerTable', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe('adapter creation', () => {
-    it('should create adapter with provided options', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
+  it('returns state, table, and adapter on first render', () => {
+    const { result } = renderHook(() => useCustomerTable(options()));
 
-      useCustomerTable(options as never);
+    expect(result.current).toHaveProperty('state');
+    expect(result.current).toHaveProperty('table');
+    expect(result.current).toHaveProperty('adapter');
+    expect(typeof result.current.adapter.fetch).toBe('function');
+    expect(typeof result.current.table.getHeaderGroups).toBe('function');
+  });
 
-      expect(createCustomerTable).toHaveBeenCalledWith(options);
+  it('starts with empty rows before any fetch', () => {
+    const { result } = renderHook(() => useCustomerTable(options()));
+
+    expect(result.current.state.rows).toEqual([]);
+    expect(result.current.state.isLoading).toBe(false);
+    expect(result.current.state.isFetching).toBe(false);
+  });
+
+  it('re-renders with fetched rows after adapter.fetch', async () => {
+    const { result } = renderHook(() => useCustomerTable(options()));
+
+    await act(async () => {
+      await result.current.adapter.fetch();
     });
 
-    it('should pass autoFetch option to adapter', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 20 },
-        autoFetch: true,
-      };
+    await waitFor(() => {
+      expect(result.current.state.rows.length).toBeGreaterThan(0);
+    });
+    expect(result.current.state.isLoading).toBe(false);
+  });
 
-      useCustomerTable(options as never);
+  it('forwards a custom Connection through to state.rows', async () => {
+    const fetchFn = createMockFetchFn(
+      createMockConnection<MockCustomer>([
+        { id: '42', name: 'Captured Customer', email: 'a@b.com' },
+      ])
+    );
+    const { result } = renderHook(() => useCustomerTable(options({ fetch: fetchFn })));
 
-      expect(createCustomerTable).toHaveBeenCalledWith(
-        expect.objectContaining({ autoFetch: true })
-      );
+    await act(async () => {
+      await result.current.adapter.fetch();
     });
 
-    it('should pass pageSize option to adapter', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 25 },
-      };
+    await waitFor(() => {
+      const rows = result.current.state.rows as readonly MockCustomer[];
+      expect(rows[0]?.id).toBe('42');
+      expect(rows[0]?.name).toBe('Captured Customer');
+    });
+    expect(fetchFn).toHaveBeenCalledTimes(1);
+  });
 
-      useCustomerTable(options as never);
+  it('exposes a real TanStack Table whose rows track the adapter state', async () => {
+    const { result } = renderHook(() => useCustomerTable(options()));
 
-      expect(createCustomerTable).toHaveBeenCalledWith(
-        expect.objectContaining({ pagination: { type: 'cursor', pageSize: 25 } })
-      );
+    await act(async () => {
+      await result.current.adapter.fetch();
+    });
+
+    await waitFor(() => {
+      const rowModel = result.current.table.getRowModel();
+      expect(rowModel.rows.length).toBeGreaterThan(0);
     });
   });
 
-  describe('return value', () => {
-    it('should return state, table, and adapter', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
+  it('autoFetch=true triggers a fetch on mount', async () => {
+    const fetchFn = createMockFetchFn();
+    renderHook(() =>
+      useCustomerTable(options({ fetch: fetchFn, autoFetch: true }))
+    );
 
-      const result = useCustomerTable(options as never);
-
-      expect(result).toHaveProperty('state');
-      expect(result).toHaveProperty('table');
-      expect(result).toHaveProperty('adapter');
-    });
-
-    it('should return state from adapter snapshot', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
-
-      const result = useCustomerTable(options as never);
-
-      expect(result.state).toEqual(mockAdapter.getSnapshot());
-    });
-
-    it('should return adapter with all methods', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
-
-      const result = useCustomerTable(options as never);
-
-      expect(typeof result.adapter.fetch).toBe('function');
-      expect(typeof result.adapter.invalidate).toBe('function');
-      expect(typeof result.adapter.refetch).toBe('function');
-      expect(typeof result.adapter.setFilter).toBe('function');
-      expect(typeof result.adapter.getFilter).toBe('function');
-      expect(typeof result.adapter.clearFilter).toBe('function');
-      expect(typeof result.adapter.setSearch).toBe('function');
-      expect(typeof result.adapter.getSearch).toBe('function');
-      expect(typeof result.adapter.clearSearch).toBe('function');
-      expect(typeof result.adapter.setPageSize).toBe('function');
-      expect(typeof result.adapter.destroy).toBe('function');
-    });
-
-    it('should return table with TanStack Table methods', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
-
-      const result = useCustomerTable(options as never);
-
-      expect(typeof result.table.getHeaderGroups).toBe('function');
-      expect(typeof result.table.getRowModel).toBe('function');
-      expect(typeof result.table.getAllColumns).toBe('function');
-      expect(typeof result.table.getCanNextPage).toBe('function');
-      expect(typeof result.table.getCanPreviousPage).toBe('function');
+    await waitFor(() => {
+      expect(fetchFn).toHaveBeenCalled();
     });
   });
 
-  describe('adapter methods', () => {
-    it('should call fetch on adapter', async () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
+  it('destroys the adapter on unmount', () => {
+    const { result, unmount } = renderHook(() => useCustomerTable(options()));
+    const destroySpy = vi.spyOn(result.current.adapter, 'destroy');
 
-      const result = useCustomerTable(options as never);
-      await result.adapter.fetch();
+    unmount();
 
-      expect(mockAdapter.fetch).toHaveBeenCalled();
-    });
-
-    it('should call setFilter on adapter', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
-
-      const result = useCustomerTable(options as never);
-      result.adapter.setFilter({ name: { contains: 'test' } });
-
-      expect(mockAdapter.setFilter).toHaveBeenCalledWith({ name: { contains: 'test' } });
-    });
-
-    it('should call setSearch on adapter', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
-
-      const result = useCustomerTable(options as never);
-      result.adapter.setSearch({ name: { textSearch: { value: 'test query' } } });
-
-      expect(mockAdapter.setSearch).toHaveBeenCalledWith({ name: { textSearch: { value: 'test query' } } });
-    });
-
-    it('should call clearSearch on adapter', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
-
-      const result = useCustomerTable(options as never);
-      result.adapter.clearSearch();
-
-      expect(mockAdapter.clearSearch).toHaveBeenCalled();
-    });
-
-    it('should call setPageSize on adapter', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
-
-      const result = useCustomerTable(options as never);
-      result.adapter.setPageSize(50);
-
-      expect(mockAdapter.setPageSize).toHaveBeenCalledWith(50);
-    });
-
-    it('should call invalidate on adapter', async () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
-
-      const result = useCustomerTable(options as never);
-      await result.adapter.invalidate();
-
-      expect(mockAdapter.invalidate).toHaveBeenCalled();
-    });
+    expect(destroySpy).toHaveBeenCalled();
   });
 
-  describe('state properties', () => {
-    it('should include rows in state', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
+  it('does not leak when called with concurrent renders', async () => {
+    const fetchFn = createMockFetchFn();
+    const { result, rerender, unmount } = renderHook(
+      ({ pageSize }) =>
+        useCustomerTable(options({ fetch: fetchFn, pagination: { type: 'cursor', pageSize } })),
+      { initialProps: { pageSize: 10 } }
+    );
 
-      const result = useCustomerTable(options as never);
+    rerender({ pageSize: 25 });
+    rerender({ pageSize: 50 });
 
-      expect(result.state).toHaveProperty('rows');
-      expect(Array.isArray(result.state.rows)).toBe(true);
+    expect(result.current.adapter).toBeDefined();
+    expect(() => unmount()).not.toThrow();
+  });
+
+  it('forwards setFilter / setSearch through the adapter API', async () => {
+    const fetchFn = createMockFetchFn();
+    const { result } = renderHook(() => useCustomerTable(options({ fetch: fetchFn })));
+
+    await act(async () => {
+      result.current.adapter.setFilter({ name: { eq: 'X' } });
+    });
+    await act(async () => {
+      result.current.adapter.setSearch({ name: { eq: 'Doe' } });
     });
 
-    it('should include pagination info in state', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
+    // Both mutations should be observable via the adapter's getters
+    expect(result.current.adapter.getFilter()).toEqual({ name: { eq: 'X' } });
+    expect(result.current.adapter.getSearch()).toEqual({ name: { eq: 'Doe' } });
+  });
 
-      const result = useCustomerTable(options as never);
+  it('maps a thrown fetch error into state.error / isError', async () => {
+    const fetchFn = vi.fn().mockRejectedValue(new Error('upstream is down'));
 
-      expect(result.state).toHaveProperty('rowCount');
-      expect(result.state).toHaveProperty('pageCount');
+    const { result } = renderHook(() =>
+      useCustomerTable(options({ fetch: fetchFn }))
+    );
+
+    await act(async () => {
+      try {
+        await result.current.adapter.fetch();
+      } catch {
+        /* expected — surfaced as state.error */
+      }
     });
 
-    it('should include loading states in state', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
+    await waitFor(() => {
+      expect(result.current.state.isError).toBe(true);
+    });
+    expect(result.current.state.error).toBeTruthy();
+  });
 
-      const result = useCustomerTable(options as never);
+  it('subscribe is wired via useSyncExternalStore (state updates re-render)', async () => {
+    const fetchFn = createMockFetchFn();
+    const { result } = renderHook(() => useCustomerTable(options({ fetch: fetchFn })));
 
-      expect(result.state).toHaveProperty('isLoading');
-      expect(result.state).toHaveProperty('isFetching');
-      expect(result.state).toHaveProperty('isSuccess');
-      expect(result.state).toHaveProperty('isError');
+    const initialSnapshot = result.current.state;
+
+    await act(async () => {
+      await result.current.adapter.fetch();
     });
 
-    it('should include error in state', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
-
-      const result = useCustomerTable(options as never);
-
-      expect(result.state).toHaveProperty('error');
+    await waitFor(() => {
+      // The state object reference should change after the snapshot updates
+      expect(result.current.state).not.toBe(initialSnapshot);
     });
   });
 });

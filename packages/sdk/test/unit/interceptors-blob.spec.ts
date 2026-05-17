@@ -4,14 +4,14 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { HttpTransport } from '../src/client/http';
-import type { RequestConfig, ResponseInterceptor } from '../src/core/options';
-import type { InsurUpResult } from '../src/core/result';
-import { TestSetupHelper } from './utils';
+import { HttpTransport } from '../../src/client/http';
+import type { RequestConfig, ResponseInterceptor } from '../../src/core/options';
+import type { InsurUpResult } from '../../src/core/result';
+import { TestSetupHelper } from '../utils';
 
 // Mock fetch globally
 const mockFetch = vi.fn();
-globalThis.fetch = mockFetch;
+vi.stubGlobal('fetch', mockFetch);
 
 describe('HttpTransport Interceptors', () => {
   beforeEach(() => {
@@ -32,14 +32,14 @@ describe('HttpTransport Interceptors', () => {
         baseUrl: 'https://test.api.com/api/',
         timeoutMs: 5000,
         logLevel: 'none',
-        onRequest
+        onRequest,
       });
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
         headers: { get: () => 'application/json' },
-        text: () => Promise.resolve(JSON.stringify({ id: '123' }))
+        text: () => Promise.resolve(JSON.stringify({ id: '123' })),
       });
 
       await transport.get('/test');
@@ -48,7 +48,7 @@ describe('HttpTransport Interceptors', () => {
       expect(onRequest).toHaveBeenCalledWith(
         expect.objectContaining({
           url: 'https://test.api.com/api/test',
-          method: 'GET'
+          method: 'GET',
         })
       );
     });
@@ -58,22 +58,22 @@ describe('HttpTransport Interceptors', () => {
         ...config,
         headers: {
           ...config.headers,
-          'X-Custom-Header': 'custom-value'
-        }
+          'X-Custom-Header': 'custom-value',
+        },
       }));
 
       const transport = new HttpTransport({
         baseUrl: 'https://test.api.com/api/',
         timeoutMs: 5000,
         logLevel: 'none',
-        onRequest
+        onRequest,
       });
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
         headers: { get: () => 'application/json' },
-        text: () => Promise.resolve(JSON.stringify({ id: '123' }))
+        text: () => Promise.resolve(JSON.stringify({ id: '123' })),
       });
 
       await transport.get('/test');
@@ -83,8 +83,8 @@ describe('HttpTransport Interceptors', () => {
         'https://test.api.com/api/test',
         expect.objectContaining({
           headers: expect.objectContaining({
-            'X-Custom-Header': 'custom-value'
-          })
+            'X-Custom-Header': 'custom-value',
+          }),
         })
       );
     });
@@ -97,8 +97,8 @@ describe('HttpTransport Interceptors', () => {
           ...config,
           headers: {
             ...config.headers,
-            Authorization: 'Bearer async-token'
-          }
+            Authorization: 'Bearer async-token',
+          },
         };
       });
 
@@ -106,14 +106,14 @@ describe('HttpTransport Interceptors', () => {
         baseUrl: 'https://test.api.com/api/',
         timeoutMs: 5000,
         logLevel: 'none',
-        onRequest
+        onRequest,
       });
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
         headers: { get: () => 'application/json' },
-        text: () => Promise.resolve(JSON.stringify({ id: '123' }))
+        text: () => Promise.resolve(JSON.stringify({ id: '123' })),
       });
 
       await transport.get('/test');
@@ -122,8 +122,8 @@ describe('HttpTransport Interceptors', () => {
         expect.any(String),
         expect.objectContaining({
           headers: expect.objectContaining({
-            Authorization: 'Bearer async-token'
-          })
+            Authorization: 'Bearer async-token',
+          }),
         })
       );
     });
@@ -137,14 +137,14 @@ describe('HttpTransport Interceptors', () => {
         baseUrl: 'https://test.api.com/api/',
         timeoutMs: 5000,
         logLevel: 'none',
-        onRequest
+        onRequest,
       });
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
         headers: { get: () => 'application/json' },
-        text: () => Promise.resolve(JSON.stringify({ id: '123' }))
+        text: () => Promise.resolve(JSON.stringify({ id: '123' })),
       });
 
       const result = await transport.get('/test');
@@ -156,20 +156,22 @@ describe('HttpTransport Interceptors', () => {
 
   describe('Response Interceptor', () => {
     it('should call onResponse interceptor after receiving response', async () => {
-      const onResponse = vi.fn((result: InsurUpResult<unknown>) => result) as unknown as ResponseInterceptor;
+      const onResponse = vi.fn(
+        (result: InsurUpResult<unknown>) => result
+      ) as unknown as ResponseInterceptor;
 
       const transport = new HttpTransport({
         baseUrl: 'https://test.api.com/api/',
         timeoutMs: 5000,
         logLevel: 'none',
-        onResponse
+        onResponse,
       });
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
         headers: { get: () => 'application/json' },
-        text: () => Promise.resolve(JSON.stringify({ id: '123' }))
+        text: () => Promise.resolve(JSON.stringify({ id: '123' })),
       });
 
       await transport.get('/test');
@@ -178,11 +180,11 @@ describe('HttpTransport Interceptors', () => {
       expect(onResponse).toHaveBeenCalledWith(
         expect.objectContaining({
           kind: 'success',
-          data: { id: '123' }
+          data: { id: '123' },
         }),
         expect.objectContaining({
           url: 'https://test.api.com/api/test',
-          method: 'GET'
+          method: 'GET',
         })
       );
     });
@@ -192,7 +194,7 @@ describe('HttpTransport Interceptors', () => {
         if (result.kind === 'success' && 'data' in result) {
           return {
             ...result,
-            data: { ...(result.data as object), transformed: true }
+            data: { ...(result.data as object), transformed: true },
           };
         }
         return result;
@@ -202,14 +204,14 @@ describe('HttpTransport Interceptors', () => {
         baseUrl: 'https://test.api.com/api/',
         timeoutMs: 5000,
         logLevel: 'none',
-        onResponse
+        onResponse,
       });
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
         headers: { get: () => 'application/json' },
-        text: () => Promise.resolve(JSON.stringify({ id: '123' }))
+        text: () => Promise.resolve(JSON.stringify({ id: '123' })),
       });
 
       const result = await transport.get<{ id: string; transformed?: boolean }>('/test');
@@ -221,13 +223,15 @@ describe('HttpTransport Interceptors', () => {
     });
 
     it('should call onResponse for error responses', async () => {
-      const onResponse = vi.fn((result: InsurUpResult<unknown>) => result) as unknown as ResponseInterceptor;
+      const onResponse = vi.fn(
+        (result: InsurUpResult<unknown>) => result
+      ) as unknown as ResponseInterceptor;
 
       const transport = new HttpTransport({
         baseUrl: 'https://test.api.com/api/',
         timeoutMs: 5000,
         logLevel: 'none',
-        onResponse
+        onResponse,
       });
 
       mockFetch.mockResolvedValueOnce({
@@ -241,9 +245,9 @@ describe('HttpTransport Interceptors', () => {
               type: 'https://api.insurup.com/problems/resource-not-found',
               title: 'Not Found',
               detail: 'Resource not found',
-              status: 404
+              status: 404,
             })
-          )
+          ),
       });
 
       await transport.get('/test');
@@ -252,7 +256,7 @@ describe('HttpTransport Interceptors', () => {
       expect(onResponse).toHaveBeenCalledWith(
         expect.objectContaining({
           kind: 'server-error',
-          status: 404
+          status: 404,
         }),
         expect.any(Object)
       );
@@ -268,14 +272,14 @@ describe('HttpTransport Interceptors', () => {
         baseUrl: 'https://test.api.com/api/',
         timeoutMs: 5000,
         logLevel: 'none',
-        onResponse
+        onResponse,
       });
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
         headers: { get: () => 'application/json' },
-        text: () => Promise.resolve(JSON.stringify({ id: '123' }))
+        text: () => Promise.resolve(JSON.stringify({ id: '123' })),
       });
 
       const result = await transport.get('/test');
@@ -293,14 +297,14 @@ describe('HttpTransport Interceptors', () => {
         baseUrl: 'https://test.api.com/api/',
         timeoutMs: 5000,
         logLevel: 'none',
-        onResponse
+        onResponse,
       });
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
         headers: { get: () => 'application/json' },
-        text: () => Promise.resolve(JSON.stringify({ id: '123' }))
+        text: () => Promise.resolve(JSON.stringify({ id: '123' })),
       });
 
       const result = await transport.get('/test');
@@ -332,14 +336,14 @@ describe('HttpTransport Interceptors', () => {
         timeoutMs: 5000,
         logLevel: 'none',
         onRequest,
-        onResponse
+        onResponse,
       });
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
         headers: { get: () => 'application/json' },
-        text: () => Promise.resolve(JSON.stringify({ id: '123' }))
+        text: () => Promise.resolve(JSON.stringify({ id: '123' })),
       });
 
       await transport.get('/test');
@@ -354,8 +358,8 @@ describe('HttpTransport Interceptors', () => {
         ...config,
         headers: {
           ...config.headers,
-          'X-Request-Id': 'test-123'
-        }
+          'X-Request-Id': 'test-123',
+        },
       }));
 
       const onResponse = vi.fn((result: InsurUpResult<unknown>, config: RequestConfig) => {
@@ -368,14 +372,14 @@ describe('HttpTransport Interceptors', () => {
         timeoutMs: 5000,
         logLevel: 'none',
         onRequest,
-        onResponse
+        onResponse,
       });
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
         headers: { get: () => 'application/json' },
-        text: () => Promise.resolve(JSON.stringify({ id: '123' }))
+        text: () => Promise.resolve(JSON.stringify({ id: '123' })),
       });
 
       await transport.get('/test');
@@ -401,7 +405,7 @@ describe('HttpTransport Blob Download', () => {
     const transport = new HttpTransport({
       baseUrl: 'https://test.api.com/api/',
       timeoutMs: 5000,
-      logLevel: 'none'
+      logLevel: 'none',
     });
 
     const blobContent = new Blob(['test content'], { type: 'application/pdf' });
@@ -410,7 +414,7 @@ describe('HttpTransport Blob Download', () => {
       ok: true,
       status: 200,
       headers: { get: () => 'application/pdf' },
-      blob: () => Promise.resolve(blobContent)
+      blob: () => Promise.resolve(blobContent),
     });
 
     const result = await transport.getBlob('/documents/test.pdf');
@@ -426,7 +430,7 @@ describe('HttpTransport Blob Download', () => {
     const transport = new HttpTransport({
       baseUrl: 'https://test.api.com/api/',
       timeoutMs: 5000,
-      logLevel: 'none'
+      logLevel: 'none',
     });
 
     mockFetch.mockResolvedValueOnce({
@@ -440,9 +444,9 @@ describe('HttpTransport Blob Download', () => {
             type: 'https://api.insurup.com/problems/resource-not-found',
             title: 'Not Found',
             detail: 'Document not found',
-            status: 404
+            status: 404,
           })
-        )
+        ),
     });
 
     const result = await transport.getBlob('/documents/missing.pdf');
@@ -457,7 +461,7 @@ describe('HttpTransport Blob Download', () => {
     const transport = new HttpTransport({
       baseUrl: 'https://test.api.com/api/',
       timeoutMs: 1000,
-      logLevel: 'none'
+      logLevel: 'none',
     });
 
     // Create an AbortError
@@ -477,7 +481,7 @@ describe('HttpTransport Blob Download', () => {
     const transport = new HttpTransport({
       baseUrl: 'https://test.api.com/api/',
       timeoutMs: 5000,
-      logLevel: 'none'
+      logLevel: 'none',
     });
 
     const blobContent = new Blob(['test'], { type: 'application/pdf' });
@@ -486,33 +490,35 @@ describe('HttpTransport Blob Download', () => {
       ok: true,
       status: 200,
       headers: { get: () => 'application/pdf' },
-      blob: () => Promise.resolve(blobContent)
+      blob: () => Promise.resolve(blobContent),
     });
 
     await transport.getBlob('/documents/test.pdf', {
-      headers: { 'X-Custom-Header': 'custom-value' }
+      headers: { 'X-Custom-Header': 'custom-value' },
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
       'https://test.api.com/api/documents/test.pdf',
       expect.objectContaining({
         headers: expect.objectContaining({
-          'X-Custom-Header': 'custom-value'
-        })
+          'X-Custom-Header': 'custom-value',
+        }),
       })
     );
   });
 
   it('should call interceptors for blob requests', async () => {
     const onRequest = vi.fn((config: RequestConfig) => config);
-    const onResponse = vi.fn((result: InsurUpResult<unknown>) => result) as unknown as ResponseInterceptor;
+    const onResponse = vi.fn(
+      (result: InsurUpResult<unknown>) => result
+    ) as unknown as ResponseInterceptor;
 
     const transport = new HttpTransport({
       baseUrl: 'https://test.api.com/api/',
       timeoutMs: 5000,
       logLevel: 'none',
       onRequest,
-      onResponse
+      onResponse,
     });
 
     const blobContent = new Blob(['test'], { type: 'application/pdf' });
@@ -521,7 +527,7 @@ describe('HttpTransport Blob Download', () => {
       ok: true,
       status: 200,
       headers: { get: () => 'application/pdf' },
-      blob: () => Promise.resolve(blobContent)
+      blob: () => Promise.resolve(blobContent),
     });
 
     await transport.getBlob('/documents/test.pdf');
@@ -534,7 +540,7 @@ describe('HttpTransport Blob Download', () => {
     const transport = new HttpTransport({
       baseUrl: 'https://test.api.com/api/',
       timeoutMs: 5000,
-      logLevel: 'none'
+      logLevel: 'none',
     });
 
     const controller = new AbortController();

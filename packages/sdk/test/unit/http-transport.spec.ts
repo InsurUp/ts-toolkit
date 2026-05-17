@@ -4,13 +4,13 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { HttpTransport } from '../src/client/http';
-import { InsurUpClientErrorType } from '../src/core/result';
-import { TestSetupHelper } from './utils';
+import { HttpTransport } from '../../src/client/http';
+import { InsurUpClientErrorType } from '../../src/core/result';
+import { TestSetupHelper } from '../utils';
 
 // Mock fetch globally
 const mockFetch = vi.fn();
-globalThis.fetch = mockFetch;
+vi.stubGlobal('fetch', mockFetch);
 
 describe('HttpTransport', () => {
   let transport: HttpTransport;
@@ -27,9 +27,9 @@ describe('HttpTransport', () => {
         minTimeout: 100,
         maxTimeout: 1000,
         factor: 2,
-        randomize: false
+        randomize: false,
       },
-      logLevel: 'none'
+      logLevel: 'none',
     });
   });
 
@@ -53,9 +53,9 @@ describe('HttpTransport', () => {
                 type: 'https://api.insurup.com/problems/upstream-service',
                 title: 'Internal Server Error',
                 detail: 'Server temporarily unavailable',
-                status: 500
+                status: 500,
               })
-            )
+            ),
         })
         .mockResolvedValueOnce({
           ok: false,
@@ -68,15 +68,15 @@ describe('HttpTransport', () => {
                 type: 'https://api.insurup.com/problems/upstream-service',
                 title: 'Internal Server Error',
                 detail: 'Server temporarily unavailable',
-                status: 500
+                status: 500,
               })
-            )
+            ),
         })
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
           headers: { get: () => 'application/json' },
-          text: () => Promise.resolve(JSON.stringify({ success: true }))
+          text: () => Promise.resolve(JSON.stringify({ success: true })),
         });
 
       const resultPromise = transport.post('/test', { data: 'test' });
@@ -95,7 +95,7 @@ describe('HttpTransport', () => {
     it('should not retry if retry is disabled by default', async () => {
       const defaultTransport = new HttpTransport({
         baseUrl: 'https://test.api.com/api/',
-        logLevel: 'none'
+        logLevel: 'none',
       });
 
       mockFetch.mockResolvedValueOnce({
@@ -103,7 +103,7 @@ describe('HttpTransport', () => {
         status: 500,
         statusText: 'Internal Server Error',
         headers: { get: () => 'application/json' },
-        text: () => Promise.resolve('{"error": "server error"}')
+        text: () => Promise.resolve('{"error": "server error"}'),
       });
 
       const result = await defaultTransport.post('/test', { data: 'test' });
@@ -124,9 +124,9 @@ describe('HttpTransport', () => {
               type: 'https://api.insurup.com/problems/input-validation',
               title: 'Bad Request',
               detail: 'Invalid input',
-              status: 400
+              status: 400,
             })
-          )
+          ),
       });
 
       const result = await transport.post('/test', { data: 'test' });
@@ -142,9 +142,9 @@ describe('HttpTransport', () => {
           retries: 2,
           minTimeout: 10,
           randomize: false,
-          retryableStatusCodes: [400, 500] // Include 400 as retryable
+          retryableStatusCodes: [400, 500], // Include 400 as retryable
         },
-        logLevel: 'none'
+        logLevel: 'none',
       });
 
       mockFetch
@@ -153,13 +153,13 @@ describe('HttpTransport', () => {
           status: 400,
           statusText: 'Bad Request',
           headers: { get: () => 'application/json' },
-          text: () => Promise.resolve('{"error": "bad request"}')
+          text: () => Promise.resolve('{"error": "bad request"}'),
         })
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
           headers: { get: () => 'application/json' },
-          text: () => Promise.resolve('{"success": true}')
+          text: () => Promise.resolve('{"success": true}'),
         });
 
       const resultPromise = customTransport.post('/test', { data: 'test' });
@@ -177,7 +177,7 @@ describe('HttpTransport', () => {
       const signal = controller.signal;
 
       // Mock fetch to check if signal is passed
-      mockFetch.mockImplementation((url, options) => {
+      mockFetch.mockImplementation((_url, options) => {
         expect(options?.signal).toBeDefined();
         expect(options?.signal?.aborted).toBe(false);
 
@@ -186,11 +186,15 @@ describe('HttpTransport', () => {
 
         return new Promise((_, reject) => {
           // Listen for abort on the signal passed to fetch
-          options.signal.addEventListener('abort', () => {
-            const abortError = new Error('The operation was aborted');
-            abortError.name = 'AbortError';
-            reject(abortError);
-          }, { once: true });
+          options.signal.addEventListener(
+            'abort',
+            () => {
+              const abortError = new Error('The operation was aborted');
+              abortError.name = 'AbortError';
+              reject(abortError);
+            },
+            { once: true }
+          );
         });
       });
 
@@ -211,7 +215,7 @@ describe('HttpTransport', () => {
       const controller = new AbortController();
       controller.abort(); // Abort before making request
 
-      mockFetch.mockImplementation((url, options) => {
+      mockFetch.mockImplementation((_url, options) => {
         expect(options?.signal?.aborted).toBe(true);
         const abortError = new Error('The operation was aborted');
         abortError.name = 'AbortError';
@@ -238,13 +242,13 @@ describe('HttpTransport', () => {
         ok: true,
         status: 200,
         headers: { get: () => 'application/json' },
-        text: () => Promise.resolve('{"success": true}')
+        text: () => Promise.resolve('{"success": true}'),
       });
 
       await transport.get('/test', { signal });
 
       expect(addEventListenerSpy).toHaveBeenCalledWith('abort', expect.any(Function), {
-        once: true
+        once: true,
       });
       expect(removeEventListenerSpy).toHaveBeenCalledWith('abort', expect.any(Function));
     });
@@ -258,7 +262,7 @@ describe('HttpTransport', () => {
         ok: true,
         status: 200,
         headers: { get: () => 'application/json' },
-        text: () => Promise.resolve('{"success": true}')
+        text: () => Promise.resolve('{"success": true}'),
       });
 
       const result = await transport.post('/test', largeString);
@@ -268,7 +272,7 @@ describe('HttpTransport', () => {
         'https://test.api.com/api/test',
         expect.objectContaining({
           method: 'POST',
-          body: `"${largeString}"` // Should be properly serialized
+          body: `"${largeString}"`, // Should be properly serialized
         })
       );
     });
@@ -280,8 +284,8 @@ describe('HttpTransport', () => {
         largeObject[`property${i}`] = {
           nested: {
             data: `value${i}`,
-            array: new Array(50).fill(i)
-          }
+            array: new Array(50).fill(i),
+          },
         };
       }
 
@@ -289,7 +293,7 @@ describe('HttpTransport', () => {
         ok: true,
         status: 200,
         headers: { get: () => 'application/json' },
-        text: () => Promise.resolve('{"success": true}')
+        text: () => Promise.resolve('{"success": true}'),
       });
 
       const result = await transport.post('/test', largeObject);
@@ -299,7 +303,7 @@ describe('HttpTransport', () => {
         'https://test.api.com/api/test',
         expect.objectContaining({
           method: 'POST',
-          body: expect.any(String) // Should be serialized to string
+          body: expect.any(String), // Should be serialized to string
         })
       );
     });
@@ -310,15 +314,15 @@ describe('HttpTransport', () => {
         data: new Array(1000).fill(0).map((_, i) => ({
           id: i,
           name: `Item ${i}`,
-          description: 'x'.repeat(100)
-        }))
+          description: 'x'.repeat(100),
+        })),
       };
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
         headers: { get: () => 'application/json' },
-        text: () => Promise.resolve(JSON.stringify(largeResponse))
+        text: () => Promise.resolve(JSON.stringify(largeResponse)),
       });
 
       const result = await transport.get('/test');
@@ -336,19 +340,19 @@ describe('HttpTransport', () => {
         logger: {
           info: vi.fn(),
           warn: vi.fn(),
-          error: vi.fn()
-        }
+          error: vi.fn(),
+        },
       });
 
       const largeObject = {
-        data: new Array(200).fill(0).map((_, i) => ({ id: i, data: 'x'.repeat(100) }))
+        data: new Array(200).fill(0).map((_, i) => ({ id: i, data: 'x'.repeat(100) })),
       };
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
         headers: { get: () => 'application/json' },
-        text: () => Promise.resolve('{"success": true}')
+        text: () => Promise.resolve('{"success": true}'),
       });
 
       await transport.post('/test', largeObject);
@@ -365,7 +369,7 @@ describe('HttpTransport', () => {
         'application/json; charset=utf-8',
         'application/vnd.api+json',
         'application/hal+json',
-        'application/problem+json'
+        'application/problem+json',
       ];
 
       for (const contentType of jsonContentTypes) {
@@ -373,7 +377,7 @@ describe('HttpTransport', () => {
           ok: true,
           status: 200,
           headers: { get: (header: string) => (header === 'content-type' ? contentType : null) },
-          text: () => Promise.resolve('{"data": "test"}')
+          text: () => Promise.resolve('{"data": "test"}'),
         });
 
         const result = await transport.get('/test');
@@ -390,7 +394,7 @@ describe('HttpTransport', () => {
         ok: true,
         status: 200,
         headers: { get: (header: string) => (header === 'content-type' ? 'text/html' : null) },
-        text: () => Promise.resolve('<html>Not JSON</html>')
+        text: () => Promise.resolve('<html>Not JSON</html>'),
       });
 
       const result = await transport.get('/test');
@@ -409,7 +413,7 @@ describe('HttpTransport', () => {
         { status: 200, contentType: 'application/json', body: '' },
         { status: 204, contentType: 'application/json', body: '' },
         { status: 205, contentType: 'application/json', body: '' },
-        { status: 200, contentType: null, body: '' }
+        { status: 200, contentType: null, body: '' },
       ];
 
       for (const testCase of emptyResponseCases) {
@@ -417,9 +421,9 @@ describe('HttpTransport', () => {
           ok: true,
           status: testCase.status,
           headers: {
-            get: (header: string) => (header === 'content-type' ? testCase.contentType : null)
+            get: (header: string) => (header === 'content-type' ? testCase.contentType : null),
           },
-          text: () => Promise.resolve(testCase.body)
+          text: () => Promise.resolve(testCase.body),
         });
 
         const result = await transport.get('/test');
@@ -437,9 +441,9 @@ describe('HttpTransport', () => {
         ok: true,
         status: 200,
         headers: {
-          get: (header: string) => (header === 'content-type' ? 'application/json' : null)
+          get: (header: string) => (header === 'content-type' ? 'application/json' : null),
         },
-        text: () => Promise.resolve('{"invalid": json}') // Invalid JSON
+        text: () => Promise.resolve('{"invalid": json}'), // Invalid JSON
       });
 
       const result = await transport.get('/test');
@@ -458,7 +462,7 @@ describe('HttpTransport', () => {
         { data: 'response2' },
         { data: 'response3' },
         { data: 'response4' },
-        { data: 'response5' }
+        { data: 'response5' },
       ];
 
       // Mock fetch to return different responses for each call
@@ -467,7 +471,7 @@ describe('HttpTransport', () => {
           ok: true,
           status: 200,
           headers: { get: () => 'application/json' },
-          text: () => Promise.resolve(JSON.stringify(response))
+          text: () => Promise.resolve(JSON.stringify(response)),
         });
       });
 
@@ -494,9 +498,9 @@ describe('HttpTransport', () => {
         timeoutMs: 5000,
         retry: {
           retries: 0, // No retries for this test
-          retryableStatusCodes: []
+          retryableStatusCodes: [],
         },
-        logLevel: 'none'
+        logLevel: 'none',
       });
 
       // Mock responses: success, error, success, error, success
@@ -505,7 +509,7 @@ describe('HttpTransport', () => {
           ok: true,
           status: 200,
           headers: { get: () => 'application/json' },
-          text: () => Promise.resolve('{"success": 1}')
+          text: () => Promise.resolve('{"success": 1}'),
         })
         .mockResolvedValueOnce({
           ok: false,
@@ -518,15 +522,15 @@ describe('HttpTransport', () => {
                 type: 'https://api.insurup.com/problems/upstream-service',
                 title: 'Internal Server Error',
                 detail: 'Server error',
-                status: 500
+                status: 500,
               })
-            )
+            ),
         })
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
           headers: { get: () => 'application/json' },
-          text: () => Promise.resolve('{"success": 2}')
+          text: () => Promise.resolve('{"success": 2}'),
         })
         .mockResolvedValueOnce({
           ok: false,
@@ -539,15 +543,15 @@ describe('HttpTransport', () => {
                 type: 'https://api.insurup.com/problems/resource-not-found',
                 title: 'Not Found',
                 detail: 'Resource not found',
-                status: 404
+                status: 404,
               })
-            )
+            ),
         })
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
           headers: { get: () => 'application/json' },
-          text: () => Promise.resolve('{"success": 3}')
+          text: () => Promise.resolve('{"success": 3}'),
         });
 
       const promises = [
@@ -555,23 +559,24 @@ describe('HttpTransport', () => {
         noRetryTransport.get('/error1'),
         noRetryTransport.get('/success2'),
         noRetryTransport.get('/error2'),
-        noRetryTransport.get('/success3')
+        noRetryTransport.get('/success3'),
       ];
 
       const results = await Promise.all(promises);
 
       // Verify results match expectations
-      expect(results[0].kind).toBe('success');
-      expect(results[1].kind).toBe('server-error');
-      expect(results[2].kind).toBe('success');
-      expect(results[3].kind).toBe('server-error');
-      expect(results[4].kind).toBe('success');
+      const [r0, r1, r2, r3, r4] = results;
+      expect(r0?.kind).toBe('success');
+      expect(r1?.kind).toBe('server-error');
+      expect(r2?.kind).toBe('success');
+      expect(r3?.kind).toBe('server-error');
+      expect(r4?.kind).toBe('success');
 
-      if (results[1].kind === 'server-error') {
-        expect(results[1].status).toBe(500);
+      if (r1?.kind === 'server-error') {
+        expect(r1.status).toBe(500);
       }
-      if (results[3].kind === 'server-error') {
-        expect(results[3].status).toBe(404);
+      if (r3?.kind === 'server-error') {
+        expect(r3.status).toBe(404);
       }
     });
 
@@ -580,7 +585,7 @@ describe('HttpTransport', () => {
       const shortTimeoutTransport = new HttpTransport({
         baseUrl: 'https://test.api.com/api/',
         timeoutMs: 100,
-        logLevel: 'none'
+        logLevel: 'none',
       });
 
       // Mock fetch calls with specific responses
@@ -589,7 +594,7 @@ describe('HttpTransport', () => {
           ok: true,
           status: 200,
           headers: { get: () => 'application/json' },
-          text: () => Promise.resolve('{"fast": true}')
+          text: () => Promise.resolve('{"fast": true}'),
         })
         .mockRejectedValueOnce(
           (() => {
@@ -602,45 +607,46 @@ describe('HttpTransport', () => {
           ok: true,
           status: 200,
           headers: { get: () => 'application/json' },
-          text: () => Promise.resolve('{"fast": true}')
+          text: () => Promise.resolve('{"fast": true}'),
         });
 
       const promises = [
         shortTimeoutTransport.get('/fast1'),
         shortTimeoutTransport.get('/slow'),
-        shortTimeoutTransport.get('/fast2')
+        shortTimeoutTransport.get('/fast2'),
       ];
 
       const results = await Promise.all(promises);
 
+      const [first, second, third] = results;
       // First request should succeed (fast)
-      expect(results[0].kind).toBe('success');
+      expect(first?.kind).toBe('success');
 
       // Second request should timeout
-      expect(results[1].kind).toBe('client-error');
-      if (results[1].kind === 'client-error') {
-        expect(results[1].type).toBe(InsurUpClientErrorType.Timeout);
+      expect(second?.kind).toBe('client-error');
+      if (second?.kind === 'client-error') {
+        expect(second.type).toBe(InsurUpClientErrorType.Timeout);
       }
 
       // Third request should succeed (fast)
-      expect(results[2].kind).toBe('success');
+      expect(third?.kind).toBe('success');
     }, 10000); // Increase timeout for this test
 
     it('should maintain request isolation with different headers', async () => {
       const requests = [
         { path: '/test1', headers: { 'X-Custom': 'value1' } },
         { path: '/test2', headers: { 'X-Custom': 'value2' } },
-        { path: '/test3', headers: { 'X-Custom': 'value3' } }
+        { path: '/test3', headers: { 'X-Custom': 'value3' } },
       ];
 
       // Mock fetch to capture and return the custom header value
-      mockFetch.mockImplementation((url, options) => {
+      mockFetch.mockImplementation((_url, options) => {
         const customHeader = options?.headers?.['X-Custom'];
         return Promise.resolve({
           ok: true,
           status: 200,
           headers: { get: () => 'application/json' },
-          text: () => Promise.resolve(JSON.stringify({ receivedHeader: customHeader }))
+          text: () => Promise.resolve(JSON.stringify({ receivedHeader: customHeader })),
         });
       });
 
@@ -653,7 +659,7 @@ describe('HttpTransport', () => {
         expect(result.kind).toBe('success');
         if (result.kind === 'success') {
           expect(result.data).toEqual({
-            receivedHeader: requests[index].headers['X-Custom']
+            receivedHeader: requests[index]?.headers['X-Custom'],
           });
         }
       });
@@ -668,8 +674,8 @@ describe('HttpTransport', () => {
         logger: {
           info: vi.fn(),
           warn: vi.fn(),
-          error: vi.fn()
-        }
+          error: vi.fn(),
+        },
       });
 
       // Test with various object sizes
@@ -678,10 +684,10 @@ describe('HttpTransport', () => {
         { obj: new Array(200).fill({ data: 'test' }), shouldBeLarge: true },
         {
           obj: { deep: { nested: { object: { with: { many: { levels: 'test' } } } } } },
-          shouldBeLarge: true
+          shouldBeLarge: true,
         },
         { obj: 'simple string', shouldBeLarge: false },
-        { obj: 'x'.repeat(15000), shouldBeLarge: true }
+        { obj: 'x'.repeat(15000), shouldBeLarge: true },
       ];
 
       for (const testCase of testCases) {
@@ -689,7 +695,7 @@ describe('HttpTransport', () => {
           ok: true,
           status: 200,
           headers: { get: () => 'application/json' },
-          text: () => Promise.resolve('{"success": true}')
+          text: () => Promise.resolve('{"success": true}'),
         });
 
         await transport.post('/test', testCase.obj);

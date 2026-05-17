@@ -1,409 +1,166 @@
 /**
- * @fileoverview useCustomerTable Composable Tests for Vue
- * @description Unit tests for the Vue useCustomerTable composable
- *
- * Note: These tests verify the integration layer between the core adapter
- * and Vue. The actual adapter functionality is tested in table-adapter-core.
+ * @fileoverview useCustomerTable Composable Tests
+ * @description Real-Vue, real-adapter tests via @vue/test-utils mount.
+ * Only the fetch function is mocked; everything else (Vue reactivity, the core
+ * adapter, TanStack Vue Table) runs end-to-end so the test exercises the
+ * shallowRef subscription path, onUnmounted cleanup, and computed propagation.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-
-// Mock adapter returned by createCustomerTable
-const mockAdapter = {
-  columns: [
-    { id: 'id', accessorKey: 'id', header: 'ID' },
-    { id: 'name', accessorKey: 'name', header: 'Name' },
-  ],
-  getState: vi.fn(() => ({
-    rows: [{ id: '1', name: 'Test' }],
-    rowCount: 1,
-    pageCount: 1,
-    isLoading: false,
-    isFetching: false,
-    error: null,
-    isError: false,
-    isSuccess: true,
-  })),
-  getSnapshot: vi.fn(() => ({
-    rows: [{ id: '1', name: 'Test' }],
-    rowCount: 1,
-    pageCount: 1,
-    isLoading: false,
-    isFetching: false,
-    error: null,
-    isError: false,
-    isSuccess: true,
-  })),
-  getTableOptions: vi.fn(() => ({
-    data: [{ id: '1', name: 'Test' }],
-    columns: [
-      { id: 'id', accessorKey: 'id', header: 'ID' },
-      { id: 'name', accessorKey: 'name', header: 'Name' },
-    ],
-    getCoreRowModel: () => ({ rows: [], flatRows: [], rowsById: {} }),
-    manualPagination: true,
-    manualSorting: true,
-    state: {
-      sorting: [],
-      pagination: { pageIndex: 0, pageSize: 10 },
-    },
-    onSortingChange: vi.fn(),
-    onPaginationChange: vi.fn(),
-  })),
-  subscribe: vi.fn((_callback: () => void) => {
-    return () => {};
-  }),
-  fetch: vi.fn().mockResolvedValue(undefined),
-  invalidate: vi.fn().mockResolvedValue(undefined),
-  refetch: vi.fn().mockResolvedValue(undefined),
-  setFilter: vi.fn(),
-  getFilter: vi.fn(),
-  clearFilter: vi.fn(),
-  setSearch: vi.fn(),
-  getSearch: vi.fn(),
-  clearSearch: vi.fn(),
-  setPageSize: vi.fn(),
-  destroy: vi.fn(),
-};
-
-// Track onUnmounted callbacks for cleanup testing
-let onUnmountedCallback: (() => void) | null = null;
-
-// Mock core adapter and Vue to test integration logic without jsdom
-vi.mock('@insurup/table-adapter-core', () => ({
-  createCustomerTable: vi.fn(() => mockAdapter),
-}));
-
-vi.mock('vue', () => ({
-  shallowRef: vi.fn((initial) => ({ value: initial })),
-  onUnmounted: vi.fn((cb) => {
-    onUnmountedCallback = cb;
-  }),
-  computed: vi.fn((getter) => ({ value: getter() })),
-}));
-
-vi.mock('@tanstack/vue-table', () => ({
-  useVueTable: vi.fn((options) => ({
-    getHeaderGroups: vi.fn(() => [
-      {
-        id: 'header',
-        headers: options.columns.map((col: { id: string }) => ({
-          id: col.id,
-          column: { columnDef: col },
-          getContext: vi.fn(),
-        })),
-      },
-    ]),
-    getRowModel: vi.fn(() => ({
-      rows: (options.data ?? []).map((d: unknown, i: number) => ({
-        id: String(i),
-        original: d,
-        getVisibleCells: vi.fn(() => []),
-      })),
-    })),
-    getAllColumns: vi.fn(() => options.columns),
-    getCanNextPage: vi.fn(() => false),
-    getCanPreviousPage: vi.fn(() => false),
-    nextPage: vi.fn(),
-    previousPage: vi.fn(),
-  })),
-}));
-
-// Import after mocking
+import { defineComponent, nextTick } from 'vue';
+import { mount } from '@vue/test-utils';
 import { useCustomerTable } from '../src/use-customer-table';
-import { createCustomerTable } from '@insurup/table-adapter-core';
+import {
+  createMockConnection,
+  createMockFetchFn,
+  createMockOptions,
+  type MockCustomer,
+} from './utils/mocks';
+import type { CustomerTableOptions, CustomerColumnDef } from '@insurup/table-adapter-core';
+
+type Options = CustomerTableOptions<CustomerColumnDef[]>;
+type FetchOptionsOverrides = Parameters<typeof createMockOptions>[0];
+
+function makeOptions(overrides: FetchOptionsOverrides = {}): Options {
+  return createMockOptions(overrides);
+}
+
+function mountWith(options: Options) {
+  const TestComponent = defineComponent({
+    setup() {
+      return useCustomerTable(options);
+    },
+    template: '<div />',
+  });
+  return mount(TestComponent);
+}
 
 describe('useCustomerTable', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    onUnmountedCallback = null;
   });
 
-  describe('adapter creation', () => {
-    it('should create adapter with provided options', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
+  it('returns state, table, and adapter on first render', () => {
+    const wrapper = mountWith(makeOptions());
 
-      useCustomerTable(options as never);
+    expect(wrapper.vm).toHaveProperty('state');
+    expect(wrapper.vm).toHaveProperty('table');
+    expect(wrapper.vm).toHaveProperty('adapter');
+    expect(typeof wrapper.vm.adapter.fetch).toBe('function');
+    expect(typeof wrapper.vm.table.getHeaderGroups).toBe('function');
 
-      expect(createCustomerTable).toHaveBeenCalledWith(options);
-    });
-
-    it('should pass autoFetch option to adapter', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 20 },
-        autoFetch: true,
-      };
-
-      useCustomerTable(options as never);
-
-      expect(createCustomerTable).toHaveBeenCalledWith(
-        expect.objectContaining({ autoFetch: true })
-      );
-    });
-
-    it('should pass pageSize option to adapter', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 25 },
-      };
-
-      useCustomerTable(options as never);
-
-      expect(createCustomerTable).toHaveBeenCalledWith(
-        expect.objectContaining({ pagination: { type: 'cursor', pageSize: 25 } })
-      );
-    });
+    wrapper.unmount();
   });
 
-  describe('return value', () => {
-    it('should return state, table, and adapter', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
+  it('starts with empty rows before any fetch', () => {
+    const wrapper = mountWith(makeOptions());
 
-      const result = useCustomerTable(options as never);
+    expect(wrapper.vm.state.rows).toEqual([]);
+    expect(wrapper.vm.state.isLoading).toBe(false);
 
-      expect(result).toHaveProperty('state');
-      expect(result).toHaveProperty('table');
-      expect(result).toHaveProperty('adapter');
-    });
-
-    it('should return state from adapter snapshot', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
-
-      const result = useCustomerTable(options as never);
-
-      expect(result.state.value).toEqual(mockAdapter.getSnapshot());
-    });
-
-    it('should return adapter with all methods', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
-
-      const result = useCustomerTable(options as never);
-
-      expect(typeof result.adapter.fetch).toBe('function');
-      expect(typeof result.adapter.invalidate).toBe('function');
-      expect(typeof result.adapter.refetch).toBe('function');
-      expect(typeof result.adapter.setFilter).toBe('function');
-      expect(typeof result.adapter.getFilter).toBe('function');
-      expect(typeof result.adapter.clearFilter).toBe('function');
-      expect(typeof result.adapter.setSearch).toBe('function');
-      expect(typeof result.adapter.getSearch).toBe('function');
-      expect(typeof result.adapter.clearSearch).toBe('function');
-      expect(typeof result.adapter.setPageSize).toBe('function');
-      expect(typeof result.adapter.destroy).toBe('function');
-    });
-
-    it('should return table with TanStack Table methods', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
-
-      const result = useCustomerTable(options as never);
-
-      expect(typeof result.table.getHeaderGroups).toBe('function');
-      expect(typeof result.table.getRowModel).toBe('function');
-      expect(typeof result.table.getCanNextPage).toBe('function');
-      expect(typeof result.table.getCanPreviousPage).toBe('function');
-    });
+    wrapper.unmount();
   });
 
-  describe('adapter methods', () => {
-    it('should call fetch on adapter', async () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
+  it('updates the reactive state ref after adapter.fetch', async () => {
+    const wrapper = mountWith(makeOptions());
 
-      const result = useCustomerTable(options as never);
-      await result.adapter.fetch();
+    await wrapper.vm.adapter.fetch();
+    await nextTick();
 
-      expect(mockAdapter.fetch).toHaveBeenCalled();
-    });
+    expect(wrapper.vm.state.rows.length).toBeGreaterThan(0);
+    expect(wrapper.vm.state.isLoading).toBe(false);
 
-    it('should call setFilter on adapter', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
-
-      const result = useCustomerTable(options as never);
-      result.adapter.setFilter({ name: { contains: 'test' } });
-
-      expect(mockAdapter.setFilter).toHaveBeenCalledWith({ name: { contains: 'test' } });
-    });
-
-    it('should call setSearch on adapter', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
-
-      const result = useCustomerTable(options as never);
-      result.adapter.setSearch({ name: { textSearch: { value: 'test query' } } });
-
-      expect(mockAdapter.setSearch).toHaveBeenCalledWith({ name: { textSearch: { value: 'test query' } } });
-    });
-
-    it('should call clearSearch on adapter', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
-
-      const result = useCustomerTable(options as never);
-      result.adapter.clearSearch();
-
-      expect(mockAdapter.clearSearch).toHaveBeenCalled();
-    });
-
-    it('should call setPageSize on adapter', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
-
-      const result = useCustomerTable(options as never);
-      result.adapter.setPageSize(50);
-
-      expect(mockAdapter.setPageSize).toHaveBeenCalledWith(50);
-    });
-
-    it('should call invalidate on adapter', async () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
-
-      const result = useCustomerTable(options as never);
-      await result.adapter.invalidate();
-
-      expect(mockAdapter.invalidate).toHaveBeenCalled();
-    });
+    wrapper.unmount();
   });
 
-  describe('state properties', () => {
-    it('should include rows in state', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
+  it('forwards a custom Connection through to state.rows', async () => {
+    const fetchFn = createMockFetchFn(
+      createMockConnection<MockCustomer>([
+        { id: '42', name: 'Captured Customer', email: 'a@b.com' },
+      ])
+    );
+    const wrapper = mountWith(makeOptions({ fetch: fetchFn }));
 
-      const result = useCustomerTable(options as never);
+    await wrapper.vm.adapter.fetch();
+    await nextTick();
 
-      expect(result.state.value).toHaveProperty('rows');
-      expect(Array.isArray(result.state.value.rows)).toBe(true);
-    });
+    const rows = wrapper.vm.state.rows as readonly MockCustomer[];
+    expect(rows[0]?.id).toBe('42');
+    expect(rows[0]?.name).toBe('Captured Customer');
+    expect(fetchFn).toHaveBeenCalledTimes(1);
 
-    it('should include pagination info in state', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
-
-      const result = useCustomerTable(options as never);
-
-      expect(result.state.value).toHaveProperty('rowCount');
-      expect(result.state.value).toHaveProperty('pageCount');
-    });
-
-    it('should include loading states in state', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
-
-      const result = useCustomerTable(options as never);
-
-      expect(result.state.value).toHaveProperty('isLoading');
-      expect(result.state.value).toHaveProperty('isFetching');
-      expect(result.state.value).toHaveProperty('isSuccess');
-      expect(result.state.value).toHaveProperty('isError');
-    });
-
-    it('should include error in state', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
-
-      const result = useCustomerTable(options as never);
-
-      expect(result.state.value).toHaveProperty('error');
-    });
+    wrapper.unmount();
   });
 
-  describe('subscription and cleanup', () => {
-    it('should subscribe to adapter state changes', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
+  it('exposes a real TanStack Table whose rows track adapter state', async () => {
+    const wrapper = mountWith(makeOptions());
 
-      useCustomerTable(options as never);
+    await wrapper.vm.adapter.fetch();
+    await nextTick();
 
-      expect(mockAdapter.subscribe).toHaveBeenCalledWith(expect.any(Function));
-    });
+    const rowModel = wrapper.vm.table.getRowModel();
+    expect(rowModel.rows.length).toBeGreaterThan(0);
 
-    it('should register onUnmounted cleanup', () => {
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
+    wrapper.unmount();
+  });
 
-      useCustomerTable(options as never);
+  it('autoFetch=true triggers a fetch on mount', async () => {
+    const fetchFn = createMockFetchFn();
+    const wrapper = mountWith(makeOptions({ fetch: fetchFn, autoFetch: true }));
 
-      expect(onUnmountedCallback).toBeTypeOf('function');
-    });
+    await nextTick();
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
-    it('should unsubscribe and destroy adapter on unmount', () => {
-      const mockUnsubscribe = vi.fn();
-      mockAdapter.subscribe.mockReturnValue(mockUnsubscribe);
+    expect(fetchFn).toHaveBeenCalled();
+    wrapper.unmount();
+  });
 
-      const options = {
-        columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
-        fetch: vi.fn(),
-        pagination: { type: 'cursor' as const, pageSize: 10 },
-      };
+  it('destroys the adapter on unmount', () => {
+    const wrapper = mountWith(makeOptions());
+    const destroySpy = vi.spyOn(wrapper.vm.adapter, 'destroy');
 
-      useCustomerTable(options as never);
+    wrapper.unmount();
 
-      // Simulate unmount
-      onUnmountedCallback!();
+    expect(destroySpy).toHaveBeenCalled();
+  });
 
-      expect(mockUnsubscribe).toHaveBeenCalled();
-      expect(mockAdapter.destroy).toHaveBeenCalled();
-    });
+  it('forwards setFilter / setSearch through the adapter API', async () => {
+    const wrapper = mountWith(makeOptions());
+
+    wrapper.vm.adapter.setFilter({ name: { eq: 'X' } });
+    wrapper.vm.adapter.setSearch({ name: { eq: 'Doe' } });
+
+    expect(wrapper.vm.adapter.getFilter()).toEqual({ name: { eq: 'X' } });
+    expect(wrapper.vm.adapter.getSearch()).toEqual({ name: { eq: 'Doe' } });
+
+    wrapper.unmount();
+  });
+
+  it('maps a thrown fetch error into state.error / isError', async () => {
+    const fetchFn = vi.fn().mockRejectedValue(new Error('upstream is down'));
+    const wrapper = mountWith(makeOptions({ fetch: fetchFn }));
+
+    try {
+      await wrapper.vm.adapter.fetch();
+    } catch {
+      /* expected — surfaced via state.error */
+    }
+    await nextTick();
+
+    expect(wrapper.vm.state.isError).toBe(true);
+    expect(wrapper.vm.state.error).toBeTruthy();
+
+    wrapper.unmount();
+  });
+
+  it('subscribe is wired (state ref updates after fetch)', async () => {
+    const wrapper = mountWith(makeOptions());
+    const initialSnapshot = wrapper.vm.state;
+
+    await wrapper.vm.adapter.fetch();
+    await nextTick();
+
+    expect(wrapper.vm.state).not.toBe(initialSnapshot);
+    wrapper.unmount();
   });
 });

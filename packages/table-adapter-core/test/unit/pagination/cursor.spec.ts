@@ -329,5 +329,26 @@ describe('createCursorPagination', () => {
       expect(pagination.getState().pageIndex).toBe(100);
       expect(pagination.canGoPrevious()).toBe(true);
     });
+
+    it('trims cursor history beyond the bounded window while keeping page 0', () => {
+      // DEFAULT_MAX_CURSOR_HISTORY is 500 — advance past it to trigger trim
+      for (let i = 0; i < 600; i++) {
+        pagination.update({
+          hasNextPage: true,
+          hasPreviousPage: i > 0,
+          startCursor: `start-${i}`,
+          endCursor: `end-${i}`,
+        });
+        pagination.next();
+      }
+
+      // Going all the way back to page 0 must still work — its null cursor
+      // is intentionally preserved by trimCursorHistory.
+      while (pagination.getState().pageIndex > 0) {
+        pagination.previous();
+      }
+      expect(pagination.getState().pageIndex).toBe(0);
+      expect(pagination.getState().cursor).toBeUndefined();
+    });
   });
 });
