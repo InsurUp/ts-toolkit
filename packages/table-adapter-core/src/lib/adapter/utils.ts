@@ -4,7 +4,7 @@
  */
 
 import type { ColumnDef } from '@tanstack/table-core';
-import type { GraphQLErrors, ClientError } from '@insurup/sdk';
+import type { ClientError, GraphQLErrors, ServerError } from '@insurup/sdk';
 import { InsurUpClientErrorType, InsurUpGraphQLErrorCode } from '@insurup/sdk';
 import type { AnyColumnDef } from '../types.js';
 import type { TableError } from './types.js';
@@ -228,16 +228,21 @@ export function columnsToTanStackColumnDefs<TRow>(
  * Determine if an error is retryable based on its type
  * - Client errors: network timeouts and HTTP request failures are retryable
  * - GraphQL errors: internal server errors and upstream errors are retryable
+ * - Server errors: 5xx responses are retryable
  *
- * @param cause - The SDK error (GraphQL or Client error)
+ * @param cause - The SDK error (GraphQL, Client, or Server error)
  * @returns Whether the error is retryable
  */
-export function isRetryable(cause: GraphQLErrors | ClientError): boolean {
+export function isRetryable(cause: GraphQLErrors | ClientError | ServerError): boolean {
   if (cause.kind === 'client-error') {
     return (
       cause.type === InsurUpClientErrorType.Timeout ||
       cause.type === InsurUpClientErrorType.HttpRequestFailed
     );
+  }
+
+  if (cause.kind === 'server-error') {
+    return cause.status >= 500;
   }
 
   // GraphQL errors - check the error code
@@ -249,12 +254,14 @@ export function isRetryable(cause: GraphQLErrors | ClientError): boolean {
 
 /**
  * Create a TableError from an SDK error result
- * Wraps GraphQL and Client errors in a standard Error interface
+ * Wraps GraphQL, Client, and Server errors in a standard Error interface
  *
- * @param cause - The SDK error (GraphQL or Client error)
+ * @param cause - The SDK error (GraphQL, Client, or Server error)
  * @returns A TableError with the original cause and retryable flag
  */
-export function createTableError(cause: GraphQLErrors | ClientError): TableError {
+export function createTableError(
+  cause: GraphQLErrors | ClientError | ServerError
+): TableError {
   const error = new Error(cause.message) as TableError;
   error.name = 'TableError';
   error.cause = cause;
