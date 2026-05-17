@@ -9,17 +9,13 @@ import { CustomerType } from '@insurup/contracts';
 import type {
   CreateCustomerRequestIndividual,
   GetCustomerResultIndividual,
-  UpdateCustomerRequestIndividual
+  UpdateCustomerRequestIndividual,
 } from '@insurup/contracts';
-import {
-  MockFetchResponseFactory,
-  customerRequests,
-  customerResponses
-} from '../utils';
+import { MockFetchResponseFactory, customerRequests, customerResponses } from '../utils';
 
 // Mock fetch globally
 const mockFetch = vi.fn();
-globalThis.fetch = mockFetch;
+vi.stubGlobal('fetch', mockFetch);
 
 describe('Customer Flow Integration Tests', () => {
   let client: DefaultInsurUpClient;
@@ -34,8 +30,8 @@ describe('Customer Flow Integration Tests', () => {
         minTimeout: 10,
         maxTimeout: 50,
         factor: 1.5,
-        randomize: false
-      }
+        randomize: false,
+      },
     });
   });
 
@@ -45,9 +41,7 @@ describe('Customer Flow Integration Tests', () => {
       const customerId = 'CUSTOMER-NEW-123';
 
       // Step 1: Create customer - mock the response
-      mockFetch.mockResolvedValueOnce(
-        MockFetchResponseFactory.json({ id: customerId }, 201)
-      );
+      mockFetch.mockResolvedValueOnce(MockFetchResponseFactory.json({ id: customerId }, 201));
 
       const createResult = await client.customers.createCustomer(createRequest);
 
@@ -63,7 +57,7 @@ describe('Customer Flow Integration Tests', () => {
         'https://test.api.com/api/customers',
         expect.objectContaining({
           method: 'POST',
-          body: JSON.stringify({ $type: 'individual', ...restRequest })
+          body: JSON.stringify({ $type: 'individual', ...restRequest }),
         })
       );
 
@@ -78,7 +72,7 @@ describe('Customer Flow Integration Tests', () => {
         primaryPhoneNumber: baseCustomer.primaryPhoneNumber,
         birthDate: baseCustomer.birthDate,
         createdAt: baseCustomer.createdAt,
-        createdBy: baseCustomer.createdBy
+        createdBy: baseCustomer.createdBy,
       };
 
       mockFetch.mockResolvedValueOnce(MockFetchResponseFactory.json(customerData));
@@ -98,7 +92,7 @@ describe('Customer Flow Integration Tests', () => {
       expect(mockFetch).toHaveBeenCalledWith(
         `https://test.api.com/api/customers/${customerId}`,
         expect.objectContaining({
-          method: 'GET'
+          method: 'GET',
         })
       );
     });
@@ -148,9 +142,7 @@ describe('Customer Flow Integration Tests', () => {
       const initialRequest = customerRequests.validIndividualCustomer();
 
       // Step 1: Create customer
-      mockFetch.mockResolvedValueOnce(
-        MockFetchResponseFactory.json({ id: customerId }, 201)
-      );
+      mockFetch.mockResolvedValueOnce(MockFetchResponseFactory.json({ id: customerId }, 201));
 
       await client.customers.createCustomer(initialRequest);
 
@@ -160,7 +152,7 @@ describe('Customer Flow Integration Tests', () => {
         id: customerId,
         fullName: 'John Updated Doe',
         primaryEmail: 'john.updated@example.com',
-        fillMissingFields: false
+        fillMissingFields: false,
       };
 
       mockFetch.mockResolvedValueOnce(MockFetchResponseFactory.empty(204));
@@ -181,7 +173,7 @@ describe('Customer Flow Integration Tests', () => {
         primaryPhoneNumber: baseForUpdate.primaryPhoneNumber,
         birthDate: baseForUpdate.birthDate,
         createdAt: baseForUpdate.createdAt,
-        createdBy: baseForUpdate.createdBy
+        createdBy: baseForUpdate.createdBy,
       };
 
       mockFetch.mockResolvedValueOnce(MockFetchResponseFactory.json(updatedCustomerData));
@@ -219,7 +211,7 @@ describe('Customer Flow Integration Tests', () => {
         type: CustomerType.Individual,
         id: customerId,
         primaryEmail: 'invalid-email',
-        fillMissingFields: false
+        fillMissingFields: false,
       } as UpdateCustomerRequestIndividual);
 
       expect(updateResult.kind).toBe('server-error');
@@ -243,7 +235,7 @@ describe('Customer Flow Integration Tests', () => {
       // Step 1: Get current emails
       const existingEmails = [
         { email: 'primary@example.com', isPrimary: true },
-        { email: 'secondary@example.com', isPrimary: false }
+        { email: 'secondary@example.com', isPrimary: false },
       ];
 
       mockFetch.mockResolvedValueOnce(MockFetchResponseFactory.json(existingEmails));
@@ -260,16 +252,13 @@ describe('Customer Flow Integration Tests', () => {
 
       const addResult = await client.customers.addCustomerEmail({
         customerId,
-        email: 'new@example.com'
+        email: 'new@example.com',
       });
 
       expect(addResult.kind).toBe('success');
 
       // Step 3: Verify new email was added
-      const updatedEmails = [
-        ...existingEmails,
-        { email: 'new@example.com', isPrimary: false }
-      ];
+      const updatedEmails = [...existingEmails, { email: 'new@example.com', isPrimary: false }];
 
       mockFetch.mockResolvedValueOnce(MockFetchResponseFactory.json(updatedEmails));
 
@@ -285,9 +274,7 @@ describe('Customer Flow Integration Tests', () => {
       const customerId = 'CUSTOMER-123';
 
       // Step 1: Get current phone numbers
-      const existingPhones = [
-        { number: '5551234567', countryCode: 90, isPrimary: true }
-      ];
+      const existingPhones = [{ number: '5551234567', countryCode: 90, isPrimary: true }];
 
       mockFetch.mockResolvedValueOnce(MockFetchResponseFactory.json(existingPhones));
 
@@ -305,8 +292,8 @@ describe('Customer Flow Integration Tests', () => {
         customerId,
         phoneNumber: {
           number: '5559876543',
-          countryCode: 90
-        }
+          countryCode: 90,
+        },
       });
 
       expect(addResult.kind).toBe('success');
@@ -318,9 +305,7 @@ describe('Customer Flow Integration Tests', () => {
       const customerId = 'CUSTOMER-ADDR-123';
 
       // Step 1: Create customer
-      mockFetch.mockResolvedValueOnce(
-        MockFetchResponseFactory.json({ id: customerId }, 201)
-      );
+      mockFetch.mockResolvedValueOnce(MockFetchResponseFactory.json({ id: customerId }, 201));
 
       await client.customers.createCustomer(customerRequests.validIndividualCustomer());
 
@@ -329,7 +314,7 @@ describe('Customer Flow Integration Tests', () => {
         addressId: 'ADDRESS-123',
         customerId,
         propertyNumber: 12345,
-        addressType: 'HOME'
+        addressType: 'HOME',
       };
 
       mockFetch.mockResolvedValueOnce(MockFetchResponseFactory.json(addressResponse, 201));
@@ -337,7 +322,7 @@ describe('Customer Flow Integration Tests', () => {
       const addressResult = await client.customers.createCustomerAddress({
         customerId,
         propertyNumber: 12345,
-        addressType: 'HOME'
+        addressType: 'HOME',
       });
 
       expect(addressResult.kind).toBe('success');
@@ -360,9 +345,21 @@ describe('Customer Flow Integration Tests', () => {
   describe('Concurrent Operations', () => {
     it('should handle multiple customer creations in parallel', async () => {
       const customers: CreateCustomerRequestIndividual[] = [
-        { ...customerRequests.validIndividualCustomer(), identityNumber: '11111111111', fullName: 'Customer One' },
-        { ...customerRequests.validIndividualCustomer(), identityNumber: '22222222222', fullName: 'Customer Two' },
-        { ...customerRequests.validIndividualCustomer(), identityNumber: '33333333333', fullName: 'Customer Three' }
+        {
+          ...customerRequests.validIndividualCustomer(),
+          identityNumber: '11111111111',
+          fullName: 'Customer One',
+        },
+        {
+          ...customerRequests.validIndividualCustomer(),
+          identityNumber: '22222222222',
+          fullName: 'Customer Two',
+        },
+        {
+          ...customerRequests.validIndividualCustomer(),
+          identityNumber: '33333333333',
+          fullName: 'Customer Three',
+        },
       ];
 
       // Mock responses for each creation
@@ -405,19 +402,20 @@ describe('Customer Flow Integration Tests', () => {
       const customers = [
         { ...customerRequests.validIndividualCustomer(), identityNumber: '11111111111' },
         { ...customerRequests.validIndividualCustomer(), identityNumber: '22222222222' },
-        { ...customerRequests.validIndividualCustomer(), identityNumber: '33333333333' }
+        { ...customerRequests.validIndividualCustomer(), identityNumber: '33333333333' },
       ];
 
       const results = await Promise.all(
         customers.map((customer) => client.customers.createCustomer(customer))
       );
 
-      expect(results[0].kind).toBe('success');
-      expect(results[1].kind).toBe('server-error');
-      expect(results[2].kind).toBe('success');
+      const [first, second, third] = results;
+      expect(first?.kind).toBe('success');
+      expect(second?.kind).toBe('server-error');
+      expect(third?.kind).toBe('success');
 
-      if (results[1].kind === 'server-error') {
-        expect(results[1].status).toBe(409);
+      if (second?.kind === 'server-error') {
+        expect(second.status).toBe(409);
       }
     });
 
@@ -436,8 +434,8 @@ describe('Customer Flow Integration Tests', () => {
           type: CustomerType.Individual,
           id: customerId,
           fullName: 'Updated Name',
-          fillMissingFields: false
-        } as UpdateCustomerRequestIndividual)
+          fillMissingFields: false,
+        } as UpdateCustomerRequestIndividual),
       ]);
 
       expect(getResult.kind).toBe('success');
@@ -450,9 +448,7 @@ describe('Customer Flow Integration Tests', () => {
       const customerId = 'CUSTOMER-LIFECYCLE-123';
 
       // Step 1: Create customer
-      mockFetch.mockResolvedValueOnce(
-        MockFetchResponseFactory.json({ id: customerId }, 201)
-      );
+      mockFetch.mockResolvedValueOnce(MockFetchResponseFactory.json({ id: customerId }, 201));
 
       const createResult = await client.customers.createCustomer(
         customerRequests.validIndividualCustomer()
@@ -464,7 +460,7 @@ describe('Customer Flow Integration Tests', () => {
       mockFetch.mockResolvedValueOnce(
         MockFetchResponseFactory.json({
           ...customerResponses.individualCustomer(),
-          id: customerId
+          id: customerId,
         })
       );
 
@@ -505,7 +501,7 @@ describe('Customer Flow Integration Tests', () => {
 
       const assignResult = await client.customers.setCustomerRepresentative({
         customerId,
-        representativeAgentUserId: agentId
+        representativeAgentUserId: agentId,
       });
 
       expect(assignResult.kind).toBe('success');
@@ -525,8 +521,8 @@ describe('Customer Flow Integration Tests', () => {
         representedBy: {
           id: agentId,
           name: 'Agent Smith',
-          role: 'agent'
-        }
+          role: 'agent',
+        },
       };
 
       mockFetch.mockResolvedValueOnce(MockFetchResponseFactory.json(customerWithRep));
@@ -549,7 +545,7 @@ describe('Customer Flow Integration Tests', () => {
 
       const lookup = await client.customers.externalLookupCustomer({
         identityNumber: 12345678901,
-        birthDate: '1990-05-15'
+        birthDate: '1990-05-15',
       });
 
       expect(lookup.kind).toBe('success');
@@ -565,7 +561,7 @@ describe('Customer Flow Integration Tests', () => {
           identityNumber: '12345678901',
           fullName: 'John Doe',
           birthDate: '1990-05-15',
-          fillMissingFields: false
+          fillMissingFields: false,
         });
 
         expect(createResult.kind).toBe('success');
@@ -583,7 +579,7 @@ describe('Customer Flow Integration Tests', () => {
 
       const result = await client.customers.setCustomerBranch({
         customerId,
-        branchId
+        branchId,
       });
 
       expect(result.kind).toBe('success');
@@ -593,7 +589,7 @@ describe('Customer Flow Integration Tests', () => {
         `https://test.api.com/api/customers/${customerId}/branch`,
         expect.objectContaining({
           method: 'POST',
-          body: JSON.stringify({ customerId, branchId })
+          body: JSON.stringify({ customerId, branchId }),
         })
       );
     });

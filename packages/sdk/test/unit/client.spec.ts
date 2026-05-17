@@ -4,20 +4,20 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { DefaultInsurUpClient } from '../src/client/client';
-import { InsurUpClientErrorType } from '../src/core/result';
+import { DefaultInsurUpClient } from '../../src/client/client';
+import { InsurUpClientErrorType } from '../../src/core/result';
 import {
   customerRequests,
   customerResults,
   TestSetupHelper,
   MockFetchResponseFactory,
   TestAssertionHelper,
-  IntegrationTestHelper
-} from './utils';
+  IntegrationTestHelper,
+} from '../utils';
 
 // Mock fetch globally
-const mockFetch = vi.fn();
-globalThis.fetch = mockFetch;
+const mockFetch = vi.fn<typeof fetch>();
+vi.stubGlobal('fetch', mockFetch);
 
 describe('DefaultInsurUpClient', () => {
   let client: DefaultInsurUpClient;
@@ -32,8 +32,8 @@ describe('DefaultInsurUpClient', () => {
         minTimeout: 10,
         maxTimeout: 50,
         factor: 1.5,
-        randomize: false
-      }
+        randomize: false,
+      },
     });
   });
 
@@ -42,9 +42,7 @@ describe('DefaultInsurUpClient', () => {
       const request = customerRequests.validIndividualCustomer();
 
       // createCustomer expects a response body with the created customer ID
-      mockFetch.mockResolvedValueOnce(
-        MockFetchResponseFactory.json({ id: 'CUSTOMER-123' }, 201)
-      );
+      mockFetch.mockResolvedValueOnce(MockFetchResponseFactory.json({ id: 'CUSTOMER-123' }, 201));
 
       const result = await client.customers.createCustomer(request);
 
@@ -71,19 +69,19 @@ describe('DefaultInsurUpClient', () => {
       }
 
       TestAssertionHelper.assertFetchCall(mockFetch, 'https://test.api.com/api/customers/123', {
-        method: 'GET'
+        method: 'GET',
       });
     });
   });
 
   describe('Error Handling', () => {
     it('should handle JSON deserialization errors', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        headers: { get: () => 'application/json' },
-        text: () => Promise.resolve('not-json')
-      });
+      mockFetch.mockResolvedValueOnce(
+        new Response('not-json', {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        })
+      );
 
       const result = await client.customers.getCustomer('bad');
 
@@ -129,7 +127,7 @@ describe('DefaultInsurUpClient', () => {
         baseUrl: 'https://custom.api.com/',
         customHeaders: { 'X-Custom': 'value' },
         userAgent: 'Custom Agent',
-        timeoutMs: 10000
+        timeoutMs: 10000,
       });
       expect(customClient).toBeInstanceOf(DefaultInsurUpClient);
     });
@@ -143,9 +141,14 @@ describe('DefaultInsurUpClient', () => {
         'getPolicyDetail',
         'fetchPolicyDocument',
         'sendPolicyDocumentToCustomer',
-        'setPolicyRepresentative'
+        'setPolicyRepresentative',
       ],
-      cases: ['createCancelCase', 'createComplaintCase', 'getCaseByRef', 'assignCaseRepresentative']
+      cases: [
+        'createCancelCase',
+        'createComplaintCase',
+        'getCaseByRef',
+        'assignCaseRepresentative',
+      ],
     })
   );
 });

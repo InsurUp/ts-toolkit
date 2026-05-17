@@ -3,12 +3,12 @@
  * @description Type-safe discriminated unions for operation results
  */
 
-import { InsurUpError } from "./errors.js";
+import { InsurUpError } from './errors.js';
 import {
   InsurUpClientErrorType,
   InsurUpServerErrorType,
   InsurUpGraphQLErrorCode,
-} from "./error-types.js";
+} from './error-types.js';
 
 /**
  * Represents a validation error that occurred during request processing
@@ -34,19 +34,15 @@ export interface ValidationError {
 }
 
 // Re-export error types for convenience
-export {
-  InsurUpClientErrorType,
-  InsurUpServerErrorType,
-  InsurUpGraphQLErrorCode,
-};
+export { InsurUpClientErrorType, InsurUpServerErrorType, InsurUpGraphQLErrorCode };
 
 /**
  * Represents a successful operation with data
  */
 export interface Success<T> {
-  readonly kind: "success";
+  readonly kind: 'success';
   readonly isSuccess: true;
-  readonly message: "Success";
+  readonly message: 'Success';
   readonly data: T;
 }
 
@@ -54,16 +50,16 @@ export interface Success<T> {
  * Represents a successful operation without data (e.g., 204 No Content)
  */
 export interface SuccessNoContent {
-  readonly kind: "success";
+  readonly kind: 'success';
   readonly isSuccess: true;
-  readonly message: "Success";
+  readonly message: 'Success';
 }
 
 /**
  * Represents an error response from the server (4xx and 5xx HTTP status codes)
  */
 export interface ServerError {
-  readonly kind: "server-error";
+  readonly kind: 'server-error';
   readonly isSuccess: false;
   readonly message: string;
   readonly type: InsurUpServerErrorType;
@@ -84,7 +80,7 @@ export interface ServerError {
  * Represents a client-side error (exceptions, null JSON responses, etc.)
  */
 export interface ClientError {
-  readonly kind: "client-error";
+  readonly kind: 'client-error';
   readonly isSuccess: false;
   readonly message: string;
   readonly type: InsurUpClientErrorType;
@@ -142,7 +138,7 @@ export interface GraphQLErrorItem {
  * Represents a GraphQL error response containing one or more errors
  */
 export interface GraphQLErrors {
-  readonly kind: "graphql-error";
+  readonly kind: 'graphql-error';
   readonly isSuccess: false;
   /** First error message for convenience */
   readonly message: string;
@@ -153,14 +149,15 @@ export interface GraphQLErrors {
 /**
  * Discriminated union representing the result of a GraphQL operation
  *
- * Similar to InsurUpResult but uses GraphQLErrors instead of ServerError
- * since GraphQL errors have a different schema and can contain multiple errors.
+ * Uses GraphQLErrors for GraphQL-level errors (multiple errors with a distinct
+ * schema), and also includes ServerError to pass through HTTP-level failures
+ * (401, 500, etc.) that occur before the GraphQL layer.
  *
  * @template T The type of the success data (void for no-content operations)
  */
 export type InsurUpGraphQLResult<T = void> = T extends void
-  ? SuccessNoContent | GraphQLErrors | ClientError
-  : Success<T> | GraphQLErrors | ClientError;
+  ? SuccessNoContent | GraphQLErrors | ServerError | ClientError
+  : Success<T> | GraphQLErrors | ServerError | ClientError;
 
 /**
  * Discriminated union representing the result of an InsurUp operation
@@ -182,9 +179,9 @@ export type InsurUpResult<T = void> = T extends void
  */
 export function createSuccess<T>(data: T): Success<T> {
   return {
-    kind: "success",
+    kind: 'success',
     isSuccess: true,
-    message: "Success",
+    message: 'Success',
     data,
   };
 }
@@ -194,9 +191,9 @@ export function createSuccess<T>(data: T): Success<T> {
  */
 export function createSuccessNoContent(): SuccessNoContent {
   return {
-    kind: "success",
+    kind: 'success',
     isSuccess: true,
-    message: "Success",
+    message: 'Success',
   };
 }
 
@@ -221,9 +218,7 @@ export function getDataOrThrow<T>(result: InsurUpResult<T>): T {
  * Throws an InsurUpError if the result is not successful
  * Works with any InsurUpResult type
  */
-export function throwIfError(
-  result: InsurUpResult<unknown> | InsurUpResult,
-): void {
+export function throwIfError(result: InsurUpResult<unknown> | InsurUpResult): void {
   if (result.isSuccess) {
     return;
   }
@@ -250,7 +245,7 @@ export function getGraphQLDataOrThrow<T>(result: InsurUpGraphQLResult<T>): T {
  * Works with any InsurUpGraphQLResult type
  */
 export function throwIfGraphQLError(
-  result: InsurUpGraphQLResult<unknown> | InsurUpGraphQLResult,
+  result: InsurUpGraphQLResult<unknown> | InsurUpGraphQLResult
 ): void {
   if (result.isSuccess) {
     return;
@@ -261,13 +256,11 @@ export function throwIfGraphQLError(
 /**
  * Creates a GraphQL errors result from an array of GraphQL error items
  */
-export function createGraphQLErrors(
-  errors: readonly GraphQLErrorItem[],
-): GraphQLErrors {
+export function createGraphQLErrors(errors: readonly GraphQLErrorItem[]): GraphQLErrors {
   return {
-    kind: "graphql-error",
+    kind: 'graphql-error',
     isSuccess: false,
-    message: errors[0]?.message ?? "Unknown GraphQL error",
+    message: errors[0]?.message ?? 'Unknown GraphQL error',
     errors,
   };
 }

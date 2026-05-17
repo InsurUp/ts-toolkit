@@ -57,9 +57,9 @@
     "typescript": "^5"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^4.0.17",
+    "@vitest/coverage-v8": "^4.1.6",
     "tsup": "^8.5.1",
-    "vitest": "^4.0.17"
+    "vitest": "^4.1.6"
   },
   "dependencies": {
     "@insurup/sdk": "workspace:*",

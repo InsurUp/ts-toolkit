@@ -9,14 +9,11 @@ import { DefaultInsurUpClient } from '../../src/client/client';
 import { InsurUpClientErrorType, InsurUpServerErrorType } from '../../src/core/result';
 import { InsurUpError } from '../../src/core/errors';
 import { getDataOrThrow, throwIfError } from '../../src/core/result';
-import {
-  MockFetchResponseFactory,
-  customerRequests
-} from '../utils';
+import { MockFetchResponseFactory, customerRequests } from '../utils';
 
 // Mock fetch globally
 const mockFetch = vi.fn();
-globalThis.fetch = mockFetch;
+vi.stubGlobal('fetch', mockFetch);
 
 describe('Error Scenario Integration Tests', () => {
   let client: DefaultInsurUpClient;
@@ -25,7 +22,7 @@ describe('Error Scenario Integration Tests', () => {
     vi.clearAllMocks();
     client = new DefaultInsurUpClient({
       baseUrl: 'https://test.api.com/api/',
-      timeoutMs: 5000
+      timeoutMs: 5000,
     });
   });
 
@@ -79,9 +76,7 @@ describe('Error Scenario Integration Tests', () => {
 
     it('should handle error in multi-step workflow', async () => {
       // Step 1: Create customer succeeds
-      mockFetch.mockResolvedValueOnce(
-        MockFetchResponseFactory.json({ id: 'CUSTOMER-123' }, 201)
-      );
+      mockFetch.mockResolvedValueOnce(MockFetchResponseFactory.json({ id: 'CUSTOMER-123' }, 201));
 
       const createResult = await client.customers.createCustomer(
         customerRequests.validIndividualCustomer()
@@ -100,7 +95,7 @@ describe('Error Scenario Integration Tests', () => {
 
       const emailResult = await client.customers.addCustomerEmail({
         customerId: 'CUSTOMER-123',
-        email: 'invalid-email'
+        email: 'invalid-email',
       });
 
       expect(emailResult.kind).toBe('server-error');
@@ -132,12 +127,10 @@ describe('Error Scenario Integration Tests', () => {
       const customers = [
         { ...customerRequests.validIndividualCustomer(), identityNumber: '11111111111' },
         { ...customerRequests.validIndividualCustomer(), identityNumber: '22222222222' },
-        { ...customerRequests.validIndividualCustomer(), identityNumber: '33333333333' }
+        { ...customerRequests.validIndividualCustomer(), identityNumber: '33333333333' },
       ];
 
-      const results = await Promise.all(
-        customers.map((c) => client.customers.createCustomer(c))
-      );
+      const results = await Promise.all(customers.map((c) => client.customers.createCustomer(c)));
 
       // Collect successes and failures
       const successes = results.filter((r) => r.kind === 'success');
@@ -148,7 +141,7 @@ describe('Error Scenario Integration Tests', () => {
 
       // Verify the failure details
       const failure = failures[0];
-      if (failure.kind === 'server-error') {
+      if (failure?.kind === 'server-error') {
         expect(failure.status).toBe(409);
         expect(failure.type).toBe(InsurUpServerErrorType.ResourceDuplicate);
       }
@@ -158,8 +151,8 @@ describe('Error Scenario Integration Tests', () => {
       const operations = [
         { name: 'createCustomer', endpoint: 'customers' },
         { name: 'addEmail', endpoint: 'customers/123/emails' },
-        { name: 'addPhone', endpoint: 'customers/123/phone-numbers' }
-      ];
+        { name: 'addPhone', endpoint: 'customers/123/phone-numbers' },
+      ] as const;
 
       // Mock: first succeeds, second fails, third succeeds
       mockFetch
@@ -175,39 +168,41 @@ describe('Error Scenario Integration Tests', () => {
       const createResult = await client.customers.createCustomer(
         customerRequests.validIndividualCustomer()
       );
+      const [op1, op2, op3] = operations;
       results.push({
-        operation: operations[0].name,
+        operation: op1.name,
         success: createResult.kind === 'success',
-        error: createResult.kind !== 'success' ? createResult.message : undefined
+        error: createResult.kind !== 'success' ? createResult.message : undefined,
       });
 
       // Operation 2: Add email
       const emailResult = await client.customers.addCustomerEmail({
         customerId: 'CUSTOMER-123',
-        email: 'test@test.com'
+        email: 'test@test.com',
       });
       results.push({
-        operation: operations[1].name,
+        operation: op2.name,
         success: emailResult.kind === 'success',
-        error: emailResult.kind !== 'success' ? emailResult.message : undefined
+        error: emailResult.kind !== 'success' ? emailResult.message : undefined,
       });
 
       // Operation 3: Add phone
       const phoneResult = await client.customers.addCustomerPhoneNumber({
         customerId: 'CUSTOMER-123',
-        phoneNumber: { number: '5551234567', countryCode: 90 }
+        phoneNumber: { number: '5551234567', countryCode: 90 },
       });
       results.push({
-        operation: operations[2].name,
+        operation: op3.name,
         success: phoneResult.kind === 'success',
-        error: phoneResult.kind !== 'success' ? phoneResult.message : undefined
+        error: phoneResult.kind !== 'success' ? phoneResult.message : undefined,
       });
 
       // Verify tracking
-      expect(results[0].success).toBe(true);
-      expect(results[1].success).toBe(false);
-      expect(results[1].error).toBeDefined();
-      expect(results[2].success).toBe(true);
+      const [r1, r2, r3] = results;
+      expect(r1?.success).toBe(true);
+      expect(r2?.success).toBe(false);
+      expect(r2?.error).toBeDefined();
+      expect(r3?.success).toBe(true);
     });
   });
 
@@ -221,8 +216,8 @@ describe('Error Scenario Integration Tests', () => {
           minTimeout: 1, // Very short for testing
           maxTimeout: 10,
           factor: 2,
-          randomize: false
-        }
+          randomize: false,
+        },
       });
 
       // First two calls fail with 500, third succeeds
@@ -243,9 +238,7 @@ describe('Error Scenario Integration Tests', () => {
             'Service temporarily unavailable'
           )
         )
-        .mockResolvedValueOnce(
-          MockFetchResponseFactory.json({ id: 'CUSTOMER-123' }, 201)
-        );
+        .mockResolvedValueOnce(MockFetchResponseFactory.json({ id: 'CUSTOMER-123' }, 201));
 
       const result = await clientWithRetry.customers.createCustomer(
         customerRequests.validIndividualCustomer()
@@ -264,8 +257,8 @@ describe('Error Scenario Integration Tests', () => {
           minTimeout: 100,
           maxTimeout: 1000,
           factor: 2,
-          randomize: false
-        }
+          randomize: false,
+        },
       });
 
       mockFetch.mockResolvedValueOnce(
@@ -294,8 +287,8 @@ describe('Error Scenario Integration Tests', () => {
           minTimeout: 1, // Very short for testing
           maxTimeout: 5,
           factor: 2,
-          randomize: false
-        }
+          randomize: false,
+        },
       });
 
       // All calls fail - explicitly mock each retry attempt
@@ -339,29 +332,29 @@ describe('Error Scenario Integration Tests', () => {
                 {
                   propertyName: 'email',
                   errorMessage: 'Email format is invalid',
-                  attemptedValue: 'not-an-email'
+                  attemptedValue: 'not-an-email',
                 },
                 {
                   propertyName: 'phoneNumber',
                   errorMessage: 'Phone number must be 10 digits',
-                  attemptedValue: '123'
-                }
-              ]
+                  attemptedValue: '123',
+                },
+              ],
             })
-          )
+          ),
       });
 
       const result = await client.customers.createCustomer({
         ...customerRequests.validIndividualCustomer(),
-        email: 'not-an-email'
+        email: 'not-an-email',
       });
 
       expect(result.kind).toBe('server-error');
       if (result.kind === 'server-error') {
         expect(result.type).toBe(InsurUpServerErrorType.InputValidation);
         expect(result.validationErrors).toHaveLength(2);
-        expect(result.validationErrors[0].propertyName).toBe('email');
-        expect(result.validationErrors[1].propertyName).toBe('phoneNumber');
+        expect(result.validationErrors[0]?.propertyName).toBe('email');
+        expect(result.validationErrors[1]?.propertyName).toBe('phoneNumber');
       }
     });
 
@@ -397,7 +390,7 @@ describe('Error Scenario Integration Tests', () => {
 
       const result = await client.customers.createCustomer({
         ...customerRequests.validIndividualCustomer(),
-        birthDate: '2020-01-01' // Too young
+        birthDate: '2020-01-01', // Too young
       });
 
       expect(result.kind).toBe('server-error');
@@ -419,7 +412,7 @@ describe('Error Scenario Integration Tests', () => {
             if (header === 'content-type') return 'application/problem+json';
             if (header === 'Retry-After') return '60';
             return null;
-          }
+          },
         },
         text: () =>
           Promise.resolve(
@@ -427,9 +420,9 @@ describe('Error Scenario Integration Tests', () => {
               type: 'https://api.insurup.com/problems/rate-limit-exceeded',
               title: 'Too Many Requests',
               detail: 'Rate limit exceeded. Please retry after 60 seconds.',
-              status: 429
+              status: 429,
             })
-          )
+          ),
       });
 
       const result = await client.customers.getCustomer('123');
@@ -451,27 +444,25 @@ describe('Error Scenario Integration Tests', () => {
           status: 429,
           statusText: 'Too Many Requests',
           headers: { get: () => 'application/json' },
-          text: () => Promise.resolve(JSON.stringify({ status: 429, detail: 'Rate limited' }))
+          text: () => Promise.resolve(JSON.stringify({ status: 429, detail: 'Rate limited' })),
         })
         .mockResolvedValueOnce({
           ok: false,
           status: 429,
           statusText: 'Too Many Requests',
           headers: { get: () => 'application/json' },
-          text: () => Promise.resolve(JSON.stringify({ status: 429, detail: 'Rate limited' }))
+          text: () => Promise.resolve(JSON.stringify({ status: 429, detail: 'Rate limited' })),
         });
 
       const results = await Promise.all([
         client.customers.getCustomer('1'),
         client.customers.getCustomer('2'),
         client.customers.getCustomer('3'),
-        client.customers.getCustomer('4')
+        client.customers.getCustomer('4'),
       ]);
 
       const successes = results.filter((r) => r.kind === 'success');
-      const rateLimited = results.filter(
-        (r) => r.kind === 'server-error' && r.status === 429
-      );
+      const rateLimited = results.filter((r) => r.kind === 'server-error' && r.status === 429);
 
       expect(successes).toHaveLength(2);
       expect(rateLimited).toHaveLength(2);
@@ -563,7 +554,7 @@ describe('Error Scenario Integration Tests', () => {
         ok: true,
         status: 200,
         headers: { get: () => 'text/html' },
-        text: () => Promise.resolve('<html>Error Page</html>')
+        text: () => Promise.resolve('<html>Error Page</html>'),
       });
 
       const result = await client.customers.getCustomer('123');
@@ -579,7 +570,7 @@ describe('Error Scenario Integration Tests', () => {
         ok: true,
         status: 200,
         headers: { get: () => 'application/json' },
-        text: () => Promise.resolve('{invalid json}')
+        text: () => Promise.resolve('{invalid json}'),
       });
 
       const result = await client.customers.getCustomer('123');
@@ -595,7 +586,7 @@ describe('Error Scenario Integration Tests', () => {
         ok: true,
         status: 200,
         headers: { get: () => 'application/json' },
-        text: () => Promise.resolve('')
+        text: () => Promise.resolve(''),
       });
 
       const result = await client.customers.getCustomer('123');
@@ -609,16 +600,46 @@ describe('Error Scenario Integration Tests', () => {
 
   describe('Error Type Mapping', () => {
     const errorTypeMappings = [
-      { type: 'https://api.insurup.com/problems/access-denied', expected: InsurUpServerErrorType.AccessDenied },
-      { type: 'https://api.insurup.com/problems/business-validation', expected: InsurUpServerErrorType.BusinessValidation },
-      { type: 'https://api.insurup.com/problems/feature-not-supported', expected: InsurUpServerErrorType.FeatureNotSupported },
-      { type: 'https://api.insurup.com/problems/input-validation', expected: InsurUpServerErrorType.InputValidation },
-      { type: 'https://api.insurup.com/problems/resource-duplicate', expected: InsurUpServerErrorType.ResourceDuplicate },
-      { type: 'https://api.insurup.com/problems/resource-invalid-state', expected: InsurUpServerErrorType.ResourceInvalidState },
-      { type: 'https://api.insurup.com/problems/resource-not-found', expected: InsurUpServerErrorType.ResourceNotFound },
-      { type: 'https://api.insurup.com/problems/endpoint-not-found', expected: InsurUpServerErrorType.EndpointNotFound },
-      { type: 'https://api.insurup.com/problems/unauthorized', expected: InsurUpServerErrorType.Unauthorized },
-      { type: 'https://api.insurup.com/problems/upstream-service', expected: InsurUpServerErrorType.Upstream }
+      {
+        type: 'https://api.insurup.com/problems/access-denied',
+        expected: InsurUpServerErrorType.AccessDenied,
+      },
+      {
+        type: 'https://api.insurup.com/problems/business-validation',
+        expected: InsurUpServerErrorType.BusinessValidation,
+      },
+      {
+        type: 'https://api.insurup.com/problems/feature-not-supported',
+        expected: InsurUpServerErrorType.FeatureNotSupported,
+      },
+      {
+        type: 'https://api.insurup.com/problems/input-validation',
+        expected: InsurUpServerErrorType.InputValidation,
+      },
+      {
+        type: 'https://api.insurup.com/problems/resource-duplicate',
+        expected: InsurUpServerErrorType.ResourceDuplicate,
+      },
+      {
+        type: 'https://api.insurup.com/problems/resource-invalid-state',
+        expected: InsurUpServerErrorType.ResourceInvalidState,
+      },
+      {
+        type: 'https://api.insurup.com/problems/resource-not-found',
+        expected: InsurUpServerErrorType.ResourceNotFound,
+      },
+      {
+        type: 'https://api.insurup.com/problems/endpoint-not-found',
+        expected: InsurUpServerErrorType.EndpointNotFound,
+      },
+      {
+        type: 'https://api.insurup.com/problems/unauthorized',
+        expected: InsurUpServerErrorType.Unauthorized,
+      },
+      {
+        type: 'https://api.insurup.com/problems/upstream-service',
+        expected: InsurUpServerErrorType.Upstream,
+      },
     ];
 
     errorTypeMappings.forEach(({ type, expected }) => {

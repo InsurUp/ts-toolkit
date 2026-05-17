@@ -3,8 +3,15 @@
  * @description Mock implementations for testing the React hook
  */
 
-import { vi } from 'vitest';
+import { vi, type Mock } from 'vitest';
 import type { InsurUpGraphQLResult, Connection, PageInfo } from '@insurup/sdk';
+import type { CustomerTableOptions, CustomerColumnDef } from '@insurup/table-adapter-core';
+
+export type CustomerTestFetchModeOptions = Extract<
+  CustomerTableOptions<CustomerColumnDef[]>,
+  { fetch: (...args: never[]) => unknown }
+>;
+type CustomerTestFetchFn = CustomerTestFetchModeOptions['fetch'];
 
 // ============================================================================
 // Mock Types
@@ -61,24 +68,25 @@ export function createSuccessResult<T>(data: T): InsurUpGraphQLResult<T> {
 
 export function createMockFetchFn(
   data?: Connection<MockCustomer>
-): ReturnType<typeof vi.fn> {
+): Mock<CustomerTestFetchFn> {
   const defaultData = createMockConnection<MockCustomer>([
     { id: '1', name: 'John Doe', email: 'john@example.com' },
     { id: '2', name: 'Jane Smith', email: 'jane@example.com' },
   ]);
-
-  return vi.fn().mockResolvedValue(createSuccessResult(data ?? defaultData));
+  return vi.fn().mockResolvedValue(createSuccessResult(data ?? defaultData)) as Mock<CustomerTestFetchFn>;
 }
 
 // ============================================================================
 // Mock Options Factory
 // ============================================================================
 
-export function createMockOptions(overrides: Record<string, unknown> = {}) {
+export function createMockOptions(
+  overrides: Partial<CustomerTestFetchModeOptions> = {}
+): CustomerTableOptions<CustomerColumnDef[]> {
   return {
-    columns: (col: { id: () => unknown; name: () => unknown }) => [col.id(), col.name()],
+    columns: (col) => [col.id(), col.name()],
     fetch: createMockFetchFn(),
-    pagination: { type: 'cursor' as const, pageSize: 10 },
+    pagination: { type: 'cursor', pageSize: 10 },
     ...overrides,
   };
 }

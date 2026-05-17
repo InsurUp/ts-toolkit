@@ -15,7 +15,7 @@ import {
   type Success,
   type SuccessNoContent,
   type ServerError,
-  type ClientError
+  type ClientError,
 } from '../../src/core/result';
 import { InsurUpError } from '../../src/core/errors';
 
@@ -70,10 +70,10 @@ describe('Result Handling Utilities', () => {
           id: 'CUST-123',
           policies: [
             { id: 'POL-1', type: 'auto' },
-            { id: 'POL-2', type: 'home' }
-          ]
+            { id: 'POL-2', type: 'home' },
+          ],
         },
-        metadata: { timestamp: new Date().toISOString() }
+        metadata: { timestamp: new Date().toISOString() },
       };
       const result = createSuccess(data);
 
@@ -151,7 +151,7 @@ describe('Result Handling Utilities', () => {
         template: '',
         templateArgs: {},
         suggestions: ['Check the customer ID'],
-        validationErrors: []
+        validationErrors: [],
       };
 
       expect(() => getDataOrThrow(serverError as InsurUpResult<unknown>)).toThrow(InsurUpError);
@@ -171,7 +171,7 @@ describe('Result Handling Utilities', () => {
         isSuccess: false,
         message: 'Request timed out',
         type: InsurUpClientErrorType.Timeout,
-        error: new Error('timeout')
+        error: new Error('timeout'),
       };
 
       expect(() => getDataOrThrow(clientError as InsurUpResult<unknown>)).toThrow(InsurUpError);
@@ -205,9 +205,9 @@ describe('Result Handling Utilities', () => {
           {
             propertyName: 'email',
             errorMessage: 'Invalid email format',
-            attemptedValue: 'not-an-email'
-          }
-        ]
+            attemptedValue: 'not-an-email',
+          },
+        ],
       };
 
       try {
@@ -217,7 +217,7 @@ describe('Result Handling Utilities', () => {
         expect(insurUpError.error.kind).toBe('server-error');
         if (insurUpError.error.kind === 'server-error') {
           expect(insurUpError.error.validationErrors).toHaveLength(1);
-          expect(insurUpError.error.validationErrors[0].propertyName).toBe('email');
+          expect(insurUpError.error.validationErrors[0]?.propertyName).toBe('email');
         }
       }
     });
@@ -252,7 +252,7 @@ describe('Result Handling Utilities', () => {
         template: '',
         templateArgs: {},
         suggestions: [],
-        validationErrors: []
+        validationErrors: [],
       };
 
       expect(() => throwIfError(serverError)).toThrow(InsurUpError);
@@ -263,7 +263,7 @@ describe('Result Handling Utilities', () => {
         kind: 'client-error',
         isSuccess: false,
         message: 'Failed to parse response JSON',
-        type: InsurUpClientErrorType.JsonDeserialization
+        type: InsurUpClientErrorType.JsonDeserialization,
       };
 
       expect(() => throwIfError(clientError)).toThrow(InsurUpError);
@@ -295,7 +295,7 @@ describe('Result Handling Utilities', () => {
         template: '',
         templateArgs: {},
         suggestions: [],
-        validationErrors: []
+        validationErrors: [],
       };
 
       // Test discrimination works
@@ -313,7 +313,7 @@ describe('Result Handling Utilities', () => {
         kind: 'client-error',
         isSuccess: false,
         message: 'Network error',
-        type: InsurUpClientErrorType.HttpRequestFailed
+        type: InsurUpClientErrorType.HttpRequestFailed,
       };
 
       if (clientError.kind === 'client-error') {
@@ -327,7 +327,7 @@ describe('Result Handling Utilities', () => {
         kind: 'client-error',
         isSuccess: false,
         message: 'Error',
-        type: InsurUpClientErrorType.Unknown
+        type: InsurUpClientErrorType.Unknown,
       };
 
       expect(success.isSuccess).toBe(true);
@@ -357,14 +357,14 @@ describe('Result Handling Utilities', () => {
           template: '',
           templateArgs: {},
           suggestions: [],
-          validationErrors: []
+          validationErrors: [],
         },
         {
           kind: 'client-error',
           isSuccess: false,
           message: 'Client error',
-          type: InsurUpClientErrorType.Unknown
-        }
+          type: InsurUpClientErrorType.Unknown,
+        },
       ];
 
       const kinds: string[] = [];
@@ -393,7 +393,7 @@ describe('Result Handling Utilities', () => {
         kind: 'client-error',
         isSuccess: false,
         message: 'Test error',
-        type: InsurUpClientErrorType.Unknown
+        type: InsurUpClientErrorType.Unknown,
       };
 
       const error = new InsurUpError(clientError);
@@ -407,7 +407,7 @@ describe('Result Handling Utilities', () => {
         kind: 'client-error',
         isSuccess: false,
         message: 'Test',
-        type: InsurUpClientErrorType.Unknown
+        type: InsurUpClientErrorType.Unknown,
       };
 
       const error = new InsurUpError(clientError);
@@ -431,7 +431,7 @@ describe('Result Handling Utilities', () => {
         template: '',
         templateArgs: {},
         suggestions: [],
-        validationErrors: []
+        validationErrors: [],
       };
 
       const error = new InsurUpError(serverError);
@@ -445,7 +445,7 @@ describe('Result Handling Utilities', () => {
         kind: 'client-error',
         isSuccess: false,
         message: 'Custom error message',
-        type: InsurUpClientErrorType.Timeout
+        type: InsurUpClientErrorType.Timeout,
       };
 
       const error = new InsurUpError(clientError);
@@ -469,7 +469,7 @@ describe('Result Handling Utilities', () => {
         template: '',
         templateArgs: {},
         suggestions: [],
-        validationErrors: []
+        validationErrors: [],
       };
 
       let caughtError: InsurUpError | null = null;
@@ -499,7 +499,7 @@ describe('Result Handling Utilities', () => {
         'JsonSerialization',
         'JsonDeserialization',
         'NullResponse',
-        'UnexpectedNoContent'
+        'UnexpectedNoContent',
       ];
 
       for (const type of expectedTypes) {
@@ -521,7 +521,7 @@ describe('Result Handling Utilities', () => {
         'Unauthorized',
         'Upstream',
         'UnsupportedMediaType',
-        'MethodNotAllowed'
+        'MethodNotAllowed',
       ];
 
       for (const type of expectedTypes) {

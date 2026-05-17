@@ -24,7 +24,7 @@ export class TestSetupHelper {
    */
   static setupMockFetch(): Mock<typeof fetch> {
     const mockFetch = vi.fn<typeof fetch>();
-    globalThis.fetch = mockFetch;
+    vi.stubGlobal('fetch', mockFetch);
     return mockFetch;
   }
 

@@ -57,7 +57,7 @@ export abstract class ClientTestBase {
       kind: 'success',
       data,
       isSuccess: true,
-      message: 'Success'
+      message: 'Success',
     } as const;
 
     vi.mocked(this.mockHttp[method]).mockResolvedValue(result);
@@ -89,7 +89,7 @@ export abstract class ClientTestBase {
       template: '',
       templateArgs: {} as Readonly<Record<string, unknown>>,
       suggestions: [] as readonly string[],
-      validationErrors: [] as readonly ValidationError[]
+      validationErrors: [] as readonly ValidationError[],
     } as const;
 
     vi.mocked(this.mockHttp[method]).mockResolvedValue(result);
@@ -134,7 +134,7 @@ export class ClientTestSuiteBuilder {
           kind: 'success',
           data: config.successResponse,
           isSuccess: true,
-          message: 'Success'
+          message: 'Success',
         } as const;
 
         vi.mocked(mockHttp[config.httpMethod]).mockResolvedValue(successResult);
@@ -171,7 +171,7 @@ export class ClientTestSuiteBuilder {
               template: '',
               templateArgs: {} as Readonly<Record<string, unknown>>,
               suggestions: [] as readonly string[],
-              validationErrors: [] as readonly ValidationError[]
+              validationErrors: [] as readonly ValidationError[],
             } as const;
 
             vi.mocked(mockHttp[config.httpMethod]).mockResolvedValue(errorResult);
@@ -219,7 +219,7 @@ export class ClientTestSuiteBuilder {
           kind: 'success',
           data: null,
           isSuccess: true,
-          message: 'Success'
+          message: 'Success',
         } as const;
 
         vi.mocked(mockHttp[config.httpMethod]).mockResolvedValue(successResult);
@@ -253,7 +253,7 @@ export class ClientTestSuiteBuilder {
               template: '',
               templateArgs: {} as Readonly<Record<string, unknown>>,
               suggestions: [] as readonly string[],
-              validationErrors: [] as readonly ValidationError[]
+              validationErrors: [] as readonly ValidationError[],
             } as const;
 
             vi.mocked(mockHttp[config.httpMethod]).mockResolvedValue(errorResult);
@@ -291,7 +291,10 @@ export class IntegrationTestHelper {
         try {
           step.assertions(result);
         } catch (error) {
-          throw new Error(`Step ${index + 1} (${step.description}) failed: ${(error as Error).message}`, { cause: error });
+          throw new Error(
+            `Step ${index + 1} (${step.description}) failed: ${(error as Error).message}`,
+            { cause: error }
+          );
         }
       }
     };
@@ -300,21 +303,23 @@ export class IntegrationTestHelper {
   /**
    * Creates a test for validating client architecture
    */
-  static validateClientArchitecture(
-    clientFactory: () => TestableClient,
-    expectedClients: Record<string, string[]>
+  static validateClientArchitecture<T extends object>(
+    clientFactory: () => T,
+    expectedClients: { [K in keyof T]?: (keyof T[K])[] }
   ) {
     return () => {
-      Object.entries(expectedClients).forEach(([clientName, methods]) => {
-        it(`should expose ${clientName} client`, () => {
+      for (const clientName of Object.keys(expectedClients) as (keyof T)[]) {
+        const methods = expectedClients[clientName] ?? [];
+        it(`should expose ${String(clientName)} client`, () => {
           const client = clientFactory();
           expect(client[clientName]).toBeDefined();
 
-          methods.forEach((method) => {
-            expect(typeof (client[clientName] as TestableClient)[method]).toBe('function');
-          });
+          const subClient = client[clientName];
+          for (const method of methods) {
+            expect(typeof subClient[method]).toBe('function');
+          }
         });
-      });
+      }
     };
   }
 }
