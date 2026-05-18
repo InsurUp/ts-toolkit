@@ -29,9 +29,7 @@ import type {
   CursorPaginationOptions,
 } from '../../lib/pagination/index.js';
 
-type AgentUserConfig = EntityFactoryConfig<GetAgentUsersOptions<AgentUserFieldKey[]>>;
-
-const agentUserConfig: AgentUserConfig = {
+const agentUserConfig: EntityFactoryConfig<GetAgentUsersOptions<AgentUserFieldKey[]>> = {
   queryKeyPrefix: 'agent-users',
   clientMethod: (client) => (vars, requestOptions) =>
     client.agentUsers.getAgentUsers(vars, requestOptions),

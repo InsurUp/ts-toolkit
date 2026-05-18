@@ -29,11 +29,9 @@ import type {
   CursorPaginationOptions,
 } from '../../lib/pagination/index.js';
 
-type WebhookDeliveryConfig = EntityFactoryConfig<
+const webhookDeliveryConfig: EntityFactoryConfig<
   GetWebhookDeliveriesOptions<WebhookDeliveryFieldKey[]>
->;
-
-const webhookDeliveryConfig: WebhookDeliveryConfig = {
+> = {
   queryKeyPrefix: 'webhook-deliveries',
   clientMethod: (client) => (vars, requestOptions) =>
     client.webhooks.getWebhookDeliveries(vars, requestOptions),

@@ -1,19 +1,17 @@
 /**
  * @fileoverview Infinite Table API Factory
- * @description Reused by every entity's infinite-factory.ts. Instantiates an
- * InfiniteTableAdapter and wraps it in the shared TableApi shape.
+ * @description Thin wrapper over the shared `buildTableApi` helper that wires
+ * `InfiniteTableAdapter` as the adapter class. Rows accumulate across pages.
  */
 
 import type { TableApi, TableApiConfig } from './types.js';
 import { InfiniteTableAdapter } from '../adapter/infinite-adapter/index.js';
 import type { PaginationOptions, PaginationManagerFromOptions } from '../pagination/index.js';
-import { createTableApiFromAdapter } from './create-table-api-from-adapter.js';
+import { buildTableApi } from './create-table-api-from-adapter.js';
 
 /**
- * Create an infinite-scroll table API.
- *
- * Produces the same TableApi shape as `createTableApi`, backed by the
- * infinite adapter that accumulates rows across page fetches.
+ * Create an infinite-scroll table API. Same shape as `createTableApi`,
+ * backed by the adapter that accumulates rows across page fetches.
  */
 export function createInfiniteTableApi<
   TEntity,
@@ -34,30 +32,10 @@ export function createInfiniteTableApi<
     TPaginationOptions
   >
 ): TableApi<TRow, TFilterInput, TSearchInput, PaginationManagerFromOptions<TPaginationOptions>> {
-  const adapter = new InfiniteTableAdapter<
-    TEntity,
+  return buildTableApi(InfiniteTableAdapter, config) as TableApi<
     TRow,
-    TQueryOptions,
-    TSortInput,
     TFilterInput,
     TSearchInput,
-    TPaginationOptions
-  >(config.fetchFn, config.buildQueryOptions, {
-    columns: config.columns,
-    pagination: config.pagination,
-    defaultFilter: config.defaultFilter,
-    defaultSearch: config.defaultSearch,
-    sortingConverters: config.sortingConverters,
-    queryKeyPrefix: config.queryKeyPrefix,
-    staleTime: config.staleTime,
-    gcTime: config.gcTime,
-    onError: config.onError,
-    onSuccess: config.onSuccess,
-    onSettled: config.onSettled,
-    tableOptions: config.tableOptions,
-    autoFetch: config.autoFetch,
-    keepPreviousData: config.keepPreviousData,
-  });
-
-  return createTableApiFromAdapter(adapter);
+    PaginationManagerFromOptions<TPaginationOptions>
+  >;
 }

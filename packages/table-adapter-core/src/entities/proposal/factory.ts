@@ -29,9 +29,7 @@ import type {
   CursorPaginationOptions,
 } from '../../lib/pagination/index.js';
 
-type ProposalConfig = EntityFactoryConfig<GetProposalsOptions<ProposalFieldKey[]>>;
-
-const proposalConfig: ProposalConfig = {
+const proposalConfig: EntityFactoryConfig<GetProposalsOptions<ProposalFieldKey[]>> = {
   queryKeyPrefix: 'proposals',
   clientMethod: (client) => (vars, requestOptions) =>
     client.proposals.getProposals(vars, requestOptions),

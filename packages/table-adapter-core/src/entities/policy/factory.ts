@@ -29,9 +29,7 @@ import type {
   CursorPaginationOptions,
 } from '../../lib/pagination/index.js';
 
-type PolicyConfig = EntityFactoryConfig<GetPoliciesOptions<PolicyFieldKey[]>>;
-
-const policyConfig: PolicyConfig = {
+const policyConfig: EntityFactoryConfig<GetPoliciesOptions<PolicyFieldKey[]>> = {
   queryKeyPrefix: 'policies',
   clientMethod: (client) => (vars, requestOptions) =>
     client.policies.getPolicies(vars, requestOptions),

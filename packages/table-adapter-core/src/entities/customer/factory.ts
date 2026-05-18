@@ -29,9 +29,7 @@ import type {
   CursorPaginationOptions,
 } from '../../lib/pagination/index.js';
 
-type CustomerConfig = EntityFactoryConfig<GetCustomersOptions<CustomerFieldKey[]>>;
-
-const customerConfig: CustomerConfig = {
+const customerConfig: EntityFactoryConfig<GetCustomersOptions<CustomerFieldKey[]>> = {
   queryKeyPrefix: 'customers',
   clientMethod: (client) => (vars, requestOptions) =>
     client.customers.getCustomers(vars, requestOptions),

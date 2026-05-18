@@ -23,7 +23,7 @@ import type {
 } from '../types.js';
 import type { TableApiConfig, TableApi } from './types.js';
 import type { PaginationOptions, PaginationManagerFromOptions } from '../pagination/types.js';
-import { createTableApiFromAdapter } from './create-table-api-from-adapter.js';
+import { buildTableApi } from './create-table-api-from-adapter.js';
 
 /**
  * Create a fetch function for client mode
@@ -357,31 +357,10 @@ export function createTableApi<
     TPaginationOptions
   >
 ): TableApi<TRow, TFilterInput, TSearchInput, PaginationManagerFromOptions<TPaginationOptions>> {
-  const adapter = new BaseTableAdapter<
-    TEntity,
+  return buildTableApi(BaseTableAdapter, config) as TableApi<
     TRow,
-    TQueryOptions,
-    TSortInput,
     TFilterInput,
     TSearchInput,
-    TPaginationOptions
-  >(config.fetchFn, config.buildQueryOptions, {
-    columns: config.columns,
-    pagination: config.pagination,
-    defaultFilter: config.defaultFilter,
-    defaultSearch: config.defaultSearch,
-    sortingConverters: config.sortingConverters,
-    queryKeyPrefix: config.queryKeyPrefix,
-    staleTime: config.staleTime,
-    gcTime: config.gcTime,
-    onError: config.onError,
-    onSuccess: config.onSuccess,
-    onSettled: config.onSettled,
-    tableOptions: config.tableOptions,
-    autoFetch: config.autoFetch,
-    splitTotalCount: config.splitTotalCount,
-    keepPreviousData: config.keepPreviousData,
-  });
-
-  return createTableApiFromAdapter(adapter);
+    PaginationManagerFromOptions<TPaginationOptions>
+  >;
 }

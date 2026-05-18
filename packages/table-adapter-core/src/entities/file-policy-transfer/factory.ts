@@ -29,11 +29,9 @@ import type {
   CursorPaginationOptions,
 } from '../../lib/pagination/index.js';
 
-type FilePolicyTransferConfig = EntityFactoryConfig<
+const filePolicyTransferConfig: EntityFactoryConfig<
   GetFilePolicyTransfersOptions<FilePolicyTransferFieldKey[]>
->;
-
-const filePolicyTransferConfig: FilePolicyTransferConfig = {
+> = {
   queryKeyPrefix: 'file-policy-transfers',
   clientMethod: (client) => (vars, requestOptions) =>
     client.policies.getFilePolicyTransfers(vars, requestOptions),

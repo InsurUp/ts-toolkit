@@ -29,9 +29,7 @@ import type {
   CursorPaginationOptions,
 } from '../../lib/pagination/index.js';
 
-type CaseConfig = EntityFactoryConfig<GetCasesOptions<CaseFieldKey[]>>;
-
-const caseConfig: CaseConfig = {
+const caseConfig: EntityFactoryConfig<GetCasesOptions<CaseFieldKey[]>> = {
   queryKeyPrefix: 'cases',
   clientMethod: (client) => (vars, requestOptions) => client.cases.getCases(vars, requestOptions),
 };
