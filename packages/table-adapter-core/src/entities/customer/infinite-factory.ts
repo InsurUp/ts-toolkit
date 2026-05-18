@@ -11,7 +11,6 @@ import type {
   QueryCustomerModelFilterInput,
   QueryCustomerModelSearchInput,
 } from '@insurup/sdk';
-import type { ColumnDef } from '@tanstack/table-core';
 import type {
   CustomerTableOptions,
   CustomerColumnDef,
@@ -21,16 +20,16 @@ import type {
   CustomerSearchInput,
 } from './types.js';
 import type { QueryOptionsBuilderArgs, FetchFn } from '../../lib/types.js';
-import type { TableApi, TableApiConfig } from '../../lib/factory/types.js';
-import type { AdapterState } from '../../lib/adapter/types.js';
-import { getFetchFn, createColumnBuilder } from '../../lib/factory/index.js';
+import type { TableApi } from '../../lib/factory/types.js';
+import {
+  getFetchFn,
+  createColumnBuilder,
+  createInfiniteTableApi,
+} from '../../lib/factory/index.js';
 import { createSortingConverters } from '../../lib/sorting/index.js';
-import { InfiniteTableAdapter } from '../../lib/adapter/infinite-adapter/index.js';
 import type {
   CursorPaginationManager,
   CursorPaginationOptions,
-  PaginationOptions,
-  PaginationManagerFromOptions,
 } from '../../lib/pagination/index.js';
 
 // ============================================================================
@@ -72,116 +71,6 @@ function getCustomerFetchFn<TColumns extends CustomerColumnDef[]>(
     options,
     (client) => (vars, requestOptions) => client.customers.getCustomers(vars, requestOptions)
   );
-}
-
-// ============================================================================
-// Infinite Table API Factory
-// ============================================================================
-
-/**
- * Create the infinite table API that wraps InfiniteTableAdapter
- *
- * This factory creates a consistent public API using the infinite adapter
- * that accumulates rows across page fetches.
- */
-function createInfiniteTableApi<
-  TEntity,
-  TRow,
-  TQueryOptions,
-  TSortInput,
-  TFilterInput,
-  TSearchInput,
-  TPaginationOptions extends PaginationOptions,
->(
-  config: TableApiConfig<
-    TEntity,
-    TRow,
-    TQueryOptions,
-    TSortInput,
-    TFilterInput,
-    TSearchInput,
-    TPaginationOptions
-  >
-): TableApi<TRow, TFilterInput, TSearchInput, PaginationManagerFromOptions<TPaginationOptions>> {
-  const adapter = new InfiniteTableAdapter<
-    TEntity,
-    TRow,
-    TQueryOptions,
-    TSortInput,
-    TFilterInput,
-    TSearchInput,
-    TPaginationOptions
-  >(config.fetchFn, config.buildQueryOptions, {
-    columns: config.columns,
-    pagination: config.pagination,
-    defaultFilter: config.defaultFilter,
-    defaultSearch: config.defaultSearch,
-    sortingConverters: config.sortingConverters,
-    queryKeyPrefix: config.queryKeyPrefix,
-    staleTime: config.staleTime,
-    gcTime: config.gcTime,
-    onError: config.onError,
-    onSuccess: config.onSuccess,
-    onSettled: config.onSettled,
-    tableOptions: config.tableOptions,
-    autoFetch: config.autoFetch,
-    keepPreviousData: config.keepPreviousData,
-  });
-
-  // Cached frozen columns for referential stability
-  let cachedFrozenColumns: readonly ColumnDef<TRow, unknown>[] | null = null;
-  let lastSourceColumns: readonly ColumnDef<TRow, unknown>[] | null = null;
-
-  return {
-    get columns() {
-      if (adapter.columns !== lastSourceColumns) {
-        lastSourceColumns = adapter.columns;
-        cachedFrozenColumns = Object.freeze(
-          [...adapter.columns].map((col) => Object.freeze({ ...col }))
-        );
-      }
-      return cachedFrozenColumns!;
-    },
-
-    getState: (): AdapterState<TRow> => adapter.getState(),
-
-    getTableOptions: () => adapter.getTableOptions(),
-
-    getTable: () => adapter.getTable(),
-
-    subscribe: adapter.subscribe,
-
-    getSnapshot: (): AdapterState<TRow> => adapter.getSnapshot(),
-
-    getServerSnapshot: (): AdapterState<TRow> => adapter.getServerSnapshot(),
-
-    fetch: () => adapter.fetch(),
-
-    invalidate: () => adapter.invalidate(),
-
-    refetch: (options?: { force?: boolean }) => adapter.refetch(options),
-
-    destroy: () => adapter.destroy(),
-
-    get pagination() {
-      return adapter.pagination;
-    },
-
-    setPageSize: (size: number) => adapter.setPageSize(size),
-
-    // Filter methods
-    setFilter: (filter: TFilterInput) => adapter.setFilter(filter),
-    getFilter: () => adapter.getFilter(),
-    clearFilter: () => adapter.clearFilter(),
-
-    // Search methods
-    setSearch: (search: TSearchInput) => adapter.setSearch(search),
-    getSearch: () => adapter.getSearch(),
-    clearSearch: () => adapter.clearSearch(),
-
-    // Column info method
-    getColumnInfo: () => adapter.getColumnInfo(),
-  };
 }
 
 // ============================================================================

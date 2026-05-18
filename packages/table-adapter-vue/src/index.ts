@@ -2,28 +2,7 @@
  * @insurup/table-adapter-vue
  *
  * Vue bindings for @insurup/table-adapter-core.
- * Provides useCustomerTable composable with automatic lifecycle management.
- *
- * @example
- * ```vue
- * <script setup lang="ts">
- * import { useCustomerTable } from '@insurup/table-adapter-vue';
- *
- * const { state, table, adapter } = useCustomerTable({
- *   columns: (col) => [col.id(), col.name(), col.primaryEmail()],
- *   fetch: (options) => client.customers.getCustomers(options),
- *   autoFetch: true,
- * });
- * </script>
- *
- * <template>
- *   <div v-if="state.isLoading">Loading...</div>
- *   <table v-else>
- *     <tr v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">...</tr>
- *     <tr v-for="row in table.getRowModel().rows" :key="row.id">...</tr>
- *   </table>
- * </template>
- * ```
+ * Provides per-entity composables with automatic lifecycle management.
  *
  * @packageDocumentation
  */
@@ -33,13 +12,39 @@
 // ============================================================================
 
 export { useCustomerTable, type UseCustomerTableResult } from './use-customer-table.js';
+export { usePolicyTable, type UsePolicyTableResult } from './use-policy-table.js';
+export { useProposalTable, type UseProposalTableResult } from './use-proposal-table.js';
+export { useCaseTable, type UseCaseTableResult } from './use-case-table.js';
+export { useAgentUserTable, type UseAgentUserTableResult } from './use-agent-user-table.js';
+export {
+  usePolicyTransferTable,
+  type UsePolicyTransferTableResult,
+} from './use-policy-transfer-table.js';
+export {
+  useFilePolicyTransferTable,
+  type UseFilePolicyTransferTableResult,
+} from './use-file-policy-transfer-table.js';
+export {
+  useWebhookDeliveryTable,
+  type UseWebhookDeliveryTableResult,
+} from './use-webhook-delivery-table.js';
 
 // ============================================================================
 // Re-export everything from core for convenience
 // ============================================================================
 
-// Core factory (for advanced use cases)
+// Core factories
 export { createCustomerTable, type CustomerTable } from '@insurup/table-adapter-core';
+export { createPolicyTable, type PolicyTable } from '@insurup/table-adapter-core';
+export { createProposalTable, type ProposalTable } from '@insurup/table-adapter-core';
+export { createCaseTable, type CaseTable } from '@insurup/table-adapter-core';
+export { createAgentUserTable, type AgentUserTable } from '@insurup/table-adapter-core';
+export { createPolicyTransferTable, type PolicyTransferTable } from '@insurup/table-adapter-core';
+export {
+  createFilePolicyTransferTable,
+  type FilePolicyTransferTable,
+} from '@insurup/table-adapter-core';
+export { createWebhookDeliveryTable, type WebhookDeliveryTable } from '@insurup/table-adapter-core';
 
 // Entity types
 export type {
@@ -50,6 +55,55 @@ export type {
   CustomerFetchFn,
   CustomerFilterInput,
   CustomerSearchInput,
+  PolicyColumnDef,
+  PolicyRowType,
+  PolicyExtractFields,
+  PolicyTableOptions,
+  PolicyFetchFn,
+  PolicyFilterInput,
+  PolicySearchInput,
+  ProposalColumnDef,
+  ProposalRowType,
+  ProposalExtractFields,
+  ProposalTableOptions,
+  ProposalFetchFn,
+  ProposalFilterInput,
+  ProposalSearchInput,
+  CaseColumnDef,
+  CaseRowType,
+  CaseExtractFields,
+  CaseTableOptions,
+  CaseFetchFn,
+  CaseFilterInput,
+  CaseSearchInput,
+  AgentUserColumnDef,
+  AgentUserRowType,
+  AgentUserExtractFields,
+  AgentUserTableOptions,
+  AgentUserFetchFn,
+  AgentUserFilterInput,
+  AgentUserSearchInput,
+  PolicyTransferColumnDef,
+  PolicyTransferRowType,
+  PolicyTransferExtractFields,
+  PolicyTransferTableOptions,
+  PolicyTransferFetchFn,
+  PolicyTransferFilterInput,
+  PolicyTransferSearchInput,
+  FilePolicyTransferColumnDef,
+  FilePolicyTransferRowType,
+  FilePolicyTransferExtractFields,
+  FilePolicyTransferTableOptions,
+  FilePolicyTransferFetchFn,
+  FilePolicyTransferFilterInput,
+  FilePolicyTransferSearchInput,
+  WebhookDeliveryColumnDef,
+  WebhookDeliveryRowType,
+  WebhookDeliveryExtractFields,
+  WebhookDeliveryTableOptions,
+  WebhookDeliveryFetchFn,
+  WebhookDeliveryFilterInput,
+  WebhookDeliverySearchInput,
 } from '@insurup/table-adapter-core';
 
 // Adapter types
@@ -77,4 +131,25 @@ export type {
   GetCustomersOptions,
   CustomerFieldKey,
   QueryCustomerModel,
+  GetPoliciesOptions,
+  PolicyFieldKey,
+  QueryPoliciesResult,
+  GetProposalsOptions,
+  ProposalFieldKey,
+  QueryProposalsResult,
+  GetCasesOptions,
+  CaseFieldKey,
+  QueryCaseModel,
+  GetAgentUsersOptions,
+  AgentUserFieldKey,
+  QueryAgentUserResult,
+  GetPolicyTransfersOptions,
+  PolicyTransferFieldKey,
+  QueryPolicyTransfersResult,
+  GetFilePolicyTransfersOptions,
+  FilePolicyTransferFieldKey,
+  QueryFilePolicyTransfersResult,
+  GetWebhookDeliveriesOptions,
+  WebhookDeliveryFieldKey,
+  QueryWebhookDeliveryResult,
 } from '@insurup/table-adapter-core';

@@ -46,6 +46,72 @@ export {
   type InfiniteCustomerTable,
 } from './entities/customer/index.js';
 
+// Policy entity - Pagination mode
+export { createPolicyTable, type PolicyTable } from './entities/policy/index.js';
+
+// Policy entity - Infinite scroll mode
+export { createInfinitePolicyTable, type InfinitePolicyTable } from './entities/policy/index.js';
+
+// Proposal entity - Pagination mode
+export { createProposalTable, type ProposalTable } from './entities/proposal/index.js';
+
+// Proposal entity - Infinite scroll mode
+export {
+  createInfiniteProposalTable,
+  type InfiniteProposalTable,
+} from './entities/proposal/index.js';
+
+// Case entity - Pagination mode
+export { createCaseTable, type CaseTable } from './entities/case/index.js';
+
+// Case entity - Infinite scroll mode
+export { createInfiniteCaseTable, type InfiniteCaseTable } from './entities/case/index.js';
+
+// AgentUser entity - Pagination mode
+export { createAgentUserTable, type AgentUserTable } from './entities/agent-user/index.js';
+
+// AgentUser entity - Infinite scroll mode
+export {
+  createInfiniteAgentUserTable,
+  type InfiniteAgentUserTable,
+} from './entities/agent-user/index.js';
+
+// PolicyTransfer entity - Pagination mode
+export {
+  createPolicyTransferTable,
+  type PolicyTransferTable,
+} from './entities/policy-transfer/index.js';
+
+// PolicyTransfer entity - Infinite scroll mode
+export {
+  createInfinitePolicyTransferTable,
+  type InfinitePolicyTransferTable,
+} from './entities/policy-transfer/index.js';
+
+// FilePolicyTransfer entity - Pagination mode
+export {
+  createFilePolicyTransferTable,
+  type FilePolicyTransferTable,
+} from './entities/file-policy-transfer/index.js';
+
+// FilePolicyTransfer entity - Infinite scroll mode
+export {
+  createInfiniteFilePolicyTransferTable,
+  type InfiniteFilePolicyTransferTable,
+} from './entities/file-policy-transfer/index.js';
+
+// Webhook Delivery entity - Pagination mode
+export {
+  createWebhookDeliveryTable,
+  type WebhookDeliveryTable,
+} from './entities/webhook-delivery/index.js';
+
+// Webhook Delivery entity - Infinite scroll mode
+export {
+  createInfiniteWebhookDeliveryTable,
+  type InfiniteWebhookDeliveryTable,
+} from './entities/webhook-delivery/index.js';
+
 // ============================================================================
 // Entity-Specific Types
 // ============================================================================
@@ -61,8 +127,104 @@ export type {
   CustomerSearchInput,
 } from './entities/customer/index.js';
 
+// Policy types
+export type {
+  PolicyColumnDef,
+  PolicyRowType,
+  PolicyExtractFields,
+  PolicyTableOptions,
+  PolicyFetchFn,
+  PolicyFilterInput,
+  PolicySearchInput,
+} from './entities/policy/index.js';
+
+// Proposal types
+export type {
+  ProposalColumnDef,
+  ProposalRowType,
+  ProposalExtractFields,
+  ProposalTableOptions,
+  ProposalFetchFn,
+  ProposalFilterInput,
+  ProposalSearchInput,
+} from './entities/proposal/index.js';
+
+// Case types
+export type {
+  CaseColumnDef,
+  CaseRowType,
+  CaseExtractFields,
+  CaseTableOptions,
+  CaseFetchFn,
+  CaseFilterInput,
+  CaseSearchInput,
+} from './entities/case/index.js';
+
+// AgentUser types
+export type {
+  AgentUserColumnDef,
+  AgentUserRowType,
+  AgentUserExtractFields,
+  AgentUserTableOptions,
+  AgentUserFetchFn,
+  AgentUserFilterInput,
+  AgentUserSearchInput,
+} from './entities/agent-user/index.js';
+
+// PolicyTransfer types
+export type {
+  PolicyTransferColumnDef,
+  PolicyTransferRowType,
+  PolicyTransferExtractFields,
+  PolicyTransferTableOptions,
+  PolicyTransferFetchFn,
+  PolicyTransferFilterInput,
+  PolicyTransferSearchInput,
+} from './entities/policy-transfer/index.js';
+
+// FilePolicyTransfer types
+export type {
+  FilePolicyTransferColumnDef,
+  FilePolicyTransferRowType,
+  FilePolicyTransferExtractFields,
+  FilePolicyTransferTableOptions,
+  FilePolicyTransferFetchFn,
+  FilePolicyTransferFilterInput,
+  FilePolicyTransferSearchInput,
+} from './entities/file-policy-transfer/index.js';
+
+// Webhook Delivery types
+export type {
+  WebhookDeliveryColumnDef,
+  WebhookDeliveryRowType,
+  WebhookDeliveryExtractFields,
+  WebhookDeliveryTableOptions,
+  WebhookDeliveryFetchFn,
+  WebhookDeliveryFilterInput,
+  WebhookDeliverySearchInput,
+} from './entities/webhook-delivery/index.js';
+
 // Re-export SDK types for convenience
 export type { GetCustomersOptions, CustomerFieldKey, QueryCustomerModel } from '@insurup/sdk';
+export type { GetPoliciesOptions, PolicyFieldKey, QueryPoliciesResult } from '@insurup/sdk';
+export type { GetProposalsOptions, ProposalFieldKey, QueryProposalsResult } from '@insurup/sdk';
+export type { GetCasesOptions, CaseFieldKey, QueryCaseModel } from '@insurup/sdk';
+export type { GetAgentUsersOptions, AgentUserFieldKey, QueryAgentUserResult } from '@insurup/sdk';
+export type {
+  GetPolicyTransfersOptions,
+  PolicyTransferFieldKey,
+  QueryPolicyTransfersResult,
+} from '@insurup/sdk';
+export type {
+  GetFilePolicyTransfersOptions,
+  FilePolicyTransferFieldKey,
+  QueryFilePolicyTransfersResult,
+} from '@insurup/sdk';
+export type {
+  GetWebhookDeliveriesOptions,
+  WebhookDeliveryFieldKey,
+  QueryWebhookDeliveryResult,
+} from '@insurup/sdk';
 
 // ============================================================================
 // Base Adapter (for advanced usage)

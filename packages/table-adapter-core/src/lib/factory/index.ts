@@ -10,4 +10,6 @@ export {
   createTableApi,
 } from './utils.js';
 
+export { createInfiniteTableApi } from './infinite-table-api.js';
+
 export type { TableApiConfig, TableApi, ColumnInfo } from './types.js';
