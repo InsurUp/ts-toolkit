@@ -14,7 +14,7 @@ import type {
   HastaneAgi,
   SaglikPaketi,
   TasinanYuk,
-} from "./common.js";
+} from './common.js';
 
 /**
  * Represents a request to create a new coverage group in the insurance system.

@@ -1,6 +1,6 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router";
-import { useAuthContext } from "react-oauth2-code-pkce";
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router';
+import { useAuthContext } from 'react-oauth2-code-pkce';
 
 /**
  * OAuth callback page.
@@ -14,7 +14,7 @@ export function Callback() {
   useEffect(() => {
     // Once login is complete, redirect to home
     if (!loginInProgress) {
-      navigate("/", { replace: true });
+      navigate('/', { replace: true });
     }
   }, [loginInProgress, navigate]);
 

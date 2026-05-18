@@ -33,7 +33,10 @@ export interface CreateTableCoreOptions<TRow, TOptions> {
  * @template TRow - The row type with selected fields
  * @template TAdapter - The specific adapter type (CustomerTable or InfiniteCustomerTable)
  */
-export interface TableCoreResult<TRow, TAdapter extends ITableAdapter<TRow, unknown, unknown, PaginationManager>> {
+export interface TableCoreResult<
+  TRow,
+  TAdapter extends ITableAdapter<TRow, unknown, unknown, PaginationManager>,
+> {
   // ============================================================================
   // Fine-grained state signals (from TableState)
   // ============================================================================
@@ -129,9 +132,7 @@ export function createTableCore<
   TRow,
   TOptions,
   TAdapter extends ITableAdapter<TRow, unknown, unknown, PaginationManager>,
->(
-  options: CreateTableCoreOptions<TRow, TOptions>
-): TableCoreResult<TRow, TAdapter> {
+>(options: CreateTableCoreOptions<TRow, TOptions>): TableCoreResult<TRow, TAdapter> {
   const { getOptions, createAdapter, getTableOptionsState } = options;
 
   // Get initial options and create the adapter
@@ -173,7 +174,7 @@ export function createTableCore<
             ...tableOptionsState,
           },
         }),
-        hasStateChange,
+        hasStateChange
       );
     }
   });

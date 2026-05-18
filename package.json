@@ -1,11 +1,17 @@
 {
   "name": "@insurup/toolkit",
   "type": "module",
-  "workspaces": ["packages/*", "packages/sdk/demos/cli/*", "packages/sdk/demos/simple-cli/*", "packages/sdk/demos/web/spa/*/ts", "packages/table-adapter-*/demos/spa/ts", "packages/table-adapter-core/demos/vanilla/ts"],
+  "workspaces": [
+    "packages/*",
+    "packages/sdk/demos/cli/*",
+    "packages/sdk/demos/simple-cli/*",
+    "packages/sdk/demos/web/spa/*/ts",
+    "packages/table-adapter-*/demos/spa/ts",
+    "packages/table-adapter-core/demos/vanilla/ts"
+  ],
   "private": true,
   "scripts": {
     "build": "bun run --filter './packages/*' build",
-    "build-with-demos": "bun run --filter '*' build",
     "typecheck": "bun run --filter '*' typecheck",
     "test": "bun run --filter '*' test",
     "lint": "eslint .",
@@ -15,13 +21,13 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@types/bun": "^1.3.8",
-    "eslint": "^10.0.0",
+    "@types/bun": "^1.3.14",
+    "eslint": "^10.4.0",
     "eslint-config-prettier": "^10.1.8",
-    "globals": "^17.3.0",
-    "prettier": "^3.8.1",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.54.0",
-    "vite": "^7.3.1"
+    "globals": "^17.6.0",
+    "prettier": "^3.8.3",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.3",
+    "vite": "^8.0.13"
   }
 }

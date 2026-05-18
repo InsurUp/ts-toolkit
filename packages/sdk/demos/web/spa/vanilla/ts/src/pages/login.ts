@@ -2,13 +2,13 @@
  * Login page - initiates OAuth2 login flow.
  */
 
-import { startLogin, isAuthenticated } from "../auth";
-import { navigate } from "../utils/router";
+import { startLogin, isAuthenticated } from '../auth';
+import { navigate } from '../utils/router';
 
 export async function render(container: HTMLElement): Promise<void> {
   // If already authenticated, redirect to home
   if (isAuthenticated()) {
-    navigate("/");
+    navigate('/');
     return;
   }
 
@@ -33,19 +33,19 @@ export async function render(container: HTMLElement): Promise<void> {
     </article>
   `;
 
-  const loginBtn = container.querySelector("#login-btn");
-  loginBtn?.addEventListener("click", async () => {
-    loginBtn.setAttribute("aria-busy", "true");
+  const loginBtn = container.querySelector('#login-btn');
+  loginBtn?.addEventListener('click', async () => {
+    loginBtn.setAttribute('aria-busy', 'true');
     try {
       await startLogin();
     } catch (error) {
-      console.error("Login failed:", error);
-      loginBtn.removeAttribute("aria-busy");
+      console.error('Login failed:', error);
+      loginBtn.removeAttribute('aria-busy');
 
-      const errorMsg = document.createElement("p");
-      errorMsg.style.color = "var(--pico-del-color)";
-      errorMsg.textContent = `Login failed: ${error instanceof Error ? error.message : "Unknown error"}`;
-      container.querySelector("article")?.appendChild(errorMsg);
+      const errorMsg = document.createElement('p');
+      errorMsg.style.color = 'var(--pico-del-color)';
+      errorMsg.textContent = `Login failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      container.querySelector('article')?.appendChild(errorMsg);
     }
   });
 }

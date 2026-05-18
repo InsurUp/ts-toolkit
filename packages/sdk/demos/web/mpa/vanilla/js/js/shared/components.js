@@ -3,8 +3,8 @@
  * @module components
  */
 
-import { getAuthStatus, logout } from "./auth.js";
-import { STORAGE_KEYS } from "./constants.js";
+import { getAuthStatus, logout } from './auth.js';
+import { STORAGE_KEYS } from './constants.js';
 
 // ============ Header ============
 
@@ -29,7 +29,7 @@ export function renderHeader(container) {
     `
     : `<li><a href="/login.html" role="button">Login</a></li>`;
 
-  const expiryInfo = authStatus.expiresAt ? formatExpiry(authStatus.expiresAt) : "";
+  const expiryInfo = authStatus.expiresAt ? formatExpiry(authStatus.expiresAt) : '';
   const statusHtml = authStatus.isAuthenticated
     ? `<div class="auth-status">
         <span class="status-dot authenticated"></span>
@@ -49,10 +49,10 @@ export function renderHeader(container) {
     </div>
   `;
 
-  container.querySelector("#logout-link")?.addEventListener("click", handleLogout);
-  const themeToggle = container.querySelector("#theme-toggle");
+  container.querySelector('#logout-link')?.addEventListener('click', handleLogout);
+  const themeToggle = container.querySelector('#theme-toggle');
   if (themeToggle) {
-    themeToggle.addEventListener("click", toggleTheme);
+    themeToggle.addEventListener('click', toggleTheme);
     updateThemeIcon(themeToggle);
   }
 }
@@ -60,7 +60,7 @@ export function renderHeader(container) {
 function handleLogout(e) {
   e.preventDefault();
   logout();
-  window.location.href = "/";
+  window.location.href = '/';
 }
 
 /**
@@ -68,10 +68,10 @@ function handleLogout(e) {
  */
 function toggleTheme() {
   const html = document.documentElement;
-  const newTheme = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
-  html.setAttribute("data-theme", newTheme);
+  const newTheme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', newTheme);
   localStorage.setItem(STORAGE_KEYS.THEME, newTheme);
-  updateThemeIcon(document.querySelector("#theme-toggle"));
+  updateThemeIcon(document.querySelector('#theme-toggle'));
 }
 
 /**
@@ -80,8 +80,8 @@ function toggleTheme() {
  */
 function updateThemeIcon(button) {
   if (!button) return;
-  const theme = document.documentElement.getAttribute("data-theme");
-  button.textContent = theme === "dark" ? "☀️" : "🌙";
+  const theme = document.documentElement.getAttribute('data-theme');
+  button.textContent = theme === 'dark' ? '☀️' : '🌙';
 }
 
 /**
@@ -91,18 +91,18 @@ function updateThemeIcon(button) {
 export function initTheme() {
   const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME);
   if (savedTheme) {
-    document.documentElement.setAttribute("data-theme", savedTheme);
+    document.documentElement.setAttribute('data-theme', savedTheme);
   }
 }
 
 function formatExpiry(expiresAt) {
   const diff = expiresAt.getTime() - Date.now();
-  if (diff <= 0) return " (expired)";
+  if (diff <= 0) return ' (expired)';
   const minutes = Math.floor(diff / 60000);
   const hours = Math.floor(minutes / 60);
   if (hours > 0) return ` (${hours}h ${minutes % 60}m)`;
   if (minutes > 0) return ` (${minutes}m)`;
-  return " (< 1m)";
+  return ' (< 1m)';
 }
 
 // ============ Loading States ============
@@ -116,7 +116,7 @@ function formatExpiry(expiresAt) {
  * @example
  * renderLoading(container, "Loading customers...");
  */
-export function renderLoading(container, message = "Loading...") {
+export function renderLoading(container, message = 'Loading...') {
   container.innerHTML = `
     <div class="loading-container">
       <div class="loading-spinner large"></div>
@@ -139,7 +139,7 @@ export function renderEmptyState(container, title, message) {
   container.innerHTML = `
     <div class="empty-state">
       <h3>${title}</h3>
-      ${message ? `<p>${message}</p>` : ""}
+      ${message ? `<p>${message}</p>` : ''}
     </div>
   `;
 }
@@ -165,11 +165,11 @@ export function renderError(container, title, message, retryAction) {
     <article>
       <header><h3>${title}</h3></header>
       <p>${message}</p>
-      ${retryAction ? '<button id="retry-btn">Retry</button>' : ""}
+      ${retryAction ? '<button id="retry-btn">Retry</button>' : ''}
     </article>
   `;
   if (retryAction) {
-    container.querySelector("#retry-btn")?.addEventListener("click", retryAction);
+    container.querySelector('#retry-btn')?.addEventListener('click', retryAction);
   }
 }
 
@@ -188,17 +188,17 @@ export function renderError(container, title, message, retryAction) {
  * showToast("Operation completed", "success");
  * showToast("Something went wrong", "error", 8000);
  */
-export function showToast(message, type = "info", duration = 5000) {
-  const container = document.getElementById("toast-container");
+export function showToast(message, type = 'info', duration = 5000) {
+  const container = document.getElementById('toast-container');
   if (!container) return;
 
-  const toast = document.createElement("div");
+  const toast = document.createElement('div');
   toast.className = `toast ${type}`;
   toast.textContent = message;
   container.appendChild(toast);
 
   setTimeout(() => {
-    toast.style.animation = "toast-out 0.3s ease-out forwards";
+    toast.style.animation = 'toast-out 0.3s ease-out forwards';
     setTimeout(() => toast.remove(), 300);
   }, duration);
 }
@@ -208,7 +208,7 @@ export function showToast(message, type = "info", duration = 5000) {
  * @param {string} message - The success message
  */
 export function showSuccess(message) {
-  showToast(message, "success");
+  showToast(message, 'success');
 }
 
 /**
@@ -216,7 +216,7 @@ export function showSuccess(message) {
  * @param {string} message - The error message
  */
 export function showError(message) {
-  showToast(message, "error");
+  showToast(message, 'error');
 }
 
 /**
@@ -224,7 +224,7 @@ export function showError(message) {
  * @param {string} message - The info message
  */
 export function showInfo(message) {
-  showToast(message, "info");
+  showToast(message, 'info');
 }
 
 // ============ DOM Utilities ============
@@ -235,8 +235,8 @@ export function showInfo(message) {
  * @returns {string} The escaped string
  */
 export function escapeHtml(str) {
-  if (!str) return "";
-  const div = document.createElement("div");
+  if (!str) return '';
+  const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
 }
@@ -294,7 +294,14 @@ export function debounce(fn, delay = 300) {
  * const callbacks = listState.createCallbacks((cursor) => loadData(cursor));
  * renderPagination(paginationEl, pageInfo, listState.currentPage, totalCount, 10, callbacks);
  */
-export function renderPagination(container, pageInfo, currentPage, totalCount, pageSize, callbacks) {
+export function renderPagination(
+  container,
+  pageInfo,
+  currentPage,
+  totalCount,
+  pageSize,
+  callbacks
+) {
   const start = (currentPage - 1) * pageSize + 1;
   const hasTotal = totalCount !== null;
   const end = hasTotal ? Math.min(currentPage * pageSize, totalCount) : currentPage * pageSize;
@@ -307,15 +314,19 @@ export function renderPagination(container, pageInfo, currentPage, totalCount, p
   container.innerHTML = `
     <div class="pagination-info">${info}</div>
     <div class="pagination-controls">
-      <button class="secondary outline pagination-first" ${currentPage === 1 ? "disabled" : ""}>First</button>
-      <button class="secondary outline pagination-prev" ${!pageInfo.hasPreviousPage ? "disabled" : ""}>Previous</button>
-      <button class="secondary outline pagination-next" ${!pageInfo.hasNextPage ? "disabled" : ""}>Next</button>
+      <button class="secondary outline pagination-first" ${currentPage === 1 ? 'disabled' : ''}>First</button>
+      <button class="secondary outline pagination-prev" ${!pageInfo.hasPreviousPage ? 'disabled' : ''}>Previous</button>
+      <button class="secondary outline pagination-next" ${!pageInfo.hasNextPage ? 'disabled' : ''}>Next</button>
     </div>
   `;
 
-  container.querySelector(".pagination-first")?.addEventListener("click", () => callbacks.onFirst());
-  container.querySelector(".pagination-prev")?.addEventListener("click", () => callbacks.onPrevious());
-  container.querySelector(".pagination-next")?.addEventListener("click", () => {
+  container
+    .querySelector('.pagination-first')
+    ?.addEventListener('click', () => callbacks.onFirst());
+  container
+    .querySelector('.pagination-prev')
+    ?.addEventListener('click', () => callbacks.onPrevious());
+  container.querySelector('.pagination-next')?.addEventListener('click', () => {
     if (pageInfo.endCursor) callbacks.onNext(pageInfo.endCursor);
   });
 }
@@ -351,11 +362,11 @@ export function getQueryParam(key) {
 export function setQueryParams(params) {
   const url = new URL(window.location.href);
   for (const [key, value] of Object.entries(params)) {
-    if (value === null || value === undefined || value === "") {
+    if (value === null || value === undefined || value === '') {
       url.searchParams.delete(key);
     } else {
       url.searchParams.set(key, String(value));
     }
   }
-  history.replaceState(null, "", url.toString());
+  history.replaceState(null, '', url.toString());
 }

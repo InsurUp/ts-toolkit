@@ -11,42 +11,42 @@ export enum WebhookEvent {
    *
    * Teklif prim hesaplaması alındığında ve başarıyla işlendiğinde tetiklenir.
    */
-  ProposalPremiumReceived = "proposal_premium.received",
+  ProposalPremiumReceived = 'proposal_premium.received',
 
   /**
    * Triggered when a proposal premium purchase process is initiated.
    *
    * Teklif prim satın alma süreci başlatıldığında tetiklenir.
    */
-  ProposalPremiumPurchasing = "proposal_premium.purchasing",
+  ProposalPremiumPurchasing = 'proposal_premium.purchasing',
 
   /**
    * Triggered when a proposal premium purchase process is completed successfully.
    *
    * Teklif prim satın alma süreci başarıyla tamamlandığında tetiklenir.
    */
-  ProposalPremiumPurchased = "proposal_premium.purchased",
+  ProposalPremiumPurchased = 'proposal_premium.purchased',
 
   /**
    * Triggered when a proposal premium purchase process fails.
    *
    * Teklif prim satın alma süreci başarısız olduğunda tetiklenir.
    */
-  ProposalPremiumPurchaseFailed = "proposal_premium.purchase_failed",
+  ProposalPremiumPurchaseFailed = 'proposal_premium.purchase_failed',
 
   /**
    * Triggered when an insurance policy is created in the system.
    *
    * Sistemde bir sigorta poliçesi oluşturulduğunda tetiklenir.
    */
-  PolicyCreated = "policy.created",
+  PolicyCreated = 'policy.created',
 
   /**
    * Triggered when an existing insurance policy is updated or modified.
    *
    * Mevcut bir sigorta poliçesi güncellendiğinde veya değiştirildiğinde tetiklenir.
    */
-  PolicyUpdated = "policy.updated",
+  PolicyUpdated = 'policy.updated',
 }
 
 // Webhook Contracts

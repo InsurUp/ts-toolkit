@@ -20,7 +20,7 @@ export class DateTime {
   private readonly _value: Date;
 
   constructor(value: string | Date) {
-    this._value = typeof value === "string" ? new Date(value) : value;
+    this._value = typeof value === 'string' ? new Date(value) : value;
   }
 
   /** Creates DateTime from a native Date object */
@@ -78,8 +78,8 @@ export class DateOnly {
   private readonly _day: number;
 
   constructor(value: string | Date) {
-    if (typeof value === "string") {
-      const parts = value.split("-").map(Number);
+    if (typeof value === 'string') {
+      const parts = value.split('-').map(Number);
       this._year = parts[0] ?? 0;
       this._month = parts[1] ?? 1;
       this._day = parts[2] ?? 1;
@@ -107,9 +107,9 @@ export class DateOnly {
 
   /** Returns YYYY-MM-DD string representation */
   toString(): string {
-    const y = this._year.toString().padStart(4, "0");
-    const m = this._month.toString().padStart(2, "0");
-    const d = this._day.toString().padStart(2, "0");
+    const y = this._year.toString().padStart(4, '0');
+    const m = this._month.toString().padStart(2, '0');
+    const d = this._day.toString().padStart(2, '0');
     return `${y}-${m}-${d}`;
   }
 

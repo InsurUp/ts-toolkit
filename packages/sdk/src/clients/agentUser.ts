@@ -1,15 +1,15 @@
-import type { HttpTransport } from "../client/http.js";
-import type { GraphQLTransport } from "../client/graphql.js";
-import type { InsurUpResult, InsurUpGraphQLResult } from "../core/result.js";
-import type { RequestOptions } from "../core/options.js";
-import { agentUsers } from "../core/endpoints.js";
+import type { HttpTransport } from '../client/http.js';
+import type { GraphQLTransport } from '../client/graphql.js';
+import type { InsurUpResult, InsurUpGraphQLResult } from '../core/result.js';
+import type { RequestOptions } from '../core/options.js';
+import { agentUsers } from '../core/endpoints.js';
 import {
   ALL_AGENT_USER_FIELDS,
   type AgentUserFieldKey,
   type GetAgentUsersOptions,
   type AgentUsersConnection,
-} from "@insurup/contracts";
-import { buildFieldSelection } from "@insurup/contracts";
+} from '@insurup/contracts';
+import { buildFieldSelection } from '@insurup/contracts';
 import type {
   GetAgentUserResult,
   UpdateMyAgentUserRequest,
@@ -19,7 +19,7 @@ import type {
   UpdateAgentUserPasswordRequest,
   GetMyAgentUserRobotCodeResult,
   MigrateAllAgentUsersResult,
-} from "@insurup/contracts";
+} from '@insurup/contracts';
 
 /**
  * Provides comprehensive user management operations for insurance agency staff, enabling agencies to manage
@@ -31,7 +31,7 @@ import type {
 export class InsurUpAgentUserClient {
   constructor(
     private readonly http: HttpTransport,
-    private readonly graphql?: GraphQLTransport,
+    private readonly graphql?: GraphQLTransport
   ) {}
 
   /**
@@ -41,9 +41,7 @@ export class InsurUpAgentUserClient {
    *
    * @returns Current agent user profile / Mevcut acente kullanıcı profili
    */
-  async getMyAgentUser(
-    options?: RequestOptions,
-  ): Promise<InsurUpResult<GetAgentUserResult>> {
+  async getMyAgentUser(options?: RequestOptions): Promise<InsurUpResult<GetAgentUserResult>> {
     return this.http.get<GetAgentUserResult>(agentUsers.me, options);
   }
 
@@ -57,7 +55,7 @@ export class InsurUpAgentUserClient {
    */
   async updateMyAgentUser(
     request: UpdateMyAgentUserRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.putNoContent(agentUsers.updateMyUser, request, options);
   }
@@ -72,7 +70,7 @@ export class InsurUpAgentUserClient {
    */
   async inviteAgentUser(
     request: InviteAgentUserRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.postNoContent(agentUsers.invite, request, options);
   }
@@ -85,10 +83,7 @@ export class InsurUpAgentUserClient {
    * @param agentUserId Unique identifier of the agent user to activate / Aktive edilecek acente kullanıcısının benzersiz tanımlayıcısı
    * @returns Operation result / İşlem sonucu
    */
-  async activateAgentUser(
-    agentUserId: string,
-    options?: RequestOptions,
-  ): Promise<InsurUpResult> {
+  async activateAgentUser(agentUserId: string, options?: RequestOptions): Promise<InsurUpResult> {
     const endpoint = agentUsers.activate.render(agentUserId);
     return this.http.postNoContent(endpoint, undefined, options);
   }
@@ -101,10 +96,7 @@ export class InsurUpAgentUserClient {
    * @param agentUserId Unique identifier of the agent user to deactivate / Deaktive edilecek acente kullanıcısının benzersiz tanımlayıcısı
    * @returns Operation result / İşlem sonucu
    */
-  async deactivateAgentUser(
-    agentUserId: string,
-    options?: RequestOptions,
-  ): Promise<InsurUpResult> {
+  async deactivateAgentUser(agentUserId: string, options?: RequestOptions): Promise<InsurUpResult> {
     const endpoint = agentUsers.deactivate.render(agentUserId);
     return this.http.postNoContent(endpoint, undefined, options);
   }
@@ -117,10 +109,7 @@ export class InsurUpAgentUserClient {
    * @param code Invitation code to validate / Doğrulanacak davet kodu
    * @returns Operation result / İşlem sonucu
    */
-  async checkAgentUserInviteCode(
-    code: string,
-    options?: RequestOptions,
-  ): Promise<InsurUpResult> {
+  async checkAgentUserInviteCode(code: string, options?: RequestOptions): Promise<InsurUpResult> {
     const endpoint = agentUsers.checkAgentUserInviteCode.render(code);
     // Note: GET always expects content, but this validation endpoint may return 204
     // If this causes issues, the API should be updated to return a response body
@@ -135,10 +124,7 @@ export class InsurUpAgentUserClient {
    * @param agentUserId Unique identifier of the agent user to delete / Silinecek acente kullanıcısının benzersiz tanımlayıcısı
    * @returns Operation result / İşlem sonucu
    */
-  async deleteAgentUser(
-    agentUserId: string,
-    options?: RequestOptions,
-  ): Promise<InsurUpResult> {
+  async deleteAgentUser(agentUserId: string, options?: RequestOptions): Promise<InsurUpResult> {
     const endpoint = agentUsers.delete.render(agentUserId);
     return this.http.deleteNoContent(endpoint, options);
   }
@@ -153,7 +139,7 @@ export class InsurUpAgentUserClient {
    */
   async getAgentUserById(
     agentUserId: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetAgentUserResult>> {
     const endpoint = agentUsers.getById.render(agentUserId);
     return this.http.get<GetAgentUserResult>(endpoint, options);
@@ -169,7 +155,7 @@ export class InsurUpAgentUserClient {
    */
   async reSendInviteAgentUser(
     agentUserId: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     const endpoint = agentUsers.reSendInvite.render(agentUserId);
     return this.http.postNoContent(endpoint, undefined, options);
@@ -185,7 +171,7 @@ export class InsurUpAgentUserClient {
    */
   async acceptAgentUserInvite(
     request: AcceptAgentUserInviteRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.postNoContent(agentUsers.acceptInvite, request, options);
   }
@@ -200,7 +186,7 @@ export class InsurUpAgentUserClient {
    */
   async updateAgentUser(
     request: UpdateAgentUserRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     const endpoint = agentUsers.update.render(request.id);
     return this.http.putNoContent(endpoint, request, options);
@@ -216,7 +202,7 @@ export class InsurUpAgentUserClient {
    */
   async updateAgentUserPassword(
     request: UpdateAgentUserPasswordRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.putNoContent(agentUsers.updatePassword, request, options);
   }
@@ -229,12 +215,9 @@ export class InsurUpAgentUserClient {
    * @returns Agent user robot code / Acente kullanıcı robot kodu
    */
   async getMyAgentUserRobotCode(
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetMyAgentUserRobotCodeResult>> {
-    return this.http.get<GetMyAgentUserRobotCodeResult>(
-      agentUsers.meRobotCode,
-      options,
-    );
+    return this.http.get<GetMyAgentUserRobotCodeResult>(agentUsers.meRobotCode, options);
   }
 
   /**
@@ -247,10 +230,7 @@ export class InsurUpAgentUserClient {
    * @param agentUserId Unique identifier of the agent user to migrate / Taşınacak acente kullanıcısının benzersiz tanımlayıcısı
    * @returns Operation result / İşlem sonucu
    */
-  async migrateAgentUser(
-    agentUserId: string,
-    options?: RequestOptions,
-  ): Promise<InsurUpResult> {
+  async migrateAgentUser(agentUserId: string, options?: RequestOptions): Promise<InsurUpResult> {
     const endpoint = agentUsers.migrate.render(agentUserId);
     return this.http.postNoContent(endpoint, undefined, options);
   }
@@ -263,13 +243,9 @@ export class InsurUpAgentUserClient {
    * @returns Response with the count of migrated users / Taşınan kullanıcı sayısı ile yanıt
    */
   async migrateAllAgentUsers(
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<MigrateAllAgentUsersResult>> {
-    return this.http.post<MigrateAllAgentUsersResult>(
-      agentUsers.migrateAll,
-      undefined,
-      options,
-    );
+    return this.http.post<MigrateAllAgentUsersResult>(agentUsers.migrateAll, undefined, options);
   }
 
   // ============================================================================
@@ -300,16 +276,15 @@ export class InsurUpAgentUserClient {
    */
   async getAgentUsers<const TFields extends AgentUserFieldKey[]>(
     requestOptions?: GetAgentUsersOptions<TFields>,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpGraphQLResult<AgentUsersConnection<TFields>>> {
     if (!this.graphql) {
       throw new Error(
-        "GraphQL transport is not available. Ensure the client is properly initialized.",
+        'GraphQL transport is not available. Ensure the client is properly initialized.'
       );
     }
 
-    const fields = (requestOptions?.select ??
-      ALL_AGENT_USER_FIELDS) as AgentUserFieldKey[];
+    const fields = (requestOptions?.select ?? ALL_AGENT_USER_FIELDS) as AgentUserFieldKey[];
     const fieldSelection = buildFieldSelection(fields);
     const hasFieldSelection = fieldSelection.length > 0;
 
@@ -339,12 +314,16 @@ export class InsurUpAgentUserClient {
             endCursor
           }
           totalCount
-          ${hasFieldSelection ? `edges {
+          ${
+            hasFieldSelection
+              ? `edges {
             cursor
             node {
               ${fieldSelection}
             }
-          }` : ""}
+          }`
+              : ''
+          }
         }
       }
     `;
@@ -360,7 +339,7 @@ export class InsurUpAgentUserClient {
     };
 
     const result = await this.graphql.query<{
-      agentUsersNew: Omit<AgentUsersConnection, "nodes">;
+      agentUsersNew: Omit<AgentUsersConnection, 'nodes'>;
     }>(query, variables, options);
 
     if (!result.isSuccess) {

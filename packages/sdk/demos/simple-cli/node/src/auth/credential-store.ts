@@ -3,7 +3,7 @@
  * Stores tokens securely in the OS keychain (macOS Keychain, Windows Credential Vault, Linux Secret Service).
  */
 
-import keytar from "keytar";
+import keytar from 'keytar';
 
 export interface TokenData {
   accessToken: string;
@@ -13,8 +13,8 @@ export interface TokenData {
   scope?: string;
 }
 
-const SERVICE = "com.insurup.sdk";
-const ACCOUNT = "tokens";
+const SERVICE = 'com.insurup.sdk';
+const ACCOUNT = 'tokens';
 
 export async function saveTokens(data: TokenData): Promise<void> {
   await keytar.setPassword(SERVICE, ACCOUNT, JSON.stringify(data));

@@ -3,11 +3,7 @@
  * @description Contracts for insurance companies, products, resource keys, release notes, and financial institutions
  */
 
-import type {
-  PaymentOption,
-  ProductBranch,
-  InsuranceProductType,
-} from "./common.js";
+import type { PaymentOption, ProductBranch, InsuranceProductType } from './common.js';
 
 // ============================================================================
 // RESOURCE KEYS

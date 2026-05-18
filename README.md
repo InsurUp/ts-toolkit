@@ -10,21 +10,21 @@ Official TypeScript packages for building integrations with the InsurUp insuranc
 
 ### Core
 
-| Package | Description | Version |
-|---------|-------------|---------|
-| [`@insurup/sdk`](./packages/sdk) | Full-featured SDK client with REST and GraphQL support | [![npm](https://img.shields.io/npm/v/@insurup/sdk.svg)](https://www.npmjs.com/package/@insurup/sdk) |
-| [`@insurup/contracts`](./packages/contracts) | Standalone TypeScript type definitions | [![npm](https://img.shields.io/npm/v/@insurup/contracts.svg)](https://www.npmjs.com/package/@insurup/contracts) |
+| Package                                      | Description                                            | Version                                                                                                         |
+| -------------------------------------------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| [`@insurup/sdk`](./packages/sdk)             | Full-featured SDK client with REST and GraphQL support | [![npm](https://img.shields.io/npm/v/@insurup/sdk.svg)](https://www.npmjs.com/package/@insurup/sdk)             |
+| [`@insurup/contracts`](./packages/contracts) | Standalone TypeScript type definitions                 | [![npm](https://img.shields.io/npm/v/@insurup/contracts.svg)](https://www.npmjs.com/package/@insurup/contracts) |
 
 ### Table Adapters
 
 TanStack Table integration for building data tables with the InsurUp SDK.
 
-| Package | Description | Version |
-|---------|-------------|---------|
-| [`@insurup/table-adapter-core`](./packages/table-adapter-core) | Framework-agnostic table adapter with caching | [![npm](https://img.shields.io/npm/v/@insurup/table-adapter-core.svg)](https://www.npmjs.com/package/@insurup/table-adapter-core) |
-| [`@insurup/table-adapter-react`](./packages/table-adapter-react) | React bindings (`useCustomerTable`) | [![npm](https://img.shields.io/npm/v/@insurup/table-adapter-react.svg)](https://www.npmjs.com/package/@insurup/table-adapter-react) |
-| [`@insurup/table-adapter-vue`](./packages/table-adapter-vue) | Vue bindings (`useCustomerTable`) | [![npm](https://img.shields.io/npm/v/@insurup/table-adapter-vue.svg)](https://www.npmjs.com/package/@insurup/table-adapter-vue) |
-| [`@insurup/table-adapter-svelte`](./packages/table-adapter-svelte) | Svelte bindings (`createCustomerTable`) | [![npm](https://img.shields.io/npm/v/@insurup/table-adapter-svelte.svg)](https://www.npmjs.com/package/@insurup/table-adapter-svelte) |
+| Package                                                            | Description                                   | Version                                                                                                                               |
+| ------------------------------------------------------------------ | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| [`@insurup/table-adapter-core`](./packages/table-adapter-core)     | Framework-agnostic table adapter with caching | [![npm](https://img.shields.io/npm/v/@insurup/table-adapter-core.svg)](https://www.npmjs.com/package/@insurup/table-adapter-core)     |
+| [`@insurup/table-adapter-react`](./packages/table-adapter-react)   | React bindings (`useCustomerTable`)           | [![npm](https://img.shields.io/npm/v/@insurup/table-adapter-react.svg)](https://www.npmjs.com/package/@insurup/table-adapter-react)   |
+| [`@insurup/table-adapter-vue`](./packages/table-adapter-vue)       | Vue bindings (`useCustomerTable`)             | [![npm](https://img.shields.io/npm/v/@insurup/table-adapter-vue.svg)](https://www.npmjs.com/package/@insurup/table-adapter-vue)       |
+| [`@insurup/table-adapter-svelte`](./packages/table-adapter-svelte) | Svelte bindings (`createCustomerTable`)       | [![npm](https://img.shields.io/npm/v/@insurup/table-adapter-svelte.svg)](https://www.npmjs.com/package/@insurup/table-adapter-svelte) |
 
 ## Quick Start
 
@@ -89,26 +89,22 @@ function CustomersPage() {
 
   if (state.isLoading) return <div>Loading...</div>;
 
-  return (
-    <table>
-      {/* Render with TanStack Table */}
-    </table>
-  );
+  return <table>{/* Render with TanStack Table */}</table>;
 }
 ```
 
 ## Which Package Should I Use?
 
-| Use Case | Package |
-|----------|---------|
-| Building an application that calls InsurUp APIs | `@insurup/sdk` |
-| Need GraphQL queries with filtering and pagination | `@insurup/sdk` |
-| Want built-in error handling and retries | `@insurup/sdk` |
-| Building data tables with React | `@insurup/table-adapter-react` |
-| Building data tables with Vue | `@insurup/table-adapter-vue` |
-| Building data tables with Svelte | `@insurup/table-adapter-svelte` |
-| Only need type definitions for your own API client | `@insurup/contracts` |
-| Building a shared library that uses InsurUp types | `@insurup/contracts` |
+| Use Case                                           | Package                         |
+| -------------------------------------------------- | ------------------------------- |
+| Building an application that calls InsurUp APIs    | `@insurup/sdk`                  |
+| Need GraphQL queries with filtering and pagination | `@insurup/sdk`                  |
+| Want built-in error handling and retries           | `@insurup/sdk`                  |
+| Building data tables with React                    | `@insurup/table-adapter-react`  |
+| Building data tables with Vue                      | `@insurup/table-adapter-vue`    |
+| Building data tables with Svelte                   | `@insurup/table-adapter-svelte` |
+| Only need type definitions for your own API client | `@insurup/contracts`            |
+| Building a shared library that uses InsurUp types  | `@insurup/contracts`            |
 
 > The SDK re-exports all types from contracts, so you don't need to install both.
 
@@ -116,44 +112,44 @@ function CustomersPage() {
 
 ### SDK (`@insurup/sdk`)
 
-| Feature | Description |
-|---------|-------------|
-| Zero Dependencies | No external runtime dependencies |
-| Dual Format | ESM and CommonJS builds included |
-| Type-Safe Results | Discriminated unions for error handling |
-| GraphQL Support | Built-in queries with type-safe field selection |
-| 17 API Clients | Customers, policies, proposals, vehicles, cases, and more |
-| Interceptors | Request/response hooks for logging and customization |
-| Retry Logic | Configurable retry strategies with exponential backoff |
+| Feature           | Description                                               |
+| ----------------- | --------------------------------------------------------- |
+| Zero Dependencies | No external runtime dependencies                          |
+| Dual Format       | ESM and CommonJS builds included                          |
+| Type-Safe Results | Discriminated unions for error handling                   |
+| GraphQL Support   | Built-in queries with type-safe field selection           |
+| 17 API Clients    | Customers, policies, proposals, vehicles, cases, and more |
+| Interceptors      | Request/response hooks for logging and customization      |
+| Retry Logic       | Configurable retry strategies with exponential backoff    |
 
 ### Contracts (`@insurup/contracts`)
 
-| Feature | Description |
-|---------|-------------|
-| Complete Type Coverage | All InsurUp API types and enums |
-| Zero Runtime | Pure TypeScript definitions, no runtime code |
-| Tree-Shakeable | Import only what you need |
-| GraphQL Types | Filter, sort, and pagination types for queries |
+| Feature                | Description                                    |
+| ---------------------- | ---------------------------------------------- |
+| Complete Type Coverage | All InsurUp API types and enums                |
+| Zero Runtime           | Pure TypeScript definitions, no runtime code   |
+| Tree-Shakeable         | Import only what you need                      |
+| GraphQL Types          | Filter, sort, and pagination types for queries |
 
 ### Table Adapters
 
-| Feature | Description |
-|---------|-------------|
-| Framework Support | React, Vue, and Svelte bindings |
-| Built-in Caching | Powered by `@tanstack/query-core` |
+| Feature           | Description                                |
+| ----------------- | ------------------------------------------ |
+| Framework Support | React, Vue, and Svelte bindings            |
+| Built-in Caching  | Powered by `@tanstack/query-core`          |
 | Type-Safe Columns | SDK field autocompletion in column builder |
 | Cursor Pagination | Handles cursor-based pagination internally |
-| TanStack Table | Full compatibility with TanStack Table v8 |
+| TanStack Table    | Full compatibility with TanStack Table v8  |
 
 ## Demos
 
 Example applications demonstrating SDK usage:
 
-| Demo | Description | Location |
-|------|-------------|----------|
-| **Web (Vanilla)** | Browser SPA with OAuth2/PKCE, GraphQL pagination, dark mode | [`packages/sdk/demos/web/vanilla`](./packages/sdk/demos/web/vanilla) |
-| **CLI (Bun)** | Command-line app with OAuth authentication using Bun | [`packages/sdk/demos/simple-cli/bun`](./packages/sdk/demos/simple-cli/bun) |
-| **CLI (Node)** | Command-line app with OAuth authentication using Node.js | [`packages/sdk/demos/simple-cli/node`](./packages/sdk/demos/simple-cli/node) |
+| Demo              | Description                                                 | Location                                                                     |
+| ----------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| **Web (Vanilla)** | Browser SPA with OAuth2/PKCE, GraphQL pagination, dark mode | [`packages/sdk/demos/web/vanilla`](./packages/sdk/demos/web/vanilla)         |
+| **CLI (Bun)**     | Command-line app with OAuth authentication using Bun        | [`packages/sdk/demos/simple-cli/bun`](./packages/sdk/demos/simple-cli/bun)   |
+| **CLI (Node)**    | Command-line app with OAuth authentication using Node.js    | [`packages/sdk/demos/simple-cli/node`](./packages/sdk/demos/simple-cli/node) |
 
 ### Running Demos
 
@@ -230,12 +226,12 @@ ts-toolkit/
 
 ## Compatibility
 
-| Environment | Support |
-|-------------|---------|
-| Node.js | 18+ |
-| Browsers | ES2022+ (Chrome 94+, Firefox 93+, Safari 15+) |
-| Bun | 1.0+ |
-| Deno | 1.0+ |
+| Environment | Support                                       |
+| ----------- | --------------------------------------------- |
+| Node.js     | 18+                                           |
+| Browsers    | ES2022+ (Chrome 94+, Firefox 93+, Safari 15+) |
+| Bun         | 1.0+                                          |
+| Deno        | 1.0+                                          |
 
 ## License
 

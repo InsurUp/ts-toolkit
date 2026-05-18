@@ -3,8 +3,8 @@
  * Starts a temporary HTTP server to receive the authorization code.
  */
 
-import { createServer, type Server, type IncomingMessage, type ServerResponse } from "node:http";
-import type { AddressInfo } from "node:net";
+import { createServer, type Server, type IncomingMessage, type ServerResponse } from 'node:http';
+import type { AddressInfo } from 'node:net';
 
 export interface CallbackResult {
   code: string;
@@ -164,7 +164,7 @@ export async function waitForCallback(port: number = 0): Promise<{
     <p>An error occurred during authentication.</p>
     <div class="error-detail">
       <strong>${error}</strong>
-      ${description ? `<br/>${description}` : ""}
+      ${description ? `<br/>${description}` : ''}
     </div>
   </div>
 </body>
@@ -172,23 +172,23 @@ export async function waitForCallback(port: number = 0): Promise<{
 `;
 
   const handleRequest = (req: IncomingMessage, res: ServerResponse) => {
-    const url = new URL(req.url || "/", `http://localhost`);
+    const url = new URL(req.url || '/', `http://localhost`);
 
     // Handle callback path
-    if (url.pathname === "/callback" || url.pathname === "/") {
-      const code = url.searchParams.get("code");
-      const state = url.searchParams.get("state");
-      const error = url.searchParams.get("error");
-      const errorDescription = url.searchParams.get("error_description");
+    if (url.pathname === '/callback' || url.pathname === '/') {
+      const code = url.searchParams.get('code');
+      const state = url.searchParams.get('state');
+      const error = url.searchParams.get('error');
+      const errorDescription = url.searchParams.get('error_description');
 
       if (error) {
         resolveCallback({
-          code: "",
+          code: '',
           state: state || undefined,
           error,
           errorDescription: errorDescription || undefined,
         });
-        res.writeHead(200, { "Content-Type": "text/html" });
+        res.writeHead(200, { 'Content-Type': 'text/html' });
         res.end(errorHtml(error, errorDescription || undefined));
         return;
       }
@@ -198,26 +198,26 @@ export async function waitForCallback(port: number = 0): Promise<{
           code,
           state: state || undefined,
         });
-        res.writeHead(200, { "Content-Type": "text/html" });
+        res.writeHead(200, { 'Content-Type': 'text/html' });
         res.end(successHtml);
         return;
       }
 
       // No code or error - show waiting page
-      res.writeHead(200, { "Content-Type": "text/plain" });
-      res.end("Waiting for authentication...");
+      res.writeHead(200, { 'Content-Type': 'text/plain' });
+      res.end('Waiting for authentication...');
       return;
     }
 
     // Favicon request
-    if (url.pathname === "/favicon.ico") {
+    if (url.pathname === '/favicon.ico') {
       res.writeHead(204);
       res.end();
       return;
     }
 
-    res.writeHead(404, { "Content-Type": "text/plain" });
-    res.end("Not found");
+    res.writeHead(404, { 'Content-Type': 'text/plain' });
+    res.end('Not found');
   };
 
   serverInstance = createServer(handleRequest);

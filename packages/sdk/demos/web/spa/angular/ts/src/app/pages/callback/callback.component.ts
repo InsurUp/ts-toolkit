@@ -15,16 +15,18 @@ import { AuthService } from '../../services/auth.service';
       <p>Completing login...</p>
     </div>
   `,
-  styles: [`
-    .callback-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 50vh;
-      gap: 16px;
-    }
-  `],
+  styles: [
+    `
+      .callback-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 50vh;
+        gap: 16px;
+      }
+    `,
+  ],
 })
 export class CallbackComponent implements OnInit {
   private authService = inject(AuthService);

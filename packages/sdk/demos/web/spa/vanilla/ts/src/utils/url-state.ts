@@ -6,7 +6,7 @@
 export interface TableState {
   search?: string;
   filters?: Record<string, string>;
-  sort?: { field: string; direction: "asc" | "desc" };
+  sort?: { field: string; direction: 'asc' | 'desc' };
   page?: number;
 }
 
@@ -16,7 +16,7 @@ export interface TableState {
  */
 function parseHashQuery(): URLSearchParams {
   const hash = window.location.hash.slice(1); // Remove #
-  const queryIndex = hash.indexOf("?");
+  const queryIndex = hash.indexOf('?');
   if (queryIndex === -1) {
     return new URLSearchParams();
   }
@@ -27,8 +27,8 @@ function parseHashQuery(): URLSearchParams {
  * Get the path portion of the hash (without query string).
  */
 function getHashPath(): string {
-  const hash = window.location.hash.slice(1) || "/";
-  const queryIndex = hash.indexOf("?");
+  const hash = window.location.hash.slice(1) || '/';
+  const queryIndex = hash.indexOf('?');
   return queryIndex === -1 ? hash : hash.slice(0, queryIndex);
 }
 
@@ -40,22 +40,22 @@ export function getTableState(): TableState {
   const state: TableState = {};
 
   // Search
-  const search = params.get("q");
+  const search = params.get('q');
   if (search) {
     state.search = search;
   }
 
   // Sort (format: field:direction)
-  const sort = params.get("sort");
+  const sort = params.get('sort');
   if (sort) {
-    const [field, direction] = sort.split(":");
-    if (field && (direction === "asc" || direction === "desc")) {
+    const [field, direction] = sort.split(':');
+    if (field && (direction === 'asc' || direction === 'desc')) {
       state.sort = { field, direction };
     }
   }
 
   // Page
-  const page = params.get("page");
+  const page = params.get('page');
   if (page) {
     const pageNum = parseInt(page, 10);
     if (!isNaN(pageNum) && pageNum > 0) {
@@ -66,7 +66,7 @@ export function getTableState(): TableState {
   // Filters (all other params that aren't q, sort, or page)
   const filters: Record<string, string> = {};
   for (const [key, value] of params.entries()) {
-    if (key !== "q" && key !== "sort" && key !== "page" && value) {
+    if (key !== 'q' && key !== 'sort' && key !== 'page' && value) {
       filters[key] = value;
     }
   }
@@ -90,30 +90,30 @@ export function setTableState(state: Partial<TableState>, pushHistory = false): 
   const mergedState: TableState = { ...currentState, ...state };
 
   // Handle explicit undefined to clear values
-  if (state.search === undefined && "search" in state) {
+  if (state.search === undefined && 'search' in state) {
     delete mergedState.search;
   }
-  if (state.sort === undefined && "sort" in state) {
+  if (state.sort === undefined && 'sort' in state) {
     delete mergedState.sort;
   }
-  if (state.page === undefined && "page" in state) {
+  if (state.page === undefined && 'page' in state) {
     delete mergedState.page;
   }
-  if (state.filters === undefined && "filters" in state) {
+  if (state.filters === undefined && 'filters' in state) {
     delete mergedState.filters;
   }
 
   // Build query params
   if (mergedState.search) {
-    params.set("q", mergedState.search);
+    params.set('q', mergedState.search);
   }
 
   if (mergedState.sort) {
-    params.set("sort", `${mergedState.sort.field}:${mergedState.sort.direction}`);
+    params.set('sort', `${mergedState.sort.field}:${mergedState.sort.direction}`);
   }
 
   if (mergedState.page && mergedState.page > 1) {
-    params.set("page", mergedState.page.toString());
+    params.set('page', mergedState.page.toString());
   }
 
   if (mergedState.filters) {
@@ -131,9 +131,9 @@ export function setTableState(state: Partial<TableState>, pushHistory = false): 
   const newUrl = `${window.location.pathname}${window.location.search}#${newHash}`;
 
   if (pushHistory) {
-    history.pushState(null, "", newUrl);
+    history.pushState(null, '', newUrl);
   } else {
-    history.replaceState(null, "", newUrl);
+    history.replaceState(null, '', newUrl);
   }
 }
 
@@ -143,7 +143,7 @@ export function setTableState(state: Partial<TableState>, pushHistory = false): 
 export function clearTableState(): void {
   const path = getHashPath();
   const newUrl = `${window.location.pathname}${window.location.search}#${path}`;
-  history.replaceState(null, "", newUrl);
+  history.replaceState(null, '', newUrl);
 }
 
 /**
@@ -174,7 +174,7 @@ export function setSearch(query: string): void {
 /**
  * Update sort state.
  */
-export function setSort(field: string | null, direction: "asc" | "desc" | null): void {
+export function setSort(field: string | null, direction: 'asc' | 'desc' | null): void {
   // Reset page when sort changes
   setTableState({
     sort: field && direction ? { field, direction } : undefined,

@@ -9,7 +9,7 @@ import type {
   TokenProvider,
   RequestInterceptor,
   ResponseInterceptor,
-} from "./options.js";
+} from './options.js';
 
 /**
  * Default retry options for transient failure handling
@@ -21,7 +21,7 @@ export const DEFAULT_RETRY_OPTIONS: Required<RetryOptions> = {
   minTimeout: 1000,
   maxTimeout: 10000,
   randomize: true,
-  backoffStrategy: "exponential",
+  backoffStrategy: 'exponential',
   retryableStatusCodes: [408, 429, 500, 502, 503, 504],
   onFailedAttempt: () => {}, // No-op by default
 } as const;
@@ -57,10 +57,7 @@ export const DEFAULT_LOGGER = {
  * Required client options type (tokenProvider, onRequest, onResponse, retry remain optional)
  */
 export type RequiredClientOptions = Required<
-  Omit<
-    InsurUpClientOptions,
-    "tokenProvider" | "onRequest" | "onResponse" | "retry"
-  >
+  Omit<InsurUpClientOptions, 'tokenProvider' | 'onRequest' | 'onResponse' | 'retry'>
 > & {
   tokenProvider?: TokenProvider;
   onRequest?: RequestInterceptor;
@@ -72,11 +69,11 @@ export type RequiredClientOptions = Required<
  * Default configuration values for the InsurUp SDK client
  */
 export const DEFAULT_CLIENT_OPTIONS: RequiredClientOptions = {
-  baseUrl: "https://api.insurup.com/api/",
+  baseUrl: 'https://api.insurup.com/api/',
   customHeaders: {},
-  userAgent: "@insurup/sdk",
+  userAgent: '@insurup/sdk',
   timeoutMs: 30000,
-  logLevel: "none",
+  logLevel: 'none',
   logger: DEFAULT_LOGGER,
   retry: undefined,
   tokenProvider: undefined,
@@ -89,9 +86,7 @@ export const DEFAULT_CLIENT_OPTIONS: RequiredClientOptions = {
  * @param options User-provided options
  * @returns Complete options object with defaults applied
  */
-export function mergeWithDefaults(
-  options?: InsurUpClientOptions,
-): RequiredClientOptions {
+export function mergeWithDefaults(options?: InsurUpClientOptions): RequiredClientOptions {
   return {
     baseUrl: options?.baseUrl ?? DEFAULT_CLIENT_OPTIONS.baseUrl,
     customHeaders: {
@@ -102,9 +97,7 @@ export function mergeWithDefaults(
     timeoutMs: options?.timeoutMs ?? DEFAULT_CLIENT_OPTIONS.timeoutMs,
     logLevel: options?.logLevel ?? DEFAULT_CLIENT_OPTIONS.logLevel,
     logger: options?.logger ?? DEFAULT_CLIENT_OPTIONS.logger,
-    retry: options?.retry
-      ? { ...DEFAULT_RETRY_OPTIONS, ...options.retry }
-      : undefined,
+    retry: options?.retry ? { ...DEFAULT_RETRY_OPTIONS, ...options.retry } : undefined,
     tokenProvider: options?.tokenProvider,
     onRequest: options?.onRequest,
     onResponse: options?.onResponse,

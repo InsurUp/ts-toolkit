@@ -12,8 +12,8 @@ import type {
   ModelFilterInput,
   ModelSearchInput,
   GetQueryOptions,
-} from "./common.js";
-import type { DateTime } from "../common.date.js";
+} from './common.js';
+import type { DateTime } from '../common.date.js';
 
 // === Output Types ===
 
@@ -33,15 +33,13 @@ export interface QueryPolicyTransfersResult {
  * Filter input for QueryPolicyTransfersResult.
  * Auto-generated from model fields using ModelFilterInput.
  */
-export type QueryPolicyTransfersResultFilterInput =
-  ModelFilterInput<QueryPolicyTransfersResult>;
+export type QueryPolicyTransfersResultFilterInput = ModelFilterInput<QueryPolicyTransfersResult>;
 
 /**
  * Search input for QueryPolicyTransfersResult.
  * Auto-generated from model fields using ModelSearchInput.
  */
-export type QueryPolicyTransfersResultSearchInput =
-  ModelSearchInput<QueryPolicyTransfersResult>;
+export type QueryPolicyTransfersResultSearchInput = ModelSearchInput<QueryPolicyTransfersResult>;
 
 /**
  * Sort input for QueryPolicyTransfersResult.
@@ -59,8 +57,7 @@ export interface QueryPolicyTransfersResultSortInput {
 
 export type PolicyTransfersEdge = Edge<QueryPolicyTransfersResult>;
 export type PolicyTransfersConnection<
-  TFields extends readonly PolicyTransferFieldKey[] =
-    readonly PolicyTransferFieldKey[],
+  TFields extends readonly PolicyTransferFieldKey[] = readonly PolicyTransferFieldKey[],
 > = Connection<PickPolicyTransferFields<TFields>>;
 
 // === Select Options ===
@@ -74,30 +71,31 @@ export type PolicyTransferFieldKey = DeepFieldKeys<QueryPolicyTransfersResult>;
  * Runtime array of all policy transfer field keys.
  */
 export const ALL_POLICY_TRANSFER_FIELDS = [
-  "id",
-  "startDate",
-  "endDate",
-  "insuranceCompanyCount",
-  "policyTransferTriggerCount",
-  "policyCount",
+  'id',
+  'startDate',
+  'endDate',
+  'insuranceCompanyCount',
+  'policyTransferTriggerCount',
+  'policyCount',
 ] as const satisfies readonly PolicyTransferFieldKey[];
 
 /**
  * Helper type to pick selected fields from QueryPolicyTransfersResult.
  */
-export type PickPolicyTransferFields<
-  T extends readonly PolicyTransferFieldKey[],
-> = PickFields<QueryPolicyTransfersResult, T>;
+export type PickPolicyTransferFields<T extends readonly PolicyTransferFieldKey[]> = PickFields<
+  QueryPolicyTransfersResult,
+  T
+>;
 
 /**
  * Type-safe connection result based on selected fields
  */
 export interface SelectedPolicyTransfersConnection<
   TFields extends PolicyTransferFieldKey[],
-> extends Omit<PolicyTransfersConnection, "nodes" | "edges"> {
+> extends Omit<PolicyTransfersConnection, 'nodes' | 'edges'> {
   nodes?: (PickPolicyTransferFields<TFields> | null)[] | null;
   edges?:
-    | (Omit<PolicyTransfersEdge, "node"> & {
+    | (Omit<PolicyTransfersEdge, 'node'> & {
         node?: PickPolicyTransferFields<TFields> | null;
       })[]
     | null;

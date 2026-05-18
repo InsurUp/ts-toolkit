@@ -12,10 +12,10 @@ export interface Config {
 
 export function getConfig(): Config {
   return {
-    authServer: "https://auth.insurup.com",
-    clientId: "demo",
-    scopes: ["openid", "profile", "offline_access", "core-api"],
+    authServer: 'https://auth.insurup.com',
+    clientId: 'demo',
+    scopes: ['openid', 'profile', 'offline_access', 'core-api'],
     redirectUri: `${window.location.origin}/callback`,
-    apiBaseUrl: "https://api.insurup.com",
+    apiBaseUrl: 'https://api.insurup.com',
   };
 }

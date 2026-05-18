@@ -2,7 +2,7 @@
  * Customer list page entry point.
  */
 
-import { loadConfig } from "../shared/config";
+import { loadConfig } from '../shared/config';
 import {
   renderHeader,
   initTheme,
@@ -14,11 +14,11 @@ import {
   getQueryParam,
   setQueryParams,
   type PageInfo,
-} from "../shared/components";
-import { requireAuth } from "../shared/auth";
-import { getClient } from "../shared/client";
-import { formatCustomerType, formatDate, truncate } from "../shared/format";
-import type { CustomerType, DateTime } from "@insurup/contracts";
+} from '../shared/components';
+import { requireAuth } from '../shared/auth';
+import { getClient } from '../shared/client';
+import { formatCustomerType, formatDate, truncate } from '../shared/format';
+import type { CustomerType, DateTime } from '@insurup/contracts';
 
 const PAGE_SIZE = 10;
 
@@ -33,22 +33,22 @@ interface CustomerRow {
 
 let currentPage = 1;
 let cursors: (string | null)[] = [null];
-let searchQuery = getQueryParam("q") || "";
+let searchQuery = getQueryParam('q') || '';
 
 async function init(): Promise<void> {
   loadConfig();
   initTheme();
   await requireAuth();
 
-  const nav = document.getElementById("main-nav");
+  const nav = document.getElementById('main-nav');
   if (nav) renderHeader(nav);
 
-  const main = document.getElementById("main-content");
+  const main = document.getElementById('main-content');
   if (main) await loadCustomers(main, null);
 }
 
 async function loadCustomers(container: HTMLElement, cursor: string | null): Promise<void> {
-  renderLoading(container, "Loading customers...");
+  renderLoading(container, 'Loading customers...');
 
   try {
     const client = getClient();
@@ -67,7 +67,7 @@ async function loadCustomers(container: HTMLElement, cursor: string | null): Pro
     const countPromise = client.customers.getCustomers({
       first: 1,
       search: searchOptions,
-      select: ["id"] as const,
+      select: ['id'] as const,
     });
 
     // Await only the main data query
@@ -75,12 +75,12 @@ async function loadCustomers(container: HTMLElement, cursor: string | null): Pro
       first: PAGE_SIZE,
       after: cursor ?? undefined,
       search: searchOptions,
-      select: ["id", "name", "identityNumber", "primaryEmail", "type", "createdAt"] as const,
+      select: ['id', 'name', 'identityNumber', 'primaryEmail', 'type', 'createdAt'] as const,
       includeTotalCount: false,
     });
 
     if (!dataRes.isSuccess || !dataRes.data) {
-      throw new Error(dataRes.message || "Failed to load customers");
+      throw new Error(dataRes.message || 'Failed to load customers');
     }
 
     const { nodes, pageInfo } = dataRes.data;
@@ -102,7 +102,7 @@ async function loadCustomers(container: HTMLElement, cursor: string | null): Pro
     countPromise.then((countRes) => {
       if (countRes.isSuccess && customers.length > 0) {
         const totalCount = countRes.data?.totalCount ?? null;
-        const paginationContainer = container.querySelector("#pagination-container") as HTMLElement;
+        const paginationContainer = container.querySelector('#pagination-container') as HTMLElement;
         if (paginationContainer) {
           renderPagination(paginationContainer, pageInfo, currentPage, totalCount, PAGE_SIZE, {
             onNext: (nextCursor) => {
@@ -127,11 +127,11 @@ async function loadCustomers(container: HTMLElement, cursor: string | null): Pro
       }
     });
   } catch (error) {
-    console.error("Failed to load customers:", error);
+    console.error('Failed to load customers:', error);
     renderError(
       container,
-      "Error Loading Customers",
-      error instanceof Error ? error.message : "Unknown error",
+      'Error Loading Customers',
+      error instanceof Error ? error.message : 'Unknown error',
       () => loadCustomers(container, cursor)
     );
   }
@@ -144,7 +144,7 @@ function renderCustomerList(
   totalCount: number | null
 ): void {
   if (customers.length === 0 && currentPage === 1 && !searchQuery) {
-    renderEmptyState(container, "No Customers Found", "There are no customers in the system yet.");
+    renderEmptyState(container, 'No Customers Found', 'There are no customers in the system yet.');
     return;
   }
 
@@ -173,13 +173,17 @@ function renderCustomerList(
           </tr>
         </thead>
         <tbody>
-          ${customers.length > 0 ? customers.map(renderCustomerRow).join("") : `
+          ${
+            customers.length > 0
+              ? customers.map(renderCustomerRow).join('')
+              : `
             <tr>
               <td colspan="6" style="text-align: center; color: var(--pico-muted-color);">
-                No customers found${searchQuery ? " matching your search." : "."}
+                No customers found${searchQuery ? ' matching your search.' : '.'}
               </td>
             </tr>
-          `}
+          `
+          }
         </tbody>
       </table>
     </div>
@@ -188,9 +192,9 @@ function renderCustomerList(
   `;
 
   // Search handler
-  const searchInput = container.querySelector("#search-input") as HTMLInputElement;
+  const searchInput = container.querySelector('#search-input') as HTMLInputElement;
   let debounceTimeout: ReturnType<typeof setTimeout>;
-  searchInput?.addEventListener("input", () => {
+  searchInput?.addEventListener('input', () => {
     clearTimeout(debounceTimeout);
     debounceTimeout = setTimeout(() => {
       searchQuery = searchInput.value;
@@ -203,7 +207,7 @@ function renderCustomerList(
 
   // Pagination
   if (customers.length > 0) {
-    const paginationContainer = container.querySelector("#pagination-container") as HTMLElement;
+    const paginationContainer = container.querySelector('#pagination-container') as HTMLElement;
     renderPagination(paginationContainer, pageInfo, currentPage, totalCount, PAGE_SIZE, {
       onNext: (nextCursor) => {
         if (cursors.length === currentPage) {
@@ -229,8 +233,8 @@ function renderCustomerList(
 function renderCustomerRow(customer: CustomerRow): string {
   return `
     <tr>
-      <td><a href="/customers/detail.html?id=${customer.id}">${escapeHtml(customer.name || "N/A")}</a></td>
-      <td>${escapeHtml(customer.identityNumber || "-")}</td>
+      <td><a href="/customers/detail.html?id=${customer.id}">${escapeHtml(customer.name || 'N/A')}</a></td>
+      <td>${escapeHtml(customer.identityNumber || '-')}</td>
       <td>${escapeHtml(truncate(customer.primaryEmail, 30))}</td>
       <td>${formatCustomerType(customer.type)}</td>
       <td>${formatDate(customer.createdAt)}</td>

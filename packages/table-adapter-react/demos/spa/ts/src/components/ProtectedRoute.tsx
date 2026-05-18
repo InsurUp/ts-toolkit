@@ -1,5 +1,5 @@
-import { useAuthContext } from "react-oauth2-code-pkce";
-import { Navigate, Outlet, useLocation } from "react-router";
+import { useAuthContext } from 'react-oauth2-code-pkce';
+import { Navigate, Outlet, useLocation } from 'react-router';
 
 export function ProtectedRoute(): React.ReactElement {
   const { token, loginInProgress } = useAuthContext();

@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import { useRouter } from "vue-router";
-import { useClient } from "@/composables/useClient";
-import DataTable, { type Column } from "@/components/DataTable.vue";
-import Pagination from "@/components/Pagination.vue";
-import { Input, Badge } from "@/components/ui";
-import { toast } from "vue-sonner";
-import { Search } from "lucide-vue-next";
+import { ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { useClient } from '@/composables/useClient';
+import DataTable, { type Column } from '@/components/DataTable.vue';
+import Pagination from '@/components/Pagination.vue';
+import { Input, Badge } from '@/components/ui';
+import { toast } from 'vue-sonner';
+import { Search } from 'lucide-vue-next';
 
 interface Policy {
   id: string;
@@ -21,7 +21,7 @@ interface Policy {
 }
 
 const sortFieldToApiField: Record<string, string> = {
-  policyNumber: "insuranceCompanyPolicyNumber",
+  policyNumber: 'insuranceCompanyPolicyNumber',
 };
 
 const router = useRouter();
@@ -37,11 +37,11 @@ const pageInfo = ref({
   endCursor: null as string | null,
 });
 
-const search = ref("");
-const sortField = ref("startDate");
-const sortDirection = ref<"asc" | "desc">("desc");
+const search = ref('');
+const sortField = ref('startDate');
+const sortDirection = ref<'asc' | 'desc'>('desc');
 const cursor = ref<string | null>(null);
-const direction = ref("forward");
+const direction = ref('forward');
 const currentPage = ref(1);
 
 async function fetchPolicies() {
@@ -56,34 +56,36 @@ async function fetchPolicies() {
     const countPromise = client.policies.getPolicies({
       first: 1,
       search: searchOptions,
-      select: ["id"] as const,
+      select: ['id'] as const,
       includeTotalCount: true,
     });
 
     const result = await client.policies.getPolicies({
       select: [
-        "id",
-        "insuranceCompanyPolicyNumber",
-        "productBranch",
-        "insuranceCompanyName",
-        "insuredCustomerName",
-        "grossPremium",
-        "startDate",
-        "endDate",
-        "state",
+        'id',
+        'insuranceCompanyPolicyNumber',
+        'productBranch',
+        'insuranceCompanyName',
+        'insuredCustomerName',
+        'grossPremium',
+        'startDate',
+        'endDate',
+        'state',
       ] as const,
-      first: direction.value === "forward" ? 10 : undefined,
-      last: direction.value === "backward" ? 10 : undefined,
-      after: direction.value === "forward" ? cursor.value : undefined,
-      before: direction.value === "backward" ? cursor.value : undefined,
+      first: direction.value === 'forward' ? 10 : undefined,
+      last: direction.value === 'backward' ? 10 : undefined,
+      after: direction.value === 'forward' ? cursor.value : undefined,
+      before: direction.value === 'backward' ? cursor.value : undefined,
       search: searchOptions,
-      order: apiSortField ? [{ [apiSortField]: sortDirection.value === "asc" ? "ASC" : "DESC" }] : undefined,
+      order: apiSortField
+        ? [{ [apiSortField]: sortDirection.value === 'asc' ? 'ASC' : 'DESC' }]
+        : undefined,
       includeTotalCount: false,
     });
 
     if (result.isSuccess) {
       const nodes = result.data.nodes?.filter((n): n is NonNullable<typeof n> => n !== null) ?? [];
-      policies.value = nodes.map(n => ({
+      policies.value = nodes.map((n) => ({
         id: n.id,
         policyNumber: n.insuranceCompanyPolicyNumber ?? null,
         productBranch: n.productBranch ? String(n.productBranch) : null,
@@ -101,50 +103,56 @@ async function fetchPolicies() {
         endCursor: result.data.pageInfo.endCursor ?? null,
       };
 
-      countPromise.then((countRes) => {
-        if (countRes.isSuccess && countRes.data?.totalCount != null) {
-          totalCount.value = countRes.data.totalCount;
-        }
-      }).catch(() => {});
+      countPromise
+        .then((countRes) => {
+          if (countRes.isSuccess && countRes.data?.totalCount != null) {
+            totalCount.value = countRes.data.totalCount;
+          }
+        })
+        .catch(() => {});
     } else {
-      toast.error("Failed to load policies");
+      toast.error('Failed to load policies');
     }
   } catch (error) {
-    toast.error("An error occurred while loading policies");
+    toast.error('An error occurred while loading policies');
     console.error(error);
   } finally {
     isLoading.value = false;
   }
 }
 
-watch([search, sortField, sortDirection, cursor, direction], () => {
-  fetchPolicies();
-}, { immediate: true });
+watch(
+  [search, sortField, sortDirection, cursor, direction],
+  () => {
+    fetchPolicies();
+  },
+  { immediate: true }
+);
 
 function handleSearch(value: string) {
   search.value = value;
   cursor.value = null;
-  direction.value = "forward";
+  direction.value = 'forward';
   currentPage.value = 1;
   totalCount.value = null;
 }
 
 function handleSort(field: string) {
   if (sortField.value === field) {
-    sortDirection.value = sortDirection.value === "asc" ? "desc" : "asc";
+    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
   } else {
     sortField.value = field;
-    sortDirection.value = "asc";
+    sortDirection.value = 'asc';
   }
   cursor.value = null;
-  direction.value = "forward";
+  direction.value = 'forward';
   currentPage.value = 1;
 }
 
 function handleNextPage() {
   if (pageInfo.value.endCursor) {
     cursor.value = pageInfo.value.endCursor;
-    direction.value = "forward";
+    direction.value = 'forward';
     currentPage.value++;
   }
 }
@@ -152,81 +160,83 @@ function handleNextPage() {
 function handlePreviousPage() {
   if (pageInfo.value.startCursor) {
     cursor.value = pageInfo.value.startCursor;
-    direction.value = "backward";
+    direction.value = 'backward';
     currentPage.value = Math.max(1, currentPage.value - 1);
   }
 }
 
 function formatCurrency(value: number | null): string {
-  if (value === null) return "-";
-  return new Intl.NumberFormat("tr-TR", {
-    style: "currency",
-    currency: "TRY",
+  if (value === null) return '-';
+  return new Intl.NumberFormat('tr-TR', {
+    style: 'currency',
+    currency: 'TRY',
   }).format(value);
 }
 
 function formatDate(value: string | null): string {
-  if (!value) return "-";
+  if (!value) return '-';
   return new Date(value).toLocaleDateString();
 }
 
-function getStateVariant(state: string | null): "default" | "secondary" | "destructive" | "outline" {
+function getStateVariant(
+  state: string | null
+): 'default' | 'secondary' | 'destructive' | 'outline' {
   switch (state) {
-    case "Active":
-    case "ACTIVE":
-      return "default";
-    case "Expired":
-    case "EXPIRED":
-      return "secondary";
-    case "Cancelled":
-    case "CANCELLED":
-      return "destructive";
+    case 'Active':
+    case 'ACTIVE':
+      return 'default';
+    case 'Expired':
+    case 'EXPIRED':
+      return 'secondary';
+    case 'Cancelled':
+    case 'CANCELLED':
+      return 'destructive';
     default:
-      return "outline";
+      return 'outline';
   }
 }
 
 const columns: Column<Policy>[] = [
   {
-    key: "policyNumber",
-    header: "Policy Number",
+    key: 'policyNumber',
+    header: 'Policy Number',
     sortable: true,
-    render: (policy) => policy.policyNumber || "-",
+    render: (policy) => policy.policyNumber || '-',
   },
   {
-    key: "productBranch",
-    header: "Branch",
+    key: 'productBranch',
+    header: 'Branch',
   },
   {
-    key: "insuranceCompanyName",
-    header: "Insurance Company",
-    render: (policy) => policy.insuranceCompanyName || "-",
+    key: 'insuranceCompanyName',
+    header: 'Insurance Company',
+    render: (policy) => policy.insuranceCompanyName || '-',
   },
   {
-    key: "customerName",
-    header: "Customer",
-    render: (policy) => policy.customerName || "-",
+    key: 'customerName',
+    header: 'Customer',
+    render: (policy) => policy.customerName || '-',
   },
   {
-    key: "grossPremium",
-    header: "Premium",
+    key: 'grossPremium',
+    header: 'Premium',
     sortable: true,
     render: (policy) => formatCurrency(policy.grossPremium),
   },
   {
-    key: "startDate",
-    header: "Start Date",
+    key: 'startDate',
+    header: 'Start Date',
     sortable: true,
     render: (policy) => formatDate(policy.startDate),
   },
   {
-    key: "endDate",
-    header: "End Date",
+    key: 'endDate',
+    header: 'End Date',
     render: (policy) => formatDate(policy.endDate),
   },
   {
-    key: "state",
-    header: "Status",
+    key: 'state',
+    header: 'Status',
   },
 ];
 </script>
@@ -235,9 +245,7 @@ const columns: Column<Policy>[] = [
   <div class="space-y-6">
     <div>
       <h1 class="text-3xl font-bold tracking-tight">Policies</h1>
-      <p class="text-muted-foreground">
-        Browse and manage insurance policies.
-      </p>
+      <p class="text-muted-foreground">Browse and manage insurance policies.</p>
     </div>
 
     <div class="flex items-center gap-4">
@@ -263,11 +271,11 @@ const columns: Column<Policy>[] = [
       @row-click="(policy: Policy) => router.push(`/policies/${policy.id}`)"
     >
       <template #cell-productBranch="{ item }">
-        <Badge variant="outline">{{ item.productBranch || "-" }}</Badge>
+        <Badge variant="outline">{{ item.productBranch || '-' }}</Badge>
       </template>
       <template #cell-state="{ item }">
         <Badge :variant="getStateVariant(item.state)">
-          {{ item.state || "-" }}
+          {{ item.state || '-' }}
         </Badge>
       </template>
     </DataTable>

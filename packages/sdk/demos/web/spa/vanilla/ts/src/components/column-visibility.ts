@@ -31,9 +31,7 @@ function loadVisibleColumns(columns: ColumnConfig[], storageKey?: string): Set<s
   }
 
   // Use defaults
-  return new Set(
-    columns.filter((col) => col.defaultVisible !== false).map((col) => col.id)
-  );
+  return new Set(columns.filter((col) => col.defaultVisible !== false).map((col) => col.id));
 }
 
 /**
@@ -65,12 +63,12 @@ export function renderColumnVisibility(
       .map(
         (col) => `
         <label class="column-checkbox">
-          <input type="checkbox" data-column-id="${col.id}" ${visibleColumns.has(col.id) ? "checked" : ""} />
+          <input type="checkbox" data-column-id="${col.id}" ${visibleColumns.has(col.id) ? 'checked' : ''} />
           ${col.label}
         </label>
       `
       )
-      .join("");
+      .join('');
 
     container.innerHTML = `
       <div class="column-visibility">
@@ -92,28 +90,28 @@ export function renderColumnVisibility(
     `;
 
     // Toggle dropdown
-    const toggleBtn = container.querySelector(".column-visibility-toggle") as HTMLButtonElement;
-    const dropdown = container.querySelector(".column-visibility-dropdown") as HTMLElement;
+    const toggleBtn = container.querySelector('.column-visibility-toggle') as HTMLButtonElement;
+    const dropdown = container.querySelector('.column-visibility-dropdown') as HTMLElement;
 
-    toggleBtn.addEventListener("click", (e) => {
+    toggleBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      const isOpen = dropdown.style.display !== "none";
-      dropdown.style.display = isOpen ? "none" : "block";
-      toggleBtn.setAttribute("aria-expanded", String(!isOpen));
+      const isOpen = dropdown.style.display !== 'none';
+      dropdown.style.display = isOpen ? 'none' : 'block';
+      toggleBtn.setAttribute('aria-expanded', String(!isOpen));
     });
 
     // Close dropdown when clicking outside
-    document.addEventListener("click", (e) => {
+    document.addEventListener('click', (e) => {
       if (!container.contains(e.target as Node)) {
-        dropdown.style.display = "none";
-        toggleBtn.setAttribute("aria-expanded", "false");
+        dropdown.style.display = 'none';
+        toggleBtn.setAttribute('aria-expanded', 'false');
       }
     });
 
     // Handle checkbox changes
     const checkboxes = container.querySelectorAll('input[type="checkbox"]');
     checkboxes.forEach((checkbox) => {
-      checkbox.addEventListener("change", () => {
+      checkbox.addEventListener('change', () => {
         const input = checkbox as HTMLInputElement;
         const columnId = input.dataset.columnId!;
 
@@ -135,8 +133,8 @@ export function renderColumnVisibility(
     });
 
     // Reset button
-    const resetBtn = container.querySelector(".column-visibility-reset") as HTMLButtonElement;
-    resetBtn.addEventListener("click", () => {
+    const resetBtn = container.querySelector('.column-visibility-reset') as HTMLButtonElement;
+    resetBtn.addEventListener('click', () => {
       visibleColumns = new Set(
         columns.filter((col) => col.defaultVisible !== false).map((col) => col.id)
       );

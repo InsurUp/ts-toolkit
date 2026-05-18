@@ -18,12 +18,12 @@ A comprehensive Single Page Application demo for the InsurUp SDK built with vani
 
 ## Tech Stack
 
-| Technology | Purpose |
-|------------|---------|
-| [Bun](https://bun.sh/) | Runtime, bundler, and dev server |
-| [TypeScript](https://www.typescriptlang.org/) | Type-safe JavaScript |
-| [Pico CSS](https://picocss.com/) | Minimal, semantic CSS framework |
-| [@insurup/sdk](../../README.md) | InsurUp API client |
+| Technology                                    | Purpose                          |
+| --------------------------------------------- | -------------------------------- |
+| [Bun](https://bun.sh/)                        | Runtime, bundler, and dev server |
+| [TypeScript](https://www.typescriptlang.org/) | Type-safe JavaScript             |
+| [Pico CSS](https://picocss.com/)              | Minimal, semantic CSS framework  |
+| [@insurup/sdk](../../README.md)               | InsurUp API client               |
 
 ## Quick Start
 
@@ -55,20 +55,20 @@ The demo uses sensible defaults but can be configured:
 
 **Environment Variables**
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | `3000` | Development server port |
+| Variable | Default | Description             |
+| -------- | ------- | ----------------------- |
+| `PORT`   | `3000`  | Development server port |
 
 **localStorage Overrides**
 
 Configuration can also be overridden in the browser via localStorage:
 
-| Key | Default | Description |
-|-----|---------|-------------|
-| `insurup_config.authServer` | `https://auth.insurup.com` | OAuth2 authorization server URL |
-| `insurup_config.clientId` | `demo` | OAuth2 client ID |
-| `insurup_config.scopes` | `["openid", "profile", "offline_access", "core-api"]` | OAuth2 scopes |
-| `insurup_config.apiBaseUrl` | (SDK default) | API base URL override |
+| Key                         | Default                                               | Description                     |
+| --------------------------- | ----------------------------------------------------- | ------------------------------- |
+| `insurup_config.authServer` | `https://auth.insurup.com`                            | OAuth2 authorization server URL |
+| `insurup_config.clientId`   | `demo`                                                | OAuth2 client ID                |
+| `insurup_config.scopes`     | `["openid", "profile", "offline_access", "core-api"]` | OAuth2 scopes                   |
+| `insurup_config.apiBaseUrl` | (SDK default)                                         | API base URL override           |
 
 ## Project Structure
 
@@ -146,20 +146,20 @@ This demo implements the OAuth2 Authorization Code flow with PKCE (Proof Key for
 
 ### Security Features
 
-| Feature | Description |
-|---------|-------------|
-| **PKCE** | Prevents authorization code interception attacks |
-| **State Parameter** | CSRF protection during OAuth flow |
-| **Token Expiry** | Automatic token refresh with 60-second buffer |
-| **Secure Storage** | Tokens stored in localStorage (consider secure cookies for production) |
+| Feature             | Description                                                            |
+| ------------------- | ---------------------------------------------------------------------- |
+| **PKCE**            | Prevents authorization code interception attacks                       |
+| **State Parameter** | CSRF protection during OAuth flow                                      |
+| **Token Expiry**    | Automatic token refresh with 60-second buffer                          |
+| **Secure Storage**  | Tokens stored in localStorage (consider secure cookies for production) |
 
 ## SDK Usage Examples
 
 ### Initializing the Client
 
 ```typescript
-import { DefaultInsurUpClient } from "@insurup/sdk";
-import { getAccessToken } from "./auth";
+import { DefaultInsurUpClient } from '@insurup/sdk';
+import { getAccessToken } from './auth';
 
 const client = new DefaultInsurUpClient({
   tokenProvider: () => getAccessToken(),
@@ -172,7 +172,7 @@ const client = new DefaultInsurUpClient({
 const res = await client.customers.getCustomers({
   first: 10,
   after: cursor,
-  select: ["id", "name", "identityNumber", "primaryEmail", "type"] as const,
+  select: ['id', 'name', 'identityNumber', 'primaryEmail', 'type'] as const,
 });
 
 if (res.isSuccess && res.data) {
@@ -200,15 +200,15 @@ if (res.isSuccess && res.data) {
 
 ```typescript
 const res = await client.customers.createCustomer({
-  type: "Individual",
-  firstName: "John",
-  lastName: "Doe",
-  identityNumber: "12345678901",
-  email: "john@example.com",
+  type: 'Individual',
+  firstName: 'John',
+  lastName: 'Doe',
+  identityNumber: '12345678901',
+  email: 'john@example.com',
 });
 
 if (res.isSuccess) {
-  console.log("Created customer:", res.data?.id);
+  console.log('Created customer:', res.data?.id);
 }
 ```
 
@@ -224,12 +224,12 @@ The demo persists table state (search, sort, filters, pagination) in the URL que
 
 **Available Parameters:**
 
-| Parameter | Example | Description |
-|-----------|---------|-------------|
-| `q` | `?q=john` | Search query |
-| `sort` | `?sort=name:asc` | Sort field and direction |
-| `page` | `?page=2` | Current page number |
-| `*` | `?status=active` | Any other param is treated as a filter |
+| Parameter | Example          | Description                            |
+| --------- | ---------------- | -------------------------------------- |
+| `q`       | `?q=john`        | Search query                           |
+| `sort`    | `?sort=name:asc` | Sort field and direction               |
+| `page`    | `?page=2`        | Current page number                    |
+| `*`       | `?status=active` | Any other param is treated as a filter |
 
 ## Development
 
@@ -263,9 +263,9 @@ export async function render(container: HTMLElement): Promise<void> {
 const routes: Route[] = [
   // ...existing routes
   {
-    path: "/my-page",
-    component: () => import("./pages/my-page"),
-    title: "My Page",
+    path: '/my-page',
+    component: () => import('./pages/my-page'),
+    title: 'My Page',
     protected: true, // requires authentication
   },
 ];
@@ -279,12 +279,12 @@ This demo uses [Pico CSS](https://picocss.com/), a minimal CSS framework that st
 
 **Styling Patterns:**
 
-| Pattern | Usage |
-|---------|-------|
-| Semantic HTML | Use `<article>`, `<header>`, `<footer>`, `<nav>`, etc. |
-| Button links | Use `role="button"` on links that should look like buttons |
-| Loading states | Use `aria-busy="true"` for loading states on buttons |
-| Dark mode | Use `data-theme="dark"` on `<html>` for dark mode |
+| Pattern        | Usage                                                      |
+| -------------- | ---------------------------------------------------------- |
+| Semantic HTML  | Use `<article>`, `<header>`, `<footer>`, `<nav>`, etc.     |
+| Button links   | Use `role="button"` on links that should look like buttons |
+| Loading states | Use `aria-busy="true"` for loading states on buttons       |
+| Dark mode      | Use `data-theme="dark"` on `<html>` for dark mode          |
 
 ## Browser Compatibility
 
@@ -300,11 +300,11 @@ This demo uses modern browser APIs:
 **Supported Browsers:**
 
 | Browser | Minimum Version |
-|---------|-----------------|
-| Chrome | 80+ |
-| Firefox | 80+ |
-| Safari | 14+ |
-| Edge | 80+ |
+| ------- | --------------- |
+| Chrome  | 80+             |
+| Firefox | 80+             |
+| Safari  | 14+             |
+| Edge    | 80+             |
 
 ## License
 

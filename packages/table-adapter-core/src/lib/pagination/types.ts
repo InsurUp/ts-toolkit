@@ -43,9 +43,7 @@ export type PaginationOptions = CursorPaginationOptions;
  * Used for type inference in adapters and factories
  */
 export type PaginationManagerFromOptions<T extends PaginationOptions> =
-  T extends CursorPaginationOptions
-    ? CursorPaginationManager
-    : PaginationManager; // fallback for future types
+  T extends CursorPaginationOptions ? CursorPaginationManager : PaginationManager; // fallback for future types
 
 /**
  * Base pagination manager interface

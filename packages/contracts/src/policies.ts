@@ -14,9 +14,9 @@ import type {
   Coverage,
   ProposalSnapshotVehicle,
   ProposalSnapshotProperty,
-} from "./common.js";
-import type { CustomerPhoneNumber } from "./common.js";
-import type { ProposalSnapshotCustomer } from "./proposals.js";
+} from './common.js';
+import type { CustomerPhoneNumber } from './common.js';
+import type { ProposalSnapshotCustomer } from './proposals.js';
 
 // ============================================================================
 // POLICY SNAPSHOT TYPES
@@ -453,11 +453,11 @@ export interface SendPolicyDocumentRequest {
  */
 export type SendPolicyDocumentCommunication =
   | {
-      readonly type: "email";
+      readonly type: 'email';
       readonly email: string;
     }
   | {
-      readonly type: "sms";
+      readonly type: 'sms';
       readonly phoneNumber: CustomerPhoneNumber;
     };
 
@@ -547,7 +547,7 @@ export interface UpdateManualPolicyRequest {
 export interface GetPolicyCountAndPremiumAnalyticsRequest {
   readonly startDate: string;
   readonly endDate: string;
-  readonly groupBy?: "productBranch" | "insuranceCompany";
+  readonly groupBy?: 'productBranch' | 'insuranceCompany';
 }
 
 /**

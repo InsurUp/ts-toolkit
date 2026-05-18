@@ -1,10 +1,10 @@
-import js from "@eslint/js";
-import globals from "globals";
-import tseslint from "typescript-eslint";
-import pluginVue from "eslint-plugin-vue";
+import js from '@eslint/js';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
+import pluginVue from 'eslint-plugin-vue';
 
 export default [
-  { ignores: ["dist"] },
+  { ignores: ['dist'] },
   js.configs.recommended,
   ...tseslint.configs.recommended.map((config) => ({
     ...config,
@@ -16,9 +16,9 @@ export default [
       },
     },
   })),
-  ...pluginVue.configs["flat/recommended"],
+  ...pluginVue.configs['flat/recommended'],
   {
-    files: ["**/*.{ts,vue}"],
+    files: ['**/*.{ts,vue}'],
     languageOptions: {
       ecmaVersion: 2022,
       globals: globals.browser,
@@ -27,7 +27,7 @@ export default [
       },
     },
     rules: {
-      "vue/multi-word-component-names": "off",
+      'vue/multi-word-component-names': 'off',
     },
   },
 ];

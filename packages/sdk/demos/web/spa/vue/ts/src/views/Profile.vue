@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed } from "vue";
-import { useAuth } from "@/composables/useAuth";
+import { computed } from 'vue';
+import { useAuth } from '@/composables/useAuth';
 import {
   Card,
   CardContent,
@@ -9,8 +9,8 @@ import {
   CardTitle,
   Badge,
   Button,
-} from "@/components/ui";
-import { User, Mail, Clock, LogOut } from "lucide-vue-next";
+} from '@/components/ui';
+import { User, Mail, Clock, LogOut } from 'lucide-vue-next';
 
 const { token, logout, parseIdTokenClaims } = useAuth();
 const claims = computed(() => parseIdTokenClaims());
@@ -20,9 +20,7 @@ const claims = computed(() => parseIdTokenClaims());
   <div class="space-y-6">
     <div>
       <h1 class="text-3xl font-bold tracking-tight">Profile</h1>
-      <p class="text-muted-foreground">
-        View your account information and session details.
-      </p>
+      <p class="text-muted-foreground">View your account information and session details.</p>
     </div>
 
     <div class="grid gap-6 md:grid-cols-2">
@@ -48,7 +46,7 @@ const claims = computed(() => parseIdTokenClaims());
           <div v-if="claims?.email_verified !== undefined" class="flex items-center gap-2">
             <span class="font-medium">Email Verified:</span>
             <Badge :variant="claims.email_verified ? 'default' : 'secondary'">
-              {{ claims.email_verified ? "Yes" : "No" }}
+              {{ claims.email_verified ? 'Yes' : 'No' }}
             </Badge>
           </div>
         </CardContent>
@@ -92,9 +90,7 @@ const claims = computed(() => parseIdTokenClaims());
     <Card v-if="token">
       <CardHeader>
         <CardTitle>Access Token</CardTitle>
-        <CardDescription>
-          The current access token (truncated for display).
-        </CardDescription>
+        <CardDescription> The current access token (truncated for display). </CardDescription>
       </CardHeader>
       <CardContent>
         <code class="block p-4 bg-muted rounded-md text-sm break-all">

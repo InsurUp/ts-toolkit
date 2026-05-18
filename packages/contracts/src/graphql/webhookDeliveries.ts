@@ -12,9 +12,9 @@ import type {
   ModelFilterInput,
   ModelSearchInput,
   GetQueryOptions,
-} from "./common.js";
-import type { DateTime } from "../common.date.js";
-import type { WebhookEvent } from "../webhooks.js";
+} from './common.js';
+import type { DateTime } from '../common.date.js';
+import type { WebhookEvent } from '../webhooks.js';
 
 // === Enums ===
 
@@ -23,9 +23,9 @@ import type { WebhookEvent } from "../webhooks.js";
  * Represents the current status of a webhook delivery attempt
  */
 export enum WebhookDeliveryState {
-  Pending = "PENDING",
-  Success = "SUCCESS",
-  Failed = "FAILED",
+  Pending = 'PENDING',
+  Success = 'SUCCESS',
+  Failed = 'FAILED',
 }
 
 // === Output Types ===
@@ -49,15 +49,13 @@ export interface QueryWebhookDeliveryResult {
  * Filter input for QueryWebhookDeliveryResult.
  * Auto-generated from model fields using ModelFilterInput.
  */
-export type QueryWebhookDeliveryResultFilterInput =
-  ModelFilterInput<QueryWebhookDeliveryResult>;
+export type QueryWebhookDeliveryResultFilterInput = ModelFilterInput<QueryWebhookDeliveryResult>;
 
 /**
  * Search input for QueryWebhookDeliveryResult.
  * Auto-generated from model fields using ModelSearchInput.
  */
-export type QueryWebhookDeliveryResultSearchInput =
-  ModelSearchInput<QueryWebhookDeliveryResult>;
+export type QueryWebhookDeliveryResultSearchInput = ModelSearchInput<QueryWebhookDeliveryResult>;
 
 /**
  * Sort input for QueryWebhookDeliveryResult.
@@ -76,8 +74,7 @@ export interface QueryWebhookDeliveryResultSortInput {
 
 export type WebhookDeliveriesEdge = Edge<QueryWebhookDeliveryResult>;
 export type WebhookDeliveriesConnection<
-  TFields extends readonly WebhookDeliveryFieldKey[] =
-    readonly WebhookDeliveryFieldKey[],
+  TFields extends readonly WebhookDeliveryFieldKey[] = readonly WebhookDeliveryFieldKey[],
 > = Connection<PickWebhookDeliveryFields<TFields>>;
 
 // === Select Options ===
@@ -91,33 +88,34 @@ export type WebhookDeliveryFieldKey = DeepFieldKeys<QueryWebhookDeliveryResult>;
  * Runtime array of all webhook delivery field keys.
  */
 export const ALL_WEBHOOK_DELIVERY_FIELDS = [
-  "id",
-  "webhookId",
-  "webhookName",
-  "event",
-  "state",
-  "responseStatusCode",
-  "createdAt",
-  "completedAt",
-  "retryCount",
+  'id',
+  'webhookId',
+  'webhookName',
+  'event',
+  'state',
+  'responseStatusCode',
+  'createdAt',
+  'completedAt',
+  'retryCount',
 ] as const satisfies readonly WebhookDeliveryFieldKey[];
 
 /**
  * Helper type to pick selected fields from QueryWebhookDeliveryResult.
  */
-export type PickWebhookDeliveryFields<
-  T extends readonly WebhookDeliveryFieldKey[],
-> = PickFields<QueryWebhookDeliveryResult, T>;
+export type PickWebhookDeliveryFields<T extends readonly WebhookDeliveryFieldKey[]> = PickFields<
+  QueryWebhookDeliveryResult,
+  T
+>;
 
 /**
  * Type-safe connection result based on selected fields
  */
 export interface SelectedWebhookDeliveriesConnection<
   TFields extends WebhookDeliveryFieldKey[],
-> extends Omit<WebhookDeliveriesConnection, "nodes" | "edges"> {
+> extends Omit<WebhookDeliveriesConnection, 'nodes' | 'edges'> {
   nodes?: (PickWebhookDeliveryFields<TFields> | null)[] | null;
   edges?:
-    | (Omit<WebhookDeliveriesEdge, "node"> & {
+    | (Omit<WebhookDeliveriesEdge, 'node'> & {
         node?: PickWebhookDeliveryFields<TFields> | null;
       })[]
     | null;

@@ -2,9 +2,9 @@
  * SDK client composable for Vue.
  */
 
-import { DefaultInsurUpClient } from "@insurup/sdk";
-import { getConfig } from "@/lib/config";
-import { useAuth } from "./useAuth";
+import { DefaultInsurUpClient } from '@insurup/sdk';
+import { getConfig } from '@/lib/config';
+import { useAuth } from './useAuth';
 
 let clientInstance: DefaultInsurUpClient | null = null;
 

@@ -1,26 +1,13 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router";
-import { useClient } from "@/client";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { DetailSkeleton } from "@/components/DetailSkeleton";
-import { toast } from "sonner";
-import {
-  ArrowLeft,
-  FileText,
-  User,
-  Building,
-  Calendar,
-  DollarSign,
-} from "lucide-react";
-import type { GetPolicyDetailResult } from "@insurup/contracts";
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router';
+import { useClient } from '@/client';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { DetailSkeleton } from '@/components/DetailSkeleton';
+import { toast } from 'sonner';
+import { ArrowLeft, FileText, User, Building, Calendar, DollarSign } from 'lucide-react';
+import type { GetPolicyDetailResult } from '@insurup/contracts';
 
 export function PolicyDetail() {
   const { id } = useParams<{ id: string }>();
@@ -40,13 +27,13 @@ export function PolicyDetail() {
         if (result.isSuccess) {
           setPolicy(result.data);
         } else {
-          toast.error("Failed to load policy");
-          navigate("/policies");
+          toast.error('Failed to load policy');
+          navigate('/policies');
         }
       } catch (error) {
-        toast.error("An error occurred");
+        toast.error('An error occurred');
         console.error(error);
-        navigate("/policies");
+        navigate('/policies');
       } finally {
         setIsLoading(false);
       }
@@ -56,15 +43,15 @@ export function PolicyDetail() {
   }, [id, client.policies, navigate]);
 
   const formatCurrency = (value: number | null | undefined) => {
-    if (value === null || value === undefined) return "-";
-    return new Intl.NumberFormat("tr-TR", {
-      style: "currency",
-      currency: "TRY",
+    if (value === null || value === undefined) return '-';
+    return new Intl.NumberFormat('tr-TR', {
+      style: 'currency',
+      currency: 'TRY',
     }).format(value);
   };
 
   const formatDate = (value: string | null | undefined) => {
-    if (!value) return "-";
+    if (!value) return '-';
     return new Date(value).toLocaleDateString();
   };
 
@@ -79,7 +66,7 @@ export function PolicyDetail() {
   return (
     <div className="space-y-6 animate-in fade-in-50 duration-300">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate("/policies")}>
+        <Button variant="ghost" size="icon" onClick={() => navigate('/policies')}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
@@ -102,19 +89,19 @@ export function PolicyDetail() {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="font-medium">Policy Number</span>
-              <span>{policy.insuranceCompanyPolicyNumber || "-"}</span>
+              <span>{policy.insuranceCompanyPolicyNumber || '-'}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="font-medium">Branch</span>
-              <Badge variant="outline">{policy.productBranch || "-"}</Badge>
+              <Badge variant="outline">{policy.productBranch || '-'}</Badge>
             </div>
             <div className="flex items-center justify-between">
               <span className="font-medium">Product ID</span>
-              <span>{policy.productId || "-"}</span>
+              <span>{policy.productId || '-'}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="font-medium">Status</span>
-              <Badge>{policy.state || "-"}</Badge>
+              <Badge>{policy.state || '-'}</Badge>
             </div>
           </CardContent>
         </Card>
@@ -130,7 +117,7 @@ export function PolicyDetail() {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="font-medium">Company ID</span>
-              <span>{policy.insuranceCompanyId || "-"}</span>
+              <span>{policy.insuranceCompanyId || '-'}</span>
             </div>
           </CardContent>
         </Card>
@@ -146,7 +133,7 @@ export function PolicyDetail() {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="font-medium">Insurer Customer ID</span>
-              <span>{policy.insurerCustomerId || "-"}</span>
+              <span>{policy.insurerCustomerId || '-'}</span>
             </div>
             {policy.insurerCustomerId && (
               <Button
@@ -171,9 +158,7 @@ export function PolicyDetail() {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="font-medium">Gross Premium</span>
-              <span className="font-bold">
-                {formatCurrency(policy.grossPremium)}
-              </span>
+              <span className="font-bold">{formatCurrency(policy.grossPremium)}</span>
             </div>
             {policy.netPremium !== undefined && (
               <div className="flex items-center justify-between">

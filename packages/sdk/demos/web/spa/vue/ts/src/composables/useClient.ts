@@ -3,9 +3,9 @@
  * Provides an authenticated InsurUp SDK client.
  */
 
-import { DefaultInsurUpClient } from "@insurup/sdk";
-import { getConfig } from "@/lib/config";
-import { useAuth } from "./useAuth";
+import { DefaultInsurUpClient } from '@insurup/sdk';
+import { getConfig } from '@/lib/config';
+import { useAuth } from './useAuth';
 
 let clientInstance: DefaultInsurUpClient | null = null;
 

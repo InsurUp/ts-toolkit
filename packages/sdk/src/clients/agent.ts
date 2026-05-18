@@ -1,7 +1,7 @@
-import type { HttpTransport } from "../client/http.js";
-import type { InsurUpResult } from "../core/result.js";
-import type { RequestOptions } from "../core/options.js";
-import { agents } from "../core/endpoints.js";
+import type { HttpTransport } from '../client/http.js';
+import type { InsurUpResult } from '../core/result.js';
+import type { RequestOptions } from '../core/options.js';
+import { agents } from '../core/endpoints.js';
 import type {
   GetCurrentAgentResult,
   UpdateCurrentAgentRequest,
@@ -14,8 +14,8 @@ import type {
   ReSyncAgentInsuranceCompanyWithInsuranceRequest,
   GetB2CConfigFieldsResult,
   UpdateB2CConfigFieldsRequest,
-} from "@insurup/contracts";
-import { b2c } from "../core/endpoints.js";
+} from '@insurup/contracts';
+import { b2c } from '../core/endpoints.js';
 
 /**
  * Provides agent management operations for the InsurUp platform, enabling agents to manage their profile,
@@ -34,13 +34,8 @@ export class InsurUpAgentClient {
    *
    * @returns Agent profile information / Acente profil bilgileri
    */
-  async getCurrentAgent(
-    options?: RequestOptions,
-  ): Promise<InsurUpResult<GetCurrentAgentResult>> {
-    return this.http.get<GetCurrentAgentResult>(
-      agents.getCurrentAgent,
-      options,
-    );
+  async getCurrentAgent(options?: RequestOptions): Promise<InsurUpResult<GetCurrentAgentResult>> {
+    return this.http.get<GetCurrentAgentResult>(agents.getCurrentAgent, options);
   }
 
   /**
@@ -53,7 +48,7 @@ export class InsurUpAgentClient {
    */
   async updateCurrentAgent(
     request: UpdateCurrentAgentRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.putNoContent(agents.updateCurrentAgent, request, options);
   }
@@ -66,11 +61,11 @@ export class InsurUpAgentClient {
    * @returns List of agent's insurance companies / Acentenin sigorta şirketleri listesi
    */
   async getAgentInsuranceCompaniesAsync(
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetMyAgentInsuranceCompaniesResult[]>> {
     return this.http.get<GetMyAgentInsuranceCompaniesResult[]>(
       agents.insuranceCompanies.getMyInsuranceCompanies,
-      options,
+      options
     );
   }
 
@@ -84,15 +79,10 @@ export class InsurUpAgentClient {
    */
   async getAgentInsuranceCompanyBranchesAsync(
     agentInsuranceCompanyId: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetAgentInsuranceCompanyBranchesResult[]>> {
-    const endpoint = agents.insuranceCompanies.getBranches.render(
-      agentInsuranceCompanyId,
-    );
-    return this.http.get<GetAgentInsuranceCompanyBranchesResult[]>(
-      endpoint,
-      options,
-    );
+    const endpoint = agents.insuranceCompanies.getBranches.render(agentInsuranceCompanyId);
+    return this.http.get<GetAgentInsuranceCompanyBranchesResult[]>(endpoint, options);
   }
 
   /**
@@ -105,15 +95,10 @@ export class InsurUpAgentClient {
    */
   async getAgentInsuranceCompanyConnectionAsync(
     agentInsuranceCompanyId: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetAgentInsuranceCompanyConnectionResult>> {
-    const endpoint = agents.insuranceCompanies.getConnection.render(
-      agentInsuranceCompanyId,
-    );
-    return this.http.get<GetAgentInsuranceCompanyConnectionResult>(
-      endpoint,
-      options,
-    );
+    const endpoint = agents.insuranceCompanies.getConnection.render(agentInsuranceCompanyId);
+    return this.http.get<GetAgentInsuranceCompanyConnectionResult>(endpoint, options);
   }
 
   /**
@@ -126,12 +111,12 @@ export class InsurUpAgentClient {
    */
   async addAgentInsuranceCompany(
     request: AddInsuranceCompanyToAgentRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.postNoContent(
       agents.insuranceCompanies.addInsuranceCompanyToAgent,
       request,
-      options,
+      options
     );
   }
 
@@ -145,11 +130,9 @@ export class InsurUpAgentClient {
    */
   async removeAgentInsuranceCompany(
     agentInsuranceCompanyId: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
-    const endpoint = agents.insuranceCompanies.remove.render(
-      agentInsuranceCompanyId,
-    );
+    const endpoint = agents.insuranceCompanies.remove.render(agentInsuranceCompanyId);
     return this.http.deleteNoContent(endpoint, options);
   }
 
@@ -163,10 +146,10 @@ export class InsurUpAgentClient {
    */
   async updateAgentInsuranceCompanyConnection(
     request: UpdateAgentInsuranceCompanyConnectionRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     const endpoint = agents.insuranceCompanies.updateConnection.render(
-      request.agentInsuranceCompanyId,
+      request.agentInsuranceCompanyId
     );
     return this.http.putNoContent(endpoint, request, options);
   }
@@ -181,10 +164,10 @@ export class InsurUpAgentClient {
    */
   async updateAgentInsuranceCompanyBranches(
     request: UpdateAgentInsuranceCompanyBranchesRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     const endpoint = agents.insuranceCompanies.updateBranches.render(
-      request.agentInsuranceCompanyId,
+      request.agentInsuranceCompanyId
     );
     return this.http.putNoContent(endpoint, request, options);
   }
@@ -199,12 +182,11 @@ export class InsurUpAgentClient {
    */
   async reSyncAgentInsuranceCompanyWithInsurance(
     request: ReSyncAgentInsuranceCompanyWithInsuranceRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
-    const endpoint =
-      agents.insuranceCompanies.reSyncAgentInsuranceCompanyWithInsurance.render(
-        request.agentInsuranceCompanyId,
-      );
+    const endpoint = agents.insuranceCompanies.reSyncAgentInsuranceCompanyWithInsurance.render(
+      request.agentInsuranceCompanyId
+    );
     return this.http.postNoContent(endpoint, request, options);
   }
 
@@ -216,12 +198,9 @@ export class InsurUpAgentClient {
    * @returns List of B2C configuration fields
    */
   async getB2CConfigFields(
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetB2CConfigFieldsResult>> {
-    return this.http.get<GetB2CConfigFieldsResult>(
-      b2c.configFields.getAll,
-      options,
-    );
+    return this.http.get<GetB2CConfigFieldsResult>(b2c.configFields.getAll, options);
   }
 
   /**
@@ -234,7 +213,7 @@ export class InsurUpAgentClient {
    */
   async updateB2CConfigFields(
     request: UpdateB2CConfigFieldsRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.putNoContent(b2c.configFields.updateAll, request, options);
   }

@@ -94,9 +94,7 @@ describe('useCustomerTable', () => {
 
   it('autoFetch=true triggers a fetch on mount', async () => {
     const fetchFn = createMockFetchFn();
-    renderHook(() =>
-      useCustomerTable(options({ fetch: fetchFn, autoFetch: true }))
-    );
+    renderHook(() => useCustomerTable(options({ fetch: fetchFn, autoFetch: true })));
 
     await waitFor(() => {
       expect(fetchFn).toHaveBeenCalled();
@@ -146,9 +144,7 @@ describe('useCustomerTable', () => {
   it('maps a thrown fetch error into state.error / isError', async () => {
     const fetchFn = vi.fn().mockRejectedValue(new Error('upstream is down'));
 
-    const { result } = renderHook(() =>
-      useCustomerTable(options({ fetch: fetchFn }))
-    );
+    const { result } = renderHook(() => useCustomerTable(options({ fetch: fetchFn })));
 
     await act(async () => {
       try {

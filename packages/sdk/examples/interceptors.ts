@@ -4,17 +4,13 @@
  * Demonstrates request/response interceptor patterns with the InsurUp SDK.
  */
 
-import {
-  DefaultInsurUpClient,
-  InsurUpServerErrorType,
-  InsurUpClientErrorType,
-} from "@insurup/sdk";
+import { DefaultInsurUpClient, InsurUpServerErrorType, InsurUpClientErrorType } from '@insurup/sdk';
 import type {
   RequestConfig,
   RequestInterceptor,
   ResponseInterceptor,
   InsurUpResult,
-} from "@insurup/sdk";
+} from '@insurup/sdk';
 
 // ============================================================================
 // 1. Basic logging interceptor
@@ -26,7 +22,7 @@ const loggingInterceptor: RequestInterceptor = (config) => {
 };
 
 const clientWithLogging = new DefaultInsurUpClient({
-  tokenProvider: () => "your-api-token-here",
+  tokenProvider: () => 'your-api-token-here',
   onRequest: loggingInterceptor,
 });
 
@@ -41,14 +37,14 @@ const correlationInterceptor: RequestInterceptor = (config) => {
     ...config,
     headers: {
       ...config.headers,
-      "X-Correlation-ID": correlationId,
-      "X-Request-Timestamp": Date.now().toString(),
+      'X-Correlation-ID': correlationId,
+      'X-Request-Timestamp': Date.now().toString(),
     },
   };
 };
 
 const clientWithCorrelation = new DefaultInsurUpClient({
-  tokenProvider: () => "your-api-token-here",
+  tokenProvider: () => 'your-api-token-here',
   onRequest: correlationInterceptor,
 });
 
@@ -67,7 +63,7 @@ const timingRequestInterceptor: RequestInterceptor = (config) => {
     ...config,
     headers: {
       ...config.headers,
-      "X-Request-ID": requestId,
+      'X-Request-ID': requestId,
     },
   };
 };
@@ -89,7 +85,7 @@ const timingResponseInterceptor: ResponseInterceptor = (result, config) => {
 };
 
 const clientWithTiming = new DefaultInsurUpClient({
-  tokenProvider: () => "your-api-token-here",
+  tokenProvider: () => 'your-api-token-here',
   onRequest: timingRequestInterceptor,
   onResponse: timingResponseInterceptor,
 });
@@ -115,8 +111,7 @@ const errorTrackingInterceptor: ResponseInterceptor = (result, config) => {
       url: config.url,
       method: config.method,
       errorKind: result.kind,
-      errorType:
-        result.kind === "server-error" ? result.type : result.type,
+      errorType: result.kind === 'server-error' ? result.type : result.type,
       message: result.message,
       timestamp: new Date(),
     };
@@ -127,14 +122,14 @@ const errorTrackingInterceptor: ResponseInterceptor = (result, config) => {
     // await sendToSentry(report);
     // await sendToDatadog(report);
 
-    console.error("API Error tracked:", report);
+    console.error('API Error tracked:', report);
   }
 
   return result;
 };
 
 const clientWithErrorTracking = new DefaultInsurUpClient({
-  tokenProvider: () => "your-api-token-here",
+  tokenProvider: () => 'your-api-token-here',
   onResponse: errorTrackingInterceptor,
 });
 
@@ -158,10 +153,10 @@ function getCacheKey(config: RequestConfig): string {
 // This example shows the concept; real implementation would need request interception
 const cachingResponseInterceptor: ResponseInterceptor = <T>(
   result: InsurUpResult<T>,
-  config: RequestConfig,
+  config: RequestConfig
 ): InsurUpResult<T> => {
   // Only cache successful GET requests
-  if (result.isSuccess && "data" in result && config.method === "GET") {
+  if (result.isSuccess && 'data' in result && config.method === 'GET') {
     const key = getCacheKey(config);
     cache.set(key, {
       data: result.data,
@@ -182,19 +177,19 @@ function createTenantInterceptor(tenantId: string): RequestInterceptor {
     ...config,
     headers: {
       ...config.headers,
-      "X-Tenant-ID": tenantId,
+      'X-Tenant-ID': tenantId,
     },
   });
 }
 
 const tenant1Client = new DefaultInsurUpClient({
-  tokenProvider: () => "your-api-token-here",
-  onRequest: createTenantInterceptor("tenant-123"),
+  tokenProvider: () => 'your-api-token-here',
+  onRequest: createTenantInterceptor('tenant-123'),
 });
 
 const tenant2Client = new DefaultInsurUpClient({
-  tokenProvider: () => "your-api-token-here",
-  onRequest: createTenantInterceptor("tenant-456"),
+  tokenProvider: () => 'your-api-token-here',
+  onRequest: createTenantInterceptor('tenant-456'),
 });
 
 // ============================================================================
@@ -204,16 +199,16 @@ const tenant2Client = new DefaultInsurUpClient({
 const bodyTransformInterceptor: RequestInterceptor = (config) => {
   // Add metadata to all POST/PUT requests
   if (
-    (config.method === "POST" || config.method === "PUT") &&
+    (config.method === 'POST' || config.method === 'PUT') &&
     config.body &&
-    typeof config.body === "object"
+    typeof config.body === 'object'
   ) {
     return {
       ...config,
       body: {
         ...config.body,
         _metadata: {
-          clientVersion: "1.0.0",
+          clientVersion: '1.0.0',
           timestamp: new Date().toISOString(),
         },
       },
@@ -229,9 +224,14 @@ const bodyTransformInterceptor: RequestInterceptor = (config) => {
 
 const responseTransformInterceptor: ResponseInterceptor = <T>(
   result: InsurUpResult<T>,
-  _config: RequestConfig,
+  _config: RequestConfig
 ): InsurUpResult<T> => {
-  if (result.isSuccess && "data" in result && typeof result.data === "object" && result.data !== null) {
+  if (
+    result.isSuccess &&
+    'data' in result &&
+    typeof result.data === 'object' &&
+    result.data !== null
+  ) {
     // Add received timestamp to all responses
     return {
       ...result,
@@ -257,7 +257,7 @@ const asyncRequestInterceptor: RequestInterceptor = async (config) => {
     ...config,
     headers: {
       ...config.headers,
-      "X-Feature-Flags": "new-api-enabled,beta-features",
+      'X-Feature-Flags': 'new-api-enabled,beta-features',
     },
   };
 };
@@ -266,9 +266,7 @@ const asyncRequestInterceptor: RequestInterceptor = async (config) => {
 // 10. Combining multiple interceptors
 // ============================================================================
 
-function composeInterceptors(
-  ...interceptors: RequestInterceptor[]
-): RequestInterceptor {
+function composeInterceptors(...interceptors: RequestInterceptor[]): RequestInterceptor {
   return async (config) => {
     let result = config;
     for (const interceptor of interceptors) {
@@ -281,11 +279,11 @@ function composeInterceptors(
 const combinedInterceptor = composeInterceptors(
   loggingInterceptor,
   correlationInterceptor,
-  timingRequestInterceptor,
+  timingRequestInterceptor
 );
 
 const clientWithCombinedInterceptors = new DefaultInsurUpClient({
-  tokenProvider: () => "your-api-token-here",
+  tokenProvider: () => 'your-api-token-here',
   onRequest: combinedInterceptor,
   onResponse: timingResponseInterceptor,
 });
@@ -294,8 +292,8 @@ const clientWithCombinedInterceptors = new DefaultInsurUpClient({
 // 11. Authentication refresh interceptor
 // ============================================================================
 
-let accessToken = "initial-token";
-const refreshToken = "refresh-token";
+let accessToken = 'initial-token';
+const refreshToken = 'refresh-token';
 
 async function refreshAccessToken(): Promise<string> {
   // In real app, call your auth service
@@ -307,25 +305,25 @@ async function refreshAccessToken(): Promise<string> {
   // return newToken;
 
   void refreshToken; // Suppress unused variable warning
-  return "new-access-token";
+  return 'new-access-token';
 }
 
 const authRefreshInterceptor: ResponseInterceptor = async (result, _config) => {
   // If unauthorized, try to refresh token and hint that retry is needed
   if (
     !result.isSuccess &&
-    result.kind === "server-error" &&
+    result.kind === 'server-error' &&
     result.type === InsurUpServerErrorType.Unauthorized
   ) {
-    console.log("Token expired, refreshing...");
+    console.log('Token expired, refreshing...');
 
     try {
       accessToken = await refreshAccessToken();
-      console.log("Token refreshed successfully");
+      console.log('Token refreshed successfully');
       // Note: The SDK doesn't support automatic retry after refresh
       // You would need to implement retry logic in your application
     } catch {
-      console.error("Failed to refresh token");
+      console.error('Failed to refresh token');
     }
   }
 
@@ -346,15 +344,14 @@ async function main() {
   const result = await clientWithTiming.languages.getLanguages();
 
   if (result.isSuccess) {
-    console.log("Languages:", result.data);
+    console.log('Languages:', result.data);
   }
 
   // Example: Use client with error tracking
-  const customerResult =
-    await clientWithErrorTracking.customers.getCustomer("non-existent-id");
+  const customerResult = await clientWithErrorTracking.customers.getCustomer('non-existent-id');
 
   if (!customerResult.isSuccess) {
-    console.log("Error was tracked. Total errors:", errorReports.length);
+    console.log('Error was tracked. Total errors:', errorReports.length);
   }
 }
 

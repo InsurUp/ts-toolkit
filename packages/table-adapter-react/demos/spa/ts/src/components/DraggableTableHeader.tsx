@@ -1,9 +1,9 @@
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import type { Header } from "@tanstack/react-table";
-import { TableHead } from "@/components/ui/table";
-import { GripVertical } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import type { Header } from '@tanstack/react-table';
+import { TableHead } from '@/components/ui/table';
+import { GripVertical } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface DraggableTableHeaderProps<TData> {
   header: Header<TData, unknown>;
@@ -18,14 +18,7 @@ export function DraggableTableHeader<TData>({
   className,
   onClick,
 }: DraggableTableHeaderProps<TData>): React.ReactElement {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: header.column.id,
   });
 
@@ -45,8 +38,8 @@ export function DraggableTableHeader<TData>({
       ref={setNodeRef}
       style={dynamicStyle}
       className={cn(
-        "group relative select-none",
-        isDragging ? "z-10 bg-muted opacity-80 shadow-lg" : "z-0 opacity-100",
+        'group relative select-none',
+        isDragging ? 'z-10 bg-muted opacity-80 shadow-lg' : 'z-0 opacity-100',
         className
       )}
     >
@@ -63,7 +56,7 @@ export function DraggableTableHeader<TData>({
 
         {/* Header content */}
         <div
-          className={cn("flex flex-1 items-center overflow-hidden", onClick && "cursor-pointer")}
+          className={cn('flex flex-1 items-center overflow-hidden', onClick && 'cursor-pointer')}
           onClick={onClick}
         >
           {children}
@@ -76,9 +69,9 @@ export function DraggableTableHeader<TData>({
         onTouchStart={header.getResizeHandler()}
         onDoubleClick={() => header.column.resetSize()}
         className={cn(
-          "absolute right-0 top-0 z-10 h-full w-1 cursor-col-resize select-none touch-none",
-          "bg-border hover:bg-primary",
-          header.column.getIsResizing() && "bg-primary w-1"
+          'absolute right-0 top-0 z-10 h-full w-1 cursor-col-resize select-none touch-none',
+          'bg-border hover:bg-primary',
+          header.column.getIsResizing() && 'bg-primary w-1'
         )}
       />
     </TableHead>

@@ -11,11 +11,11 @@ import {
   InsurUpClientErrorType,
   getDataOrThrow,
   throwIfError,
-} from "@insurup/sdk";
-import type { GetCustomerResult, InsurUpResult, ValidationError } from "@insurup/sdk";
+} from '@insurup/sdk';
+import type { GetCustomerResult, InsurUpResult, ValidationError } from '@insurup/sdk';
 
 const client = new DefaultInsurUpClient({
-  tokenProvider: () => "your-api-token-here",
+  tokenProvider: () => 'your-api-token-here',
 });
 
 // ============================================================================
@@ -23,15 +23,15 @@ const client = new DefaultInsurUpClient({
 // ============================================================================
 
 async function basicResultHandling() {
-  const result = await client.customers.getCustomer("customer-123");
+  const result = await client.customers.getCustomer('customer-123');
 
   // Check success/failure using isSuccess
   if (result.isSuccess) {
     // TypeScript knows result.data is available here
-    console.log("Customer ID:", result.data.id);
+    console.log('Customer ID:', result.data.id);
   } else {
     // TypeScript knows we're in an error state here
-    console.error("Error:", result.message);
+    console.error('Error:', result.message);
   }
 }
 
@@ -40,56 +40,56 @@ async function basicResultHandling() {
 // ============================================================================
 
 async function handleDifferentErrors() {
-  const result = await client.customers.getCustomer("customer-123");
+  const result = await client.customers.getCustomer('customer-123');
 
   if (!result.isSuccess) {
     // Check if it's a server error or client error based on kind
-    if (result.kind === "server-error") {
+    if (result.kind === 'server-error') {
       switch (result.type) {
         // Server errors
         case InsurUpServerErrorType.ResourceNotFound:
-          console.error("Customer not found");
+          console.error('Customer not found');
           break;
         case InsurUpServerErrorType.Unauthorized:
-          console.error("Please log in to continue");
+          console.error('Please log in to continue');
           break;
         case InsurUpServerErrorType.AccessDenied:
-          console.error("You do not have permission to view this customer");
+          console.error('You do not have permission to view this customer');
           break;
         case InsurUpServerErrorType.InputValidation:
-          console.error("Invalid request:", result.message);
+          console.error('Invalid request:', result.message);
           // Validation errors include field-level details
           handleValidationErrors(result.validationErrors);
           break;
         case InsurUpServerErrorType.BusinessValidation:
-          console.error("Business rule violation:", result.message);
+          console.error('Business rule violation:', result.message);
           break;
         case InsurUpServerErrorType.ResourceDuplicate:
-          console.error("Resource conflict - customer may already exist");
+          console.error('Resource conflict - customer may already exist');
           break;
         case InsurUpServerErrorType.Upstream:
-          console.error("Upstream service error - please try again later");
+          console.error('Upstream service error - please try again later');
           break;
         default:
-          console.error("Server error:", result.message);
+          console.error('Server error:', result.message);
       }
-    } else if (result.kind === "client-error") {
+    } else if (result.kind === 'client-error') {
       switch (result.type) {
         // Client-side errors
         case InsurUpClientErrorType.HttpRequestFailed:
-          console.error("Network error - check your connection");
+          console.error('Network error - check your connection');
           break;
         case InsurUpClientErrorType.Timeout:
-          console.error("Request timed out");
+          console.error('Request timed out');
           break;
         case InsurUpClientErrorType.JsonDeserialization:
-          console.error("Failed to parse response");
+          console.error('Failed to parse response');
           break;
         case InsurUpClientErrorType.NullResponse:
-          console.error("Empty response received");
+          console.error('Empty response received');
           break;
         default:
-          console.error("Client error:", result.message);
+          console.error('Client error:', result.message);
       }
     }
   }
@@ -102,7 +102,7 @@ async function handleDifferentErrors() {
 function handleValidationErrors(errors: readonly ValidationError[]) {
   if (errors.length === 0) return;
 
-  console.error("Validation failed:");
+  console.error('Validation failed:');
   for (const error of errors) {
     console.error(`  ${error.propertyName}: ${error.errorMessage}`);
   }
@@ -115,14 +115,14 @@ function handleValidationErrors(errors: readonly ValidationError[]) {
 
 async function createCustomerWithValidation() {
   const result = await client.customers.createCustomer({
-    type: "INDIVIDUAL" as never, // Invalid type for demonstration
-    identityNumber: "invalid", // Too short
-    fullName: "", // Required
-    birthDate: "not-a-date", // Invalid format
+    type: 'INDIVIDUAL' as never, // Invalid type for demonstration
+    identityNumber: 'invalid', // Too short
+    fullName: '', // Required
+    birthDate: 'not-a-date', // Invalid format
     fillMissingFields: false,
   } as never);
 
-  if (!result.isSuccess && result.kind === "server-error") {
+  if (!result.isSuccess && result.kind === 'server-error') {
     if (result.type === InsurUpServerErrorType.InputValidation) {
       handleValidationErrors(result.validationErrors);
     }
@@ -137,16 +137,16 @@ async function useGetDataOrThrow() {
   try {
     // Throws InsurUpError if the request fails
     const customer = getDataOrThrow<GetCustomerResult>(
-      await client.customers.getCustomer("customer-123"),
+      await client.customers.getCustomer('customer-123')
     );
 
-    console.log("Customer ID:", customer.id);
+    console.log('Customer ID:', customer.id);
   } catch (error) {
     if (error instanceof InsurUpError) {
-      console.error("API Error:", error.message);
-      console.error("Error Kind:", error.error.kind);
-      if (error.error.kind === "server-error") {
-        console.error("Status Code:", error.error.status);
+      console.error('API Error:', error.message);
+      console.error('Error Kind:', error.error.kind);
+      if (error.error.kind === 'server-error') {
+        console.error('Status Code:', error.error.status);
       }
     } else {
       throw error; // Re-throw unexpected errors
@@ -161,17 +161,17 @@ async function useGetDataOrThrow() {
 async function useThrowIfError() {
   try {
     // For operations that don't return data (PUT, DELETE)
-    throwIfError(await client.customers.deleteCustomer("customer-123"));
-    console.log("Customer deleted successfully");
+    throwIfError(await client.customers.deleteCustomer('customer-123'));
+    console.log('Customer deleted successfully');
   } catch (error) {
     if (error instanceof InsurUpError) {
       if (
-        error.error.kind === "server-error" &&
+        error.error.kind === 'server-error' &&
         error.error.type === InsurUpServerErrorType.ResourceNotFound
       ) {
-        console.log("Customer was already deleted");
+        console.log('Customer was already deleted');
       } else {
-        console.error("Failed to delete:", error.message);
+        console.error('Failed to delete:', error.message);
       }
     }
   }
@@ -187,7 +187,7 @@ async function cancelableRequest() {
   // Cancel after 5 seconds
   const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-  const result = await client.customers.getCustomer("customer-123", {
+  const result = await client.customers.getCustomer('customer-123', {
     signal: controller.signal,
   });
 
@@ -195,10 +195,10 @@ async function cancelableRequest() {
 
   if (
     !result.isSuccess &&
-    result.kind === "client-error" &&
+    result.kind === 'client-error' &&
     result.type === InsurUpClientErrorType.Timeout
   ) {
-    console.log("Request was cancelled or timed out");
+    console.log('Request was cancelled or timed out');
   }
 }
 
@@ -223,16 +223,16 @@ function useCustomer(_customerId: string) {
 
 async function requestWithCustomTimeout() {
   // Override default timeout for a slow operation
-  const result = await client.customers.getCustomer("customer-123", {
+  const result = await client.customers.getCustomer('customer-123', {
     timeoutMs: 60000, // 60 seconds
   });
 
   if (
     !result.isSuccess &&
-    result.kind === "client-error" &&
+    result.kind === 'client-error' &&
     result.type === InsurUpClientErrorType.Timeout
   ) {
-    console.error("Request timed out after 60 seconds");
+    console.error('Request timed out after 60 seconds');
   }
 }
 
@@ -243,7 +243,7 @@ async function requestWithCustomTimeout() {
 async function retryOnTransientError<T>(
   operation: () => Promise<InsurUpResult<T>>,
   maxRetries = 3,
-  delayMs = 1000,
+  delayMs = 1000
 ): Promise<InsurUpResult<T>> {
   let lastResult: InsurUpResult<T>;
 
@@ -256,9 +256,8 @@ async function retryOnTransientError<T>(
 
     // Only retry on transient errors
     const isTransient =
-      (lastResult.kind === "server-error" &&
-        lastResult.type === InsurUpServerErrorType.Upstream) ||
-      (lastResult.kind === "client-error" &&
+      (lastResult.kind === 'server-error' && lastResult.type === InsurUpServerErrorType.Upstream) ||
+      (lastResult.kind === 'client-error' &&
         (lastResult.type === InsurUpClientErrorType.HttpRequestFailed ||
           lastResult.type === InsurUpClientErrorType.Timeout));
 
@@ -278,13 +277,13 @@ async function retryOnTransientError<T>(
 
 async function useRetryPattern() {
   const result = await retryOnTransientError<GetCustomerResult>(() =>
-    client.customers.getCustomer("customer-123"),
+    client.customers.getCustomer('customer-123')
   );
 
   if (result.isSuccess) {
-    console.log("Success after retries:", result.data);
+    console.log('Success after retries:', result.data);
   } else {
-    console.error("Failed after all retries:", result.message);
+    console.error('Failed after all retries:', result.message);
   }
 }
 
@@ -294,14 +293,14 @@ async function useRetryPattern() {
 
 function handleApiError(result: InsurUpResult<unknown>): never {
   if (result.isSuccess) {
-    throw new Error("handleApiError called with successful result");
+    throw new Error('handleApiError called with successful result');
   }
 
   // Log for debugging
-  console.error("API Error:", {
+  console.error('API Error:', {
     kind: result.kind,
     message: result.message,
-    ...(result.kind === "server-error" && { status: result.status }),
+    ...(result.kind === 'server-error' && { status: result.status }),
   });
 
   // Throw InsurUpError for your application
@@ -309,7 +308,7 @@ function handleApiError(result: InsurUpResult<unknown>): never {
 }
 
 async function useGenericHandler() {
-  const result = await client.customers.getCustomer("customer-123");
+  const result = await client.customers.getCustomer('customer-123');
 
   if (!result.isSuccess) {
     handleApiError(result);

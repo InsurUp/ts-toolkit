@@ -3,7 +3,7 @@
  * @module pages/policies/list
  */
 
-import { loadConfig } from "../js/shared/config.js";
+import { loadConfig } from '../js/shared/config.js';
 import {
   renderHeader,
   initTheme,
@@ -15,18 +15,24 @@ import {
   getQueryParam,
   setQueryParams,
   debounce,
-} from "../js/shared/components.js";
-import { requireAuth } from "../js/shared/auth.js";
-import { getClient } from "../js/shared/client.js";
-import { formatDate, formatCurrency, formatPolicyState, getPolicyStateBadgeClass, truncate } from "../js/shared/format.js";
-import { Currency, PolicyState } from "@insurup/contracts";
-import { DEFAULT_PAGE_SIZE, DEBOUNCE_DELAY_MS } from "../js/shared/constants.js";
-import { createListState } from "../js/shared/list-state.js";
+} from '../js/shared/components.js';
+import { requireAuth } from '../js/shared/auth.js';
+import { getClient } from '../js/shared/client.js';
+import {
+  formatDate,
+  formatCurrency,
+  formatPolicyState,
+  getPolicyStateBadgeClass,
+  truncate,
+} from '../js/shared/format.js';
+import { Currency, PolicyState } from '@insurup/contracts';
+import { DEFAULT_PAGE_SIZE, DEBOUNCE_DELAY_MS } from '../js/shared/constants.js';
+import { createListState } from '../js/shared/list-state.js';
 
 /** @type {import('../js/shared/constants.js').ListStateManager} */
 const listState = createListState();
-let searchQuery = getQueryParam("q") || "";
-let stateFilter = getQueryParam("state") || "";
+let searchQuery = getQueryParam('q') || '';
+let stateFilter = getQueryParam('state') || '';
 
 /**
  * Initializes the policy list page.
@@ -36,10 +42,10 @@ async function init() {
   initTheme();
   await requireAuth();
 
-  const nav = document.getElementById("main-nav");
+  const nav = document.getElementById('main-nav');
   if (nav) renderHeader(nav);
 
-  const main = document.getElementById("main-content");
+  const main = document.getElementById('main-content');
   if (main) await loadPolicies(main, null);
 }
 
@@ -49,7 +55,7 @@ async function init() {
  * @param {string|null} cursor - The pagination cursor
  */
 async function loadPolicies(container, cursor) {
-  renderLoading(container, "Loading policies...");
+  renderLoading(container, 'Loading policies...');
 
   try {
     const client = getClient();
@@ -71,7 +77,7 @@ async function loadPolicies(container, cursor) {
       first: 1,
       search: searchOptions,
       filter: filterOptions,
-      select: ["id"],
+      select: ['id'],
     });
 
     // Await only the main data query
@@ -81,22 +87,22 @@ async function loadPolicies(container, cursor) {
       search: searchOptions,
       filter: filterOptions,
       select: [
-        "id",
-        "insuranceCompanyPolicyNumber",
-        "productName",
-        "insuredCustomerName",
-        "state",
-        "startDate",
-        "endDate",
-        "grossPremium",
-        "currency",
-        "createdAt",
+        'id',
+        'insuranceCompanyPolicyNumber',
+        'productName',
+        'insuredCustomerName',
+        'state',
+        'startDate',
+        'endDate',
+        'grossPremium',
+        'currency',
+        'createdAt',
       ],
       includeTotalCount: false,
     });
 
     if (!dataRes.isSuccess || !dataRes.data) {
-      throw new Error(dataRes.message || "Failed to load policies");
+      throw new Error(dataRes.message || 'Failed to load policies');
     }
 
     const { nodes, pageInfo } = dataRes.data;
@@ -109,19 +115,26 @@ async function loadPolicies(container, cursor) {
     countPromise.then((countRes) => {
       if (countRes.isSuccess && policies.length > 0) {
         const totalCount = countRes.data?.totalCount ?? null;
-        const paginationContainer = container.querySelector("#pagination-container");
+        const paginationContainer = container.querySelector('#pagination-container');
         if (paginationContainer) {
           const callbacks = listState.createCallbacks((cursor) => loadPolicies(container, cursor));
-          renderPagination(paginationContainer, pageInfo, listState.currentPage, totalCount, DEFAULT_PAGE_SIZE, callbacks);
+          renderPagination(
+            paginationContainer,
+            pageInfo,
+            listState.currentPage,
+            totalCount,
+            DEFAULT_PAGE_SIZE,
+            callbacks
+          );
         }
       }
     });
   } catch (error) {
-    console.error("Failed to load policies:", error);
+    console.error('Failed to load policies:', error);
     renderError(
       container,
-      "Error Loading Policies",
-      error instanceof Error ? error.message : "Unknown error",
+      'Error Loading Policies',
+      error instanceof Error ? error.message : 'Unknown error',
       () => loadPolicies(container, cursor)
     );
   }
@@ -138,7 +151,7 @@ function renderPolicyList(container, policies, pageInfo, totalCount) {
   const hasFilters = searchQuery || stateFilter;
 
   if (policies.length === 0 && listState.currentPage === 1 && !hasFilters) {
-    renderEmptyState(container, "No Policies Found", "There are no policies in the system yet.");
+    renderEmptyState(container, 'No Policies Found', 'There are no policies in the system yet.');
     return;
   }
 
@@ -152,9 +165,9 @@ function renderPolicyList(container, policies, pageInfo, totalCount) {
         <input type="search" id="search-input" placeholder="Search policies..." value="${escapeHtml(searchQuery)}" />
         <select id="state-filter">
           <option value="">All States</option>
-          <option value="${PolicyState.Active}" ${stateFilter === PolicyState.Active ? "selected" : ""}>Active</option>
-          <option value="${PolicyState.EndOfLife}" ${stateFilter === PolicyState.EndOfLife ? "selected" : ""}>Expired</option>
-          <option value="${PolicyState.Cancelled}" ${stateFilter === PolicyState.Cancelled ? "selected" : ""}>Cancelled</option>
+          <option value="${PolicyState.Active}" ${stateFilter === PolicyState.Active ? 'selected' : ''}>Active</option>
+          <option value="${PolicyState.EndOfLife}" ${stateFilter === PolicyState.EndOfLife ? 'selected' : ''}>Expired</option>
+          <option value="${PolicyState.Cancelled}" ${stateFilter === PolicyState.Cancelled ? 'selected' : ''}>Cancelled</option>
         </select>
       </div>
     </div>
@@ -175,13 +188,17 @@ function renderPolicyList(container, policies, pageInfo, totalCount) {
           </tr>
         </thead>
         <tbody>
-          ${policies.length > 0 ? policies.map(renderPolicyRow).join("") : `
+          ${
+            policies.length > 0
+              ? policies.map(renderPolicyRow).join('')
+              : `
             <tr>
               <td colspan="9" style="text-align: center; color: var(--pico-muted-color);">
-                No policies found${hasFilters ? " matching your criteria." : "."}
+                No policies found${hasFilters ? ' matching your criteria.' : '.'}
               </td>
             </tr>
-          `}
+          `
+          }
         </tbody>
       </table>
     </div>
@@ -190,18 +207,18 @@ function renderPolicyList(container, policies, pageInfo, totalCount) {
   `;
 
   // Search handler with debounce
-  const searchInput = container.querySelector("#search-input");
+  const searchInput = container.querySelector('#search-input');
   const handleSearch = debounce(() => {
-    searchQuery = searchInput?.value || "";
+    searchQuery = searchInput?.value || '';
     listState.reset();
     setQueryParams({ q: searchQuery || null, state: stateFilter || null });
     loadPolicies(container, null);
   }, DEBOUNCE_DELAY_MS);
-  searchInput?.addEventListener("input", handleSearch);
+  searchInput?.addEventListener('input', handleSearch);
 
   // State filter handler
-  const stateSelect = container.querySelector("#state-filter");
-  stateSelect?.addEventListener("change", () => {
+  const stateSelect = container.querySelector('#state-filter');
+  stateSelect?.addEventListener('change', () => {
     stateFilter = stateSelect.value;
     listState.reset();
     setQueryParams({ q: searchQuery || null, state: stateFilter || null });
@@ -210,9 +227,16 @@ function renderPolicyList(container, policies, pageInfo, totalCount) {
 
   // Pagination
   if (policies.length > 0) {
-    const paginationContainer = container.querySelector("#pagination-container");
+    const paginationContainer = container.querySelector('#pagination-container');
     const callbacks = listState.createCallbacks((cursor) => loadPolicies(container, cursor));
-    renderPagination(paginationContainer, pageInfo, listState.currentPage, totalCount, DEFAULT_PAGE_SIZE, callbacks);
+    renderPagination(
+      paginationContainer,
+      pageInfo,
+      listState.currentPage,
+      totalCount,
+      DEFAULT_PAGE_SIZE,
+      callbacks
+    );
   }
 }
 
@@ -225,7 +249,7 @@ function renderPolicyRow(policy) {
   const badgeClass = getPolicyStateBadgeClass(policy.state);
   return `
     <tr>
-      <td><a href="/policies/detail.html?id=${policy.id}">${escapeHtml(policy.insuranceCompanyPolicyNumber || "N/A")}</a></td>
+      <td><a href="/policies/detail.html?id=${policy.id}">${escapeHtml(policy.insuranceCompanyPolicyNumber || 'N/A')}</a></td>
       <td>${escapeHtml(truncate(policy.productName, 25))}</td>
       <td>${escapeHtml(truncate(policy.insuredCustomerName, 25))}</td>
       <td><span class="badge ${badgeClass}">${formatPolicyState(policy.state)}</span></td>

@@ -35,24 +35,24 @@ npm start
 
 You can configure the CLI using a `.env` file in the project root:
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `INSURUP_AUTH_SERVER` | OAuth2 authorization server URL | `https://auth.insurup.com` |
-| `INSURUP_CLIENT_ID` | OAuth2 client ID | `demo` |
-| `INSURUP_SCOPES` | Comma-separated OAuth2 scopes | `openid,profile,offline_access,core-api` |
-| `INSURUP_API_URL` | API base URL (optional) | SDK default |
-| `INSURUP_ENV` | Environment name for display | `production` |
+| Variable              | Description                     | Default                                  |
+| --------------------- | ------------------------------- | ---------------------------------------- |
+| `INSURUP_AUTH_SERVER` | OAuth2 authorization server URL | `https://auth.insurup.com`               |
+| `INSURUP_CLIENT_ID`   | OAuth2 client ID                | `demo`                                   |
+| `INSURUP_SCOPES`      | Comma-separated OAuth2 scopes   | `openid,profile,offline_access,core-api` |
+| `INSURUP_API_URL`     | API base URL (optional)         | SDK default                              |
+| `INSURUP_ENV`         | Environment name for display    | `production`                             |
 
 ## Available Actions
 
-| Action | Description |
-|--------|-------------|
-| **Login** | Authenticate via OAuth2/OIDC browser flow |
-| **Logout** | Clear stored credentials |
-| **Status** | Show authentication and config status |
-| **Get current user** | Fetch your user profile from the API |
-| **List customers** | Browse customers with pagination |
-| **Create customer** | Create a new customer with interactive prompts |
+| Action               | Description                                    |
+| -------------------- | ---------------------------------------------- |
+| **Login**            | Authenticate via OAuth2/OIDC browser flow      |
+| **Logout**           | Clear stored credentials                       |
+| **Status**           | Show authentication and config status          |
+| **Get current user** | Fetch your user profile from the API           |
+| **List customers**   | Browse customers with pagination               |
+| **Create customer**  | Create a new customer with interactive prompts |
 
 ## Project Structure
 
@@ -82,8 +82,8 @@ src/
 ### Creating the Client
 
 ```typescript
-import { DefaultInsurUpClient } from "@insurup/sdk";
-import { getAccessToken } from "./auth";
+import { DefaultInsurUpClient } from '@insurup/sdk';
+import { getAccessToken } from './auth';
 
 // Dynamic token provider handles auto-refresh
 const client = new DefaultInsurUpClient({
@@ -98,9 +98,9 @@ const client = new DefaultInsurUpClient({
 const res = await client.agentUsers.getMyAgentUser();
 
 if (res.isSuccess) {
-  console.log("User:", res.data);
+  console.log('User:', res.data);
 } else {
-  console.log("Error:", res.message);
+  console.log('Error:', res.message);
 }
 ```
 
@@ -110,14 +110,14 @@ if (res.isSuccess) {
 const res = await client.customers.getCustomers({
   first: 10,
   after: cursor,
-  select: ["id", "name", "type"] as const,
+  select: ['id', 'name', 'type'] as const,
 });
 
 if (res.isSuccess) {
   for (const customer of res.data.nodes) {
     console.log(customer.name);
   }
-  
+
   if (res.data.pageInfo.hasNextPage) {
     // Fetch next page with res.data.pageInfo.endCursor
   }

@@ -2,24 +2,24 @@
  * Customer detail page.
  */
 
-import { getClient } from "../../client";
-import { renderLoading, renderError } from "../../components/loading";
-import { formatDate, formatDateTime, formatCustomerType } from "../../utils/format";
-import { escapeHtml } from "../../utils/dom";
-import type { RouteParams } from "../../utils/router";
-import { CustomerType, type GetCustomerResult, type CustomerPhoneNumber } from "@insurup/contracts";
+import { getClient } from '../../client';
+import { renderLoading, renderError } from '../../components/loading';
+import { formatDate, formatDateTime, formatCustomerType } from '../../utils/format';
+import { escapeHtml } from '../../utils/dom';
+import type { RouteParams } from '../../utils/router';
+import { CustomerType, type GetCustomerResult, type CustomerPhoneNumber } from '@insurup/contracts';
 
 /** Helper to get display name from any customer type */
 function getCustomerDisplayName(customer: GetCustomerResult): string {
   if (customer.type === CustomerType.Company) {
-    return customer.title || "Unnamed Company";
+    return customer.title || 'Unnamed Company';
   }
-  return customer.fullName || "Unnamed Customer";
+  return customer.fullName || 'Unnamed Customer';
 }
 
 /** Helper to format phone number */
 function formatPhoneNumber(phone: CustomerPhoneNumber | null | undefined): string {
-  if (!phone) return "-";
+  if (!phone) return '-';
   return `+${phone.countryCode} ${phone.number}`;
 }
 
@@ -27,18 +27,18 @@ export async function render(container: HTMLElement, params?: RouteParams): Prom
   const customerId = params?.id;
 
   if (!customerId) {
-    renderError(container, "Error", "No customer ID provided");
+    renderError(container, 'Error', 'No customer ID provided');
     return;
   }
 
-  renderLoading(container, "Loading customer details...");
+  renderLoading(container, 'Loading customer details...');
 
   try {
     const client = getClient();
     const res = await client.customers.getCustomer(customerId);
 
     if (!res.isSuccess || !res.data) {
-      throw new Error(res.message || "Failed to load customer");
+      throw new Error(res.message || 'Failed to load customer');
     }
 
     const customer = res.data;
@@ -49,7 +49,7 @@ export async function render(container: HTMLElement, params?: RouteParams): Prom
       <div class="detail-header">
         <div>
           <h1>${escapeHtml(displayName)}</h1>
-          <span class="badge ${isCompany ? "primary" : ""}">
+          <span class="badge ${isCompany ? 'primary' : ''}">
             ${formatCustomerType(customer.type)}
           </span>
         </div>
@@ -69,20 +69,34 @@ export async function render(container: HTMLElement, params?: RouteParams): Prom
             <dt>Type</dt>
             <dd>${formatCustomerType(customer.type)}</dd>
             
-            ${customer.type === CustomerType.Individual || customer.type === CustomerType.Foreign ? `
+            ${
+              customer.type === CustomerType.Individual || customer.type === CustomerType.Foreign
+                ? `
               <dt>Identity Number</dt>
               <dd>${escapeHtml(String(customer.identityNumber))}</dd>
-            ` : ""}
+            `
+                : ''
+            }
             
-            ${customer.type === CustomerType.Company ? `
+            ${
+              customer.type === CustomerType.Company
+                ? `
               <dt>Tax Number</dt>
               <dd>${escapeHtml(customer.taxNumber)}</dd>
-            ` : ""}
+            `
+                : ''
+            }
             
-            ${(customer.type === CustomerType.Individual || customer.type === CustomerType.Foreign) && customer.birthDate ? `
+            ${
+              (customer.type === CustomerType.Individual ||
+                customer.type === CustomerType.Foreign) &&
+              customer.birthDate
+                ? `
               <dt>Date of Birth</dt>
               <dd>${formatDate(customer.birthDate.toString())}</dd>
-            ` : ""}
+            `
+                : ''
+            }
           </dl>
         </article>
 
@@ -90,20 +104,28 @@ export async function render(container: HTMLElement, params?: RouteParams): Prom
           <header><strong>Contact Information</strong></header>
           <dl>
             <dt>Primary Email</dt>
-            <dd>${customer.primaryEmail ? `<a href="mailto:${escapeHtml(customer.primaryEmail)}">${escapeHtml(customer.primaryEmail)}</a>` : "-"}</dd>
+            <dd>${customer.primaryEmail ? `<a href="mailto:${escapeHtml(customer.primaryEmail)}">${escapeHtml(customer.primaryEmail)}</a>` : '-'}</dd>
             
             <dt>Primary Phone</dt>
             <dd>${formatPhoneNumber(customer.primaryPhoneNumber)}</dd>
             
-            ${customer.city ? `
+            ${
+              customer.city
+                ? `
               <dt>City</dt>
-              <dd>${escapeHtml(customer.city.text || customer.city.value || "-")}</dd>
-            ` : ""}
+              <dd>${escapeHtml(customer.city.text || customer.city.value || '-')}</dd>
+            `
+                : ''
+            }
             
-            ${customer.district ? `
+            ${
+              customer.district
+                ? `
               <dt>District</dt>
-              <dd>${escapeHtml(customer.district.text || customer.district.value || "-")}</dd>
-            ` : ""}
+              <dd>${escapeHtml(customer.district.text || customer.district.value || '-')}</dd>
+            `
+                : ''
+            }
           </dl>
         </article>
 
@@ -115,17 +137,21 @@ export async function render(container: HTMLElement, params?: RouteParams): Prom
             
             <dt>Created By</dt>
             <dd>
-              ${customer.createdBy?.name ? escapeHtml(customer.createdBy.name) : "-"}
-              ${customer.createdBy?.id ? ` (<code>${escapeHtml(customer.createdBy.id)}</code>)` : ""}
+              ${customer.createdBy?.name ? escapeHtml(customer.createdBy.name) : '-'}
+              ${customer.createdBy?.id ? ` (<code>${escapeHtml(customer.createdBy.id)}</code>)` : ''}
             </dd>
             
-            ${customer.representedBy ? `
+            ${
+              customer.representedBy
+                ? `
               <dt>Representative</dt>
               <dd>
-                ${customer.representedBy.name ? escapeHtml(customer.representedBy.name) : "-"}
-                ${customer.representedBy.id ? ` (<code>${escapeHtml(customer.representedBy.id)}</code>)` : ""}
+                ${customer.representedBy.name ? escapeHtml(customer.representedBy.name) : '-'}
+                ${customer.representedBy.id ? ` (<code>${escapeHtml(customer.representedBy.id)}</code>)` : ''}
               </dd>
-            ` : ""}
+            `
+                : ''
+            }
           </dl>
         </article>
       </div>
@@ -134,13 +160,13 @@ export async function render(container: HTMLElement, params?: RouteParams): Prom
     `;
 
     // Load related data (vehicles, addresses) if needed
-    await loadRelatedData(container.querySelector("#related-data") as HTMLElement, customerId);
+    await loadRelatedData(container.querySelector('#related-data') as HTMLElement, customerId);
   } catch (error) {
-    console.error("Failed to load customer:", error);
+    console.error('Failed to load customer:', error);
     renderError(
       container,
-      "Error Loading Customer",
-      error instanceof Error ? error.message : "Unknown error",
+      'Error Loading Customer',
+      error instanceof Error ? error.message : 'Unknown error',
       () => render(container, params)
     );
   }
@@ -156,7 +182,7 @@ async function loadRelatedData(container: HTMLElement, customerId: string): Prom
       client.customers.getCustomerAddresses(customerId),
     ]);
 
-    let html = "";
+    let html = '';
 
     // Vehicles section
     if (vehiclesRes.isSuccess && vehiclesRes.data && vehiclesRes.data.length > 0) {
@@ -174,14 +200,18 @@ async function loadRelatedData(container: HTMLElement, customerId: string): Prom
                 </tr>
               </thead>
               <tbody>
-                ${vehiclesRes.data.map((v) => `
+                ${vehiclesRes.data
+                  .map(
+                    (v) => `
                   <tr>
-                    <td>${escapeHtml(v.plate ? `${v.plate.city} ${v.plate.code || ""}`.trim() : "-")}</td>
-                    <td>${escapeHtml(v.model?.brand?.text || "-")}</td>
-                    <td>${escapeHtml(v.model?.type?.text || "-")}</td>
-                    <td>${v.model?.year || "-"}</td>
+                    <td>${escapeHtml(v.plate ? `${v.plate.city} ${v.plate.code || ''}`.trim() : '-')}</td>
+                    <td>${escapeHtml(v.model?.brand?.text || '-')}</td>
+                    <td>${escapeHtml(v.model?.type?.text || '-')}</td>
+                    <td>${v.model?.year || '-'}</td>
                   </tr>
-                `).join("")}
+                `
+                  )
+                  .join('')}
               </tbody>
             </table>
           </div>
@@ -195,26 +225,28 @@ async function loadRelatedData(container: HTMLElement, customerId: string): Prom
         <section class="detail-section">
           <h2>Addresses (${addressesRes.data.length})</h2>
           <div class="card-grid">
-            ${addressesRes.data.map((a) => {
-              const parts = [
-                a.address?.neighborhood?.text,
-                a.address?.street?.text,
-                a.address?.building?.text,
-                a.address?.apartment?.text,
-              ].filter(Boolean);
-              const location = [
-                a.address?.district?.text,
-                a.address?.city?.text,
-              ].filter(Boolean).join(", ");
-              return `
+            ${addressesRes.data
+              .map((a) => {
+                const parts = [
+                  a.address?.neighborhood?.text,
+                  a.address?.street?.text,
+                  a.address?.building?.text,
+                  a.address?.apartment?.text,
+                ].filter(Boolean);
+                const location = [a.address?.district?.text, a.address?.city?.text]
+                  .filter(Boolean)
+                  .join(', ');
+                return `
               <article>
-                <header><strong>${escapeHtml(a.addressType || "Address")}</strong></header>
+                <header><strong>${escapeHtml(a.addressType || 'Address')}</strong></header>
                 <p>
-                  ${escapeHtml(parts.join(" ") || "-")}
-                  ${location ? `<br>${escapeHtml(location)}` : ""}
+                  ${escapeHtml(parts.join(' ') || '-')}
+                  ${location ? `<br>${escapeHtml(location)}` : ''}
                 </p>
               </article>
-            `;}).join("")}
+            `;
+              })
+              .join('')}
           </div>
         </section>
       `;
@@ -222,7 +254,7 @@ async function loadRelatedData(container: HTMLElement, customerId: string): Prom
 
     container.innerHTML = html;
   } catch (error) {
-    console.error("Failed to load related data:", error);
+    console.error('Failed to load related data:', error);
     // Don't show error for related data, just skip
   }
 }

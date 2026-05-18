@@ -8,10 +8,10 @@ import {
   TableCell,
   Button,
   Skeleton,
-} from "@/components/ui";
-import { ArrowUpDown, ArrowUp, ArrowDown, Inbox } from "lucide-vue-next";
+} from '@/components/ui';
+import { ArrowUpDown, ArrowUp, ArrowDown, Inbox } from 'lucide-vue-next';
 
-export type SortDirection = "asc" | "desc" | null;
+export type SortDirection = 'asc' | 'desc' | null;
 
 export interface Column<T> {
   key: string;
@@ -36,17 +36,17 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  (e: "sort", field: string): void;
-  (e: "rowClick", item: T): void;
+  (e: 'sort', field: string): void;
+  (e: 'rowClick', item: T): void;
 }>();
 
-const widths = ["w-3/4", "w-1/2", "w-2/3", "w-4/5", "w-3/5"];
+const widths = ['w-3/4', 'w-1/2', 'w-2/3', 'w-4/5', 'w-3/5'];
 
 function getCellValue(item: T, column: Column<T>): string {
   if (column.render) {
     return column.render(item);
   }
-  return String((item as Record<string, unknown>)[column.key] ?? "");
+  return String((item as Record<string, unknown>)[column.key] ?? '');
 }
 </script>
 

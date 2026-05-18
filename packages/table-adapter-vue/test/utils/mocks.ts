@@ -53,14 +53,14 @@ export function createSuccessResult<T>(data: T): InsurUpGraphQLResult<T> {
   } as InsurUpGraphQLResult<T>;
 }
 
-export function createMockFetchFn(
-  data?: Connection<MockCustomer>
-): Mock<CustomerTestFetchFn> {
+export function createMockFetchFn(data?: Connection<MockCustomer>): Mock<CustomerTestFetchFn> {
   const defaultData = createMockConnection<MockCustomer>([
     { id: '1', name: 'John Doe', email: 'john@example.com' },
     { id: '2', name: 'Jane Smith', email: 'jane@example.com' },
   ]);
-  return vi.fn().mockResolvedValue(createSuccessResult(data ?? defaultData)) as Mock<CustomerTestFetchFn>;
+  return vi
+    .fn()
+    .mockResolvedValue(createSuccessResult(data ?? defaultData)) as Mock<CustomerTestFetchFn>;
 }
 
 export function createMockOptions(

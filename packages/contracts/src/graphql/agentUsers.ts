@@ -12,9 +12,9 @@ import type {
   ModelFilterInput,
   ModelSearchInput,
   GetQueryOptions,
-} from "./common.js";
-import type { DateTime } from "../common.date.js";
-import type { AgentUserState } from "../agents.js";
+} from './common.js';
+import type { DateTime } from '../common.date.js';
+import type { AgentUserState } from '../agents.js';
 
 // === Output Types ===
 
@@ -55,15 +55,13 @@ export interface QueryAgentUserResult {
  * Filter input for QueryAgentUserResult.
  * Auto-generated from model fields using ModelFilterInput.
  */
-export type QueryAgentUserResultFilterInput =
-  ModelFilterInput<QueryAgentUserResult>;
+export type QueryAgentUserResultFilterInput = ModelFilterInput<QueryAgentUserResult>;
 
 /**
  * Search input for QueryAgentUserResult.
  * Auto-generated from model fields using ModelSearchInput.
  */
-export type QueryAgentUserResultSearchInput =
-  ModelSearchInput<QueryAgentUserResult>;
+export type QueryAgentUserResultSearchInput = ModelSearchInput<QueryAgentUserResult>;
 
 /**
  * Sort input for QueryAgentUserResult.
@@ -98,44 +96,47 @@ export type AgentUserFieldKey = DeepFieldKeys<QueryAgentUserResult>;
  */
 export const ALL_AGENT_USER_FIELDS = [
   // Primitive fields
-  "id",
-  "email",
-  "firstName",
-  "lastName",
-  "name",
-  "phoneNumber",
-  "phoneNumberCountryCode",
-  "state",
-  "createdAt",
-  "lastLoginAt",
+  'id',
+  'email',
+  'firstName',
+  'lastName',
+  'name',
+  'phoneNumber',
+  'phoneNumberCountryCode',
+  'state',
+  'createdAt',
+  'lastLoginAt',
   // Nested roles fields
-  "roles.id",
-  "roles.name",
-  "roles.isAdmin",
+  'roles.id',
+  'roles.name',
+  'roles.isAdmin',
   // Nested branches fields
-  "branches.id",
-  "branches.name",
-  "branches.parentId",
-  "branches.parentName",
-  "branches.level",
-  "branches.hierarchy",
+  'branches.id',
+  'branches.name',
+  'branches.parentId',
+  'branches.parentName',
+  'branches.level',
+  'branches.hierarchy',
 ] as const satisfies readonly AgentUserFieldKey[];
 
 /**
  * Helper type to pick selected fields from QueryAgentUserResult.
  */
-export type PickAgentUserFields<T extends readonly AgentUserFieldKey[]> =
-  PickFields<QueryAgentUserResult, T>;
+export type PickAgentUserFields<T extends readonly AgentUserFieldKey[]> = PickFields<
+  QueryAgentUserResult,
+  T
+>;
 
 /**
  * Type-safe connection result based on selected fields
  */
-export interface SelectedAgentUsersConnection<
-  TFields extends AgentUserFieldKey[],
-> extends Omit<AgentUsersConnection, "nodes" | "edges"> {
+export interface SelectedAgentUsersConnection<TFields extends AgentUserFieldKey[]> extends Omit<
+  AgentUsersConnection,
+  'nodes' | 'edges'
+> {
   nodes?: (PickAgentUserFields<TFields> | null)[] | null;
   edges?:
-    | (Omit<AgentUsersEdge, "node"> & {
+    | (Omit<AgentUsersEdge, 'node'> & {
         node?: PickAgentUserFields<TFields> | null;
       })[]
     | null;

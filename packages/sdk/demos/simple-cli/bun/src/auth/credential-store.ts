@@ -2,7 +2,7 @@
  * Cross-platform credential storage for OAuth2 tokens using Bun.secrets.
  */
 
-import { secrets } from "bun";
+import { secrets } from 'bun';
 
 export interface TokenData {
   accessToken: string;
@@ -12,8 +12,8 @@ export interface TokenData {
   scope?: string;
 }
 
-const SERVICE = "com.insurup.sdk";
-const NAME = "tokens";
+const SERVICE = 'com.insurup.sdk';
+const NAME = 'tokens';
 
 export async function saveTokens(data: TokenData): Promise<void> {
   await secrets.set({ service: SERVICE, name: NAME, value: JSON.stringify(data) });

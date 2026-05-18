@@ -10,8 +10,8 @@ import {
   ProductBranch,
   Currency,
   PaymentOption,
-  PolicyState
-} from "./common.js";
+  PolicyState,
+} from './common.js';
 import type {
   InsuranceParameter,
   UserReference,
@@ -22,10 +22,10 @@ import type {
   PropertyNumber,
   PropertySquareMeter,
   PropertyConstructionYear,
-
   CustomerEmail,
-  BirthDate} from "./common.js";
-import type { CustomerPhoneNumber } from "./common.js";
+  BirthDate,
+} from './common.js';
+import type { CustomerPhoneNumber } from './common.js';
 import type {
   VehicleModel,
   VehiclePlate,
@@ -37,7 +37,7 @@ import type {
   PropertyStructure,
   PropertyUtilizationStyle,
   PropertyOwnershipType,
-} from "./common.js";
+} from './common.js';
 
 // ============================================================================
 // CASE-SPECIFIC ENUMS
@@ -62,70 +62,70 @@ export enum CaseType {
   /**
    * Sales opportunity case for new business acquisition or policy sales
    */
-  SaleOpportunity = "SALE_OPPORTUNITY",
+  SaleOpportunity = 'SALE_OPPORTUNITY',
   /**
    * Policy endorsement case for modifications and changes
    */
-  Endorsement = "ENDORSEMENT",
+  Endorsement = 'ENDORSEMENT',
   /**
    * Policy cancellation case
    */
-  Cancel = "CANCEL",
+  Cancel = 'CANCEL',
   /**
    * Customer complaint case
    */
-  Complaint = "COMPLAINT",
+  Complaint = 'COMPLAINT',
 }
 
 /**
  * Case Main States
  */
 export enum CaseMainState {
-  Fail = "FAIL",
-  Open = "OPEN",
-  InProgress = "IN_PROGRESS",
-  Success = "SUCCESS",
+  Fail = 'FAIL',
+  Open = 'OPEN',
+  InProgress = 'IN_PROGRESS',
+  Success = 'SUCCESS',
 }
 
 /**
  * Case Sub-States
  */
 export enum CaseSubState {
-  FailNoResponse = "FAIL_NO_RESPONSE",
-  FailInvalidCase = "FAIL_INVALID_CASE",
-  FailCustomerWithdrawn = "FAIL_CUSTOMER_WITHDRAWN",
-  FailPaymentError = "FAIL_PAYMENT_ERROR",
-  FailDeclinedCardInformation = "FAIL_DECLINED_CARD_INFORMATION",
-  FailForeignUser = "FAIL_FOREIGN_USER",
-  FailTakenElsewhere = "FAIL_TAKEN_ELSEWHERE",
-  FailPriceTooHigh = "FAIL_PRICE_TOO_HIGH",
-  FailAssetAcquisition = "FAIL_ASSET_ACQUISITION",
-  FailAssetSold = "FAIL_ASSET_SOLD",
-  FailUnresolved = "FAIL_UNRESOLVED",
-  FailReferredToLegal = "FAIL_REFERRED_TO_LEGAL",
-  FailCustomerUnsatisfied = "FAIL_CUSTOMER_UNSATISFIED",
-  FailMissingDocuments = "FAIL_MISSING_DOCUMENTS",
-  FailInsurerDenied = "FAIL_INSURER_DENIED",
-  FailConditionsNotMet = "FAIL_CONDITIONS_NOT_MET",
-  OpenInitial = "OPEN_INITIAL",
-  OpenCollectingInformation = "OPEN_COLLECTING_INFORMATION",
-  OpenDelayed = "OPEN_DELAYED",
-  OpenWaiting = "OPEN_WAITING",
-  InProgressUnderAnalysis = "IN_PROGRESS_UNDER_ANALYSIS",
-  InProgressProposalPrepared = "IN_PROGRESS_PROPOSAL_PREPARED",
-  InProgressAwaitingApproval = "IN_PROGRESS_AWAITING_APPROVAL",
-  InProgressToBeRecontacted = "IN_PROGRESS_TO_BE_RECONTACTED",
-  SuccessCompleted = "SUCCESS_COMPLETED",
+  FailNoResponse = 'FAIL_NO_RESPONSE',
+  FailInvalidCase = 'FAIL_INVALID_CASE',
+  FailCustomerWithdrawn = 'FAIL_CUSTOMER_WITHDRAWN',
+  FailPaymentError = 'FAIL_PAYMENT_ERROR',
+  FailDeclinedCardInformation = 'FAIL_DECLINED_CARD_INFORMATION',
+  FailForeignUser = 'FAIL_FOREIGN_USER',
+  FailTakenElsewhere = 'FAIL_TAKEN_ELSEWHERE',
+  FailPriceTooHigh = 'FAIL_PRICE_TOO_HIGH',
+  FailAssetAcquisition = 'FAIL_ASSET_ACQUISITION',
+  FailAssetSold = 'FAIL_ASSET_SOLD',
+  FailUnresolved = 'FAIL_UNRESOLVED',
+  FailReferredToLegal = 'FAIL_REFERRED_TO_LEGAL',
+  FailCustomerUnsatisfied = 'FAIL_CUSTOMER_UNSATISFIED',
+  FailMissingDocuments = 'FAIL_MISSING_DOCUMENTS',
+  FailInsurerDenied = 'FAIL_INSURER_DENIED',
+  FailConditionsNotMet = 'FAIL_CONDITIONS_NOT_MET',
+  OpenInitial = 'OPEN_INITIAL',
+  OpenCollectingInformation = 'OPEN_COLLECTING_INFORMATION',
+  OpenDelayed = 'OPEN_DELAYED',
+  OpenWaiting = 'OPEN_WAITING',
+  InProgressUnderAnalysis = 'IN_PROGRESS_UNDER_ANALYSIS',
+  InProgressProposalPrepared = 'IN_PROGRESS_PROPOSAL_PREPARED',
+  InProgressAwaitingApproval = 'IN_PROGRESS_AWAITING_APPROVAL',
+  InProgressToBeRecontacted = 'IN_PROGRESS_TO_BE_RECONTACTED',
+  SuccessCompleted = 'SUCCESS_COMPLETED',
 }
 
 /**
  * Case Status
  */
 export enum CaseStatus {
-  Open = "OPEN",
-  Delayed = "DELAYED",
-  Success = "SUCCESS",
-  Fail = "FAIL",
+  Open = 'OPEN',
+  Delayed = 'DELAYED',
+  Success = 'SUCCESS',
+  Fail = 'FAIL',
 }
 
 /**
@@ -141,21 +141,21 @@ export enum SaleOpportunityCaseSubType {
    *
    * İlk kez poliçe satın alımı ile yeni müşteri kazanım satışı.
    */
-  NewSale = "NEW_SALE",
+  NewSale = 'NEW_SALE',
 
   /**
    * Cross-selling additional products to existing customers.
    *
    * Mevcut müşterilere ek ürünlerin çapraz satışı.
    */
-  CrossSale = "CROSS_SALE",
+  CrossSale = 'CROSS_SALE',
 
   /**
    * Policy renewal sale for existing coverage continuation.
    *
    * Mevcut teminatın devamı için poliçe yenileme satışı.
    */
-  Renewal = "RENEWAL",
+  Renewal = 'RENEWAL',
 }
 
 /**
@@ -187,7 +187,7 @@ export enum CancelCaseSubType {
    * ve oransal iadeler almalarını sağlar. Genellikle iptal ücretleri, kullanılan teminat dönemleri ve
    * poliçe şartlarına göre nihai iade tutarları için otomatik hesaplamaları içerir.
    */
-  OnlineCancellationRefund = "ONLINE_CANCELLATION_REFUND",
+  OnlineCancellationRefund = 'ONLINE_CANCELLATION_REFUND',
   /**
    * MEB (Ministry of Education) Cancellation / MEB (Milli Eğitim Bakanlığı) İptali
    *
@@ -201,7 +201,7 @@ export enum CancelCaseSubType {
    * prosedürleri ve belirli belgelendirme gereksinimlerini içerebilir. Genellikle eğitim takvimi
    * gereksinimlerini karşılamak için hızlandırılmış zaman çizelgeleri ile işlenir.
    */
-  MebCancellation = "MEB_CANCELLATION",
+  MebCancellation = 'MEB_CANCELLATION',
   /**
    * Partial Policy Cancellation / Kısmi Poliçe İptali
    *
@@ -215,15 +215,15 @@ export enum CancelCaseSubType {
    * yapılmasını gerektirir. Müşterilerin temel korumayı aktif tutarken teminat seviyelerini azaltmak
    * veya belirli isteğe bağlı teminatları kaldırmak istediği senaryolarda yaygındır.
    */
-  PartialCancellation = "PARTIAL_CANCELLATION",
+  PartialCancellation = 'PARTIAL_CANCELLATION',
   /**
    * Cancellation from Sale Process / Satış Sürecinden İptal
    */
-  CancellationFromSale = "CANCELLATION_FROM_SALE",
+  CancellationFromSale = 'CANCELLATION_FROM_SALE',
   /**
    * Cancellation Due to Collection Issues / Tahsilat Sorunları Nedeniyle İptal
    */
-  CancellationDueToCollection = "CANCELLATION_DUE_TO_COLLECTION",
+  CancellationDueToCollection = 'CANCELLATION_DUE_TO_COLLECTION',
   /**
    * Cancellation Due to Damage / Hasar Nedeniyle İptal
    *
@@ -237,7 +237,7 @@ export enum CancelCaseSubType {
    * koordinasyon içerir. Kalan prim iadelerinin dikkatli işlenmesini ve eksper ile onarım tesisleri
    * ile koordinasyonu gerektirir.
    */
-  CancellationDueToDamage = "CANCELLATION_DUE_TO_DAMAGE",
+  CancellationDueToDamage = 'CANCELLATION_DUE_TO_DAMAGE',
 }
 
 /**
@@ -269,7 +269,7 @@ export enum ComplaintCaseSubType {
    * sunumu, profesyonel olmayan davranış veya yeterli hizmet sağlayamama gibi sorunları içerir.
    * Acente davranışının araştırılmasını gerektirir ve disiplin eylemleri veya ek eğitim içerebilir.
    */
-  ConsultantError = "CONSULTANT_ERROR",
+  ConsultantError = 'CONSULTANT_ERROR',
   /**
    * Policy Operations Complaint / Poliçe Operasyonları Şikayeti
    *
@@ -283,7 +283,7 @@ export enum ComplaintCaseSubType {
    * veya poliçe hizmetlerini etkileyen sistemle ilgili sorunları içerir. Operasyonel prosedürlerin
    * ve sistem işlevselliğinin gözden geçirilmesini gerektirir.
    */
-  PolicyOperations = "POLICY_OPERATIONS",
+  PolicyOperations = 'POLICY_OPERATIONS',
   /**
    * Premium Collection Complaint / Prim Tahsilat Şikayeti
    *
@@ -297,7 +297,7 @@ export enum ComplaintCaseSubType {
    * yetkisiz ücretlendirmeler veya agresif tahsilat uygulamalarını içerir. Düzenlemelere uyumu
    * sağlamak için faturalandırma prosedürleri ve ödeme işleme sistemlerinin gözden geçirilmesini gerektirir.
    */
-  Collection = "COLLECTION",
+  Collection = 'COLLECTION',
   /**
    * Frequent Calls Complaint / Sık Arama Şikayeti
    *
@@ -312,7 +312,7 @@ export enum ComplaintCaseSubType {
    * girişimlerini içerebilir. İletişim politikalarının ve müşteri tercih ayarlarının
    * gözden geçirilmesini gerektirir.
    */
-  DueToFrequentCalls = "DUE_TO_FREQUENT_CALLS",
+  DueToFrequentCalls = 'DUE_TO_FREQUENT_CALLS',
   /**
    * Fraud-Related Complaint / Dolandırıcılık İlgili Şikayet
    *
@@ -326,7 +326,7 @@ export enum ComplaintCaseSubType {
    * şirket hizmetlerinin yanlış sunumu dahildir. Anında araştırma, potansiyel kolluk kuvvetleri
    * müdahalesi ve müşteri çıkarlarını korumak için özel işleme prosedürleri gerektirir.
    */
-  Fraud = "FRAUD",
+  Fraud = 'FRAUD',
   /**
    * Damage/Claims Handling Complaint / Hasar/Talep İşleme Şikayeti
    *
@@ -340,7 +340,7 @@ export enum ComplaintCaseSubType {
    * ile anlaşmazlıkları içerir. Hasar işleme prosedürlerinin gözden geçirilmesini gerektirir
    * ve bağımsız değerlendirmeler veya yeniden değerlendirmeler içerebilir.
    */
-  Damage = "DAMAGE",
+  Damage = 'DAMAGE',
   /**
    * Erroneous Transaction Complaint / Hatalı İşlem Şikayeti
    *
@@ -354,7 +354,7 @@ export enum ComplaintCaseSubType {
    * sistem günlükleri araştırması ve belirlenen hataların düzeltilmesini gerektirir. Müşteri
    * endişelerini çözmek için finansal ayarlamalar veya iadeler içerebilir.
    */
-  ErroneousTransaction = "ERRONEOUS_TRANSACTION",
+  ErroneousTransaction = 'ERRONEOUS_TRANSACTION',
   /**
    * Operations Delay Complaint / Operasyon Gecikmesi Şikayeti
    *
@@ -368,7 +368,7 @@ export enum ComplaintCaseSubType {
    * sürelerinin analizi, darboğazların belirlenmesi ve hizmet seviye taahhütlerini karşılamak
    * için süreç iyileştirmelerinin uygulanmasını gerektirir.
    */
-  DelayInOperations = "DELAY_IN_OPERATIONS",
+  DelayInOperations = 'DELAY_IN_OPERATIONS',
   /**
    * Online Transaction Error Complaint / Çevrimiçi İşlem Hatası Şikayeti
    *
@@ -382,7 +382,7 @@ export enum ComplaintCaseSubType {
    * veya sistem kullanılabilirliği sorunlarını içerir. Platform sorunlarını çözmek için teknik
    * araştırma ve IT ekipleri ile koordinasyon gerektirir.
    */
-  OnlineTransactionErrors = "ONLINE_TRANSACTION_ERRORS",
+  OnlineTransactionErrors = 'ONLINE_TRANSACTION_ERRORS',
   /**
    * Cancellation Period Delay Complaint / İptal Dönemi Gecikmesi Şikayeti
    *
@@ -396,7 +396,7 @@ export enum ComplaintCaseSubType {
    * işlenmesinde veya iade ödemelerinin transferinde gecikmeleri içerir. Acil dikkat ve çözüm
    * gerektiren düzenleyici uyumluluk sorunları içerebilir.
    */
-  DelayInCancellationPeriod = "DELAY_IN_CANCELLATION_PERIOD",
+  DelayInCancellationPeriod = 'DELAY_IN_CANCELLATION_PERIOD',
   /**
    * Non-Receipt of Policy Documents Complaint / Poliçe Belgeleri Almama Şikayeti
    *
@@ -410,7 +410,7 @@ export enum ComplaintCaseSubType {
    * veya dağıtımında sistem arızalarını içerebilir. Teslim yöntemlerinin araştırılmasını ve
    * eksik belgelerin yeniden düzenlenmesini gerektirir.
    */
-  NonReceiptOfPolicyOrEndorsement = "NON_RECEIPT_OF_POLICY_OR_ENDORSEMENT",
+  NonReceiptOfPolicyOrEndorsement = 'NON_RECEIPT_OF_POLICY_OR_ENDORSEMENT',
   /**
    * Non-Production of Policy Documents Complaint / Poliçe Belgeleri Üretmeme Şikayeti
    *
@@ -424,7 +424,7 @@ export enum ComplaintCaseSubType {
    * şikayetler. Gerekli tüm belgelerin zamanında düzenlenmesini sağlamak için belge üretim
    * sistemleri ve süreçlerinin araştırılmasını gerektirir.
    */
-  NonProductionOfPolicyOrEndorsement = "NON_PRODUCTION_OF_POLICY_OR_ENDORSEMENT",
+  NonProductionOfPolicyOrEndorsement = 'NON_PRODUCTION_OF_POLICY_OR_ENDORSEMENT',
   /**
    * Endorsement Operations Delay Complaint / Zeyilname Operasyonları Gecikmesi Şikayeti
    *
@@ -439,7 +439,7 @@ export enum ComplaintCaseSubType {
    * içerir. Zamanında işleme için zeyilname iş akışları ve kaynak tahsisinin gözden
    * geçirilmesini gerektirir.
    */
-  DelayInEndorsementOperations = "DELAY_IN_ENDORSEMENT_OPERATIONS",
+  DelayInEndorsementOperations = 'DELAY_IN_ENDORSEMENT_OPERATIONS',
   /**
    * Erroneous Premium Collection Complaint / Hatalı Prim Tahsilatı Şikayeti
    *
@@ -454,7 +454,7 @@ export enum ComplaintCaseSubType {
    * ayrıntılı araştırılmasını ve uygun iadeler veya ayarlamalarla finansal hataların
    * düzeltilmesini gerektirir.
    */
-  ErroneousPremiumCollection = "ERRONEOUS_PREMIUM_COLLECTION",
+  ErroneousPremiumCollection = 'ERRONEOUS_PREMIUM_COLLECTION',
   /**
    * Non-Delivery of Refund Receipt Complaint / İade Makbuzu Teslim Etmeme Şikayeti
    *
@@ -468,7 +468,7 @@ export enum ComplaintCaseSubType {
    * önemlidir. Belge teslim süreçlerinin araştırılmasını ve eksik makbuz veya onayların
    * yeniden düzenlenmesini gerektirir.
    */
-  NonDeliveryOfRefundReceipt = "NON_DELIVERY_OF_REFUND_RECEIPT",
+  NonDeliveryOfRefundReceipt = 'NON_DELIVERY_OF_REFUND_RECEIPT',
   /**
    * Non-Refund of Premium Complaint / Prim İade Etmeme Şikayeti
    *
@@ -482,7 +482,7 @@ export enum ComplaintCaseSubType {
    * araştırılmasını, hak sahipliğinin doğrulanmasını ve poliçe şartları ile düzenleyici
    * gereksinimlere göre borçlu olunan iadelerin işlenmesini gerektirir.
    */
-  NonRefundOfPremium = "NON_REFUND_OF_PREMIUM",
+  NonRefundOfPremium = 'NON_REFUND_OF_PREMIUM',
   /**
    * Staff Attitude Complaint / Personel Tutumu Şikayeti
    *
@@ -496,7 +496,7 @@ export enum ComplaintCaseSubType {
    * sağlayamama dahildir. Personel etkileşimlerinin araştırılmasını gerektirir ve koçluk,
    * eğitim veya disiplin eylemlerini içerebilir.
    */
-  StaffAttitude = "STAFF_ATTITUDE",
+  StaffAttitude = 'STAFF_ATTITUDE',
   /**
    * Insufficient or Erroneous Information Complaint / Yetersiz veya Hatalı Bilgi Şikayeti
    *
@@ -510,7 +510,7 @@ export enum ComplaintCaseSubType {
    * Doğru ve eksiksiz bilgi teslimini sağlamak için bilgi kaynakları, eğitim materyalleri
    * ve iletişim protokollerinin gözden geçirilmesini gerektirir.
    */
-  InsufficientOrErroneousInformation = "INSUFFICIENT_OR_ERRONEOUS_INFORMATION",
+  InsufficientOrErroneousInformation = 'INSUFFICIENT_OR_ERRONEOUS_INFORMATION',
   /**
    * No Timely Response Complaint / Zamanında Yanıt Vermeme Şikayeti
    *
@@ -524,7 +524,7 @@ export enum ComplaintCaseSubType {
    * aramalarına veya resmi taleplere yanıt vermede gecikmeleri içerir. Yanıt süresi standartları
    * ve müşteri iletişimleri için kaynak tahsisinin gözden geçirilmesini gerektirir.
    */
-  NoTimelyResponse = "NO_TIMELY_RESPONSE",
+  NoTimelyResponse = 'NO_TIMELY_RESPONSE',
 }
 
 /**
@@ -556,7 +556,7 @@ export enum EndorsementCaseSubType {
    * prim yeniden hesaplamasını içerir. Yeni aracın detaylarının belgelenmesini, konutiyet
    * devri ve teminat limitleri ile muafiyetlerin potansiyel ayarlanmasını gerektirir.
    */
-  VehicleChange = "VEHICLE_CHANGE",
+  VehicleChange = 'VEHICLE_CHANGE',
   /**
    * Insured Value Increase Endorsement / Sigorta Değeri Artışı Zeyilnamesi
    *
@@ -570,7 +570,7 @@ export enum EndorsementCaseSubType {
    * Güncel değer takdiri, risk yeniden değerlendirmesi ve prim ayarlama hesaplamalarını gerektirir.
    * Önemli değer artışları için ek yüklenim gereksinimleri içerebilir.
    */
-  ValueIncrease = "VALUE_INCREASE",
+  ValueIncrease = 'VALUE_INCREASE',
   /**
    * No-Claim Bonus Transfer Endorsement / Hasarsızlık Bonus Transfer Zeyilnamesi
    *
@@ -584,7 +584,7 @@ export enum EndorsementCaseSubType {
    * indirim seviyelerine dayalı prim ayarlamalarını gerektirir. Sigortacı değiştirirken
    * rekabetçi fiyatlandırma ve müşteri elde tutma için gereklidir.
    */
-  NoClaimBonusTransfer = "NO_CLAIM_BONUS_TRANSFER",
+  NoClaimBonusTransfer = 'NO_CLAIM_BONUS_TRANSFER',
   /**
    * Coverage Modification Endorsement / Teminat Değişikliği Zeyilnamesi
    *
@@ -598,7 +598,7 @@ export enum EndorsementCaseSubType {
    * belgelenmesini, yeni teminatlar için risk değerlendirmesi ve doğru prim hesaplamalarını gerektirir.
    * Müşterilerin ihtiyaçları değiştiğinde veya yeni teminat seçenekleri mevcut olduğunda yaygındır.
    */
-  CoverageChange = "COVERAGE_CHANGE",
+  CoverageChange = 'COVERAGE_CHANGE',
   /**
    * Vehicle Usage Type Change Endorsement / Araç Kullanım Türü Değişikliği Zeyilnamesi
    *
@@ -612,7 +612,7 @@ export enum EndorsementCaseSubType {
    * yeniden değerlendirmesi, prim ayarlamaları ve potansiyel teminat değişikliklerini gerektirir.
    * Doğru risk profillerinin korunması ve uygun fiyatlandırma için kritiktir.
    */
-  UsageTypeChange = "USAGE_TYPE_CHANGE",
+  UsageTypeChange = 'USAGE_TYPE_CHANGE',
   /**
    * Policy Transfer Request Endorsement / Poliçe Transfer Talebi Zeyilnamesi
    *
@@ -626,7 +626,7 @@ export enum EndorsementCaseSubType {
    * kredi güvenilirliği değerlendirmesi, risk değerlendirmesi ve konutiyet transferinin yasal
    * belgelenmesini gerektirir. Yeni sahibin risk profiline dayalı prim ayarlamaları içerebilir.
    */
-  TransferRequest = "TRANSFER_REQUEST",
+  TransferRequest = 'TRANSFER_REQUEST',
   /**
    * License Plate Change Endorsement / Plaka Değişikliği Zeyilnamesi
    *
@@ -640,7 +640,7 @@ export enum EndorsementCaseSubType {
    * ve poliçe kayıtlarının buna göre güncellenmesini gerektirir. Genellikle primler veya
    * teminat üzerinde minimal etkisi olan basit bir idari değişikliktir.
    */
-  LicensePlateChange = "LICENSE_PLATE_CHANGE",
+  LicensePlateChange = 'LICENSE_PLATE_CHANGE',
   /**
    * Vehicle Brand and Model Change Endorsement / Araç Marka ve Model Değişikliği Zeyilnamesi
    *
@@ -654,7 +654,7 @@ export enum EndorsementCaseSubType {
    * Doğru araç spesifikasyonlarının doğrulanmasını, gerçek araç özelliklerine dayalı risk
    * yeniden değerlendirmesi ve potansiyel prim ayarlamalarını gerektirir.
    */
-  BrandModelChange = "BRAND_MODEL_CHANGE",
+  BrandModelChange = 'BRAND_MODEL_CHANGE',
   /**
    * Engine and Chassis Number Change Endorsement / Motor ve Şasi Numarası Değişikliği Zeyilnamesi
    *
@@ -668,7 +668,7 @@ export enum EndorsementCaseSubType {
    * doğrulanmasını, yetkili servis merkezlerinden belgelendirme ve araç otantikliğini
    * sağlamak ve kimlik dolandırıcılığını önlemek için dolandırıcılık karşıtı kontrolleri gerektirir.
    */
-  EngineChassisNumberChange = "ENGINE_CHASSIS_NUMBER_CHANGE",
+  EngineChassisNumberChange = 'ENGINE_CHASSIS_NUMBER_CHANGE',
   /**
    * Contact and Address Change Endorsement / İletişim ve Adres Değişikliği Zeyilnamesi
    *
@@ -683,7 +683,7 @@ export enum EndorsementCaseSubType {
    * Adres değişikliği risk değerlendirmesini etkiliyorsa (örn. farklı coğrafi risk bölgeleri)
    * prim hesaplamalarını etkileyebilir.
    */
-  ContactAddressChange = "CONTACT_ADDRESS_CHANGE",
+  ContactAddressChange = 'CONTACT_ADDRESS_CHANGE',
   /**
    * Other Endorsement Types / Diğer Zeyilname Türleri
    *
@@ -697,7 +697,7 @@ export enum EndorsementCaseSubType {
    * standartlaştırılmamış yeni değişiklik türlerini içerebilir. Talebe özel değerlendirme
    * gerektirir ve özel onay süreçlerine ihtiyaç duyabilir.
    */
-  Other = "OTHER",
+  Other = 'OTHER',
   /**
    * Pledgee Correction and Addition Endorsement / Rehinli Düzeltme ve Ekleme Zeyilnamesi
    *
@@ -712,39 +712,31 @@ export enum EndorsementCaseSubType {
    * belgelendirmesi ve değişiklikler için uygun yasal yetkilendirmeyi gerektirir.
    * Uygun hasar ödeme prosedürlerinin sağlanması için kritiktir.
    */
-  PledgeeCorrectionAddition = "PLEDGEE_CORRECTION_ADDITION",
+  PledgeeCorrectionAddition = 'PLEDGEE_CORRECTION_ADDITION',
 }
 
 /**
  * Case Activity Actions
  */
 export enum CaseActivityAction {
-  Created = "CREATED",
-  Updated = "UPDATED",
-  StateChanged = "STATE_CHANGED",
-  ChannelChanged = "CHANNEL_CHANGED",
-  RepresentativeAssigned = "REPRESENTATIVE_ASSIGNED",
-  NoteAdded = "NOTE_ADDED",
-  AssetSet = "ASSET_SET",
-  PolicyAdded = "POLICY_ADDED",
-  ProposalAdded = "PROPOSAL_ADDED",
-  PolicyEndDateSet = "POLICY_END_DATE_SET",
-  CustomerUpdated = "CUSTOMER_UPDATED",
-  AssetUpdated = "ASSET_UPDATED",
-  PriorityAssessed = "PRIORITY_ASSESSED",
-  ProposalProductPurchaseAttempted = "PROPOSAL_PRODUCT_PURCHASE_ATTEMPTED",
+  Created = 'CREATED',
+  Updated = 'UPDATED',
+  StateChanged = 'STATE_CHANGED',
+  ChannelChanged = 'CHANNEL_CHANGED',
+  RepresentativeAssigned = 'REPRESENTATIVE_ASSIGNED',
+  NoteAdded = 'NOTE_ADDED',
+  AssetSet = 'ASSET_SET',
+  PolicyAdded = 'POLICY_ADDED',
+  ProposalAdded = 'PROPOSAL_ADDED',
+  PolicyEndDateSet = 'POLICY_END_DATE_SET',
+  CustomerUpdated = 'CUSTOMER_UPDATED',
+  AssetUpdated = 'ASSET_UPDATED',
+  PriorityAssessed = 'PRIORITY_ASSESSED',
+  ProposalProductPurchaseAttempted = 'PROPOSAL_PRODUCT_PURCHASE_ATTEMPTED',
 }
 
 // Re-export enums for backward compatibility with existing imports
-export {
-  Channel,
-  AssetType,
-  CustomerType,
-  ProductBranch,
-  Currency,
-  PaymentOption,
-  PolicyState,
-};
+export { Channel, AssetType, CustomerType, ProductBranch, Currency, PaymentOption, PolicyState };
 
 // ============================================================================
 // REQUEST TYPES

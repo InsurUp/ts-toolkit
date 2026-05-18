@@ -88,12 +88,7 @@ export interface TableApiConfig<
  * @template TSearchInput - The SDK search input type
  * @template TPagination - The pagination manager type (CursorPaginationManager, etc.)
  */
-export interface TableApi<
-  TRow,
-  TFilterInput,
-  TSearchInput,
-  TPagination extends PaginationManager,
-> {
+export interface TableApi<TRow, TFilterInput, TSearchInput, TPagination extends PaginationManager> {
   /** TanStack ColumnDef[] - converted from entity columns (frozen, immutable) */
   readonly columns: readonly ColumnDef<TRow, unknown>[];
   /** Get current adapter state */

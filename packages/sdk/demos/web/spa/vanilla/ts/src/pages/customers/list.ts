@@ -3,69 +3,76 @@
  * Supports URL state persistence for shareable/bookmarkable table views.
  */
 
-import { getClient } from "../../client";
-import { renderPagination, createPaginationTracker, type PageInfo } from "../../components/pagination";
-import { renderLoading, renderEmptyState, renderError } from "../../components/loading";
-import { renderTableToolbar, type FilterConfig } from "../../components/table-toolbar";
+import { getClient } from '../../client';
+import {
+  renderPagination,
+  createPaginationTracker,
+  type PageInfo,
+} from '../../components/pagination';
+import { renderLoading, renderEmptyState, renderError } from '../../components/loading';
+import { renderTableToolbar, type FilterConfig } from '../../components/table-toolbar';
 import {
   renderSortableHeaders,
   attachSortHandlers,
   buildOrderOptions,
   type SortState,
   type SortableColumn,
-} from "../../components/sortable-headers";
-import type { ColumnConfig } from "../../components/column-visibility";
-import { formatDate, formatCustomerType, truncate } from "../../utils/format";
-import { escapeHtml } from "../../utils/dom";
-import { getTableState, setTableState } from "../../utils/url-state";
-import { CustomerType, SortEnumType } from "@insurup/contracts";
-import type { CustomerFieldKey } from "@insurup/contracts";
-import type { QueryCustomerModelSearchInput, QueryCustomerModelFilterInput } from "@insurup/contracts";
+} from '../../components/sortable-headers';
+import type { ColumnConfig } from '../../components/column-visibility';
+import { formatDate, formatCustomerType, truncate } from '../../utils/format';
+import { escapeHtml } from '../../utils/dom';
+import { getTableState, setTableState } from '../../utils/url-state';
+import { CustomerType, SortEnumType } from '@insurup/contracts';
+import type { CustomerFieldKey } from '@insurup/contracts';
+import type {
+  QueryCustomerModelSearchInput,
+  QueryCustomerModelFilterInput,
+} from '@insurup/contracts';
 
 const PAGE_SIZE = 10;
-const STORAGE_KEY = "demo-customers-columns";
+const STORAGE_KEY = 'demo-customers-columns';
 
 /** Map column IDs to SDK field names */
 const COLUMN_TO_FIELDS: Record<string, readonly string[]> = {
-  name: ["name"],
-  type: ["type"],
-  identity: ["identityNumber", "taxNumber"],
-  email: ["primaryEmail"],
-  createdAt: ["createdAt"],
+  name: ['name'],
+  type: ['type'],
+  identity: ['identityNumber', 'taxNumber'],
+  email: ['primaryEmail'],
+  createdAt: ['createdAt'],
 };
 
 /** Fields that are always required */
-const REQUIRED_FIELDS = ["id"] as const;
+const REQUIRED_FIELDS = ['id'] as const;
 
 /** Column configuration for the table */
 const COLUMNS: SortableColumn[] = [
-  { id: "name", label: "Name", sortField: "name", sortable: true },
-  { id: "type", label: "Type" },
-  { id: "identity", label: "Identity/Tax Number" },
-  { id: "email", label: "Email" },
-  { id: "createdAt", label: "Created", sortField: "createdAt", sortable: true },
-  { id: "actions", label: "" },
+  { id: 'name', label: 'Name', sortField: 'name', sortable: true },
+  { id: 'type', label: 'Type' },
+  { id: 'identity', label: 'Identity/Tax Number' },
+  { id: 'email', label: 'Email' },
+  { id: 'createdAt', label: 'Created', sortField: 'createdAt', sortable: true },
+  { id: 'actions', label: '' },
 ];
 
 /** Column visibility configuration */
 const COLUMN_CONFIG: ColumnConfig[] = [
-  { id: "name", label: "Name", defaultVisible: true },
-  { id: "type", label: "Type", defaultVisible: true },
-  { id: "identity", label: "Identity/Tax Number", defaultVisible: true },
-  { id: "email", label: "Email", defaultVisible: true },
-  { id: "createdAt", label: "Created", defaultVisible: true },
+  { id: 'name', label: 'Name', defaultVisible: true },
+  { id: 'type', label: 'Type', defaultVisible: true },
+  { id: 'identity', label: 'Identity/Tax Number', defaultVisible: true },
+  { id: 'email', label: 'Email', defaultVisible: true },
+  { id: 'createdAt', label: 'Created', defaultVisible: true },
 ];
 
 /** Filter configuration */
 const FILTERS: FilterConfig[] = [
   {
-    id: "type",
-    label: "Type",
+    id: 'type',
+    label: 'Type',
     options: [
-      { value: "", label: "All Types" },
-      { value: CustomerType.Individual, label: "Individual" },
-      { value: CustomerType.Company, label: "Company" },
-      { value: CustomerType.Foreign, label: "Foreign" },
+      { value: '', label: 'All Types' },
+      { value: CustomerType.Individual, label: 'Individual' },
+      { value: CustomerType.Company, label: 'Company' },
+      { value: CustomerType.Foreign, label: 'Foreign' },
     ],
   },
 ];
@@ -88,16 +95,19 @@ export async function render(container: HTMLElement): Promise<void> {
   const urlState = getTableState();
 
   // State
-  let searchQuery = urlState.search || "";
+  let searchQuery = urlState.search || '';
   let typeFilter: CustomerType | null = (urlState.filters?.type as CustomerType) || null;
   let sortState: SortState = urlState.sort
-    ? { field: urlState.sort.field, direction: urlState.sort.direction === "asc" ? SortEnumType.ASC : SortEnumType.DESC }
+    ? {
+        field: urlState.sort.field,
+        direction: urlState.sort.direction === 'asc' ? SortEnumType.ASC : SortEnumType.DESC,
+      }
     : { field: null, direction: null };
   let visibleColumns = new Set(COLUMN_CONFIG.map((c) => c.id));
   const targetPage = urlState.page || 1;
 
   // Always include actions column
-  visibleColumns.add("actions");
+  visibleColumns.add('actions');
 
   /**
    * Sync current state to URL.
@@ -107,9 +117,13 @@ export async function render(container: HTMLElement): Promise<void> {
       {
         search: searchQuery || undefined,
         filters: typeFilter ? { type: typeFilter } : undefined,
-        sort: sortState.field && sortState.direction
-          ? { field: sortState.field, direction: sortState.direction.toLowerCase() as "asc" | "desc" }
-          : undefined,
+        sort:
+          sortState.field && sortState.direction
+            ? {
+                field: sortState.field,
+                direction: sortState.direction.toLowerCase() as 'asc' | 'desc',
+              }
+            : undefined,
         page: tracker.currentPage > 1 ? tracker.currentPage : undefined,
       },
       pushHistory
@@ -160,14 +174,14 @@ export async function render(container: HTMLElement): Promise<void> {
 
   async function loadPage(cursor: string | null = null): Promise<void> {
     // Check if we have existing content (subsequent load) or need full page loading (initial load)
-    const dataTable = container.querySelector(".data-table");
+    const dataTable = container.querySelector('.data-table');
     const isInitialLoad = !dataTable;
 
     if (isInitialLoad) {
-      renderLoading(container, "Loading customers...");
+      renderLoading(container, 'Loading customers...');
     } else {
       // Show loading overlay on existing table
-      dataTable.classList.add("loading");
+      dataTable.classList.add('loading');
     }
 
     try {
@@ -180,7 +194,7 @@ export async function render(container: HTMLElement): Promise<void> {
         first: 1,
         search: searchOptions,
         filter: filterOptions,
-        select: ["id"] as const,
+        select: ['id'] as const,
       });
 
       const selectFields = buildSelectFields();
@@ -196,7 +210,7 @@ export async function render(container: HTMLElement): Promise<void> {
       });
 
       if (!dataRes.isSuccess || !dataRes.data) {
-        throw new Error(dataRes.message || "Failed to load customers");
+        throw new Error(dataRes.message || 'Failed to load customers');
       }
 
       const { nodes, pageInfo } = dataRes.data;
@@ -206,7 +220,9 @@ export async function render(container: HTMLElement): Promise<void> {
 
       countPromise.then((countRes) => {
         if (countRes.isSuccess && countRes.data) {
-          const paginationContainer = container.querySelector("#pagination-container") as HTMLElement;
+          const paginationContainer = container.querySelector(
+            '#pagination-container'
+          ) as HTMLElement;
           if (paginationContainer) {
             renderPagination(
               paginationContainer,
@@ -238,11 +254,11 @@ export async function render(container: HTMLElement): Promise<void> {
         }
       });
     } catch (error) {
-      console.error("Failed to load customers:", error);
+      console.error('Failed to load customers:', error);
       renderError(
         container,
-        "Error Loading Customers",
-        error instanceof Error ? error.message : "Unknown error",
+        'Error Loading Customers',
+        error instanceof Error ? error.message : 'Unknown error',
         () => loadPage(cursor)
       );
     }
@@ -260,8 +276,8 @@ export async function render(container: HTMLElement): Promise<void> {
     if (customers.length === 0 && tracker.currentPage === 1 && !hasFilters) {
       renderEmptyState(
         container,
-        "No Customers Found",
-        "There are no customers in the system yet.",
+        'No Customers Found',
+        'There are no customers in the system yet.',
         '<a href="#/customers/create" role="button">Create Customer</a>'
       );
       return;
@@ -291,13 +307,17 @@ export async function render(container: HTMLElement): Promise<void> {
               </tr>
             </thead>
             <tbody id="customer-table-body">
-              ${customers.length > 0 ? customers.map((c) => renderCustomerRow(c as unknown as CustomerRow)).join("") : `
+              ${
+                customers.length > 0
+                  ? customers.map((c) => renderCustomerRow(c as unknown as CustomerRow)).join('')
+                  : `
                 <tr>
                   <td colspan="${visibleColumns.size}" style="text-align: center; color: var(--pico-muted-color);">
-                    No customers found${hasFilters ? " matching your search criteria." : "."}
+                    No customers found${hasFilters ? ' matching your search criteria.' : '.'}
                   </td>
                 </tr>
-              `}
+              `
+              }
             </tbody>
           </table>
         </div>
@@ -307,9 +327,9 @@ export async function render(container: HTMLElement): Promise<void> {
     `;
 
     // Render toolbar and restore state
-    const toolbarContainer = container.querySelector("#toolbar-container") as HTMLElement;
+    const toolbarContainer = container.querySelector('#toolbar-container') as HTMLElement;
     const toolbarControls = renderTableToolbar(toolbarContainer, {
-      searchPlaceholder: "Search customers...",
+      searchPlaceholder: 'Search customers...',
       filters: FILTERS,
       columns: COLUMN_CONFIG,
       storageKey: STORAGE_KEY,
@@ -323,15 +343,15 @@ export async function render(container: HTMLElement): Promise<void> {
       toolbarControls.setSearchValue(searchQuery);
     }
     if (typeFilter) {
-      toolbarControls.setFilterValue("type", typeFilter);
+      toolbarControls.setFilterValue('type', typeFilter);
     }
 
     // Attach sort handlers
-    const table = container.querySelector("table") as HTMLElement;
+    const table = container.querySelector('table') as HTMLElement;
     attachSortHandlers(table, sortState, handleSort);
 
     if (customers.length > 0) {
-      const paginationContainer = container.querySelector("#pagination-container") as HTMLElement;
+      const paginationContainer = container.querySelector('#pagination-container') as HTMLElement;
       renderPagination(
         paginationContainer,
         {
@@ -362,43 +382,43 @@ export async function render(container: HTMLElement): Promise<void> {
   }
 
   function renderCustomerRow(customer: CustomerRow): string {
-    const identityOrTax = customer.identityNumber || customer.taxNumber || "-";
+    const identityOrTax = customer.identityNumber || customer.taxNumber || '-';
 
     const cells: string[] = [];
 
-    if (visibleColumns.has("name")) {
+    if (visibleColumns.has('name')) {
       cells.push(`
         <td>
           <a href="#/customers/${customer.id}">
-            ${escapeHtml(customer.name || "Unnamed")}
+            ${escapeHtml(customer.name || 'Unnamed')}
           </a>
         </td>
       `);
     }
 
-    if (visibleColumns.has("type")) {
+    if (visibleColumns.has('type')) {
       cells.push(`
         <td>
-          <span class="badge ${customer.type === CustomerType.Company ? "primary" : ""}">
+          <span class="badge ${customer.type === CustomerType.Company ? 'primary' : ''}">
             ${formatCustomerType(customer.type)}
           </span>
         </td>
       `);
     }
 
-    if (visibleColumns.has("identity")) {
+    if (visibleColumns.has('identity')) {
       cells.push(`<td>${escapeHtml(identityOrTax)}</td>`);
     }
 
-    if (visibleColumns.has("email")) {
+    if (visibleColumns.has('email')) {
       cells.push(`<td>${escapeHtml(truncate(customer.primaryEmail, 30))}</td>`);
     }
 
-    if (visibleColumns.has("createdAt")) {
+    if (visibleColumns.has('createdAt')) {
       cells.push(`<td>${formatDate(customer.createdAt?.toString())}</td>`);
     }
 
-    if (visibleColumns.has("actions")) {
+    if (visibleColumns.has('actions')) {
       cells.push(`
         <td>
           <a href="#/customers/${customer.id}">View</a>
@@ -406,7 +426,7 @@ export async function render(container: HTMLElement): Promise<void> {
       `);
     }
 
-    return `<tr>${cells.join("")}</tr>`;
+    return `<tr>${cells.join('')}</tr>`;
   }
 
   async function handleSearch(query: string): Promise<void> {
@@ -417,7 +437,7 @@ export async function render(container: HTMLElement): Promise<void> {
   }
 
   async function handleFilterChange(filterId: string, value: string): Promise<void> {
-    if (filterId === "type") {
+    if (filterId === 'type') {
       typeFilter = value ? (value as CustomerType) : null;
       tracker.reset();
       syncToUrl();
@@ -425,7 +445,10 @@ export async function render(container: HTMLElement): Promise<void> {
     }
   }
 
-  async function handleSort(field: string, direction: typeof SortEnumType.ASC | typeof SortEnumType.DESC | null): Promise<void> {
+  async function handleSort(
+    field: string,
+    direction: typeof SortEnumType.ASC | typeof SortEnumType.DESC | null
+  ): Promise<void> {
     sortState = { field: direction ? field : null, direction };
     tracker.reset();
     syncToUrl();
@@ -434,7 +457,7 @@ export async function render(container: HTMLElement): Promise<void> {
 
   function handleColumnsChange(columns: Set<string>): void {
     visibleColumns = new Set(columns);
-    visibleColumns.add("actions"); // Always show actions
+    visibleColumns.add('actions'); // Always show actions
     // Re-render without reloading data - we'll need to trigger a re-render
     // For now, just reload the page
     loadPage(tracker.getCurrentCursor());
@@ -449,7 +472,7 @@ export async function render(container: HTMLElement): Promise<void> {
       return;
     }
 
-    renderLoading(container, "Loading customers...");
+    renderLoading(container, 'Loading customers...');
 
     try {
       const client = getClient();
@@ -460,14 +483,15 @@ export async function render(container: HTMLElement): Promise<void> {
       // Fetch pages sequentially to get cursors
       const cursors: string[] = [];
       for (let i = 1; i < page; i++) {
-        const afterCursor: string | undefined = cursors.length > 0 ? cursors[cursors.length - 1] : undefined;
+        const afterCursor: string | undefined =
+          cursors.length > 0 ? cursors[cursors.length - 1] : undefined;
         const pageRes = await client.customers.getCustomers({
           first: PAGE_SIZE,
           after: afterCursor,
           search: searchOptions,
           filter: filterOptions,
           order: orderOptions,
-          select: ["id"] as const,
+          select: ['id'] as const,
         });
 
         if (!pageRes.isSuccess || !pageRes.data?.pageInfo.endCursor) {
@@ -487,7 +511,7 @@ export async function render(container: HTMLElement): Promise<void> {
       const finalCursor = cursors.length > 0 ? cursors[cursors.length - 1] : null;
       await loadPage(finalCursor);
     } catch (error) {
-      console.error("Failed to navigate to page:", error);
+      console.error('Failed to navigate to page:', error);
       tracker.reset();
       syncToUrl();
       await loadPage(null);

@@ -55,7 +55,7 @@ const sortFieldToApiField: Record<string, string> = {
       <mat-form-field appearance="outline" class="search-field">
         <mat-label>Search policies</mat-label>
         <mat-icon matPrefix>search</mat-icon>
-        <input matInput [(ngModel)]="search" (ngModelChange)="onSearch($event)">
+        <input matInput [(ngModel)]="search" (ngModelChange)="onSearch($event)" />
       </mat-form-field>
 
       <app-data-table
@@ -65,7 +65,8 @@ const sortFieldToApiField: Record<string, string> = {
         [sortField]="sortField()"
         [sortDirection]="sortDirection()"
         (sort)="onSort($event)"
-        (rowClick)="onRowClick($event)">
+        (rowClick)="onRowClick($event)"
+      >
         <ng-template #cellTemplate let-item let-column="column">
           @if (column.key === 'productBranch') {
             <mat-chip>{{ item.productBranch || '-' }}</mat-chip>
@@ -87,31 +88,34 @@ const sortFieldToApiField: Record<string, string> = {
         [currentPage]="currentPage()"
         [pageSize]="10"
         (next)="onNextPage()"
-        (previous)="onPreviousPage()">
+        (previous)="onPreviousPage()"
+      >
       </app-pagination>
     </div>
   `,
-  styles: [`
-    .policy-list h1 {
-      font-size: 30px;
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
-    .subtitle {
-      opacity: 0.7;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 24px;
-    }
-    .search-field {
-      width: 100%;
-      max-width: 400px;
-      margin-bottom: 16px;
-    }
-  `],
+  styles: [
+    `
+      .policy-list h1 {
+        font-size: 30px;
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
+      .subtitle {
+        opacity: 0.7;
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 24px;
+      }
+      .search-field {
+        width: 100%;
+        max-width: 400px;
+        margin-bottom: 16px;
+      }
+    `,
+  ],
 })
 export class PolicyListComponent {
   private router = inject(Router);
@@ -136,12 +140,31 @@ export class PolicyListComponent {
   currentPage = signal(1);
 
   columns: Column<Policy>[] = [
-    { key: 'policyNumber', header: 'Policy Number', sortable: true, render: (p) => p.policyNumber || '-' },
+    {
+      key: 'policyNumber',
+      header: 'Policy Number',
+      sortable: true,
+      render: (p) => p.policyNumber || '-',
+    },
     { key: 'productBranch', header: 'Branch' },
-    { key: 'insuranceCompanyName', header: 'Insurance Company', render: (p) => p.insuranceCompanyName || '-' },
+    {
+      key: 'insuranceCompanyName',
+      header: 'Insurance Company',
+      render: (p) => p.insuranceCompanyName || '-',
+    },
     { key: 'customerName', header: 'Customer', render: (p) => p.customerName || '-' },
-    { key: 'grossPremium', header: 'Premium', sortable: true, render: (p) => this.formatCurrency(p.grossPremium) },
-    { key: 'startDate', header: 'Start Date', sortable: true, render: (p) => this.formatDate(p.startDate) },
+    {
+      key: 'grossPremium',
+      header: 'Premium',
+      sortable: true,
+      render: (p) => this.formatCurrency(p.grossPremium),
+    },
+    {
+      key: 'startDate',
+      header: 'Start Date',
+      sortable: true,
+      render: (p) => this.formatDate(p.startDate),
+    },
     { key: 'endDate', header: 'End Date', render: (p) => this.formatDate(p.endDate) },
     { key: 'state', header: 'Status' },
   ];
@@ -185,23 +208,28 @@ export class PolicyListComponent {
         after: this.direction() === 'forward' ? this.cursor() : undefined,
         before: this.direction() === 'backward' ? this.cursor() : undefined,
         search: searchOptions,
-        order: apiSortField ? [{ [apiSortField]: this.sortDirection() === 'asc' ? 'ASC' : 'DESC' }] : undefined,
+        order: apiSortField
+          ? [{ [apiSortField]: this.sortDirection() === 'asc' ? 'ASC' : 'DESC' }]
+          : undefined,
         includeTotalCount: false,
       });
 
       if (result.isSuccess) {
-        const nodes = result.data.nodes?.filter((n): n is NonNullable<typeof n> => n !== null) ?? [];
-        this.policies.set(nodes.map(n => ({
-          id: n.id,
-          policyNumber: n.insuranceCompanyPolicyNumber ?? null,
-          productBranch: n.productBranch ? String(n.productBranch) : null,
-          insuranceCompanyName: n.insuranceCompanyName ?? null,
-          customerName: n.insuredCustomerName ?? null,
-          grossPremium: n.grossPremium ?? null,
-          startDate: n.startDate ? String(n.startDate) : null,
-          endDate: n.endDate ? String(n.endDate) : null,
-          state: n.state ? String(n.state) : null,
-        })));
+        const nodes =
+          result.data.nodes?.filter((n): n is NonNullable<typeof n> => n !== null) ?? [];
+        this.policies.set(
+          nodes.map((n) => ({
+            id: n.id,
+            policyNumber: n.insuranceCompanyPolicyNumber ?? null,
+            productBranch: n.productBranch ? String(n.productBranch) : null,
+            insuranceCompanyName: n.insuranceCompanyName ?? null,
+            customerName: n.insuredCustomerName ?? null,
+            grossPremium: n.grossPremium ?? null,
+            startDate: n.startDate ? String(n.startDate) : null,
+            endDate: n.endDate ? String(n.endDate) : null,
+            state: n.state ? String(n.state) : null,
+          }))
+        );
         this.pageInfo.set({
           hasNextPage: result.data.pageInfo.hasNextPage,
           hasPreviousPage: result.data.pageInfo.hasPreviousPage,
@@ -247,7 +275,7 @@ export class PolicyListComponent {
     if (pi.endCursor) {
       this.cursor.set(pi.endCursor);
       this.direction.set('forward');
-      this.currentPage.update(p => p + 1);
+      this.currentPage.update((p) => p + 1);
       this.fetchPolicies();
     }
   }
@@ -257,7 +285,7 @@ export class PolicyListComponent {
     if (pi.startCursor) {
       this.cursor.set(pi.startCursor);
       this.direction.set('backward');
-      this.currentPage.update(p => Math.max(1, p - 1));
+      this.currentPage.update((p) => Math.max(1, p - 1));
       this.fetchPolicies();
     }
   }

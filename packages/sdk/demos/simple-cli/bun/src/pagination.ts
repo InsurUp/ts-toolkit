@@ -2,8 +2,8 @@
  * Simple pagination component for list views.
  */
 
-import * as p from "@clack/prompts";
-import color from "picocolors";
+import * as p from '@clack/prompts';
+import color from 'picocolors';
 
 /**
  * Page info from GraphQL-style pagination.
@@ -29,7 +29,7 @@ export interface PaginatedResult<T> {
  */
 export type FetchFn<T> = (cursor?: string | null) => Promise<PaginatedResult<T>>;
 
-type PaginationAction = "next" | "prev" | "first" | "back";
+type PaginationAction = 'next' | 'prev' | 'first' | 'back';
 
 /**
  * Show pagination controls and return user's choice.
@@ -43,19 +43,20 @@ async function showPaginationControls(
   const options: { value: PaginationAction; label: string }[] = [];
 
   if (hasNextPage) {
-    options.push({ value: "next", label: `${color.cyan("→")} Next page` });
+    options.push({ value: 'next', label: `${color.cyan('→')} Next page` });
   }
 
   if (page > 1) {
-    options.push({ value: "prev", label: `${color.cyan("←")} Previous page` });
-    options.push({ value: "first", label: `${color.cyan("⟲")} First page` });
+    options.push({ value: 'prev', label: `${color.cyan('←')} Previous page` });
+    options.push({ value: 'first', label: `${color.cyan('⟲')} First page` });
   }
 
-  options.push({ value: "back", label: color.dim("← Back to menu") });
+  options.push({ value: 'back', label: color.dim('← Back to menu') });
 
   // Calculate approximate total pages
   const totalPages = Math.ceil(totalCount / pageSize);
-  const pageInfo = totalCount > 0 ? `Page ${page} of ~${totalPages.toLocaleString()}` : `Page ${page}`;
+  const pageInfo =
+    totalCount > 0 ? `Page ${page} of ~${totalPages.toLocaleString()}` : `Page ${page}`;
 
   const result = await p.select({
     message: `${pageInfo} - What would you like to do?`,
@@ -63,7 +64,7 @@ async function showPaginationControls(
   });
 
   if (p.isCancel(result)) {
-    return "back";
+    return 'back';
   }
 
   return result;
@@ -86,18 +87,14 @@ export function createPaginator<T>(fetchFn: FetchFn<T>, options: PaginatorOption
   const cursors: (string | null)[] = [null];
 
   return {
-    async run(
-      render: (data: PaginatedResult<T>, page: number) => void
-    ): Promise<void> {
+    async run(render: (data: PaginatedResult<T>, page: number) => void): Promise<void> {
       let running = true;
 
       while (running) {
         const cursor = cursors[currentPage - 1];
 
         const spinner = p.spinner();
-        spinner.start(
-          currentPage === 1 ? "Loading..." : `Loading page ${currentPage}...`
-        );
+        spinner.start(currentPage === 1 ? 'Loading...' : `Loading page ${currentPage}...`);
 
         let data: PaginatedResult<T>;
         try {
@@ -105,13 +102,11 @@ export function createPaginator<T>(fetchFn: FetchFn<T>, options: PaginatorOption
           const countMsg =
             data.totalCount > 0
               ? `Loaded ${data.nodes.length} of ${data.totalCount.toLocaleString()}`
-              : "Loaded";
-          spinner.stop(color.green("✓") + " " + countMsg);
+              : 'Loaded';
+          spinner.stop(color.green('✓') + ' ' + countMsg);
         } catch (error) {
-          spinner.stop(color.red("✗") + " Failed to load");
-          console.log(
-            `  ${color.red(error instanceof Error ? error.message : "Unknown error")}`
-          );
+          spinner.stop(color.red('✗') + ' Failed to load');
+          console.log(`  ${color.red(error instanceof Error ? error.message : 'Unknown error')}`);
           running = false;
           continue;
         }
@@ -130,16 +125,16 @@ export function createPaginator<T>(fetchFn: FetchFn<T>, options: PaginatorOption
         );
 
         switch (action) {
-          case "next":
+          case 'next':
             currentPage++;
             break;
-          case "prev":
+          case 'prev':
             currentPage = Math.max(1, currentPage - 1);
             break;
-          case "first":
+          case 'first':
             currentPage = 1;
             break;
-          case "back":
+          case 'back':
           case null:
             running = false;
             break;

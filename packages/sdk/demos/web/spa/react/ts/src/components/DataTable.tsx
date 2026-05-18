@@ -5,12 +5,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowUpDown, ArrowUp, ArrowDown, Inbox } from "lucide-react";
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { ArrowUpDown, ArrowUp, ArrowDown, Inbox } from 'lucide-react';
 
-export type SortDirection = "asc" | "desc" | null;
+export type SortDirection = 'asc' | 'desc' | null;
 
 export interface Column<T> {
   key: string;
@@ -44,7 +44,7 @@ export function DataTable<T>({
     if (sortField !== field) {
       return <ArrowUpDown className="ml-2 h-4 w-4" />;
     }
-    if (sortDirection === "asc") {
+    if (sortDirection === 'asc') {
       return <ArrowUp className="ml-2 h-4 w-4" />;
     }
     return <ArrowDown className="ml-2 h-4 w-4" />;
@@ -52,7 +52,7 @@ export function DataTable<T>({
 
   if (isLoading) {
     // Vary skeleton widths for more natural look
-    const widths = ["w-3/4", "w-1/2", "w-2/3", "w-4/5", "w-3/5"];
+    const widths = ['w-3/4', 'w-1/2', 'w-2/3', 'w-4/5', 'w-3/5'];
     return (
       <div className="rounded-md border">
         <Table>
@@ -68,9 +68,7 @@ export function DataTable<T>({
               <TableRow key={rowIndex}>
                 {columns.map((column, colIndex) => (
                   <TableCell key={column.key}>
-                    <Skeleton
-                      className={`h-4 ${widths[(rowIndex + colIndex) % widths.length]}`}
-                    />
+                    <Skeleton className={`h-4 ${widths[(rowIndex + colIndex) % widths.length]}`} />
                   </TableCell>
                 ))}
               </TableRow>
@@ -94,10 +92,7 @@ export function DataTable<T>({
           </TableHeader>
           <TableBody>
             <TableRow>
-              <TableCell
-                colSpan={columns.length}
-                className="h-32"
-              >
+              <TableCell colSpan={columns.length} className="h-32">
                 <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
                   <Inbox className="h-8 w-8" />
                   <p className="text-sm font-medium">No results found</p>
@@ -119,11 +114,7 @@ export function DataTable<T>({
             {columns.map((column) => (
               <TableHead key={column.key}>
                 {column.sortable && onSort ? (
-                  <Button
-                    variant="ghost"
-                    onClick={() => onSort(column.key)}
-                    className="-ml-4"
-                  >
+                  <Button variant="ghost" onClick={() => onSort(column.key)} className="-ml-4">
                     {column.header}
                     {getSortIcon(column.key)}
                   </Button>
@@ -139,13 +130,13 @@ export function DataTable<T>({
             <TableRow
               key={getRowKey(item)}
               onClick={() => onRowClick?.(item)}
-              className={onRowClick ? "cursor-pointer hover:bg-muted/50" : ""}
+              className={onRowClick ? 'cursor-pointer hover:bg-muted/50' : ''}
             >
               {columns.map((column) => (
                 <TableCell key={column.key}>
                   {column.render
                     ? column.render(item)
-                    : String((item as Record<string, unknown>)[column.key] ?? "")}
+                    : String((item as Record<string, unknown>)[column.key] ?? '')}
                 </TableCell>
               ))}
             </TableRow>

@@ -3,10 +3,10 @@
  * @description Provides coverage management operations for configuring insurance product coverages, managing coverage groups, and retrieving available coverage options
  */
 
-import type { HttpTransport } from "../client/http.js";
-import type { InsurUpResult } from "../core/result.js";
-import type { RequestOptions } from "../core/options.js";
-import { coverageGroups, coverageChoices } from "../core/endpoints.js";
+import type { HttpTransport } from '../client/http.js';
+import type { InsurUpResult } from '../core/result.js';
+import type { RequestOptions } from '../core/options.js';
+import { coverageGroups, coverageChoices } from '../core/endpoints.js';
 import type {
   CreateCoverageGroupRequest,
   UpdateCoverageGroupRequest,
@@ -18,8 +18,8 @@ import type {
   TssCoverageChoices,
   ImmCoverageChoices,
   CompanyCoverageChoices,
-} from "@insurup/contracts";
-import type { VehicleUtilizationStyle } from "@insurup/contracts";
+} from '@insurup/contracts';
+import type { VehicleUtilizationStyle } from '@insurup/contracts';
 
 /**
  * Provides coverage management operations for configuring insurance product coverages, managing coverage groups,
@@ -41,7 +41,7 @@ export class InsurUpCoverageClient {
    */
   async createCoverageGroup(
     request: CreateCoverageGroupRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.postNoContent(coverageGroups.create, request, options);
   }
@@ -56,13 +56,9 @@ export class InsurUpCoverageClient {
    */
   async updateCoverageGroup(
     request: UpdateCoverageGroupRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
-    return this.http.putNoContent(
-      coverageGroups.update.render(request.id),
-      request,
-      options,
-    );
+    return this.http.putNoContent(coverageGroups.update.render(request.id), request, options);
   }
 
   /**
@@ -75,12 +71,9 @@ export class InsurUpCoverageClient {
    */
   async deleteCoverageGroup(
     request: DeleteCoverageGroupRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
-    return this.http.deleteNoContent(
-      coverageGroups.delete.render(request.id),
-      options,
-    );
+    return this.http.deleteNoContent(coverageGroups.delete.render(request.id), options);
   }
 
   /**
@@ -93,12 +86,9 @@ export class InsurUpCoverageClient {
    */
   async getCoverageGroupById(
     coverageGroupId: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetCoverageGroupByIdResult>> {
-    return this.http.get(
-      coverageGroups.getById.render(coverageGroupId),
-      options,
-    );
+    return this.http.get(coverageGroups.getById.render(coverageGroupId), options);
   }
 
   /**
@@ -109,7 +99,7 @@ export class InsurUpCoverageClient {
    * @returns List of all coverage groups / Tüm teminat grupları listesi
    */
   async getAllCoverageGroups(
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetCoverageGroupsResultItem[]>> {
     return this.http.get(coverageGroups.getAll, options);
   }
@@ -124,15 +114,10 @@ export class InsurUpCoverageClient {
    */
   async getKaskoCoverageChoices(
     vehicleUtilizationStyle?: VehicleUtilizationStyle,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<CompanyCoverageChoices<KaskoCoverageChoices>[]>> {
-    const endpoint = coverageChoices.getKaskoCoverageChoices.render(
-      vehicleUtilizationStyle,
-    );
-    return this.http.get<CompanyCoverageChoices<KaskoCoverageChoices>[]>(
-      endpoint,
-      options,
-    );
+    const endpoint = coverageChoices.getKaskoCoverageChoices.render(vehicleUtilizationStyle);
+    return this.http.get<CompanyCoverageChoices<KaskoCoverageChoices>[]>(endpoint, options);
   }
 
   /**
@@ -143,11 +128,11 @@ export class InsurUpCoverageClient {
    * @returns Konut coverage choices grouped by insurance company / Sigorta şirketine göre gruplanmış Konut teminat seçenekleri
    */
   async getKonutCoverageChoices(
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<CompanyCoverageChoices<KonutCoverageChoices>[]>> {
     return this.http.get<CompanyCoverageChoices<KonutCoverageChoices>[]>(
       coverageChoices.getKonutCoverageChoices.render(),
-      options,
+      options
     );
   }
 
@@ -159,11 +144,11 @@ export class InsurUpCoverageClient {
    * @returns TSS coverage choices grouped by insurance company / Sigorta şirketine göre gruplanmış TSS teminat seçenekleri
    */
   async getTssCoverageChoices(
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<CompanyCoverageChoices<TssCoverageChoices>[]>> {
     return this.http.get<CompanyCoverageChoices<TssCoverageChoices>[]>(
       coverageChoices.getTssCoverageChoices.render(),
-      options,
+      options
     );
   }
 
@@ -175,11 +160,11 @@ export class InsurUpCoverageClient {
    * @returns IMM coverage choices grouped by insurance company / Sigorta şirketine göre gruplanmış İMM teminat seçenekleri
    */
   async getImmCoverageChoices(
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<CompanyCoverageChoices<ImmCoverageChoices>[]>> {
     return this.http.get<CompanyCoverageChoices<ImmCoverageChoices>[]>(
       coverageChoices.getImmCoverageChoices.render(),
-      options,
+      options
     );
   }
 }

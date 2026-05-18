@@ -2,7 +2,7 @@
  * Toast notification component.
  */
 
-type ToastType = "success" | "error" | "info";
+type ToastType = 'success' | 'error' | 'info';
 
 interface ToastOptions {
   message: string;
@@ -16,12 +16,12 @@ const DEFAULT_DURATION = 5000;
  * Show a toast notification.
  */
 export function showToast(options: ToastOptions): void {
-  const { message, type = "info", duration = DEFAULT_DURATION } = options;
+  const { message, type = 'info', duration = DEFAULT_DURATION } = options;
 
-  const container = document.getElementById("toast-container");
+  const container = document.getElementById('toast-container');
   if (!container) return;
 
-  const toast = document.createElement("div");
+  const toast = document.createElement('div');
   toast.className = `toast ${type}`;
   toast.textContent = message;
 
@@ -29,7 +29,7 @@ export function showToast(options: ToastOptions): void {
 
   // Auto-remove after duration
   setTimeout(() => {
-    toast.style.animation = "toast-out 0.3s ease-out forwards";
+    toast.style.animation = 'toast-out 0.3s ease-out forwards';
     setTimeout(() => {
       toast.remove();
     }, 300);
@@ -40,19 +40,19 @@ export function showToast(options: ToastOptions): void {
  * Show a success toast.
  */
 export function showSuccess(message: string): void {
-  showToast({ message, type: "success" });
+  showToast({ message, type: 'success' });
 }
 
 /**
  * Show an error toast.
  */
 export function showError(message: string): void {
-  showToast({ message, type: "error" });
+  showToast({ message, type: 'error' });
 }
 
 /**
  * Show an info toast.
  */
 export function showInfo(message: string): void {
-  showToast({ message, type: "info" });
+  showToast({ message, type: 'info' });
 }

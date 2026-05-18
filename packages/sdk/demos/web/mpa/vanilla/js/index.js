@@ -3,9 +3,9 @@
  * @module pages/home
  */
 
-import { loadConfig } from "./js/shared/config.js";
-import { renderHeader, initTheme } from "./js/shared/components.js";
-import { isAuthenticated } from "./js/shared/auth.js";
+import { loadConfig } from './js/shared/config.js';
+import { renderHeader, initTheme } from './js/shared/components.js';
+import { isAuthenticated } from './js/shared/auth.js';
 
 /**
  * Initializes the home page.
@@ -14,10 +14,10 @@ function init() {
   loadConfig();
   initTheme();
 
-  const nav = document.getElementById("main-nav");
+  const nav = document.getElementById('main-nav');
   if (nav) renderHeader(nav);
 
-  const main = document.getElementById("main-content");
+  const main = document.getElementById('main-content');
   if (main) renderHome(main);
 }
 
@@ -49,18 +49,22 @@ function renderHome(container) {
         <li><strong>No Framework</strong> - Vanilla JS, no React/Vue/Svelte</li>
       </ul>
 
-      ${authenticated ? `
+      ${
+        authenticated
+          ? `
         <h3>Quick Links</h3>
         <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
           <a href="/customers/" role="button">View Customers</a>
           <a href="/policies/" role="button" class="secondary">View Policies</a>
           <a href="/profile.html" role="button" class="outline">My Profile</a>
         </div>
-      ` : `
+      `
+          : `
         <h3>Get Started</h3>
         <p>Login to explore the demo.</p>
         <a href="/login.html" role="button">Login with InsurUp</a>
-      `}
+      `
+      }
     </article>
   `;
 }

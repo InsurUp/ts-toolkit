@@ -3,11 +3,7 @@
  * @description Stateful manager for cursor-based pagination
  */
 
-import type {
-  PaginationState,
-  PageInfo,
-  CursorPaginationManager,
-} from './types.js';
+import type { PaginationState, PageInfo, CursorPaginationManager } from './types.js';
 
 const DEFAULT_PAGE_SIZE = 20;
 const DEFAULT_MAX_CURSOR_HISTORY = 500;

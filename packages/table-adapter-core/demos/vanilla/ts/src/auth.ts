@@ -10,15 +10,15 @@ export interface TokenData {
 }
 
 const CONFIG = {
-  authServer: "https://auth.insurup.com",
-  clientId: "demo",
-  scopes: ["openid", "profile", "offline_access", "core-api"],
+  authServer: 'https://auth.insurup.com',
+  clientId: 'demo',
+  scopes: ['openid', 'profile', 'offline_access', 'core-api'],
   redirectUri: `${window.location.origin}/callback`,
 };
 
 const STORAGE_KEYS = {
-  tokens: "table_adapter_vanilla_tokens",
-  pkce: "table_adapter_vanilla_pkce",
+  tokens: 'table_adapter_vanilla_tokens',
+  pkce: 'table_adapter_vanilla_pkce',
 };
 
 // ============================================================================
@@ -64,7 +64,7 @@ function loadAndClearPKCE(): { codeVerifier: string; state: string } | null {
 
 function base64UrlEncode(bytes: Uint8Array): string {
   const base64 = btoa(String.fromCharCode(...bytes));
-  return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
 export async function startLogin(): Promise<void> {
@@ -73,20 +73,20 @@ export async function startLogin(): Promise<void> {
   const codeVerifier = base64UrlEncode(array);
 
   const encoder = new TextEncoder();
-  const digest = await crypto.subtle.digest("SHA-256", encoder.encode(codeVerifier));
+  const digest = await crypto.subtle.digest('SHA-256', encoder.encode(codeVerifier));
   const codeChallenge = base64UrlEncode(new Uint8Array(digest));
   const authState = crypto.randomUUID();
 
   savePKCE({ codeVerifier, state: authState });
 
   const params = new URLSearchParams({
-    response_type: "code",
+    response_type: 'code',
     client_id: CONFIG.clientId,
     redirect_uri: CONFIG.redirectUri,
-    scope: CONFIG.scopes.join(" "),
+    scope: CONFIG.scopes.join(' '),
     state: authState,
     code_challenge: codeChallenge,
-    code_challenge_method: "S256",
+    code_challenge_method: 'S256',
   });
 
   window.location.href = `${CONFIG.authServer}/connect/authorize?${params}`;
@@ -95,14 +95,14 @@ export async function startLogin(): Promise<void> {
 export async function handleCallback(code: string, urlState: string): Promise<void> {
   const pkce = loadAndClearPKCE();
   if (!pkce || pkce.state !== urlState) {
-    throw new Error("Invalid state");
+    throw new Error('Invalid state');
   }
 
   const response = await fetch(`${CONFIG.authServer}/connect/token`, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
-      grant_type: "authorization_code",
+      grant_type: 'authorization_code',
       client_id: CONFIG.clientId,
       code,
       redirect_uri: CONFIG.redirectUri,
@@ -110,14 +110,14 @@ export async function handleCallback(code: string, urlState: string): Promise<vo
     }),
   });
 
-  if (!response.ok) throw new Error("Token exchange failed");
+  if (!response.ok) throw new Error('Token exchange failed');
 
   const data = await response.json();
   saveTokens({
     accessToken: data.access_token,
     refreshToken: data.refresh_token,
     expiresAt: data.expires_in ? Date.now() + data.expires_in * 1000 : undefined,
-    tokenType: data.token_type || "Bearer",
+    tokenType: data.token_type || 'Bearer',
   });
 }
 
@@ -130,23 +130,23 @@ export async function getAccessToken(): Promise<string | null> {
     if (tokens.refreshToken) {
       try {
         const response = await fetch(`${CONFIG.authServer}/connect/token`, {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: new URLSearchParams({
-            grant_type: "refresh_token",
+            grant_type: 'refresh_token',
             client_id: CONFIG.clientId,
             refresh_token: tokens.refreshToken,
           }),
         });
 
-        if (!response.ok) throw new Error("Refresh failed");
+        if (!response.ok) throw new Error('Refresh failed');
 
         const data = await response.json();
         saveTokens({
           accessToken: data.access_token,
           refreshToken: data.refresh_token || tokens.refreshToken,
           expiresAt: data.expires_in ? Date.now() + data.expires_in * 1000 : undefined,
-          tokenType: data.token_type || "Bearer",
+          tokenType: data.token_type || 'Bearer',
         });
         return data.access_token;
       } catch {

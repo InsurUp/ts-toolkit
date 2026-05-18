@@ -26,9 +26,23 @@ import {
  */
 export function createMockAdapterOptions(
   overrides: Partial<
-    BaseTableAdapterOptions<MockEntity, MockEntity, MockSortInput, MockFilterInput, MockSearchInput, CursorPaginationOptions>
+    BaseTableAdapterOptions<
+      MockEntity,
+      MockEntity,
+      MockSortInput,
+      MockFilterInput,
+      MockSearchInput,
+      CursorPaginationOptions
+    >
   > = {}
-): BaseTableAdapterOptions<MockEntity, MockEntity, MockSortInput, MockFilterInput, MockSearchInput, CursorPaginationOptions> {
+): BaseTableAdapterOptions<
+  MockEntity,
+  MockEntity,
+  MockSortInput,
+  MockFilterInput,
+  MockSearchInput,
+  CursorPaginationOptions
+> {
   return {
     columns: createMockColumns() as AnyColumnDef<DeepFieldKeys<MockEntity> & string>[],
     pagination: { type: 'cursor', pageSize: 10 },

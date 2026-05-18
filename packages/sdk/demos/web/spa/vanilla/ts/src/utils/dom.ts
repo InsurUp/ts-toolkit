@@ -16,7 +16,7 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
     for (const [key, value] of Object.entries(attrs)) {
       if (value === undefined || value === false) continue;
       if (value === true) {
-        el.setAttribute(key, "");
+        el.setAttribute(key, '');
       } else {
         el.setAttribute(key, value);
       }
@@ -24,7 +24,7 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
   }
 
   for (const child of children) {
-    if (typeof child === "string") {
+    if (typeof child === 'string') {
       el.appendChild(document.createTextNode(child));
     } else {
       el.appendChild(child);
@@ -112,7 +112,7 @@ export function waitForElement(selector: string, timeout = 5000): Promise<Elemen
  * Escape HTML to prevent XSS.
  */
 export function escapeHtml(str: string): string {
-  const div = document.createElement("div");
+  const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
 }

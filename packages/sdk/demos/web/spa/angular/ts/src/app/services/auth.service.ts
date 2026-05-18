@@ -11,10 +11,10 @@ import { environment } from '../../environments/environment';
 export class AuthService {
   private oauthService = inject(OAuthService);
   private router = inject(Router);
-  
+
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
-  
+
   private loginInProgressSubject = new BehaviorSubject<boolean>(false);
   loginInProgress$ = this.loginInProgressSubject.asObservable();
 
@@ -61,7 +61,7 @@ export class AuthService {
 
   get idTokenClaims(): Record<string, unknown> | null {
     const claims = this.oauthService.getIdentityClaims();
-    return claims as Record<string, unknown> || null;
+    return (claims as Record<string, unknown>) || null;
   }
 
   async login(): Promise<void> {

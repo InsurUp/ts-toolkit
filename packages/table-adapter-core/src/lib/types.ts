@@ -481,7 +481,15 @@ export interface TableAdapterClientModeOptions<
   TFilterInput,
   TSearchInput,
   TPaginationOptions extends PaginationOptions,
-> extends TableAdapterOptionsBase<TEntity, TFieldKey, TColumns, TRow, TFilterInput, TSearchInput, TPaginationOptions> {
+> extends TableAdapterOptionsBase<
+  TEntity,
+  TFieldKey,
+  TColumns,
+  TRow,
+  TFilterInput,
+  TSearchInput,
+  TPaginationOptions
+> {
   /** InsurUp client configuration */
   client: InsurUpClientOptions;
   fetch?: never;
@@ -499,7 +507,15 @@ export interface TableAdapterFetchModeOptions<
   TFilterInput,
   TSearchInput,
   TPaginationOptions extends PaginationOptions,
-> extends TableAdapterOptionsBase<TEntity, TFieldKey, TColumns, TRow, TFilterInput, TSearchInput, TPaginationOptions> {
+> extends TableAdapterOptionsBase<
+  TEntity,
+  TFieldKey,
+  TColumns,
+  TRow,
+  TFilterInput,
+  TSearchInput,
+  TPaginationOptions
+> {
   /** Custom fetch function */
   fetch: TFetchFn;
   client?: never;
@@ -518,7 +534,15 @@ export type TableAdapterOptions<
   TSearchInput,
   TPaginationOptions extends PaginationOptions,
 > =
-  | TableAdapterClientModeOptions<TEntity, TFieldKey, TColumns, TRow, TFilterInput, TSearchInput, TPaginationOptions>
+  | TableAdapterClientModeOptions<
+      TEntity,
+      TFieldKey,
+      TColumns,
+      TRow,
+      TFilterInput,
+      TSearchInput,
+      TPaginationOptions
+    >
   | TableAdapterFetchModeOptions<
       TEntity,
       TFieldKey,
@@ -576,4 +600,13 @@ export type EntityTableOptions<
   TFilterInput,
   TSearchInput,
   TPaginationOptions extends PaginationOptions,
-> = TableAdapterOptions<TEntity, TFieldKey, TColumns, TRow, TFetchFn, TFilterInput, TSearchInput, TPaginationOptions>;
+> = TableAdapterOptions<
+  TEntity,
+  TFieldKey,
+  TColumns,
+  TRow,
+  TFetchFn,
+  TFilterInput,
+  TSearchInput,
+  TPaginationOptions
+>;

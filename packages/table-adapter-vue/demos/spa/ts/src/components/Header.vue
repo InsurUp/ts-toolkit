@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { ref, watchEffect } from "vue";
-import { RouterLink } from "vue-router";
-import { useAuth } from "@/composables/useAuth";
-import { Sun, Moon, User, LogOut } from "lucide-vue-next";
+import { ref, watchEffect } from 'vue';
+import { RouterLink } from 'vue-router';
+import { useAuth } from '@/composables/useAuth';
+import { Sun, Moon, User, LogOut } from 'lucide-vue-next';
 
-const THEME_KEY = "table-adapter-vue-theme";
+const THEME_KEY = 'table-adapter-vue-theme';
 
 function getInitialTheme(): boolean {
-  if (typeof window === "undefined") return false;
+  if (typeof window === 'undefined') return false;
   const stored = localStorage.getItem(THEME_KEY);
-  if (stored) return stored === "dark";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  if (stored) return stored === 'dark';
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
 const { isAuthenticated, login, logout, loginInProgress } = useAuth();
@@ -19,11 +19,11 @@ const showDropdown = ref(false);
 
 watchEffect(() => {
   if (isDark.value) {
-    document.documentElement.classList.add("dark");
+    document.documentElement.classList.add('dark');
   } else {
-    document.documentElement.classList.remove("dark");
+    document.documentElement.classList.remove('dark');
   }
-  localStorage.setItem(THEME_KEY, isDark.value ? "dark" : "light");
+  localStorage.setItem(THEME_KEY, isDark.value ? 'dark' : 'light');
 });
 
 function toggleTheme(): void {
@@ -35,16 +35,10 @@ function toggleTheme(): void {
   <header class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
     <div class="container mx-auto px-4 flex h-14 items-center">
       <div class="mr-4 flex">
-        <RouterLink
-          to="/"
-          class="mr-6 flex items-center space-x-2"
-        >
+        <RouterLink to="/" class="mr-6 flex items-center space-x-2">
           <span class="font-bold">Table Adapter Demo</span>
         </RouterLink>
-        <nav
-          v-if="isAuthenticated"
-          class="flex items-center space-x-6 text-sm font-medium"
-        >
+        <nav v-if="isAuthenticated" class="flex items-center space-x-6 text-sm font-medium">
           <RouterLink
             to="/customers"
             class="text-foreground/60 transition-colors hover:text-foreground"
@@ -60,14 +54,8 @@ function toggleTheme(): void {
           aria-label="Toggle theme"
           @click="toggleTheme"
         >
-          <Sun
-            v-if="isDark"
-            class="h-5 w-5"
-          />
-          <Moon
-            v-else
-            class="h-5 w-5"
-          />
+          <Sun v-if="isDark" class="h-5 w-5" />
+          <Moon v-else class="h-5 w-5" />
         </button>
         <template v-if="isAuthenticated">
           <div class="relative">
@@ -98,7 +86,7 @@ function toggleTheme(): void {
           :disabled="loginInProgress"
           @click="login"
         >
-          {{ loginInProgress ? "Logging in..." : "Login" }}
+          {{ loginInProgress ? 'Logging in...' : 'Login' }}
         </button>
       </div>
     </div>

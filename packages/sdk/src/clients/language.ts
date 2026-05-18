@@ -3,11 +3,11 @@
  * @description Provides language and localization operations for retrieving available languages
  */
 
-import type { HttpTransport } from "../client/http.js";
-import type { InsurUpResult } from "../core/result.js";
-import type { RequestOptions } from "../core/options.js";
-import { languages } from "../core/endpoints.js";
-import type { LanguageResult } from "@insurup/contracts";
+import type { HttpTransport } from '../client/http.js';
+import type { InsurUpResult } from '../core/result.js';
+import type { RequestOptions } from '../core/options.js';
+import { languages } from '../core/endpoints.js';
+import type { LanguageResult } from '@insurup/contracts';
 
 /**
  * Provides language and localization operations for retrieving available languages in the InsurUp platform.
@@ -25,9 +25,7 @@ export class InsurUpLanguageClient {
    *
    * @returns List of all available languages
    */
-  async getLanguages(
-    options?: RequestOptions,
-  ): Promise<InsurUpResult<LanguageResult[]>> {
+  async getLanguages(options?: RequestOptions): Promise<InsurUpResult<LanguageResult[]>> {
     return this.http.get<LanguageResult[]>(languages.getAll, options);
   }
 }

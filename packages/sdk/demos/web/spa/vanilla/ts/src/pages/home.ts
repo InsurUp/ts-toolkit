@@ -2,7 +2,7 @@
  * Home page - landing page for the demo.
  */
 
-import { isAuthenticated } from "../auth";
+import { isAuthenticated } from '../auth';
 
 export async function render(container: HTMLElement): Promise<void> {
   const authenticated = isAuthenticated();

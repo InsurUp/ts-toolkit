@@ -1,13 +1,13 @@
-import { Routes, Route } from "react-router";
-import { Header } from "@/components/Header";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { Home } from "@/pages/Home";
-import { Callback } from "@/pages/Callback";
-import { Profile } from "@/pages/Profile";
-import { CustomerList } from "@/pages/customers/CustomerList";
-import { CustomerDetail } from "@/pages/customers/CustomerDetail";
-import { PolicyList } from "@/pages/policies/PolicyList";
-import { PolicyDetail } from "@/pages/policies/PolicyDetail";
+import { Routes, Route } from 'react-router';
+import { Header } from '@/components/Header';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { Home } from '@/pages/Home';
+import { Callback } from '@/pages/Callback';
+import { Profile } from '@/pages/Profile';
+import { CustomerList } from '@/pages/customers/CustomerList';
+import { CustomerDetail } from '@/pages/customers/CustomerDetail';
+import { PolicyList } from '@/pages/policies/PolicyList';
+import { PolicyDetail } from '@/pages/policies/PolicyDetail';
 
 function App() {
   return (

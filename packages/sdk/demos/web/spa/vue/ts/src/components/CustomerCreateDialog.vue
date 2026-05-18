@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import { useRouter } from "vue-router";
-import { useClient } from "@/composables/useClient";
+import { ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { useClient } from '@/composables/useClient';
 import {
   Button,
   Input,
@@ -12,9 +12,9 @@ import {
   DialogFooter,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui";
-import { toast } from "vue-sonner";
-import { CustomerType } from "@insurup/contracts";
+} from '@/components/ui';
+import { toast } from 'vue-sonner';
+import { CustomerType } from '@insurup/contracts';
 
 interface Props {
   open: boolean;
@@ -23,7 +23,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const emit = defineEmits<{
-  (e: "update:open", value: boolean): void;
+  (e: 'update:open', value: boolean): void;
 }>();
 
 const router = useRouter();
@@ -33,26 +33,29 @@ const isPending = ref(false);
 const error = ref<string | null>(null);
 
 // Form fields
-const fullName = ref("");
-const identityNumber = ref("");
-const birthDate = ref("");
-const email = ref("");
-const phoneNumber = ref("");
+const fullName = ref('');
+const identityNumber = ref('');
+const birthDate = ref('');
+const email = ref('');
+const phoneNumber = ref('');
 
 function resetForm() {
-  fullName.value = "";
-  identityNumber.value = "";
-  birthDate.value = "";
-  email.value = "";
-  phoneNumber.value = "";
+  fullName.value = '';
+  identityNumber.value = '';
+  birthDate.value = '';
+  email.value = '';
+  phoneNumber.value = '';
   error.value = null;
 }
 
-watch(() => props.open, (newOpen) => {
-  if (!newOpen) {
-    resetForm();
+watch(
+  () => props.open,
+  (newOpen) => {
+    if (!newOpen) {
+      resetForm();
+    }
   }
-});
+);
 
 async function handleSubmit() {
   isPending.value = true;
@@ -63,24 +66,22 @@ async function handleSubmit() {
       type: CustomerType.Individual,
       fullName: fullName.value,
       email: email.value || undefined,
-      phoneNumber: phoneNumber.value
-        ? { countryCode: 90, number: phoneNumber.value }
-        : undefined,
-      identityNumber: identityNumber.value || "",
+      phoneNumber: phoneNumber.value ? { countryCode: 90, number: phoneNumber.value } : undefined,
+      identityNumber: identityNumber.value || '',
       birthDate: birthDate.value || undefined,
       fillMissingFields: false,
     });
 
     if (result.isSuccess) {
-      toast.success("Customer created successfully");
-      emit("update:open", false);
+      toast.success('Customer created successfully');
+      emit('update:open', false);
       router.push(`/customers/${result.data.id}`);
     } else {
-      toast.error("Failed to create customer");
-      error.value = "Failed to create customer";
+      toast.error('Failed to create customer');
+      error.value = 'Failed to create customer';
     }
   } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : "An error occurred";
+    const errorMessage = err instanceof Error ? err.message : 'An error occurred';
     toast.error(errorMessage);
     error.value = errorMessage;
   } finally {
@@ -94,27 +95,16 @@ async function handleSubmit() {
     <DialogContent class="sm:max-w-[425px]">
       <DialogHeader>
         <DialogTitle>Create Customer</DialogTitle>
-        <DialogDescription>
-          Add a new individual customer to the system.
-        </DialogDescription>
+        <DialogDescription> Add a new individual customer to the system. </DialogDescription>
       </DialogHeader>
       <form @submit.prevent="handleSubmit" class="space-y-4">
         <div class="space-y-2">
-          <Label for="fullName">
-            Full Name <span class="text-destructive">*</span>
-          </Label>
-          <Input
-            id="fullName"
-            v-model="fullName"
-            placeholder="Enter full name"
-            required
-          />
+          <Label for="fullName"> Full Name <span class="text-destructive">*</span> </Label>
+          <Input id="fullName" v-model="fullName" placeholder="Enter full name" required />
         </div>
 
         <div class="space-y-2">
-          <Label for="identityNumber">
-            Identity Number (TC Kimlik No)
-          </Label>
+          <Label for="identityNumber"> Identity Number (TC Kimlik No) </Label>
           <Input
             id="identityNumber"
             v-model="identityNumber"
@@ -131,12 +121,7 @@ async function handleSubmit() {
 
         <div class="space-y-2">
           <Label for="email">Email Address</Label>
-          <Input
-            id="email"
-            v-model="email"
-            type="email"
-            placeholder="customer@example.com"
-          />
+          <Input id="email" v-model="email" type="email" placeholder="customer@example.com" />
         </div>
 
         <div class="space-y-2">
@@ -165,7 +150,7 @@ async function handleSubmit() {
             Cancel
           </Button>
           <Button type="submit" :disabled="isPending">
-            {{ isPending ? "Creating..." : "Create Customer" }}
+            {{ isPending ? 'Creating...' : 'Create Customer' }}
           </Button>
         </DialogFooter>
       </form>

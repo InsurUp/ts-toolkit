@@ -1,15 +1,15 @@
-import { useState, useEffect, useDeferredValue, useCallback } from "react";
-import { useNavigate } from "react-router";
-import { useQueryState, parseAsString, parseAsInteger, parseAsStringLiteral } from "nuqs";
-import { useClient } from "@/client";
-import { DataTable, type Column } from "@/components/DataTable";
-import { Pagination } from "@/components/Pagination";
-import { CustomerCreateDialog } from "@/components/CustomerCreateDialog";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
-import { Plus, Search } from "lucide-react";
+import { useState, useEffect, useDeferredValue, useCallback } from 'react';
+import { useNavigate } from 'react-router';
+import { useQueryState, parseAsString, parseAsInteger, parseAsStringLiteral } from 'nuqs';
+import { useClient } from '@/client';
+import { DataTable, type Column } from '@/components/DataTable';
+import { Pagination } from '@/components/Pagination';
+import { CustomerCreateDialog } from '@/components/CustomerCreateDialog';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
+import { Plus, Search } from 'lucide-react';
 
 interface Customer {
   id: string;
@@ -36,12 +36,18 @@ export function CustomerList() {
   }>({ hasNextPage: false, hasPreviousPage: false });
 
   // URL state with nuqs
-  const [search, setSearch] = useQueryState("search", parseAsString.withDefault(""));
-  const [sortField, setSortField] = useQueryState("sort", parseAsString.withDefault("createdAt"));
-  const [sortDirection, setSortDirection] = useQueryState("dir", parseAsStringLiteral(["asc", "desc"] as const).withDefault("desc"));
-  const [cursor, setCursor] = useQueryState("cursor", parseAsString);
-  const [direction, setDirection] = useQueryState("direction", parseAsString.withDefault("forward"));
-  const [currentPage, setCurrentPage] = useQueryState("page", parseAsInteger.withDefault(1));
+  const [search, setSearch] = useQueryState('search', parseAsString.withDefault(''));
+  const [sortField, setSortField] = useQueryState('sort', parseAsString.withDefault('createdAt'));
+  const [sortDirection, setSortDirection] = useQueryState(
+    'dir',
+    parseAsStringLiteral(['asc', 'desc'] as const).withDefault('desc')
+  );
+  const [cursor, setCursor] = useQueryState('cursor', parseAsString);
+  const [direction, setDirection] = useQueryState(
+    'direction',
+    parseAsString.withDefault('forward')
+  );
+  const [currentPage, setCurrentPage] = useQueryState('page', parseAsInteger.withDefault(1));
 
   const deferredSearch = useDeferredValue(search);
 
@@ -56,48 +62,53 @@ export function CustomerList() {
       const countPromise = client.customers.getCustomers({
         first: 1,
         search: searchOptions,
-        select: ["id"] as const,
+        select: ['id'] as const,
         includeTotalCount: true,
       });
 
       // Await only the main data query
       const result = await client.customers.getCustomers({
-        select: ["id", "name", "type", "primaryEmail", "primaryPhoneNumber", "createdAt"] as const,
-        first: direction === "forward" ? 10 : undefined,
-        last: direction === "backward" ? 10 : undefined,
-        after: direction === "forward" ? cursor : undefined,
-        before: direction === "backward" ? cursor : undefined,
+        select: ['id', 'name', 'type', 'primaryEmail', 'primaryPhoneNumber', 'createdAt'] as const,
+        first: direction === 'forward' ? 10 : undefined,
+        last: direction === 'backward' ? 10 : undefined,
+        after: direction === 'forward' ? cursor : undefined,
+        before: direction === 'backward' ? cursor : undefined,
         search: searchOptions,
-        order: sortField ? [{ [sortField]: sortDirection === "asc" ? "ASC" : "DESC" }] : undefined,
+        order: sortField ? [{ [sortField]: sortDirection === 'asc' ? 'ASC' : 'DESC' }] : undefined,
         includeTotalCount: false,
       });
 
       if (result.isSuccess) {
-        const nodes = result.data.nodes?.filter((n): n is NonNullable<typeof n> => n !== null) ?? [];
+        const nodes =
+          result.data.nodes?.filter((n): n is NonNullable<typeof n> => n !== null) ?? [];
         // Map to our Customer interface
-        setCustomers(nodes.map(n => ({
-          id: n.id,
-          name: n.name ?? null,
-          type: String(n.type),
-          primaryEmail: n.primaryEmail ?? null,
-          primaryPhoneNumber: n.primaryPhoneNumber ?? null,
-          createdAt: String(n.createdAt),
-        })));
+        setCustomers(
+          nodes.map((n) => ({
+            id: n.id,
+            name: n.name ?? null,
+            type: String(n.type),
+            primaryEmail: n.primaryEmail ?? null,
+            primaryPhoneNumber: n.primaryPhoneNumber ?? null,
+            createdAt: String(n.createdAt),
+          }))
+        );
         setPageInfo(result.data.pageInfo);
 
         // Update count when it resolves (non-blocking)
-        countPromise.then((countRes) => {
-          if (countRes.isSuccess && countRes.data?.totalCount != null) {
-            setTotalCount(countRes.data.totalCount);
-          }
-        }).catch(() => {
-          // Silently ignore count errors - not critical
-        });
+        countPromise
+          .then((countRes) => {
+            if (countRes.isSuccess && countRes.data?.totalCount != null) {
+              setTotalCount(countRes.data.totalCount);
+            }
+          })
+          .catch(() => {
+            // Silently ignore count errors - not critical
+          });
       } else {
-        toast.error("Failed to load customers");
+        toast.error('Failed to load customers');
       }
     } catch (error) {
-      toast.error("An error occurred while loading customers");
+      toast.error('An error occurred while loading customers');
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -119,10 +130,10 @@ export function CustomerList() {
 
   const handleSort = (field: string) => {
     if (sortField === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
       setSortField(field);
-      setSortDirection("asc");
+      setSortDirection('asc');
     }
     // Reset pagination when sorting
     setCursor(null);
@@ -133,7 +144,7 @@ export function CustomerList() {
   const handleNextPage = () => {
     if (pageInfo.endCursor) {
       setCursor(pageInfo.endCursor);
-      setDirection("forward");
+      setDirection('forward');
       setCurrentPage((p) => (p ?? 1) + 1);
     }
   };
@@ -141,41 +152,38 @@ export function CustomerList() {
   const handlePreviousPage = () => {
     if (pageInfo.startCursor) {
       setCursor(pageInfo.startCursor);
-      setDirection("backward");
+      setDirection('backward');
       setCurrentPage((p) => Math.max(1, (p ?? 1) - 1));
     }
   };
 
   const columns: Column<Customer>[] = [
     {
-      key: "name",
-      header: "Name",
+      key: 'name',
+      header: 'Name',
       sortable: true,
-      render: (customer) => customer.name || "-",
+      render: (customer) => customer.name || '-',
     },
     {
-      key: "type",
-      header: "Type",
-      render: (customer) => (
-        <Badge variant="outline">{customer.type}</Badge>
-      ),
+      key: 'type',
+      header: 'Type',
+      render: (customer) => <Badge variant="outline">{customer.type}</Badge>,
     },
     {
-      key: "primaryEmail",
-      header: "Email",
-      render: (customer) => customer.primaryEmail || "-",
+      key: 'primaryEmail',
+      header: 'Email',
+      render: (customer) => customer.primaryEmail || '-',
     },
     {
-      key: "primaryPhoneNumber",
-      header: "Phone",
-      render: (customer) => customer.primaryPhoneNumber || "-",
+      key: 'primaryPhoneNumber',
+      header: 'Phone',
+      render: (customer) => customer.primaryPhoneNumber || '-',
     },
     {
-      key: "createdAt",
-      header: "Created",
+      key: 'createdAt',
+      header: 'Created',
       sortable: true,
-      render: (customer) =>
-        new Date(customer.createdAt).toLocaleDateString(),
+      render: (customer) => new Date(customer.createdAt).toLocaleDateString(),
     },
   ];
 
@@ -184,9 +192,7 @@ export function CustomerList() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Customers</h1>
-          <p className="text-muted-foreground">
-            Manage customer records and information.
-          </p>
+          <p className="text-muted-foreground">Manage customer records and information.</p>
         </div>
         <Button onClick={() => setIsCreateDialogOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
@@ -194,10 +200,7 @@ export function CustomerList() {
         </Button>
       </div>
 
-      <CustomerCreateDialog
-        open={isCreateDialogOpen}
-        onOpenChange={setIsCreateDialogOpen}
-      />
+      <CustomerCreateDialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen} />
 
       <div className="flex items-center gap-4">
         <div className="relative flex-1 max-w-sm">

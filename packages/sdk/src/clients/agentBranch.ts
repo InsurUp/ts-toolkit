@@ -3,17 +3,17 @@
  * @description Provides branch management operations for insurance agents
  */
 
-import type { HttpTransport } from "../client/http.js";
-import type { InsurUpResult } from "../core/result.js";
-import type { RequestOptions } from "../core/options.js";
-import { agentBranches } from "../core/endpoints.js";
+import type { HttpTransport } from '../client/http.js';
+import type { InsurUpResult } from '../core/result.js';
+import type { RequestOptions } from '../core/options.js';
+import { agentBranches } from '../core/endpoints.js';
 import type {
   CreateAgentBranchRequest,
   UpdateAgentBranchRequest,
   DeleteAgentBranchRequest,
   GetAgentBranchResult,
   GetAllAgentBranchesResult,
-} from "@insurup/contracts";
+} from '@insurup/contracts';
 
 /**
  * Provides branch management operations for insurance agents, enabling the creation and administration
@@ -32,7 +32,7 @@ export class InsurUpAgentBranchClient {
    */
   async createAgentBranch(
     request: CreateAgentBranchRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<string>> {
     return this.http.post<string>(agentBranches.create, request, options);
   }
@@ -47,7 +47,7 @@ export class InsurUpAgentBranchClient {
    */
   async getAgentBranchById(
     id: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetAgentBranchResult>> {
     const endpoint = agentBranches.getById.render(id);
     return this.http.get<GetAgentBranchResult>(endpoint, options);
@@ -61,12 +61,9 @@ export class InsurUpAgentBranchClient {
    * @returns List of all agent branches
    */
   async getAgentBranches(
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetAllAgentBranchesResult[]>> {
-    return this.http.get<GetAllAgentBranchesResult[]>(
-      agentBranches.getAll,
-      options,
-    );
+    return this.http.get<GetAllAgentBranchesResult[]>(agentBranches.getAll, options);
   }
 
   /**
@@ -79,7 +76,7 @@ export class InsurUpAgentBranchClient {
    */
   async updateAgentBranch(
     request: UpdateAgentBranchRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     const endpoint = agentBranches.update.render(request.id);
     return this.http.putNoContent(endpoint, request, options);
@@ -95,7 +92,7 @@ export class InsurUpAgentBranchClient {
    */
   async deleteAgentBranch(
     request: DeleteAgentBranchRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     const endpoint = agentBranches.delete.render(request.id);
     return this.http.deleteNoContent(endpoint, options);

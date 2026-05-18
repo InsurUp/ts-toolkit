@@ -2,11 +2,11 @@
  * Customer management client for the InsurUp TypeScript SDK.
  */
 
-import type { HttpTransport } from "../client/http.js";
-import type { GraphQLTransport } from "../client/graphql.js";
-import type { InsurUpResult, InsurUpGraphQLResult } from "../core/result.js";
-import type { RequestOptions } from "../core/options.js";
-import { endpoints } from "../core/endpoints.js";
+import type { HttpTransport } from '../client/http.js';
+import type { GraphQLTransport } from '../client/graphql.js';
+import type { InsurUpResult, InsurUpGraphQLResult } from '../core/result.js';
+import type { RequestOptions } from '../core/options.js';
+import { endpoints } from '../core/endpoints.js';
 import type {
   CreateCustomerRequest,
   CreateCustomerResult,
@@ -38,15 +38,15 @@ import type {
   GiveCustomerConsentRequest,
   RevokeCustomerConsentRequest,
   GetCustomerConsentsResult,
-} from "@insurup/contracts";
+} from '@insurup/contracts';
 import {
   ALL_CUSTOMER_FIELDS,
   CustomerType,
   type CustomerFieldKey,
   type GetCustomersOptions,
   type CustomersConnection,
-} from "@insurup/contracts";
-import { buildFieldSelection } from "@insurup/contracts";
+} from '@insurup/contracts';
+import { buildFieldSelection } from '@insurup/contracts';
 
 /**
  * Customer management client providing comprehensive customer lifecycle management.
@@ -54,7 +54,7 @@ import { buildFieldSelection } from "@insurup/contracts";
 export class InsurUpCustomerClient {
   constructor(
     private readonly http: HttpTransport,
-    private readonly graphql?: GraphQLTransport,
+    private readonly graphql?: GraphQLTransport
   ) {}
 
   /**
@@ -62,7 +62,7 @@ export class InsurUpCustomerClient {
    */
   async createCustomer(
     request: CreateCustomerRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<CreateCustomerResult>> {
     // Transform request: type -> $type with lowercase discriminator for API
     const { type, ...rest } = request;
@@ -70,20 +70,20 @@ export class InsurUpCustomerClient {
     let $type: string;
     switch (type) {
       case CustomerType.Individual:
-        $type = "individual";
+        $type = 'individual';
         break;
       case CustomerType.Company:
-        $type = "company";
+        $type = 'company';
         break;
       case CustomerType.Foreign:
-        $type = "foreign";
+        $type = 'foreign';
         break;
     }
 
     return this.http.post<CreateCustomerResult>(
       endpoints.customers.createCustomer,
       { $type, ...rest },
-      options,
+      options
     );
   }
 
@@ -92,24 +92,19 @@ export class InsurUpCustomerClient {
    */
   async getCustomer(
     customerId: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetCustomerResult>> {
     return this.http.get<GetCustomerResult>(
       endpoints.customers.getCustomer.render(customerId),
-      options,
+      options
     );
   }
 
   /**
    * Retrieves the profile information of the currently authenticated customer.
    */
-  async getCurrentCustomer(
-    options?: RequestOptions,
-  ): Promise<InsurUpResult<GetCustomerResult>> {
-    return this.http.get<GetCustomerResult>(
-      endpoints.customers.getCurrentCustomer,
-      options,
-    );
+  async getCurrentCustomer(options?: RequestOptions): Promise<InsurUpResult<GetCustomerResult>> {
+    return this.http.get<GetCustomerResult>(endpoints.customers.getCurrentCustomer, options);
   }
 
   /**
@@ -117,25 +112,22 @@ export class InsurUpCustomerClient {
    */
   async updateCustomer(
     request: UpdateCustomerRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.putNoContent(
       endpoints.customers.updateCustomer.render(request.id),
       request,
-      options,
+      options
     );
   }
 
   /**
    * Permanently removes a customer profile and all associated data.
    */
-  async deleteCustomer(
-    customerId: string,
-    options?: RequestOptions,
-  ): Promise<InsurUpResult> {
+  async deleteCustomer(customerId: string, options?: RequestOptions): Promise<InsurUpResult> {
     return this.http.deleteNoContent(
       endpoints.customers.deleteCustomer.render(customerId),
-      options,
+      options
     );
   }
 
@@ -144,11 +136,11 @@ export class InsurUpCustomerClient {
    */
   async getCustomerEmails(
     customerId: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetCustomerEmailsResultItem[]>> {
     return this.http.get<GetCustomerEmailsResultItem[]>(
       endpoints.customers.emails.getCustomerEmails.render(customerId),
-      options,
+      options
     );
   }
 
@@ -157,12 +149,12 @@ export class InsurUpCustomerClient {
    */
   async addCustomerEmail(
     request: AddCustomerEmailRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.postNoContent(
       endpoints.customers.emails.addCustomerEmail.render(request.customerId),
       request,
-      options,
+      options
     );
   }
 
@@ -171,11 +163,11 @@ export class InsurUpCustomerClient {
    */
   async removeCustomerEmail(
     request: RemoveCustomerEmailRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.deleteNoContent(
       endpoints.customers.emails.removeCustomerEmail.render(request),
-      options,
+      options
     );
   }
 
@@ -184,12 +176,12 @@ export class InsurUpCustomerClient {
    */
   async changePrimaryCustomerEmail(
     request: ChangePrimaryCustomerEmailRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.postNoContent(
       endpoints.customers.emails.changePrimaryCustomerEmail.render(request),
       undefined,
-      options,
+      options
     );
   }
 
@@ -198,13 +190,11 @@ export class InsurUpCustomerClient {
    */
   async getCustomerPhoneNumbers(
     customerId: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetCustomerPhoneNumbersResultItem[]>> {
     return this.http.get<GetCustomerPhoneNumbersResultItem[]>(
-      endpoints.customers.phoneNumbers.getCustomerPhoneNumbers.render(
-        customerId,
-      ),
-      options,
+      endpoints.customers.phoneNumbers.getCustomerPhoneNumbers.render(customerId),
+      options
     );
   }
 
@@ -213,14 +203,12 @@ export class InsurUpCustomerClient {
    */
   async addCustomerPhoneNumber(
     request: AddCustomerPhoneNumberRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.postNoContent(
-      endpoints.customers.phoneNumbers.addCustomerPhoneNumber.render(
-        request.customerId,
-      ),
+      endpoints.customers.phoneNumbers.addCustomerPhoneNumber.render(request.customerId),
       request,
-      options,
+      options
     );
   }
 
@@ -229,13 +217,11 @@ export class InsurUpCustomerClient {
    */
   async removeCustomerPhoneNumber(
     request: RemoveCustomerPhoneNumberRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.deleteNoContent(
-      endpoints.customers.phoneNumbers.removeCustomerPhoneNumber.render(
-        request,
-      ),
-      options,
+      endpoints.customers.phoneNumbers.removeCustomerPhoneNumber.render(request),
+      options
     );
   }
 
@@ -244,14 +230,12 @@ export class InsurUpCustomerClient {
    */
   async changePrimaryCustomerPhoneNumber(
     request: ChangePrimaryCustomerPhoneNumberRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.postNoContent(
-      endpoints.customers.phoneNumbers.changePrimaryCustomerPhoneNumber.render(
-        request,
-      ),
+      endpoints.customers.phoneNumbers.changePrimaryCustomerPhoneNumber.render(request),
       undefined,
-      options,
+      options
     );
   }
 
@@ -260,12 +244,12 @@ export class InsurUpCustomerClient {
    */
   async setCustomerRepresentative(
     request: SetCustomerRepresentativeRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.postNoContent(
       endpoints.customers.setCustomerRepresentative.render(request.customerId),
       request,
-      options,
+      options
     );
   }
 
@@ -279,12 +263,12 @@ export class InsurUpCustomerClient {
    */
   async setCustomerBranch(
     request: SetCustomerBranchRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.postNoContent(
       endpoints.customers.setCustomerBranch.render(request.customerId),
       request,
-      options,
+      options
     );
   }
 
@@ -300,12 +284,12 @@ export class InsurUpCustomerClient {
    */
   async createCustomerAddress(
     request: CreateCustomerAddressRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<CreateCustomerAddressResult>> {
     return this.http.post<CreateCustomerAddressResult>(
       endpoints.customers.addresses.create.render(request.customerId),
       request,
-      options,
+      options
     );
   }
 
@@ -319,15 +303,12 @@ export class InsurUpCustomerClient {
    */
   async updateCustomerAddress(
     request: UpdateCustomerAddressRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.putNoContent(
-      endpoints.customers.addresses.update.render(
-        request.customerId,
-        request.addressId,
-      ),
+      endpoints.customers.addresses.update.render(request.customerId, request.addressId),
       request,
-      options,
+      options
     );
   }
 
@@ -343,11 +324,11 @@ export class InsurUpCustomerClient {
   async getCustomerAddressById(
     customerId: string,
     addressId: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetCustomerAddressResult>> {
     return this.http.get<GetCustomerAddressResult>(
       endpoints.customers.addresses.getById.render(customerId, addressId),
-      options,
+      options
     );
   }
 
@@ -361,11 +342,11 @@ export class InsurUpCustomerClient {
    */
   async getCustomerAddresses(
     customerId: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetCustomerAddressResult[]>> {
     return this.http.get<GetCustomerAddressResult[]>(
       endpoints.customers.addresses.getAll.render(customerId),
-      options,
+      options
     );
   }
 
@@ -381,11 +362,11 @@ export class InsurUpCustomerClient {
   async deleteCustomerAddress(
     customerId: string,
     addressId: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.deleteNoContent(
       endpoints.customers.addresses.delete.render(customerId, addressId),
-      options,
+      options
     );
   }
 
@@ -403,12 +384,12 @@ export class InsurUpCustomerClient {
   async giveCustomerConsent(
     customerId: string,
     request: GiveCustomerConsentRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.postNoContent(
       endpoints.customers.consents.give.render(customerId),
       request,
-      options,
+      options
     );
   }
 
@@ -424,12 +405,12 @@ export class InsurUpCustomerClient {
   async revokeCustomerConsent(
     customerId: string,
     request: RevokeCustomerConsentRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.postNoContent(
       endpoints.customers.consents.revoke.render(customerId),
       request,
-      options,
+      options
     );
   }
 
@@ -443,11 +424,11 @@ export class InsurUpCustomerClient {
    */
   async getCustomerConsents(
     customerId: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetCustomerConsentsResult>> {
     return this.http.get<GetCustomerConsentsResult>(
       endpoints.customers.consents.getAll.render(customerId),
-      options,
+      options
     );
   }
 
@@ -456,11 +437,11 @@ export class InsurUpCustomerClient {
    */
   async getCustomerHealthInfo(
     customerId: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetCustomerHealthInfoResult>> {
     return this.http.get<GetCustomerHealthInfoResult>(
       endpoints.customers.getHealthInfo.render(customerId),
-      options,
+      options
     );
   }
 
@@ -469,12 +450,12 @@ export class InsurUpCustomerClient {
    */
   async updateCustomerHealthInfo(
     request: UpdateCustomerHealthInfoRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.putNoContent(
       endpoints.customers.updateHealthInfo.render(request.customerId),
       request,
-      options,
+      options
     );
   }
 
@@ -483,14 +464,12 @@ export class InsurUpCustomerClient {
    */
   async createCustomerContactFlow(
     request: CreateContactFlowRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.postNoContent(
-      endpoints.customers.contactFlows.createContactFlow.render(
-        request.customerId,
-      ),
+      endpoints.customers.contactFlows.createContactFlow.render(request.customerId),
       request,
-      options,
+      options
     );
   }
 
@@ -499,12 +478,12 @@ export class InsurUpCustomerClient {
    */
   async createCustomerContact(
     request: CreateCustomerContactRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.postNoContent(
       endpoints.customers.contacts.create.render(request.customerId),
       request,
-      options,
+      options
     );
   }
 
@@ -513,15 +492,15 @@ export class InsurUpCustomerClient {
    */
   async endCustomerContactFlow(
     request: EndContactFlowRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.postNoContent(
       endpoints.customers.contactFlows.endContactFlow.render(
         request.customerId,
-        request.contactFlowId,
+        request.contactFlowId
       ),
       request,
-      options,
+      options
     );
   }
 
@@ -531,14 +510,11 @@ export class InsurUpCustomerClient {
   async getCustomerContactFlows(
     customerId: string,
     caseRef?: string | null,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetCustomerContactFlowsResultItem[]>> {
     return this.http.get<GetCustomerContactFlowsResultItem[]>(
-      endpoints.customers.contactFlows.getCustomerContactFlows.render(
-        customerId,
-        caseRef,
-      ),
-      options,
+      endpoints.customers.contactFlows.getCustomerContactFlows.render(customerId, caseRef),
+      options
     );
   }
 
@@ -548,14 +524,11 @@ export class InsurUpCustomerClient {
   async getCustomerContacts(
     customerId: string,
     caseRef?: string | null,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetCustomerContactsResultItem[]>> {
     return this.http.get<GetCustomerContactsResultItem[]>(
-      endpoints.customers.contacts.getCustomerContacts.render(
-        customerId,
-        caseRef,
-      ),
-      options,
+      endpoints.customers.contacts.getCustomerContacts.render(customerId, caseRef),
+      options
     );
   }
 
@@ -564,12 +537,12 @@ export class InsurUpCustomerClient {
    */
   async externalLookupCustomer(
     request: ExternalLookupCustomerRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<ExternalLookupCustomerResult>> {
     return this.http.post<ExternalLookupCustomerResult>(
       endpoints.customers.externalLookup,
       request,
-      options,
+      options
     );
   }
 
@@ -603,16 +576,15 @@ export class InsurUpCustomerClient {
    */
   async getCustomers<const TFields extends CustomerFieldKey[]>(
     requestOptions?: GetCustomersOptions<TFields>,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpGraphQLResult<CustomersConnection<TFields>>> {
     if (!this.graphql) {
       throw new Error(
-        "GraphQL transport is not available. Ensure the client is properly initialized.",
+        'GraphQL transport is not available. Ensure the client is properly initialized.'
       );
     }
 
-    const fields = (requestOptions?.select ??
-      ALL_CUSTOMER_FIELDS) as CustomerFieldKey[];
+    const fields = (requestOptions?.select ?? ALL_CUSTOMER_FIELDS) as CustomerFieldKey[];
     const fieldSelection = buildFieldSelection(fields);
     const hasFieldSelection = fieldSelection.length > 0;
     const includeTotalCount = requestOptions?.includeTotalCount !== false;
@@ -642,13 +614,17 @@ export class InsurUpCustomerClient {
             startCursor
             endCursor
           }
-          ${includeTotalCount ? "totalCount" : ""}
-          ${hasFieldSelection ? `edges {
+          ${includeTotalCount ? 'totalCount' : ''}
+          ${
+            hasFieldSelection
+              ? `edges {
             cursor
             node {
               ${fieldSelection}
             }
-          }` : ""}
+          }`
+              : ''
+          }
         }
       }
     `;
@@ -656,31 +632,21 @@ export class InsurUpCustomerClient {
     const variables: Record<string, unknown> = {};
 
     // Default to first: 50 if no pagination params provided
-    if (
-      requestOptions?.first === undefined &&
-      requestOptions?.last === undefined
-    ) {
+    if (requestOptions?.first === undefined && requestOptions?.last === undefined) {
       variables.first = 50;
     } else {
-      if (requestOptions?.first !== undefined)
-        variables.first = requestOptions.first;
-      if (requestOptions?.last !== undefined)
-        variables.last = requestOptions.last;
+      if (requestOptions?.first !== undefined) variables.first = requestOptions.first;
+      if (requestOptions?.last !== undefined) variables.last = requestOptions.last;
     }
 
-    if (requestOptions?.after !== undefined)
-      variables.after = requestOptions.after;
-    if (requestOptions?.before !== undefined)
-      variables.before = requestOptions.before;
-    if (requestOptions?.search !== undefined)
-      variables.search = requestOptions.search;
-    if (requestOptions?.filter !== undefined)
-      variables.filter = requestOptions.filter;
-    if (requestOptions?.order !== undefined)
-      variables.order = requestOptions.order;
+    if (requestOptions?.after !== undefined) variables.after = requestOptions.after;
+    if (requestOptions?.before !== undefined) variables.before = requestOptions.before;
+    if (requestOptions?.search !== undefined) variables.search = requestOptions.search;
+    if (requestOptions?.filter !== undefined) variables.filter = requestOptions.filter;
+    if (requestOptions?.order !== undefined) variables.order = requestOptions.order;
 
     const result = await this.graphql.query<{
-      customersNew: Omit<CustomersConnection, "nodes">;
+      customersNew: Omit<CustomersConnection, 'nodes'>;
     }>(query, variables, options);
 
     if (!result.isSuccess) {

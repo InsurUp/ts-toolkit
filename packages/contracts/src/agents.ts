@@ -1,11 +1,11 @@
-import type { ProductBranch, Channel } from "./common.js";
+import type { ProductBranch, Channel } from './common.js';
 import type {
   CaseType,
   SaleOpportunityCaseSubType,
   CancelCaseSubType,
   EndorsementCaseSubType,
   ComplaintCaseSubType,
-} from "./cases.js";
+} from './cases.js';
 
 /**
  * Represents the robotic process automation (RPA) deployment modes available for agents.
@@ -22,7 +22,7 @@ export enum RobotMode {
    * Robotik süreç otomasyonu etkin değil.
    * Tüm süreçler insan operatörler tarafından manuel olarak yürütülür.
    */
-  None = "NONE",
+  None = 'NONE',
 
   /**
    * Robotic automation runs on desktop computers within the agent's local environment.
@@ -31,7 +31,7 @@ export enum RobotMode {
    * Robotik otomasyon acente yerel ortamında masaüstü bilgisayarlarda çalışır.
    * Robotlar doğrudan kullanıcı etkileşim yetenekleri ile bireysel iş istasyonlarında çalışır.
    */
-  Desktop = "DESKTOP",
+  Desktop = 'DESKTOP',
 
   /**
    * Robotic automation runs on centralized servers with 24/7 unattended operation.
@@ -40,7 +40,7 @@ export enum RobotMode {
    * Robotik otomasyon 7/24 gözetimsiz çalışma ile merkezi sunucularda çalışır.
    * Robotlar sunucu ortamında doğrudan insan müdahalesi olmadan bağımsız olarak çalışır.
    */
-  Server = "SERVER",
+  Server = 'SERVER',
 }
 
 /**
@@ -58,7 +58,7 @@ export enum CaseRepresentativeAssignmentMode {
    * Hiçbir otomatik atama yapılmaz.
    * Case'ler atanmamış kalır ve yöneticiler tarafından manuel olarak atanmalıdır.
    */
-  None = "NONE",
+  None = 'NONE',
 
   /**
    * Cases are randomly distributed among eligible representatives.
@@ -67,7 +67,7 @@ export enum CaseRepresentativeAssignmentMode {
    * Case'ler uygun temsilciler arasında rastgele dağıtılır.
    * Her yeni case, kriterleri karşılayan rastgele seçilmiş bir temsilciye atanır.
    */
-  Random = "RANDOM",
+  Random = 'RANDOM',
 
   /**
    * Cases are distributed equally among representatives using round-robin algorithm.
@@ -76,7 +76,7 @@ export enum CaseRepresentativeAssignmentMode {
    * Case'ler round-robin algoritması kullanılarak temsilciler arasında eşit olarak dağıtılır.
    * Temsilciler dengeli iş yükü dağılımını sağlamak için sırayla case alırlar.
    */
-  RoundRobin = "ROUND_ROBIN",
+  RoundRobin = 'ROUND_ROBIN',
 
   /**
    * Cases are distributed based on insurance branch importance weights.
@@ -85,7 +85,7 @@ export enum CaseRepresentativeAssignmentMode {
    * Case'ler sigorta branşı önem ağırlıklarına göre dağıtılır.
    * Temsilciler, atanmış case'lerin önem puanlarıyla hesaplanan mevcut iş yüklerine göre case alırlar.
    */
-  BranchImportanceBalance = "BRANCH_IMPORTANCE_BALANCE",
+  BranchImportanceBalance = 'BRANCH_IMPORTANCE_BALANCE',
 }
 
 /**
@@ -103,7 +103,7 @@ export enum InsuranceSyncState {
    * Senkronizasyon şu anda devam ediyor veya işlem için sıraya alındı.
    * Sistem sigorta şirketi ile veri senkronizasyonu yapmaya çalışıyor.
    */
-  Pending = "PENDING",
+  Pending = 'PENDING',
 
   /**
    * Synchronization with the insurance company has failed.
@@ -112,7 +112,7 @@ export enum InsuranceSyncState {
    * Sigorta şirketi ile senkronizasyon başarısız oldu.
    * Sorunu çözmek için manuel müdahale veya yeniden deneme gerekebilir.
    */
-  Failed = "FAILED",
+  Failed = 'FAILED',
 
   /**
    * Synchronization with the insurance company has completed successfully.
@@ -121,7 +121,7 @@ export enum InsuranceSyncState {
    * Sigorta şirketi ile senkronizasyon başarıyla tamamlandı.
    * Tüm veriler güncel ve sistemler tamamen operasyonel.
    */
-  Succeed = "SUCCEED",
+  Succeed = 'SUCCEED',
 }
 
 /**
@@ -139,7 +139,7 @@ export enum AgentInsuranceCompanyType {
    * Web servis API'leri ve çevrimiçi portallar aracılığıyla entegrasyon.
    * Standart web protokolleri aracılığıyla gerçek zamanlı veri alışverişi sağlar.
    */
-  WebService = "WEB_SERVICE",
+  WebService = 'WEB_SERVICE',
 
   /**
    * Integration through robotic process automation (RPA) and automated form filling.
@@ -148,7 +148,7 @@ export enum AgentInsuranceCompanyType {
    * Robotik süreç otomasyonu (RPA) ve otomatik form doldurma yoluyla entegrasyon.
    * Sigorta şirketi sistemleri ile otomatik etkileşim için yazılım robotları kullanır.
    */
-  Robot = "ROBOT",
+  Robot = 'ROBOT',
 }
 
 /**
@@ -157,10 +157,10 @@ export enum AgentInsuranceCompanyType {
  * Acente entegrasyonları için mevcut SMS uygulama türleri.
  */
 export enum SmsImplementation {
-  Default = "Default",
-  Teknomart = "Teknomart",
-  ArtiKurumsal = "ArtiKurumsal",
-  Verimor = "Verimor",
+  Default = 'Default',
+  Teknomart = 'Teknomart',
+  ArtiKurumsal = 'ArtiKurumsal',
+  Verimor = 'Verimor',
 }
 
 /**
@@ -169,8 +169,8 @@ export enum SmsImplementation {
  * Acente entegrasyonları için mevcut çağrı merkezi uygulama türleri.
  */
 export enum CallCenterImplementation {
-  None = "None",
-  AloTech = "AloTech",
+  None = 'None',
+  AloTech = 'AloTech',
 }
 
 /**
@@ -182,11 +182,11 @@ export enum CallCenterImplementation {
  */
 export enum AgentUserState {
   /** User account is pending activation / Kullanıcı hesabı aktivasyon bekliyor */
-  Pending = "PENDING",
+  Pending = 'PENDING',
   /** User account is active and operational / Kullanıcı hesabı aktif ve çalışır durumda */
-  Active = "ACTIVE",
+  Active = 'ACTIVE',
   /** User account is inactive or disabled / Kullanıcı hesabı inaktif veya devre dışı */
-  Inactive = "INACTIVE",
+  Inactive = 'INACTIVE',
 }
 
 /**

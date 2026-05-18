@@ -4,8 +4,8 @@
  */
 
 // Re-export date types from common location
-export { DateTime, DateOnly } from "../common.date.js";
-import type { DateTime, DateOnly } from "../common.date.js";
+export { DateTime, DateOnly } from '../common.date.js';
+import type { DateTime, DateOnly } from '../common.date.js';
 
 /**
  * Information about pagination in a connection.
@@ -91,8 +91,7 @@ export interface Connection<T> {
 /**
  * Connection type with optional totalCount (when includeTotalCount is false)
  */
-export interface ConnectionWithOptionalCount<T>
-  extends Omit<Connection<T>, "totalCount"> {
+export interface ConnectionWithOptionalCount<T> extends Omit<Connection<T>, 'totalCount'> {
   totalCount?: number;
 }
 
@@ -100,8 +99,8 @@ export interface ConnectionWithOptionalCount<T>
  * Sort direction enum
  */
 export enum SortEnumType {
-  ASC = "ASC",
-  DESC = "DESC",
+  ASC = 'ASC',
+  DESC = 'DESC',
 }
 
 /**
@@ -439,15 +438,14 @@ export type DeepFieldKeys<T> = {
 /**
  * Extracts the parent key from a nested field path (e.g., "agentBranch.id" -> "agentBranch")
  */
-export type ExtractParent<T extends string> =
-  T extends `${infer Parent}.${string}` ? Parent : never;
+export type ExtractParent<T extends string> = T extends `${infer Parent}.${string}`
+  ? Parent
+  : never;
 
 /**
  * Checks if a field key is a nested path
  */
-export type IsNestedPath<T extends string> = T extends `${string}.${string}`
-  ? true
-  : false;
+export type IsNestedPath<T extends string> = T extends `${string}.${string}` ? true : false;
 
 /**
  * Extracts simple (non-nested) field keys from an array
@@ -466,10 +464,7 @@ export type NestedParents<T extends readonly string[]> = {
 /**
  * Gets all nested keys for a specific parent from an array
  */
-export type NestedKeysForParent<
-  T extends readonly string[],
-  Parent extends string,
-> = {
+export type NestedKeysForParent<T extends readonly string[], Parent extends string> = {
   [K in T[number]]: K extends `${Parent}.${infer Key}` ? Key : never;
 }[T[number]];
 
@@ -489,10 +484,7 @@ export type PickFields<Model, T extends readonly string[]> = {
   [K in SimpleFields<T> & keyof Model]: Model[K];
 } & {
   // Nested object fields (non-array)
-  [K in NestedParents<T> & keyof Model as Model[K] extends
-    | unknown[]
-    | null
-    | undefined
+  [K in NestedParents<T> & keyof Model as Model[K] extends unknown[] | null | undefined
     ? never
     : K]?: Pick<
     NonNullable<Model[K]>,
@@ -500,9 +492,7 @@ export type PickFields<Model, T extends readonly string[]> = {
   > | null;
 } & {
   // Nested array fields
-  [K in NestedParents<T> & keyof Model as Model[K] extends unknown[]
-    ? K
-    : never]: Pick<
+  [K in NestedParents<T> & keyof Model as Model[K] extends unknown[] ? K : never]: Pick<
     UnwrapArray<Model[K]>,
     NestedKeysForParent<T, K> & keyof UnwrapArray<Model[K]>
   >[];
@@ -519,15 +509,12 @@ export type PickFields<Model, T extends readonly string[]> = {
  * @param fields Array of field keys (can include dot-notation for nested fields)
  * @param indent Indentation string for formatting (default: 12 spaces)
  */
-export function buildFieldSelection(
-  fields: readonly string[],
-  indent = "            ",
-): string {
+export function buildFieldSelection(fields: readonly string[], indent = '            '): string {
   const simpleFields: string[] = [];
   const nestedFields: Map<string, string[]> = new Map();
 
   for (const field of fields) {
-    const dotIndex = field.indexOf(".");
+    const dotIndex = field.indexOf('.');
     if (dotIndex !== -1) {
       const parent = field.slice(0, dotIndex);
       const nested = field.slice(dotIndex + 1);
@@ -543,7 +530,7 @@ export function buildFieldSelection(
   const selections: string[] = [...simpleFields];
 
   for (const [parent, nestedKeys] of nestedFields) {
-    selections.push(`${parent} { ${nestedKeys.join(" ")} }`);
+    selections.push(`${parent} { ${nestedKeys.join(' ')} }`);
   }
 
   return selections.join(`\n${indent}`);

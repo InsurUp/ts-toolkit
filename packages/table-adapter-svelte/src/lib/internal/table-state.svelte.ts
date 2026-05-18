@@ -12,7 +12,12 @@
 
 import { createSubscriber } from 'svelte/reactivity';
 import type { Table, TableOptionsResolved } from '@tanstack/table-core';
-import type { TableError, ITableAdapter, AdapterState, PaginationManager } from '@insurup/table-adapter-core';
+import type {
+  TableError,
+  ITableAdapter,
+  AdapterState,
+  PaginationManager,
+} from '@insurup/table-adapter-core';
 
 /**
  * Fine-grained reactive state for table adapters.
@@ -116,7 +121,7 @@ export class TableState<TRow> {
    */
   updateTableOptions(
     updater: (prev: TableOptionsResolved<TRow>) => TableOptionsResolved<TRow>,
-    hasStateChange = false,
+    hasStateChange = false
   ): void {
     if (hasStateChange) {
       const onStateChange = this.#table.options.onStateChange;

@@ -7,9 +7,9 @@
  * @module client
  */
 
-import { DefaultInsurUpClient } from "@insurup/sdk";
-import { getAccessToken } from "./auth.js";
-import { getConfig } from "./config.js";
+import { DefaultInsurUpClient } from '@insurup/sdk';
+import { getAccessToken } from './auth.js';
+import { getConfig } from './config.js';
 
 /**
  * @typedef {import("@insurup/sdk").DefaultInsurUpClient} InsurUpClient

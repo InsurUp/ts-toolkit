@@ -18,13 +18,13 @@ export const DEBOUNCE_DELAY_MS = 300;
  */
 export const STORAGE_KEYS = {
   /** OAuth tokens storage key */
-  TOKENS: "insurup_tokens",
+  TOKENS: 'insurup_tokens',
   /** PKCE data storage key (sessionStorage) */
-  PKCE: "insurup_pkce",
+  PKCE: 'insurup_pkce',
   /** Configuration overrides storage key */
-  CONFIG: "insurup_config",
+  CONFIG: 'insurup_config',
   /** Theme preference storage key */
-  THEME: "theme",
+  THEME: 'theme',
 };
 
 // ============ Type Definitions ============

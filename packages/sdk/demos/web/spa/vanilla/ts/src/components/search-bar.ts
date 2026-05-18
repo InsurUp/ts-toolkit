@@ -31,7 +31,7 @@ export function renderSearchBar(
   container: HTMLElement,
   options: SearchBarOptions
 ): { getValue: () => string; setValue: (value: string) => void; focus: () => void } {
-  const { placeholder = "Search...", debounceMs = 300, onSearch } = options;
+  const { placeholder = 'Search...', debounceMs = 300, onSearch } = options;
 
   container.innerHTML = `
     <div class="search-bar">
@@ -47,8 +47,8 @@ export function renderSearchBar(
     </div>
   `;
 
-  const input = container.querySelector("#search-input") as HTMLInputElement;
-  const clearBtn = container.querySelector(".search-clear") as HTMLButtonElement;
+  const input = container.querySelector('#search-input') as HTMLInputElement;
+  const clearBtn = container.querySelector('.search-clear') as HTMLButtonElement;
 
   const debouncedSearch = debounce((query: string) => {
     onSearch(query);
@@ -56,26 +56,26 @@ export function renderSearchBar(
 
   // Update clear button visibility
   function updateClearButton(): void {
-    clearBtn.style.display = input.value.length > 0 ? "inline-block" : "none";
+    clearBtn.style.display = input.value.length > 0 ? 'inline-block' : 'none';
   }
 
   // Handle input changes
-  input.addEventListener("input", () => {
+  input.addEventListener('input', () => {
     updateClearButton();
     debouncedSearch(input.value.trim());
   });
 
   // Handle clear button click
-  clearBtn.addEventListener("click", () => {
-    input.value = "";
+  clearBtn.addEventListener('click', () => {
+    input.value = '';
     updateClearButton();
-    onSearch("");
+    onSearch('');
     input.focus();
   });
 
   // Handle Enter key for immediate search
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
       e.preventDefault();
       onSearch(input.value.trim());
     }

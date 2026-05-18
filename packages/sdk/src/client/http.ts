@@ -3,34 +3,23 @@
  * @description Cross-environment HTTP transport with timeout support and error handling
  */
 
-import type { InsurUpResult } from "../core/result.js";
-import {
-  createSuccess,
-  createSuccessNoContent,
-  InsurUpClientErrorType,
-} from "../core/result.js";
+import type { InsurUpResult } from '../core/result.js';
+import { createSuccess, createSuccessNoContent, InsurUpClientErrorType } from '../core/result.js';
 import {
   parseServerError,
   createNetworkError,
   createSerializationError,
   createDeserializationError,
   createUnexpectedNoContentError,
-} from "../core/errors.js";
-import type {
-  InsurUpClientOptions,
-  RequestConfig,
-  RequestOptions,
-} from "../core/options.js";
-import {
-  mergeWithDefaults,
-  type RequiredClientOptions,
-} from "../core/config.js";
-import { withRetry } from "../core/retry.js";
+} from '../core/errors.js';
+import type { InsurUpClientOptions, RequestConfig, RequestOptions } from '../core/options.js';
+import { mergeWithDefaults, type RequiredClientOptions } from '../core/config.js';
+import { withRetry } from '../core/retry.js';
 
 /**
  * HTTP method types
  */
-export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
 /**
  * Valid request body types for HTTP requests
@@ -71,10 +60,10 @@ export class HttpTransport {
     path: string,
     body?: RequestBody,
     options?: RequestOptions,
-    expectContent: boolean = true,
+    expectContent: boolean = true
   ): Promise<InsurUpResult<T> | InsurUpResult> {
     const startTime = Date.now();
-    const url = `${this.options.baseUrl.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
+    const url = `${this.options.baseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
 
     // Build initial request config for interceptors
     let requestConfig: RequestConfig = {
@@ -89,8 +78,8 @@ export class HttpTransport {
       try {
         requestConfig = await this.options.onRequest(requestConfig);
       } catch (error) {
-        if (this.options.logLevel !== "none") {
-          this.options.logger.warn("Request interceptor failed:", error);
+        if (this.options.logLevel !== 'none') {
+          this.options.logger.warn('Request interceptor failed:', error);
         }
       }
     }
@@ -98,7 +87,7 @@ export class HttpTransport {
     this.logRequest(method, path, body, options?.headers);
 
     const executeRequest = async (
-      attemptNumber: number,
+      attemptNumber: number
     ): Promise<InsurUpResult<T> | InsurUpResult> => {
       try {
         const result = await this.sendSingleRequest<T>(
@@ -110,11 +99,11 @@ export class HttpTransport {
             signal: options?.signal,
             timeoutMs: options?.timeoutMs,
           },
-          expectContent,
+          expectContent
         );
 
         // If it's a success, return it
-        if (result.kind === "success") {
+        if (result.kind === 'success') {
           return result;
         }
 
@@ -139,10 +128,7 @@ export class HttpTransport {
         }
 
         // Only retry HttpRequestFailed errors
-        if (
-          networkError.type === InsurUpClientErrorType.HttpRequestFailed &&
-          this.options.retry
-        ) {
+        if (networkError.type === InsurUpClientErrorType.HttpRequestFailed && this.options.retry) {
           const error = new Error(networkError.message) as RetryableError;
           error.result = networkError;
           error.attemptNumber = attemptNumber;
@@ -178,18 +164,18 @@ export class HttpTransport {
       }
 
       const duration = Date.now() - startTime;
-      this.logResponse("SUCCESS", duration, 1, result);
+      this.logResponse('SUCCESS', duration, 1, result);
 
       // Call response interceptor if provided
       if (this.options.onResponse) {
         try {
           return (await this.options.onResponse(
             result as InsurUpResult<unknown>,
-            requestConfig,
+            requestConfig
           )) as InsurUpResult<T> | InsurUpResult;
         } catch (error) {
-          if (this.options.logLevel !== "none") {
-            this.options.logger.warn("Response interceptor failed:", error);
+          if (this.options.logLevel !== 'none') {
+            this.options.logger.warn('Response interceptor failed:', error);
           }
         }
       }
@@ -201,10 +187,10 @@ export class HttpTransport {
       const retryableError = error as RetryableError;
       if (retryableError.result) {
         this.logResponse(
-          "ERROR",
+          'ERROR',
           duration,
           retryableError.attemptNumber || 1,
-          retryableError.result,
+          retryableError.result
         );
 
         // Call response interceptor for errors too
@@ -212,14 +198,11 @@ export class HttpTransport {
           try {
             return (await this.options.onResponse(
               retryableError.result as InsurUpResult<unknown>,
-              requestConfig,
+              requestConfig
             )) as InsurUpResult<T> | InsurUpResult;
           } catch (interceptorError) {
-            if (this.options.logLevel !== "none") {
-              this.options.logger.warn(
-                "Response interceptor failed:",
-                interceptorError,
-              );
+            if (this.options.logLevel !== 'none') {
+              this.options.logger.warn('Response interceptor failed:', interceptorError);
             }
           }
         }
@@ -229,21 +212,18 @@ export class HttpTransport {
 
       // Otherwise, it's a network error
       const networkError = createNetworkError(error);
-      this.logResponse("ERROR", duration, 1, networkError);
+      this.logResponse('ERROR', duration, 1, networkError);
 
       // Call response interceptor for network errors too
       if (this.options.onResponse) {
         try {
           return (await this.options.onResponse(
             networkError as InsurUpResult<unknown>,
-            requestConfig,
+            requestConfig
           )) as InsurUpResult<T> | InsurUpResult;
         } catch (interceptorError) {
-          if (this.options.logLevel !== "none") {
-            this.options.logger.warn(
-              "Response interceptor failed:",
-              interceptorError,
-            );
+          if (this.options.logLevel !== 'none') {
+            this.options.logger.warn('Response interceptor failed:', interceptorError);
           }
         }
       }
@@ -260,9 +240,9 @@ export class HttpTransport {
     path: string,
     body?: RequestBody,
     options?: RequestOptions,
-    expectContent: boolean = true,
+    expectContent: boolean = true
   ): Promise<InsurUpResult<T> | InsurUpResult> {
-    const url = `${this.options.baseUrl.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
+    const url = `${this.options.baseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
     const requestHeaders = await this.buildHeaders(options?.headers);
 
     // Serialize request body
@@ -276,7 +256,7 @@ export class HttpTransport {
           serializedBody = JSON.stringify(body);
           // Set Content-Type header for JSON requests
           if (!this.hasContentTypeHeader(requestHeaders)) {
-            requestHeaders["Content-Type"] = "application/json";
+            requestHeaders['Content-Type'] = 'application/json';
           }
         } catch (error) {
           return createSerializationError(error);
@@ -288,7 +268,7 @@ export class HttpTransport {
     const controller = new AbortController();
     const timeoutId = setTimeout(
       () => controller.abort(),
-      options?.timeoutMs ?? this.options.timeoutMs,
+      options?.timeoutMs ?? this.options.timeoutMs
     );
 
     // Bridge external signal (if provided) to our controller
@@ -298,9 +278,8 @@ export class HttpTransport {
         controller.abort();
       } else {
         const abortHandler = () => controller.abort();
-        options.signal.addEventListener("abort", abortHandler, { once: true });
-        signalCleanup = () =>
-          options.signal!.removeEventListener("abort", abortHandler);
+        options.signal.addEventListener('abort', abortHandler, { once: true });
+        signalCleanup = () => options.signal!.removeEventListener('abort', abortHandler);
       }
     }
 
@@ -325,13 +304,8 @@ export class HttpTransport {
    * @param path Relative path (will be prefixed with baseUrl)
    * @param options Optional request options (headers, signal, timeoutMs)
    */
-  async get<T>(
-    path: string,
-    options?: RequestOptions,
-  ): Promise<InsurUpResult<T>> {
-    return this.sendInternal<T>("GET", path, null, options, true) as Promise<
-      InsurUpResult<T>
-    >;
+  async get<T>(path: string, options?: RequestOptions): Promise<InsurUpResult<T>> {
+    return this.sendInternal<T>('GET', path, null, options, true) as Promise<InsurUpResult<T>>;
   }
 
   /**
@@ -344,11 +318,9 @@ export class HttpTransport {
   async post<T>(
     path: string,
     data?: RequestBody,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<T>> {
-    return this.sendInternal<T>("POST", path, data, options, true) as Promise<
-      InsurUpResult<T>
-    >;
+    return this.sendInternal<T>('POST', path, data, options, true) as Promise<InsurUpResult<T>>;
   }
 
   /**
@@ -361,15 +333,9 @@ export class HttpTransport {
   async postNoContent(
     path: string,
     data?: RequestBody,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
-    return this.sendInternal(
-      "POST",
-      path,
-      data,
-      options,
-      false,
-    ) as Promise<InsurUpResult>;
+    return this.sendInternal('POST', path, data, options, false) as Promise<InsurUpResult>;
   }
 
   /**
@@ -382,11 +348,9 @@ export class HttpTransport {
   async put<T>(
     path: string,
     data?: RequestBody,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<T>> {
-    return this.sendInternal<T>("PUT", path, data, options, true) as Promise<
-      InsurUpResult<T>
-    >;
+    return this.sendInternal<T>('PUT', path, data, options, true) as Promise<InsurUpResult<T>>;
   }
 
   /**
@@ -399,15 +363,9 @@ export class HttpTransport {
   async putNoContent(
     path: string,
     data?: RequestBody,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
-    return this.sendInternal(
-      "PUT",
-      path,
-      data,
-      options,
-      false,
-    ) as Promise<InsurUpResult>;
+    return this.sendInternal('PUT', path, data, options, false) as Promise<InsurUpResult>;
   }
 
   /**
@@ -420,11 +378,9 @@ export class HttpTransport {
   async patch<T>(
     path: string,
     data?: RequestBody,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<T>> {
-    return this.sendInternal<T>("PATCH", path, data, options, true) as Promise<
-      InsurUpResult<T>
-    >;
+    return this.sendInternal<T>('PATCH', path, data, options, true) as Promise<InsurUpResult<T>>;
   }
 
   /**
@@ -437,15 +393,9 @@ export class HttpTransport {
   async patchNoContent(
     path: string,
     data?: RequestBody,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
-    return this.sendInternal(
-      "PATCH",
-      path,
-      data,
-      options,
-      false,
-    ) as Promise<InsurUpResult>;
+    return this.sendInternal('PATCH', path, data, options, false) as Promise<InsurUpResult>;
   }
 
   /**
@@ -454,13 +404,8 @@ export class HttpTransport {
    * @param options Optional request options (headers, signal, timeoutMs)
    * @returns Promise resolving to InsurUpResult<T> with response data
    */
-  async delete<T>(
-    path: string,
-    options?: RequestOptions,
-  ): Promise<InsurUpResult<T>> {
-    return this.sendInternal<T>("DELETE", path, null, options, true) as Promise<
-      InsurUpResult<T>
-    >;
+  async delete<T>(path: string, options?: RequestOptions): Promise<InsurUpResult<T>> {
+    return this.sendInternal<T>('DELETE', path, null, options, true) as Promise<InsurUpResult<T>>;
   }
 
   /**
@@ -469,17 +414,8 @@ export class HttpTransport {
    * @param options Optional request options (headers, signal, timeoutMs)
    * @returns Promise resolving to InsurUpResult (no data)
    */
-  async deleteNoContent(
-    path: string,
-    options?: RequestOptions,
-  ): Promise<InsurUpResult> {
-    return this.sendInternal(
-      "DELETE",
-      path,
-      null,
-      options,
-      false,
-    ) as Promise<InsurUpResult>;
+  async deleteNoContent(path: string, options?: RequestOptions): Promise<InsurUpResult> {
+    return this.sendInternal('DELETE', path, null, options, false) as Promise<InsurUpResult>;
   }
 
   /**
@@ -489,17 +425,14 @@ export class HttpTransport {
    * @param options Optional request options (headers, signal, timeoutMs)
    * @returns Promise resolving to InsurUpResult<Blob>
    */
-  async getBlob(
-    path: string,
-    options?: RequestOptions,
-  ): Promise<InsurUpResult<Blob>> {
-    const url = `${this.options.baseUrl.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
+  async getBlob(path: string, options?: RequestOptions): Promise<InsurUpResult<Blob>> {
+    const url = `${this.options.baseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
     const requestHeaders = await this.buildHeaders(options?.headers);
 
     // Build request config for interceptors
     let requestConfig: RequestConfig = {
       url,
-      method: "GET",
+      method: 'GET',
       headers: requestHeaders,
     };
 
@@ -508,19 +441,19 @@ export class HttpTransport {
       try {
         requestConfig = await this.options.onRequest(requestConfig);
       } catch (error) {
-        if (this.options.logLevel !== "none") {
-          this.options.logger.warn("Request interceptor failed:", error);
+        if (this.options.logLevel !== 'none') {
+          this.options.logger.warn('Request interceptor failed:', error);
         }
       }
     }
 
-    this.logRequest("GET", path, undefined, options?.headers);
+    this.logRequest('GET', path, undefined, options?.headers);
 
     // Create AbortController for timeout
     const controller = new AbortController();
     const timeoutId = setTimeout(
       () => controller.abort(),
-      options?.timeoutMs ?? this.options.timeoutMs,
+      options?.timeoutMs ?? this.options.timeoutMs
     );
 
     // Bridge external signal (if provided) to our controller
@@ -530,16 +463,15 @@ export class HttpTransport {
         controller.abort();
       } else {
         const abortHandler = () => controller.abort();
-        options.signal.addEventListener("abort", abortHandler, { once: true });
-        signalCleanup = () =>
-          options.signal!.removeEventListener("abort", abortHandler);
+        options.signal.addEventListener('abort', abortHandler, { once: true });
+        signalCleanup = () => options.signal!.removeEventListener('abort', abortHandler);
       }
     }
 
     let response: Response;
     try {
       response = await fetch(url, {
-        method: "GET",
+        method: 'GET',
         headers: requestConfig.headers,
         signal: controller.signal,
       });
@@ -552,11 +484,8 @@ export class HttpTransport {
         try {
           return await this.options.onResponse(networkError, requestConfig);
         } catch (interceptorError) {
-          if (this.options.logLevel !== "none") {
-            this.options.logger.warn(
-              "Response interceptor failed:",
-              interceptorError,
-            );
+          if (this.options.logLevel !== 'none') {
+            this.options.logger.warn('Response interceptor failed:', interceptorError);
           }
         }
       }
@@ -577,11 +506,8 @@ export class HttpTransport {
         try {
           return await this.options.onResponse(serverError, requestConfig);
         } catch (interceptorError) {
-          if (this.options.logLevel !== "none") {
-            this.options.logger.warn(
-              "Response interceptor failed:",
-              interceptorError,
-            );
+          if (this.options.logLevel !== 'none') {
+            this.options.logger.warn('Response interceptor failed:', interceptorError);
           }
         }
       }
@@ -599,11 +525,8 @@ export class HttpTransport {
         try {
           return await this.options.onResponse(result, requestConfig);
         } catch (interceptorError) {
-          if (this.options.logLevel !== "none") {
-            this.options.logger.warn(
-              "Response interceptor failed:",
-              interceptorError,
-            );
+          if (this.options.logLevel !== 'none') {
+            this.options.logger.warn('Response interceptor failed:', interceptorError);
           }
         }
       }
@@ -615,16 +538,10 @@ export class HttpTransport {
       // Call response interceptor for errors
       if (this.options.onResponse) {
         try {
-          return await this.options.onResponse(
-            deserializationError,
-            requestConfig,
-          );
+          return await this.options.onResponse(deserializationError, requestConfig);
         } catch (interceptorError) {
-          if (this.options.logLevel !== "none") {
-            this.options.logger.warn(
-              "Response interceptor failed:",
-              interceptorError,
-            );
+          if (this.options.logLevel !== 'none') {
+            this.options.logger.warn('Response interceptor failed:', interceptorError);
           }
         }
       }
@@ -638,7 +555,7 @@ export class HttpTransport {
    * Invokes token provider if available and adds Authorization header
    */
   private async buildHeaders(
-    additionalHeaders?: Record<string, string>,
+    additionalHeaders?: Record<string, string>
   ): Promise<Record<string, string>> {
     const headers: Record<string, string> = {
       ...this.options.customHeaders,
@@ -647,10 +564,9 @@ export class HttpTransport {
 
     // Set User-Agent in environments where it's allowed (Node.js)
     // Use type-safe check for browser environment
-    const isBrowser =
-      typeof globalThis === "object" && "window" in globalThis;
+    const isBrowser = typeof globalThis === 'object' && 'window' in globalThis;
     if (!isBrowser && this.options.userAgent) {
-      headers["User-Agent"] = this.options.userAgent;
+      headers['User-Agent'] = this.options.userAgent;
     }
 
     // Add Authorization header if token provider is available
@@ -658,12 +574,12 @@ export class HttpTransport {
       try {
         const token = await this.options.tokenProvider();
         if (token) {
-          headers["Authorization"] = `Bearer ${token}`;
+          headers['Authorization'] = `Bearer ${token}`;
         }
       } catch (error) {
         // Log token provider error but don't fail the request
-        if (this.options.logLevel !== "none") {
-          this.options.logger.warn("Token provider failed:", error);
+        if (this.options.logLevel !== 'none') {
+          this.options.logger.warn('Token provider failed:', error);
         }
       }
     }
@@ -675,9 +591,7 @@ export class HttpTransport {
    * Checks if Content-Type header is present (case-insensitive)
    */
   private hasContentTypeHeader(headers: Record<string, string>): boolean {
-    return Object.keys(headers).some(
-      (key) => key.toLowerCase() === "content-type",
-    );
+    return Object.keys(headers).some((key) => key.toLowerCase() === 'content-type');
   }
 
   /**
@@ -686,11 +600,11 @@ export class HttpTransport {
   private isJsonContentType(contentType: string): boolean {
     const lowerContentType = contentType.toLowerCase();
     return (
-      lowerContentType.includes("application/json") ||
-      lowerContentType.includes("application/vnd.api+json") ||
-      lowerContentType.includes("application/hal+json") ||
-      lowerContentType.includes("application/problem+json") ||
-      lowerContentType.includes("text/json") ||
+      lowerContentType.includes('application/json') ||
+      lowerContentType.includes('application/vnd.api+json') ||
+      lowerContentType.includes('application/hal+json') ||
+      lowerContentType.includes('application/problem+json') ||
+      lowerContentType.includes('text/json') ||
       /^application\/.*\+json/i.test(contentType)
     );
   }
@@ -702,7 +616,7 @@ export class HttpTransport {
    */
   private async handleResponse<T>(
     response: Response,
-    expectContent: boolean,
+    expectContent: boolean
   ): Promise<InsurUpResult<T> | InsurUpResult> {
     // Handle non-success HTTP status codes first
     if (!response.ok) {
@@ -730,11 +644,9 @@ export class HttpTransport {
     }
 
     // For non-empty responses, validate Content-Type
-    const contentType = response.headers.get("content-type");
+    const contentType = response.headers.get('content-type');
     if (contentType && !this.isJsonContentType(contentType)) {
-      return createDeserializationError(
-        new Error(`Expected JSON response but got ${contentType}`),
-      );
+      return createDeserializationError(new Error(`Expected JSON response but got ${contentType}`));
     }
 
     // Parse the JSON response
@@ -744,9 +656,7 @@ export class HttpTransport {
   /**
    * Parses successful JSON response body
    */
-  private parseSuccessResponse<T>(
-    responseText: string,
-  ): InsurUpResult<T> | InsurUpResult {
+  private parseSuccessResponse<T>(responseText: string): InsurUpResult<T> | InsurUpResult {
     try {
       const data = JSON.parse(responseText) as T;
       return createSuccess(data);
@@ -758,20 +668,18 @@ export class HttpTransport {
   /**
    * Determines if a result should be retried
    */
-  private shouldRetryResult(
-    result: InsurUpResult<unknown> | InsurUpResult,
-  ): boolean {
+  private shouldRetryResult(result: InsurUpResult<unknown> | InsurUpResult): boolean {
     if (!this.options.retry) {
       return false;
     }
 
     // Retry server errors with retryable status codes
-    if (result.kind === "server-error") {
+    if (result.kind === 'server-error') {
       return this.options.retry.retryableStatusCodes.includes(result.status);
     }
 
     // Retry client errors for network issues but not timeouts
-    if (result.kind === "client-error") {
+    if (result.kind === 'client-error') {
       return result.type === InsurUpClientErrorType.HttpRequestFailed;
     }
 
@@ -785,17 +693,17 @@ export class HttpTransport {
     method: HttpMethod,
     path: string,
     body?: RequestBody,
-    headers?: Record<string, string>,
+    headers?: Record<string, string>
   ): void {
-    if (this.options.logLevel === "none") {
+    if (this.options.logLevel === 'none') {
       return;
     }
 
-    const url = `${this.options.baseUrl.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
+    const url = `${this.options.baseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
 
-    if (this.options.logLevel === "basic") {
+    if (this.options.logLevel === 'basic') {
       this.options.logger.info(`${method} ${url}`);
-    } else if (this.options.logLevel === "detailed") {
+    } else if (this.options.logLevel === 'detailed') {
       // Only compute sanitized values when detailed logging is enabled
       const sanitizedHeaders = this.sanitizeHeaders(headers);
       const sanitizedBody = this.sanitizeBody(body);
@@ -810,40 +718,36 @@ export class HttpTransport {
    * Logs response details
    */
   private logResponse(
-    status: "SUCCESS" | "ERROR",
+    status: 'SUCCESS' | 'ERROR',
     duration: number,
     attempt: number,
-    result: InsurUpResult<unknown> | InsurUpResult,
+    result: InsurUpResult<unknown> | InsurUpResult
   ): void {
-    if (this.options.logLevel === "none") {
+    if (this.options.logLevel === 'none') {
       return;
     }
 
-    const attemptInfo = attempt > 1 ? ` (attempt ${attempt})` : "";
+    const attemptInfo = attempt > 1 ? ` (attempt ${attempt})` : '';
 
-    if (this.options.logLevel === "basic") {
-      if (status === "SUCCESS") {
+    if (this.options.logLevel === 'basic') {
+      if (status === 'SUCCESS') {
         this.options.logger.info(`${status} in ${duration}ms${attemptInfo}`);
       } else {
         this.options.logger.error(`${status} in ${duration}ms${attemptInfo}`);
       }
-    } else if (this.options.logLevel === "detailed") {
+    } else if (this.options.logLevel === 'detailed') {
       // Only compute sanitized values when detailed logging is enabled
-      if (status === "SUCCESS") {
+      if (status === 'SUCCESS') {
         const data =
-          result.kind === "success" && "data" in result
+          result.kind === 'success' && 'data' in result
             ? this.sanitizeResponseData(result.data)
             : undefined;
-        this.options.logger.info(
-          `Response: ${status} in ${duration}ms${attemptInfo}`,
-          { data },
-        );
+        this.options.logger.info(`Response: ${status} in ${duration}ms${attemptInfo}`, { data });
       } else {
         const sanitizedError = this.sanitizeError(result);
-        this.options.logger.error(
-          `Response: ${status} in ${duration}ms${attemptInfo}`,
-          { error: sanitizedError },
-        );
+        this.options.logger.error(`Response: ${status} in ${duration}ms${attemptInfo}`, {
+          error: sanitizedError,
+        });
       }
     }
   }
@@ -851,48 +755,36 @@ export class HttpTransport {
   /**
    * Logs retry attempt
    */
-  private logRetry(
-    attemptNumber: number,
-    result: InsurUpResult<unknown> | InsurUpResult,
-  ): void {
-    if (this.options.logLevel === "none") {
+  private logRetry(attemptNumber: number, result: InsurUpResult<unknown> | InsurUpResult): void {
+    if (this.options.logLevel === 'none') {
       return;
     }
 
     const reason =
-      result.kind === "server-error"
+      result.kind === 'server-error'
         ? `HTTP ${result.status}`
-        : result.kind === "client-error"
+        : result.kind === 'client-error'
           ? result.type
-          : "Unknown error";
+          : 'Unknown error';
 
-    this.options.logger.warn(
-      `Retry attempt ${attemptNumber} failed due to: ${reason}`,
-    );
+    this.options.logger.warn(`Retry attempt ${attemptNumber} failed due to: ${reason}`);
   }
 
   /**
    * Sanitizes headers for logging (removes sensitive information)
    */
-  private sanitizeHeaders(
-    headers?: Record<string, string>,
-  ): Record<string, string> | undefined {
+  private sanitizeHeaders(headers?: Record<string, string>): Record<string, string> | undefined {
     if (!headers) {
       return undefined;
     }
 
     const sanitized: Record<string, string> = {};
-    const sensitiveHeaders = [
-      "authorization",
-      "cookie",
-      "x-api-key",
-      "x-auth-token",
-    ];
+    const sensitiveHeaders = ['authorization', 'cookie', 'x-api-key', 'x-auth-token'];
 
     for (const [key, value] of Object.entries(headers)) {
       const lowerKey = key.toLowerCase();
       if (sensitiveHeaders.includes(lowerKey)) {
-        sanitized[key] = "[REDACTED]";
+        sanitized[key] = '[REDACTED]';
       } else {
         sanitized[key] = value;
       }
@@ -911,21 +803,19 @@ export class HttpTransport {
 
     // Handle FormData
     if (body instanceof FormData) {
-      return "[FormData body]";
+      return '[FormData body]';
     }
 
     // Handle string bodies efficiently
-    if (typeof body === "string") {
+    if (typeof body === 'string') {
       if (body.length > 10000) {
-        return "[Large string body - truncated for logging]";
+        return '[Large string body - truncated for logging]';
       }
-      return body.length > 1000
-        ? `${body.substring(0, 1000)}... [truncated]`
-        : body;
+      return body.length > 1000 ? `${body.substring(0, 1000)}... [truncated]` : body;
     }
 
     // Handle primitive types
-    if (typeof body === "number" || typeof body === "boolean") {
+    if (typeof body === 'number' || typeof body === 'boolean') {
       return body;
     }
 
@@ -933,15 +823,13 @@ export class HttpTransport {
     try {
       // Quick size estimation to avoid expensive stringification of large objects
       if (this.isLargeObject(body)) {
-        return "[Large object body - truncated for logging]";
+        return '[Large object body - truncated for logging]';
       }
 
       const stringified = JSON.stringify(body);
-      return stringified.length > 1000
-        ? `${stringified.substring(0, 1000)}... [truncated]`
-        : body;
+      return stringified.length > 1000 ? `${stringified.substring(0, 1000)}... [truncated]` : body;
     } catch {
-      return "[Unable to serialize body]";
+      return '[Unable to serialize body]';
     }
   }
 
@@ -949,7 +837,7 @@ export class HttpTransport {
    * Efficiently estimates if an object is large without full serialization
    */
   private isLargeObject(obj: unknown): boolean {
-    if (!obj || typeof obj !== "object") {
+    if (!obj || typeof obj !== 'object') {
       return false;
     }
 
@@ -969,16 +857,13 @@ export class HttpTransport {
           for (let i = 0; i < Math.min(item.length, 10); i++) {
             if (countProperties(item[i], depth + 1)) return true;
           }
-        } else if (item && typeof item === "object") {
+        } else if (item && typeof item === 'object') {
           const keys = Object.keys(item);
           propertyCount += keys.length;
 
           for (const key of keys.slice(0, 10)) {
             // Check first 10 properties
-            if (
-              countProperties((item as Record<string, unknown>)[key], depth + 1)
-            )
-              return true;
+            if (countProperties((item as Record<string, unknown>)[key], depth + 1)) return true;
           }
         }
 
@@ -1003,25 +888,21 @@ export class HttpTransport {
     try {
       // Use the same efficient large object detection
       if (this.isLargeObject(data)) {
-        return "[Large response data - truncated for logging]";
+        return '[Large response data - truncated for logging]';
       }
 
       const stringified = JSON.stringify(data);
-      return stringified.length > 1000
-        ? `${stringified.substring(0, 1000)}... [truncated]`
-        : data;
+      return stringified.length > 1000 ? `${stringified.substring(0, 1000)}... [truncated]` : data;
     } catch {
-      return "[Unable to serialize response data]";
+      return '[Unable to serialize response data]';
     }
   }
 
   /**
    * Sanitizes error information for logging
    */
-  private sanitizeError(
-    result: InsurUpResult<unknown> | InsurUpResult,
-  ): unknown {
-    if (result.kind === "server-error") {
+  private sanitizeError(result: InsurUpResult<unknown> | InsurUpResult): unknown {
+    if (result.kind === 'server-error') {
       return {
         type: result.type,
         status: result.status,
@@ -1031,13 +912,13 @@ export class HttpTransport {
       };
     }
 
-    if (result.kind === "client-error") {
+    if (result.kind === 'client-error') {
       return {
         type: result.type,
         message: result.message,
       };
     }
 
-    return { message: "Unknown error type" };
+    return { message: 'Unknown error type' };
   }
 }

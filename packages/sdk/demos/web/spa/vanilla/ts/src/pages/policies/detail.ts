@@ -2,28 +2,34 @@
  * Policy detail page.
  */
 
-import { getClient } from "../../client";
-import { renderLoading, renderError } from "../../components/loading";
-import { formatDate, formatDateTime, formatCurrency, formatPolicyState, getPolicyStateBadgeClass } from "../../utils/format";
-import { escapeHtml } from "../../utils/dom";
-import type { RouteParams } from "../../utils/router";
+import { getClient } from '../../client';
+import { renderLoading, renderError } from '../../components/loading';
+import {
+  formatDate,
+  formatDateTime,
+  formatCurrency,
+  formatPolicyState,
+  getPolicyStateBadgeClass,
+} from '../../utils/format';
+import { escapeHtml } from '../../utils/dom';
+import type { RouteParams } from '../../utils/router';
 
 export async function render(container: HTMLElement, params?: RouteParams): Promise<void> {
   const policyId = params?.id;
 
   if (!policyId) {
-    renderError(container, "Error", "No policy ID provided");
+    renderError(container, 'Error', 'No policy ID provided');
     return;
   }
 
-  renderLoading(container, "Loading policy details...");
+  renderLoading(container, 'Loading policy details...');
 
   try {
     const client = getClient();
     const res = await client.policies.getPolicyDetail({ policyId });
 
     if (!res.isSuccess || !res.data) {
-      throw new Error(res.message || "Failed to load policy");
+      throw new Error(res.message || 'Failed to load policy');
     }
 
     const policy = res.data;
@@ -32,7 +38,7 @@ export async function render(container: HTMLElement, params?: RouteParams): Prom
     container.innerHTML = `
       <div class="detail-header">
         <div>
-          <h1>Policy ${escapeHtml(policy.insuranceCompanyPolicyNumber || "N/A")}</h1>
+          <h1>Policy ${escapeHtml(policy.insuranceCompanyPolicyNumber || 'N/A')}</h1>
           <span class="badge ${badgeClass}">
             ${formatPolicyState(policy.state)}
           </span>
@@ -48,7 +54,7 @@ export async function render(container: HTMLElement, params?: RouteParams): Prom
             <dd><code>${escapeHtml(policy.id)}</code></dd>
             
             <dt>Policy Number</dt>
-            <dd>${escapeHtml(policy.insuranceCompanyPolicyNumber || "-")}</dd>
+            <dd>${escapeHtml(policy.insuranceCompanyPolicyNumber || '-')}</dd>
             
             <dt>State</dt>
             <dd>
@@ -63,10 +69,14 @@ export async function render(container: HTMLElement, params?: RouteParams): Prom
             <dt>End Date</dt>
             <dd>${formatDate(policy.endDate)}</dd>
             
-            ${policy.arrangementDate ? `
+            ${
+              policy.arrangementDate
+                ? `
               <dt>Arrangement Date</dt>
               <dd>${formatDate(policy.arrangementDate)}</dd>
-            ` : ""}
+            `
+                : ''
+            }
           </dl>
         </article>
 
@@ -74,7 +84,7 @@ export async function render(container: HTMLElement, params?: RouteParams): Prom
           <header><strong>Product Details</strong></header>
           <dl>
             <dt>Product Branch</dt>
-            <dd>${escapeHtml(policy.productBranch || "-")}</dd>
+            <dd>${escapeHtml(policy.productBranch || '-')}</dd>
             
             <dt>Product ID</dt>
             <dd><code>${policy.productId}</code></dd>
@@ -83,7 +93,7 @@ export async function render(container: HTMLElement, params?: RouteParams): Prom
             <dd><code>${policy.insuranceCompanyId}</code></dd>
             
             <dt>Channel</dt>
-            <dd>${escapeHtml(policy.channel || "-")}</dd>
+            <dd>${escapeHtml(policy.channel || '-')}</dd>
           </dl>
         </article>
 
@@ -115,21 +125,29 @@ export async function render(container: HTMLElement, params?: RouteParams): Prom
             <dt>Net Premium</dt>
             <dd>${formatCurrency(policy.netPremium, policy.currency)}</dd>
             
-            ${policy.commission != null ? `
+            ${
+              policy.commission != null
+                ? `
               <dt>Commission</dt>
               <dd>${formatCurrency(policy.commission, policy.currency)}</dd>
-            ` : ""}
+            `
+                : ''
+            }
             
             <dt>Currency</dt>
             <dd>${escapeHtml(policy.currency)}</dd>
             
             <dt>Payment Type</dt>
-            <dd>${escapeHtml(policy.paymentType || "-")}</dd>
+            <dd>${escapeHtml(policy.paymentType || '-')}</dd>
             
-            ${policy.installmentNumber != null ? `
+            ${
+              policy.installmentNumber != null
+                ? `
               <dt>Installments</dt>
               <dd>${policy.installmentNumber}</dd>
-            ` : ""}
+            `
+                : ''
+            }
           </dl>
         </article>
 
@@ -137,15 +155,19 @@ export async function render(container: HTMLElement, params?: RouteParams): Prom
           <header><strong>Reference Numbers</strong></header>
           <dl>
             <dt>Proposal Number</dt>
-            <dd>${escapeHtml(policy.insuranceCompanyProposalNumber || "-")}</dd>
+            <dd>${escapeHtml(policy.insuranceCompanyProposalNumber || '-')}</dd>
             
             <dt>Proposal ID</dt>
             <dd><code>${escapeHtml(policy.proposalId)}</code></dd>
             
-            ${policy.daskPolicyNumber ? `
+            ${
+              policy.daskPolicyNumber
+                ? `
               <dt>DASK Policy Number</dt>
               <dd>${escapeHtml(policy.daskPolicyNumber)}</dd>
-            ` : ""}
+            `
+                : ''
+            }
             
             <dt>Endorsement Number</dt>
             <dd>${policy.insuranceCompanyEndorsementNumber}</dd>
@@ -163,27 +185,31 @@ export async function render(container: HTMLElement, params?: RouteParams): Prom
             
             <dt>Created By</dt>
             <dd>
-              ${policy.createdBy?.name ? escapeHtml(policy.createdBy.name) : "-"}
-              ${policy.createdBy?.id ? ` (<code>${escapeHtml(policy.createdBy.id)}</code>)` : ""}
+              ${policy.createdBy?.name ? escapeHtml(policy.createdBy.name) : '-'}
+              ${policy.createdBy?.id ? ` (<code>${escapeHtml(policy.createdBy.id)}</code>)` : ''}
             </dd>
             
-            ${policy.representedBy ? `
+            ${
+              policy.representedBy
+                ? `
               <dt>Representative</dt>
               <dd>
-                ${policy.representedBy.name ? escapeHtml(policy.representedBy.name) : "-"}
-                ${policy.representedBy.id ? ` (<code>${escapeHtml(policy.representedBy.id)}</code>)` : ""}
+                ${policy.representedBy.name ? escapeHtml(policy.representedBy.name) : '-'}
+                ${policy.representedBy.id ? ` (<code>${escapeHtml(policy.representedBy.id)}</code>)` : ''}
               </dd>
-            ` : ""}
+            `
+                : ''
+            }
           </dl>
         </article>
       </div>
     `;
   } catch (error) {
-    console.error("Failed to load policy:", error);
+    console.error('Failed to load policy:', error);
     renderError(
       container,
-      "Error Loading Policy",
-      error instanceof Error ? error.message : "Unknown error",
+      'Error Loading Policy',
+      error instanceof Error ? error.message : 'Unknown error',
       () => render(container, params)
     );
   }

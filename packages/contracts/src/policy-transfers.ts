@@ -11,7 +11,7 @@ import type {
   TransferredPolicyStatus,
   TransferredPolicySkipReason,
   TransferredPolicyFailureReason,
-} from "./common.js";
+} from './common.js';
 
 // ============================================================================
 // POLICY TRANSFER CONTRACTS

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { DropdownMenuSeparator } from "reka-ui";
-import { cn } from "@/lib/utils";
+import { DropdownMenuSeparator } from 'reka-ui';
+import { cn } from '@/lib/utils';
 
 interface Props {
   class?: string;

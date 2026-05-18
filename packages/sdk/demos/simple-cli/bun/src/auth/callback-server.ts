@@ -161,7 +161,7 @@ export async function waitForCallback(port: number = 0): Promise<{
     <p>An error occurred during authentication.</p>
     <div class="error-detail">
       <strong>${error}</strong>
-      ${description ? `<br/>${description}` : ""}
+      ${description ? `<br/>${description}` : ''}
     </div>
   </div>
 </body>
@@ -174,21 +174,21 @@ export async function waitForCallback(port: number = 0): Promise<{
       const url = new URL(req.url);
 
       // Handle callback path
-      if (url.pathname === "/callback" || url.pathname === "/") {
-        const code = url.searchParams.get("code");
-        const state = url.searchParams.get("state");
-        const error = url.searchParams.get("error");
-        const errorDescription = url.searchParams.get("error_description");
+      if (url.pathname === '/callback' || url.pathname === '/') {
+        const code = url.searchParams.get('code');
+        const state = url.searchParams.get('state');
+        const error = url.searchParams.get('error');
+        const errorDescription = url.searchParams.get('error_description');
 
         if (error) {
           resolveCallback({
-            code: "",
+            code: '',
             state: state || undefined,
             error,
             errorDescription: errorDescription || undefined,
           });
           return new Response(errorHtml(error, errorDescription || undefined), {
-            headers: { "Content-Type": "text/html" },
+            headers: { 'Content-Type': 'text/html' },
           });
         }
 
@@ -198,22 +198,22 @@ export async function waitForCallback(port: number = 0): Promise<{
             state: state || undefined,
           });
           return new Response(successHtml, {
-            headers: { "Content-Type": "text/html" },
+            headers: { 'Content-Type': 'text/html' },
           });
         }
 
         // No code or error - show waiting page
-        return new Response("Waiting for authentication...", {
-          headers: { "Content-Type": "text/plain" },
+        return new Response('Waiting for authentication...', {
+          headers: { 'Content-Type': 'text/plain' },
         });
       }
 
       // Favicon request
-      if (url.pathname === "/favicon.ico") {
+      if (url.pathname === '/favicon.ico') {
         return new Response(null, { status: 204 });
       }
 
-      return new Response("Not found", { status: 404 });
+      return new Response('Not found', { status: 404 });
     },
   });
 

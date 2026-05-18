@@ -3,15 +3,11 @@
  * Orchestrates the authorization code flow with PKCE.
  */
 
-import {
-  OAuth2Client,
-  generateCodeVerifier,
-  type OAuth2Token,
-} from "@badgateway/oauth2-client";
-import open from "open";
-import { saveTokens, loadTokens, clearTokens, type TokenData } from "./credential-store";
-import { waitForCallback, type CallbackResult } from "./callback-server";
-import { getConfig } from "../config";
+import { OAuth2Client, generateCodeVerifier, type OAuth2Token } from '@badgateway/oauth2-client';
+import open from 'open';
+import { saveTokens, loadTokens, clearTokens, type TokenData } from './credential-store';
+import { waitForCallback, type CallbackResult } from './callback-server';
+import { getConfig } from '../config';
 
 // Timeout for OAuth callback (5 minutes)
 const CALLBACK_TIMEOUT = 5 * 60 * 1000;
@@ -42,7 +38,7 @@ function toTokenData(token: OAuth2Token): TokenData {
     accessToken: token.accessToken,
     refreshToken: token.refreshToken ?? undefined,
     expiresAt: token.expiresAt ?? undefined,
-    tokenType: "Bearer",
+    tokenType: 'Bearer',
   };
 }
 
@@ -92,7 +88,7 @@ export async function login(): Promise<TokenData> {
       result,
       new Promise<never>((_, reject) =>
         setTimeout(
-          () => reject(new Error("Authentication timed out after 5 minutes")),
+          () => reject(new Error('Authentication timed out after 5 minutes')),
           CALLBACK_TIMEOUT
         )
       ),
@@ -101,20 +97,18 @@ export async function login(): Promise<TokenData> {
     if (callbackResult.error) {
       throw new Error(
         `Authorization failed: ${callbackResult.error}${
-          callbackResult.errorDescription
-            ? ` - ${callbackResult.errorDescription}`
-            : ""
+          callbackResult.errorDescription ? ` - ${callbackResult.errorDescription}` : ''
         }`
       );
     }
 
     if (!callbackResult.code) {
-      throw new Error("No authorization code received");
+      throw new Error('No authorization code received');
     }
 
     // Verify state
     if (callbackResult.state !== state) {
-      throw new Error("State mismatch - possible CSRF attack");
+      throw new Error('State mismatch - possible CSRF attack');
     }
 
     // Exchange code for tokens using the library

@@ -23,10 +23,10 @@ export interface Config {
  * Default configuration values.
  */
 const defaults: Config = {
-  authServer: "https://auth.insurup.com",
-  clientId: "demo",
-  scopes: ["openid", "profile", "offline_access", "core-api"],
-  environment: "production",
+  authServer: 'https://auth.insurup.com',
+  clientId: 'demo',
+  scopes: ['openid', 'profile', 'offline_access', 'core-api'],
+  environment: 'production',
 };
 
 /** Cached config */
@@ -49,7 +49,7 @@ export async function loadConfig(): Promise<Config> {
       clientId: process.env.INSURUP_CLIENT_ID,
     }),
     ...(process.env.INSURUP_SCOPES && {
-      scopes: process.env.INSURUP_SCOPES.split(",").map((s) => s.trim()),
+      scopes: process.env.INSURUP_SCOPES.split(',').map((s) => s.trim()),
     }),
     ...(process.env.INSURUP_API_URL && {
       apiBaseUrl: process.env.INSURUP_API_URL,
@@ -67,7 +67,7 @@ export async function loadConfig(): Promise<Config> {
  */
 export function getConfig(): Config {
   if (!cachedConfig) {
-    throw new Error("Config not loaded. Call loadConfig() first.");
+    throw new Error('Config not loaded. Call loadConfig() first.');
   }
   return cachedConfig;
 }

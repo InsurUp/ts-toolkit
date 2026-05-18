@@ -4,10 +4,10 @@
  * document generation, customer communications, representative assignments, and policy transfer processes
  */
 
-import type { HttpTransport } from "../client/http.js";
-import type { GraphQLTransport } from "../client/graphql.js";
-import type { InsurUpResult, InsurUpGraphQLResult } from "../core/result.js";
-import type { RequestOptions } from "../core/options.js";
+import type { HttpTransport } from '../client/http.js';
+import type { GraphQLTransport } from '../client/graphql.js';
+import type { InsurUpResult, InsurUpGraphQLResult } from '../core/result.js';
+import type { RequestOptions } from '../core/options.js';
 import type {
   GetPolicyDetailRequest,
   GetPolicyDetailResult,
@@ -27,7 +27,7 @@ import type {
   GetPolicyDistributionByBranchResult,
   GetRepresentativeEarningsAnalyticsRequest,
   GetRepresentativeEarningsAnalyticsResult,
-} from "@insurup/contracts";
+} from '@insurup/contracts';
 import type {
   GetPolicyTransferDetailRequest,
   GetPolicyTransferDetailResult,
@@ -38,27 +38,27 @@ import type {
   CreateFilePolicyTransferRequest,
   GetFilePolicyTransferDetailRequest,
   GetFilePolicyTransferDetailResult,
-} from "@insurup/contracts";
-import { endpoints } from "../core/endpoints.js";
+} from '@insurup/contracts';
+import { endpoints } from '../core/endpoints.js';
 import {
   ALL_POLICY_FIELDS,
   type PolicyFieldKey,
   type GetPoliciesOptions,
   type PoliciesConnection,
-} from "@insurup/contracts";
+} from '@insurup/contracts';
 import {
   ALL_POLICY_TRANSFER_FIELDS,
   type PolicyTransferFieldKey,
   type GetPolicyTransfersOptions,
   type PolicyTransfersConnection,
-} from "@insurup/contracts";
+} from '@insurup/contracts';
 import {
   ALL_FILE_POLICY_TRANSFER_FIELDS,
   type FilePolicyTransferFieldKey,
   type GetFilePolicyTransfersOptions,
   type FilePolicyTransfersConnection,
-} from "@insurup/contracts";
-import { buildFieldSelection } from "@insurup/contracts";
+} from '@insurup/contracts';
+import { buildFieldSelection } from '@insurup/contracts';
 
 /**
  * Policy Management Client / Poliçe Yönetimi İstemcisi
@@ -78,7 +78,7 @@ import { buildFieldSelection } from "@insurup/contracts";
 export class InsurUpPolicyClient {
   constructor(
     private readonly http: HttpTransport,
-    private readonly graphql?: GraphQLTransport,
+    private readonly graphql?: GraphQLTransport
   ) {}
 
   /**
@@ -91,11 +91,11 @@ export class InsurUpPolicyClient {
    */
   async getPolicyDetail(
     request: GetPolicyDetailRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetPolicyDetailResult>> {
     return this.http.get<GetPolicyDetailResult>(
       endpoints.policies.getPolicyDetail.render(request.policyId),
-      options,
+      options
     );
   }
 
@@ -109,11 +109,11 @@ export class InsurUpPolicyClient {
    */
   async fetchPolicyDocument(
     request: FetchPolicyDocumentRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<FetchPolicyDocumentResult>> {
     return this.http.get<FetchPolicyDocumentResult>(
       endpoints.policies.fetchPolicyDocument.render(request.policyId),
-      options,
+      options
     );
   }
 
@@ -127,12 +127,12 @@ export class InsurUpPolicyClient {
    */
   async sendPolicyDocumentToCustomer(
     request: SendPolicyDocumentRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.postNoContent(
       endpoints.policies.sendPolicyDocument.render(request.policyId),
       request,
-      options,
+      options
     );
   }
 
@@ -146,12 +146,12 @@ export class InsurUpPolicyClient {
    */
   async setPolicyRepresentative(
     request: SetPolicyRepresentativeRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.postNoContent(
       endpoints.policies.setPolicyRepresentative.render(request.policyId),
       request,
-      options,
+      options
     );
   }
 
@@ -165,12 +165,12 @@ export class InsurUpPolicyClient {
    */
   async setPolicyBranch(
     request: SetPolicyBranchRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.postNoContent(
       endpoints.policies.setPolicyBranch.render(request.policyId),
       request,
-      options,
+      options
     );
   }
 
@@ -184,12 +184,12 @@ export class InsurUpPolicyClient {
    */
   async createManualPolicy(
     request: CreateManualPolicyRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<CreateManualPolicyResult>> {
     return this.http.post<CreateManualPolicyResult>(
       endpoints.policies.createManualPolicy.definition,
       request,
-      options,
+      options
     );
   }
 
@@ -203,12 +203,12 @@ export class InsurUpPolicyClient {
    */
   async updateManualPolicy(
     request: UpdateManualPolicyRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.putNoContent(
       endpoints.policies.updateManualPolicy.render(request.policyId),
       request,
-      options,
+      options
     );
   }
 
@@ -224,12 +224,12 @@ export class InsurUpPolicyClient {
    */
   async getPolicyCountAndPremiumAnalytics(
     request: GetPolicyCountAndPremiumAnalyticsRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetPolicyCountAndPremiumAnalyticsResult>> {
     return this.http.post<GetPolicyCountAndPremiumAnalyticsResult>(
       endpoints.policies.getPolicyCountAndPremiumAnalytics.definition,
       request,
-      options,
+      options
     );
   }
 
@@ -245,12 +245,12 @@ export class InsurUpPolicyClient {
    */
   async getPolicyRenewalAnalytics(
     request: GetPolicyRenewalAnalyticsRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetPolicyRenewalAnalyticsResult>> {
     return this.http.post<GetPolicyRenewalAnalyticsResult>(
       endpoints.policies.getPolicyRenewalAnalytics.definition,
       request,
-      options,
+      options
     );
   }
 
@@ -266,12 +266,12 @@ export class InsurUpPolicyClient {
    */
   async getPolicyDistributionByBranch(
     request: GetPolicyDistributionByBranchRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetPolicyDistributionByBranchResult>> {
     return this.http.post<GetPolicyDistributionByBranchResult>(
       endpoints.policies.getPolicyDistributionByBranch.definition,
       request,
-      options,
+      options
     );
   }
 
@@ -287,12 +287,12 @@ export class InsurUpPolicyClient {
    */
   async getRepresentativeEarningsAnalytics(
     request: GetRepresentativeEarningsAnalyticsRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetRepresentativeEarningsAnalyticsResult>> {
     return this.http.post<GetRepresentativeEarningsAnalyticsResult>(
       endpoints.policies.getRepresentativeEarningsAnalytics.definition,
       request,
-      options,
+      options
     );
   }
 
@@ -306,13 +306,11 @@ export class InsurUpPolicyClient {
    */
   async getPolicyTransferDetail(
     request: GetPolicyTransferDetailRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetPolicyTransferDetailResult>> {
     return this.http.get<GetPolicyTransferDetailResult>(
-      endpoints.policyTransfers.getPolicyTransferDetail.render(
-        request.policyTransferId,
-      ),
-      options,
+      endpoints.policyTransfers.getPolicyTransferDetail.render(request.policyTransferId),
+      options
     );
   }
 
@@ -326,14 +324,14 @@ export class InsurUpPolicyClient {
    */
   async getPolicyTransferTriggerDetail(
     request: GetPolicyTransferTriggerDetailRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetPolicyTransferTriggerDetailResult>> {
     return this.http.get<GetPolicyTransferTriggerDetailResult>(
       endpoints.policyTransfers.getPolicyTransferTriggerDetail.render(
         request.policyTransferId,
-        request.policyTransferTriggerId,
+        request.policyTransferTriggerId
       ),
-      options,
+      options
     );
   }
 
@@ -347,13 +345,9 @@ export class InsurUpPolicyClient {
    */
   async createPolicyTransfer(
     request: CreatePolicyTransferRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<string>> {
-    return this.http.post<string>(
-      endpoints.policyTransfers.create,
-      request,
-      options,
-    );
+    return this.http.post<string>(endpoints.policyTransfers.create, request, options);
   }
 
   /**
@@ -366,14 +360,12 @@ export class InsurUpPolicyClient {
    */
   async triggerPolicyTransfer(
     request: TriggerPolicyTransferRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.postNoContent(
-      endpoints.policyTransfers.triggerPolicyTransfer.render(
-        request.policyTransferId,
-      ),
+      endpoints.policyTransfers.triggerPolicyTransfer.render(request.policyTransferId),
       request,
-      options,
+      options
     );
   }
 
@@ -391,21 +383,14 @@ export class InsurUpPolicyClient {
     request: CreateFilePolicyTransferRequest,
     file: File,
     fileName: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     // Create FormData for multipart file upload
     const formData = new FormData();
-    formData.append(
-      "insuranceCompanyId",
-      request.insuranceCompanyId.toString(),
-    );
-    formData.append("file", file, fileName);
+    formData.append('insuranceCompanyId', request.insuranceCompanyId.toString());
+    formData.append('file', file, fileName);
 
-    return this.http.postNoContent(
-      endpoints.filePolicyTransfers.create,
-      formData,
-      options,
-    );
+    return this.http.postNoContent(endpoints.filePolicyTransfers.create, formData, options);
   }
 
   /**
@@ -418,13 +403,13 @@ export class InsurUpPolicyClient {
    */
   async getFilePolicyTransferDetail(
     request: GetFilePolicyTransferDetailRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetFilePolicyTransferDetailResult>> {
     return this.http.get<GetFilePolicyTransferDetailResult>(
       endpoints.filePolicyTransfers.getFilePolicyTransferDetail.render(
-        request.filePolicyTransferId,
+        request.filePolicyTransferId
       ),
-      options,
+      options
     );
   }
 
@@ -456,16 +441,15 @@ export class InsurUpPolicyClient {
    */
   async getPolicies<const TFields extends PolicyFieldKey[]>(
     requestOptions?: GetPoliciesOptions<TFields>,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpGraphQLResult<PoliciesConnection<TFields>>> {
     if (!this.graphql) {
       throw new Error(
-        "GraphQL transport is not available. Ensure the client is properly initialized.",
+        'GraphQL transport is not available. Ensure the client is properly initialized.'
       );
     }
 
-    const fields = (requestOptions?.select ??
-      ALL_POLICY_FIELDS) as PolicyFieldKey[];
+    const fields = (requestOptions?.select ?? ALL_POLICY_FIELDS) as PolicyFieldKey[];
     const fieldSelection = buildFieldSelection(fields);
     const hasFieldSelection = fieldSelection.length > 0;
     const includeTotalCount = requestOptions?.includeTotalCount !== false;
@@ -495,13 +479,17 @@ export class InsurUpPolicyClient {
             startCursor
             endCursor
           }
-          ${includeTotalCount ? "totalCount" : ""}
-          ${hasFieldSelection ? `edges {
+          ${includeTotalCount ? 'totalCount' : ''}
+          ${
+            hasFieldSelection
+              ? `edges {
             cursor
             node {
               ${fieldSelection}
             }
-          }` : ""}
+          }`
+              : ''
+          }
         }
       }
     `;
@@ -517,7 +505,7 @@ export class InsurUpPolicyClient {
     };
 
     const result = await this.graphql.query<{
-      policiesNew: Omit<PoliciesConnection, "nodes">;
+      policiesNew: Omit<PoliciesConnection, 'nodes'>;
     }>(query, variables, options);
 
     if (!result.isSuccess) {
@@ -553,11 +541,11 @@ export class InsurUpPolicyClient {
    */
   async getPolicyTransfers<const TFields extends PolicyTransferFieldKey[]>(
     requestOptions?: GetPolicyTransfersOptions<TFields>,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpGraphQLResult<PolicyTransfersConnection<TFields>>> {
     if (!this.graphql) {
       throw new Error(
-        "GraphQL transport is not available. Ensure the client is properly initialized.",
+        'GraphQL transport is not available. Ensure the client is properly initialized.'
       );
     }
 
@@ -592,12 +580,16 @@ export class InsurUpPolicyClient {
             endCursor
           }
           totalCount
-          ${hasFieldSelection ? `edges {
+          ${
+            hasFieldSelection
+              ? `edges {
             cursor
             node {
               ${fieldSelection}
             }
-          }` : ""}
+          }`
+              : ''
+          }
         }
       }
     `;
@@ -613,7 +605,7 @@ export class InsurUpPolicyClient {
     };
 
     const result = await this.graphql.query<{
-      policyTransfersNew: Omit<PolicyTransfersConnection, "nodes">;
+      policyTransfersNew: Omit<PolicyTransfersConnection, 'nodes'>;
     }>(query, variables, options);
 
     if (!result.isSuccess) {
@@ -647,15 +639,13 @@ export class InsurUpPolicyClient {
    * @param requestOptions Query options including pagination, filters, search, and field selection
    * @returns Paginated connection of file policy transfers with type-narrowed fields
    */
-  async getFilePolicyTransfers<
-    const TFields extends FilePolicyTransferFieldKey[],
-  >(
+  async getFilePolicyTransfers<const TFields extends FilePolicyTransferFieldKey[]>(
     requestOptions?: GetFilePolicyTransfersOptions<TFields>,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpGraphQLResult<FilePolicyTransfersConnection<TFields>>> {
     if (!this.graphql) {
       throw new Error(
-        "GraphQL transport is not available. Ensure the client is properly initialized.",
+        'GraphQL transport is not available. Ensure the client is properly initialized.'
       );
     }
 
@@ -690,12 +680,16 @@ export class InsurUpPolicyClient {
             endCursor
           }
           totalCount
-          ${hasFieldSelection ? `edges {
+          ${
+            hasFieldSelection
+              ? `edges {
             cursor
             node {
               ${fieldSelection}
             }
-          }` : ""}
+          }`
+              : ''
+          }
         }
       }
     `;
@@ -711,13 +705,11 @@ export class InsurUpPolicyClient {
     };
 
     const result = await this.graphql.query<{
-      filePolicyTransfersNew: Omit<FilePolicyTransfersConnection, "nodes">;
+      filePolicyTransfersNew: Omit<FilePolicyTransfersConnection, 'nodes'>;
     }>(query, variables, options);
 
     if (!result.isSuccess) {
-      return result as InsurUpGraphQLResult<
-        FilePolicyTransfersConnection<TFields>
-      >;
+      return result as InsurUpGraphQLResult<FilePolicyTransfersConnection<TFields>>;
     }
 
     // Derive nodes from edges

@@ -4,10 +4,10 @@
  * brand and model queries, and vehicle-based insurance operations within the automotive insurance ecosystem.
  */
 
-import type { HttpTransport } from "../client/http.js";
-import type { InsurUpResult } from "../core/result.js";
-import type { RequestOptions } from "../core/options.js";
-import type { InsuranceParameter } from "@insurup/contracts";
+import type { HttpTransport } from '../client/http.js';
+import type { InsurUpResult } from '../core/result.js';
+import type { RequestOptions } from '../core/options.js';
+import type { InsuranceParameter } from '@insurup/contracts';
 import type {
   CreateCustomerVehicleRequest,
   CreateCustomerVehicleResult,
@@ -20,8 +20,8 @@ import type {
   QueryVehicleModelTypesRequest,
   QueryVehicleByBrandCodeRequest,
   QueryVehicleByBrandCodeResult,
-} from "@insurup/contracts";
-import { endpoints } from "../core/endpoints.js";
+} from '@insurup/contracts';
+import { endpoints } from '../core/endpoints.js';
 
 /**
  * Vehicle Management Client
@@ -51,7 +51,7 @@ export class InsurUpVehicleClient {
    */
   async addCustomerVehicle(
     request: CreateCustomerVehicleRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<CreateCustomerVehicleResult>> {
     const path = endpoints.vehicles.create.render(request.customerId);
     return this.http.post<CreateCustomerVehicleResult>(path, request, options);
@@ -67,12 +67,9 @@ export class InsurUpVehicleClient {
    */
   async updateCustomerVehicle(
     request: UpdateCustomerVehicleRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
-    const path = endpoints.vehicles.update.render(
-      request.customerId,
-      request.vehicleId,
-    );
+    const path = endpoints.vehicles.update.render(request.customerId, request.vehicleId);
     return this.http.putNoContent(path, request, options);
   }
 
@@ -88,7 +85,7 @@ export class InsurUpVehicleClient {
   async getCustomerVehicle(
     customerId: string,
     vehicleId: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetCustomerVehicleResult>> {
     const path = endpoints.vehicles.get.render(customerId, vehicleId);
     return this.http.get<GetCustomerVehicleResult>(path, options);
@@ -104,11 +101,9 @@ export class InsurUpVehicleClient {
    */
   async getCustomerVehicles(
     request: GetCustomerVehiclesRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetCustomerVehiclesResult[]>> {
-    const path = endpoints.vehicles.getCustomerVehicles.render(
-      request.customerId,
-    );
+    const path = endpoints.vehicles.getCustomerVehicles.render(request.customerId);
     return this.http.get<GetCustomerVehiclesResult[]>(path, options);
   }
 
@@ -124,7 +119,7 @@ export class InsurUpVehicleClient {
   async deleteCustomerVehicle(
     customerId: string,
     vehicleId: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     const path = endpoints.vehicles.delete.render(customerId, vehicleId);
     return this.http.deleteNoContent(path, options);
@@ -140,7 +135,7 @@ export class InsurUpVehicleClient {
    */
   async externalLookupVehicle(
     request: ExternalLookupVehicleRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<ExternalLookupVehicleResult>> {
     const path = endpoints.vehicles.externalLookup.render(request.customerId);
     return this.http.post<ExternalLookupVehicleResult>(path, request, options);
@@ -153,9 +148,7 @@ export class InsurUpVehicleClient {
    *
    * @returns List of vehicle brands / Araç markaları listesi
    */
-  async queryVehicleBrands(
-    options?: RequestOptions,
-  ): Promise<InsurUpResult<InsuranceParameter[]>> {
+  async queryVehicleBrands(options?: RequestOptions): Promise<InsurUpResult<InsuranceParameter[]>> {
     const path = endpoints.vehicleParameters.queryBrands;
     return this.http.get<InsuranceParameter[]>(path, options);
   }
@@ -170,7 +163,7 @@ export class InsurUpVehicleClient {
    */
   async queryVehicleModels(
     request: QueryVehicleModelTypesRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<InsuranceParameter[]>> {
     const path = endpoints.vehicleParameters.queryModels.render(request);
     return this.http.get<InsuranceParameter[]>(path, options);
@@ -186,14 +179,10 @@ export class InsurUpVehicleClient {
    */
   async queryVehicleByBrandCode(
     brandCode: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<QueryVehicleByBrandCodeResult>> {
     const path = endpoints.insuranceServices.queryVehicleByBrandCode;
     const request: QueryVehicleByBrandCodeRequest = { brandCode };
-    return this.http.post<QueryVehicleByBrandCodeResult>(
-      path,
-      request,
-      options,
-    );
+    return this.http.post<QueryVehicleByBrandCodeResult>(path, request, options);
   }
 }

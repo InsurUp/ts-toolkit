@@ -2,11 +2,11 @@
  * OAuth2/PKCE authentication for the MPA demo.
  */
 
-import { getConfig } from "./config";
+import { getConfig } from './config';
 
 // Storage keys
-const STORAGE_KEY = "insurup_tokens";
-const PKCE_KEY = "insurup_pkce";
+const STORAGE_KEY = 'insurup_tokens';
+const PKCE_KEY = 'insurup_pkce';
 
 // Token expiry buffer (60 seconds)
 const EXPIRY_BUFFER_MS = 60 * 1000;
@@ -72,7 +72,7 @@ async function generateCodeVerifier(): Promise<string> {
 async function generateCodeChallenge(verifier: string): Promise<string> {
   const encoder = new TextEncoder();
   const data = encoder.encode(verifier);
-  const digest = await crypto.subtle.digest("SHA-256", data);
+  const digest = await crypto.subtle.digest('SHA-256', data);
   return base64UrlEncode(new Uint8Array(digest));
 }
 
@@ -82,7 +82,7 @@ function generateState(): string {
 
 function base64UrlEncode(bytes: Uint8Array): string {
   const base64 = btoa(String.fromCharCode(...bytes));
-  return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
 // ============ OAuth Flow ============
@@ -97,13 +97,13 @@ export async function startLogin(): Promise<void> {
   savePKCEData({ codeVerifier, state });
 
   const params = new URLSearchParams({
-    response_type: "code",
+    response_type: 'code',
     client_id: config.clientId,
     redirect_uri: config.redirectUri,
-    scope: config.scopes.join(" "),
+    scope: config.scopes.join(' '),
     state: state,
     code_challenge: codeChallenge,
-    code_challenge_method: "S256",
+    code_challenge_method: 'S256',
   });
 
   window.location.href = `${config.authServer}/connect/authorize?${params.toString()}`;
@@ -114,18 +114,18 @@ export async function handleCallback(code: string, state: string): Promise<Token
 
   const pkceData = loadAndClearPKCEData();
   if (!pkceData) {
-    throw new Error("No PKCE data found. Please start login again.");
+    throw new Error('No PKCE data found. Please start login again.');
   }
 
   if (pkceData.state !== state) {
-    throw new Error("State mismatch. Possible CSRF attack.");
+    throw new Error('State mismatch. Possible CSRF attack.');
   }
 
   const tokenResponse = await fetch(`${config.authServer}/connect/token`, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
-      grant_type: "authorization_code",
+      grant_type: 'authorization_code',
       client_id: config.clientId,
       code: code,
       redirect_uri: config.redirectUri,
@@ -139,15 +139,13 @@ export async function handleCallback(code: string, state: string): Promise<Token
   }
 
   const tokenData = await tokenResponse.json();
-  const expiresAt = tokenData.expires_in
-    ? Date.now() + tokenData.expires_in * 1000
-    : undefined;
+  const expiresAt = tokenData.expires_in ? Date.now() + tokenData.expires_in * 1000 : undefined;
 
   const tokens: TokenData = {
     accessToken: tokenData.access_token,
     refreshToken: tokenData.refresh_token,
     expiresAt,
-    tokenType: tokenData.token_type || "Bearer",
+    tokenType: tokenData.token_type || 'Bearer',
   };
 
   saveTokens(tokens);
@@ -156,35 +154,33 @@ export async function handleCallback(code: string, state: string): Promise<Token
 
 async function refreshAccessToken(tokens: TokenData): Promise<TokenData> {
   if (!tokens.refreshToken) {
-    throw new Error("No refresh token available");
+    throw new Error('No refresh token available');
   }
 
   const config = getConfig();
 
   const tokenResponse = await fetch(`${config.authServer}/connect/token`, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
-      grant_type: "refresh_token",
+      grant_type: 'refresh_token',
       client_id: config.clientId,
       refresh_token: tokens.refreshToken,
     }),
   });
 
   if (!tokenResponse.ok) {
-    throw new Error("Token refresh failed");
+    throw new Error('Token refresh failed');
   }
 
   const tokenData = await tokenResponse.json();
-  const expiresAt = tokenData.expires_in
-    ? Date.now() + tokenData.expires_in * 1000
-    : undefined;
+  const expiresAt = tokenData.expires_in ? Date.now() + tokenData.expires_in * 1000 : undefined;
 
   const newTokens: TokenData = {
     accessToken: tokenData.access_token,
     refreshToken: tokenData.refresh_token || tokens.refreshToken,
     expiresAt,
-    tokenType: tokenData.token_type || "Bearer",
+    tokenType: tokenData.token_type || 'Bearer',
   };
 
   saveTokens(newTokens);
@@ -255,6 +251,6 @@ export function logout(): void {
 export async function requireAuth(): Promise<void> {
   const token = await getAccessToken();
   if (!token) {
-    window.location.href = "/login.html";
+    window.location.href = '/login.html';
   }
 }

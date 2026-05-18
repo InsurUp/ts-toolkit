@@ -36,8 +36,10 @@ import { createTableCore, type TableCoreResult } from './internal/index.js';
  *
  * @template TColumns - The column definitions type
  */
-export type InfiniteCustomerTableInstance<TColumns extends CustomerColumnDef[]> =
-  TableCoreResult<CustomerRowType<TColumns>, InfiniteCustomerTable<TColumns>>;
+export type InfiniteCustomerTableInstance<TColumns extends CustomerColumnDef[]> = TableCoreResult<
+  CustomerRowType<TColumns>,
+  InfiniteCustomerTable<TColumns>
+>;
 
 /**
  * Creates an infinite scroll customer table for Svelte 5 with fine-grained reactive state.

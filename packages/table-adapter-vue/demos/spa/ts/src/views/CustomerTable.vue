@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { useCustomerTable } from "@insurup/table-adapter-vue";
-import { FlexRender } from "@tanstack/vue-table";
-import { useClient } from "@/composables/useClient";
-import { toast } from "vue-sonner";
+import { ref } from 'vue';
+import { useCustomerTable } from '@insurup/table-adapter-vue';
+import { FlexRender } from '@tanstack/vue-table';
+import { useClient } from '@/composables/useClient';
+import { toast } from 'vue-sonner';
 import {
   ChevronLeft,
   ChevronRight,
@@ -12,10 +12,10 @@ import {
   ArrowUp,
   ArrowDown,
   RefreshCw,
-} from "lucide-vue-next";
+} from 'lucide-vue-next';
 
 const client = useClient();
-const searchInput = ref("");
+const searchInput = ref('');
 
 const { state, table, adapter } = useCustomerTable({
   columns: (col) => [
@@ -47,7 +47,7 @@ function handleSearch(value: string): void {
 
 function handleRefresh(): void {
   adapter.invalidate();
-  toast.success("Refreshing data...");
+  toast.success('Refreshing data...');
 }
 
 function getSortIcon(columnId: string): typeof ArrowUpDown | typeof ArrowUp | typeof ArrowDown {
@@ -58,7 +58,7 @@ function getSortIcon(columnId: string): typeof ArrowUpDown | typeof ArrowUp | ty
 }
 
 function formatDate(dateStr: unknown): string {
-  if (typeof dateStr !== "string") return "-";
+  if (typeof dateStr !== 'string') return '-';
   return new Date(dateStr).toLocaleDateString();
 }
 </script>
@@ -67,9 +67,7 @@ function formatDate(dateStr: unknown): string {
   <div class="space-y-6">
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight">
-          Customers
-        </h1>
+        <h1 class="text-3xl font-bold tracking-tight">Customers</h1>
         <p class="text-muted-foreground">
           Customer table using useCustomerTable composable with TanStack Table.
         </p>
@@ -93,17 +91,14 @@ function formatDate(dateStr: unknown): string {
           :value="searchInput"
           class="h-9 w-full rounded-md border bg-transparent pl-9 pr-3 text-sm"
           @input="handleSearch(($event.target as HTMLInputElement).value)"
-        >
+        />
       </div>
     </div>
 
     <div class="relative w-full overflow-x-auto">
       <table class="w-full caption-bottom text-sm">
         <thead class="[&_tr]:border-b">
-          <tr
-            v-for="headerGroup in table.getHeaderGroups()"
-            :key="headerGroup.id"
-          >
+          <tr v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
             <th
               v-for="header in headerGroup.headers"
               :key="header.id"
@@ -128,36 +123,22 @@ function formatDate(dateStr: unknown): string {
         </thead>
         <tbody class="[&_tr:last-child]:border-0">
           <template v-if="state.isLoading">
-            <tr
-              v-for="i in 5"
-              :key="`skeleton-${i}`"
-              class="border-b"
-            >
-              <td
-                v-for="col in table.getAllColumns()"
-                :key="col.id"
-                class="p-2"
-              >
+            <tr v-for="i in 5" :key="`skeleton-${i}`" class="border-b">
+              <td v-for="col in table.getAllColumns()" :key="col.id" class="p-2">
                 <div class="h-4 w-full bg-accent animate-pulse rounded-md" />
               </td>
             </tr>
           </template>
           <template v-else-if="state.error">
             <tr>
-              <td
-                :colspan="table.getAllColumns().length"
-                class="h-24 text-center text-destructive"
-              >
+              <td :colspan="table.getAllColumns().length" class="h-24 text-center text-destructive">
                 Error: {{ state.error.message }}
               </td>
             </tr>
           </template>
           <template v-else-if="table.getRowModel().rows.length === 0">
             <tr>
-              <td
-                :colspan="table.getAllColumns().length"
-                class="h-24 text-center"
-              >
+              <td :colspan="table.getAllColumns().length" class="h-24 text-center">
                 No customers found.
               </td>
             </tr>
@@ -174,21 +155,17 @@ function formatDate(dateStr: unknown): string {
                 class="p-2 align-middle whitespace-nowrap"
               >
                 <template v-if="cell.column.id === 'type'">
-                  <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium">
-                    <FlexRender
-                      :render="cell.column.columnDef.cell"
-                      :props="cell.getContext()"
-                    />
+                  <span
+                    class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium"
+                  >
+                    <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
                   </span>
                 </template>
                 <template v-else-if="cell.column.id === 'createdAt'">
                   {{ formatDate(cell.getValue()) }}
                 </template>
                 <template v-else>
-                  <FlexRender
-                    :render="cell.column.columnDef.cell"
-                    :props="cell.getContext()"
-                  />
+                  <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
                 </template>
               </td>
             </tr>

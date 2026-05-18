@@ -268,9 +268,7 @@ describe('columnsToTanStackColumnDefs', () => {
   });
 
   it('should wrap cell renderer for computed columns', () => {
-    const renderFn = vi.fn(
-      (_: unknown, row: { cityText: string }) => `Location: ${row.cityText}`
-    );
+    const renderFn = vi.fn((_: unknown, row: { cityText: string }) => `Location: ${row.cityText}`);
     const columns = [
       {
         key: 'location',

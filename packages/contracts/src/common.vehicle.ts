@@ -3,8 +3,8 @@
  * @description Vehicle data structures, models, and enums used throughout the InsurUp platform
  */
 
-import type { InsuranceParameter } from "./common.base.js";
-import type { LossPayeeClause } from "./common.property.js";
+import type { InsuranceParameter } from './common.base.js';
+import type { LossPayeeClause } from './common.property.js';
 
 // ============================================================================
 // VEHICLE-RELATED ENUMS
@@ -30,139 +30,139 @@ export enum VehicleUtilizationStyle {
    * Vehicle utilization style is unknown or not yet determined.
    * Araç kullanım tarzı bilinmiyor veya henüz belirlenmedi.
    */
-  Unknown = "UNKNOWN",
+  Unknown = 'UNKNOWN',
 
   /**
    * Private passenger car for personal transportation.
    * Kişisel ulaşım için özel binek otomobil.
    */
-  PrivateCar = "PRIVATE_CAR",
+  PrivateCar = 'PRIVATE_CAR',
 
   /**
    * Commercial taxi service for passenger transportation.
    * Yolcu taşımacılığı için ticari taksi hizmeti.
    */
-  Taxi = "TAXI",
+  Taxi = 'TAXI',
 
   /**
    * Route-based minibus service for scheduled passenger transport.
    * Planlı yolcu taşımacılığı için güzergah bazlı minibüs hizmeti.
    */
-  RouteBasedMinibus = "ROUTE_BASED_MINIBUS",
+  RouteBasedMinibus = 'ROUTE_BASED_MINIBUS',
 
   /**
    * Medium-sized bus for passenger transportation.
    * Yolcu taşımacılığı için orta boy otobüs.
    */
-  MediumBus = "MEDIUM_BUS",
+  MediumBus = 'MEDIUM_BUS',
 
   /**
    * Large bus for high-capacity passenger transportation.
    * Yüksek kapasiteli yolcu taşımacılığı için büyük otobüs.
    */
-  LargeBus = "LARGE_BUS",
+  LargeBus = 'LARGE_BUS',
 
   /**
    * Pickup truck for cargo and utility purposes.
    * Kargo ve hizmet amaçları için kamyonet.
    */
-  PickupTruck = "PICKUP_TRUCK",
+  PickupTruck = 'PICKUP_TRUCK',
 
   /**
    * Panel van for cargo transportation.
    * Kargo taşımacılığı için panel van.
    */
-  PanelVan = "PANEL_VAN",
+  PanelVan = 'PANEL_VAN',
 
   /**
    * Truck for heavy cargo transportation.
    * Ağır kargo taşımacılığı için kamyon.
    */
-  Truck = "TRUCK",
+  Truck = 'TRUCK',
 
   /**
    * Tractor unit for pulling trailers.
    * Römork çekmek için çekici.
    */
-  Tractor = "TRACTOR",
+  Tractor = 'TRACTOR',
 
   /**
    * Motorcycle for personal transportation.
    * Kişisel ulaşım için motosiklet.
    */
-  Motorcycle = "MOTORCYCLE",
+  Motorcycle = 'MOTORCYCLE',
 
   /**
    * Rental car for temporary use.
    * Geçici kullanım için kiralık araç.
    */
-  RentalCar = "RENTAL_CAR",
+  RentalCar = 'RENTAL_CAR',
 
   /**
    * Armored vehicle for security and protection services.
    * Güvenlik ve koruma hizmetleri için zırhlı araç.
    */
-  ArmoredVehicle = "ARMORED_VEHICLE",
+  ArmoredVehicle = 'ARMORED_VEHICLE',
 
   /**
    * Shared taxi minibus (dolmuş) for public transportation.
    * Toplu taşıma için dolmuş minibüs.
    */
-  MinibusSharedTaxi = "MINIBUS_SHARED_TAXI",
+  MinibusSharedTaxi = 'MINIBUS_SHARED_TAXI',
 
   /**
    * Jeep for off-road and general purpose use.
    * Arazi ve genel amaçlı kullanım için jeep.
    */
-  Jeep = "JEEP",
+  Jeep = 'JEEP',
 
   /**
    * Sport Activity Vehicle (SAV) jeep for recreational use.
    * Rekreasyonel kullanım için Spor Aktivite Aracı (SAV) jeep.
    */
-  JeepSAV = "JEEP_SAV",
+  JeepSAV = 'JEEP_SAV',
 
   /**
    * Sport Utility Vehicle (SUV) jeep for versatile use.
    * Çok amaçlı kullanım için Spor Kullanım Aracı (SUV) jeep.
    */
-  JeepSUV = "JEEP_SUV",
+  JeepSUV = 'JEEP_SUV',
 
   /**
    * Hearse for funeral services.
    * Cenaze hizmetleri için cenaze arabası.
    */
-  Hearse = "HEARSE",
+  Hearse = 'HEARSE',
 
   /**
    * Rental car with chauffeur service.
    * Şoförlü kiralık araç hizmeti.
    */
-  ChauffeuredRentalCar = "CHAUFFEURED_RENTAL_CAR",
+  ChauffeuredRentalCar = 'CHAUFFEURED_RENTAL_CAR',
 
   /**
    * Operational rental for business fleet use.
    * İş filo kullanımı için operasyonel kiralık araç.
    */
-  OperationalRental = "OPERATIONAL_RENTAL",
+  OperationalRental = 'OPERATIONAL_RENTAL',
 
   /**
    * Private minibus for personal or family use.
    * Kişisel veya aile kullanımı için özel minibüs.
    */
-  PrivateMinibus = "PRIVATE_MINIBUS",
+  PrivateMinibus = 'PRIVATE_MINIBUS',
 
   /**
    * Route minibus for scheduled public transportation.
    * Planlı toplu taşıma için güzergah minibüsü.
    */
-  RouteMinibus = "ROUTE_MINIBUS",
+  RouteMinibus = 'ROUTE_MINIBUS',
 
   /**
    * Service minibus for employee or student transportation.
    * Çalışan veya öğrenci taşımacılığı için servis minibüsü.
    */
-  ServiceMinibus = "SERVICE_MINIBUS",
+  ServiceMinibus = 'SERVICE_MINIBUS',
 }
 
 /**
@@ -183,37 +183,37 @@ export enum VehicleFuelType {
    * Gasoline-powered vehicles using petrol fuel.
    * Benzin yakıtı kullanan benzinli araçlar.
    */
-  Gasoline = "GASOLINE",
+  Gasoline = 'GASOLINE',
 
   /**
    * Diesel-powered vehicles using diesel fuel.
    * Dizel yakıtı kullanan dizel araçlar.
    */
-  Diesel = "DIESEL",
+  Diesel = 'DIESEL',
 
   /**
    * LPG (Liquefied Petroleum Gas) powered vehicles.
    * LPG (Sıvılaştırılmış Petrol Gazı) yakıtlı araçlar.
    */
-  Lpg = "LPG",
+  Lpg = 'LPG',
 
   /**
    * Electric vehicles powered by battery systems.
    * Batarya sistemleri ile çalışan elektrikli araçlar.
    */
-  Electric = "ELECTRIC",
+  Electric = 'ELECTRIC',
 
   /**
    * Vehicles with both LPG and gasoline fuel systems.
    * Hem LPG hem benzin yakıt sistemine sahip araçlar.
    */
-  LpgGasoline = "LPG_GASOLINE",
+  LpgGasoline = 'LPG_GASOLINE',
 
   /**
    * Hybrid vehicles combining electric and conventional fuel systems.
    * Elektrik ve geleneksel yakıt sistemlerini birleştiren hibrit araçlar.
    */
-  Hybrid = "HYBRID",
+  Hybrid = 'HYBRID',
 }
 
 /**
@@ -232,19 +232,19 @@ export enum VehicleAccessoryType {
    * Audio systems and sound equipment installed in the vehicle.
    * Araca monte edilen ses sistemleri ve ses ekipmanları.
    */
-  Audio = "audio",
+  Audio = 'audio',
 
   /**
    * Display screens and navigation systems installed in the vehicle.
    * Araca monte edilen ekran ve navigasyon sistemleri.
    */
-  Display = "display",
+  Display = 'display',
 
   /**
    * Other types of vehicle accessories not classified as audio or display systems.
    * Ses veya ekran sistemleri olarak sınıflandırılmayan diğer araç aksesuar türleri.
    */
-  Other = "other",
+  Other = 'other',
 }
 
 // ============================================================================

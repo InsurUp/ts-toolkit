@@ -1,7 +1,7 @@
-import type { HttpTransport } from "../client/http.js";
-import type { InsurUpResult } from "../core/result.js";
-import type { RequestOptions } from "../core/options.js";
-import { endpoints } from "../core/endpoints.js";
+import type { HttpTransport } from '../client/http.js';
+import type { InsurUpResult } from '../core/result.js';
+import type { RequestOptions } from '../core/options.js';
+import { endpoints } from '../core/endpoints.js';
 import type {
   ResourceKey,
   InsuranceCompany,
@@ -11,7 +11,7 @@ import type {
   Bank,
   BankBranch,
   FinancialInstitution,
-} from "@insurup/contracts";
+} from '@insurup/contracts';
 
 /**
  * Provides comprehensive insurance industry data access for retrieving insurance companies, products, resource keys,
@@ -44,9 +44,7 @@ export class InsurUpInsuranceClient {
    *
    * @returns List of resource keys for localization / Yerelleştirme için kaynak anahtarları listesi
    */
-  async getResourceKeys(
-    options?: RequestOptions,
-  ): Promise<InsurUpResult<ResourceKey[]>> {
+  async getResourceKeys(options?: RequestOptions): Promise<InsurUpResult<ResourceKey[]>> {
     return this.http.get<ResourceKey[]>(endpoints.resourceKeys.getAll, options);
   }
 
@@ -58,11 +56,11 @@ export class InsurUpInsuranceClient {
    * @returns List of insurance companies / Sigorta şirketleri listesi
    */
   async getInsuranceCompanies(
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<InsuranceCompany[]>> {
     return this.http.get<InsuranceCompany[]>(
       endpoints.insuranceCompanies.getInsuranceCompanies,
-      options,
+      options
     );
   }
 
@@ -76,12 +74,10 @@ export class InsurUpInsuranceClient {
    */
   async getInsuranceCompanyProducts(
     insuranceCompanyId: number,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<InsuranceProduct[]>> {
     const path =
-      endpoints.insuranceCompanies.getInsuranceCompanyProducts.render(
-        insuranceCompanyId,
-      );
+      endpoints.insuranceCompanies.getInsuranceCompanyProducts.render(insuranceCompanyId);
     return this.http.get<InsuranceProduct[]>(path, options);
   }
 
@@ -92,13 +88,8 @@ export class InsurUpInsuranceClient {
    *
    * @returns List of all insurance products / Tüm sigorta ürünleri listesi
    */
-  async getAllProducts(
-    options?: RequestOptions,
-  ): Promise<InsurUpResult<InsuranceProduct[]>> {
-    return this.http.get<InsuranceProduct[]>(
-      endpoints.insuranceCompanies.getAllProducts,
-      options,
-    );
+  async getAllProducts(options?: RequestOptions): Promise<InsurUpResult<InsuranceProduct[]>> {
+    return this.http.get<InsuranceProduct[]>(endpoints.insuranceCompanies.getAllProducts, options);
   }
 
   /**
@@ -111,18 +102,13 @@ export class InsurUpInsuranceClient {
    */
   async getCompanyConnectionFields(
     insuranceCompanyId: number,
-    options?: RequestOptions,
-  ): Promise<
-    InsurUpResult<GetAgentBasedConnectionFieldsByCompanyIdResultItem[]>
-  > {
+    options?: RequestOptions
+  ): Promise<InsurUpResult<GetAgentBasedConnectionFieldsByCompanyIdResultItem[]>> {
     const path =
       endpoints.insuranceCompanies.connectionFields.getAgentBasedConnectionFieldsByCompanyId.render(
-        insuranceCompanyId,
+        insuranceCompanyId
       );
-    return this.http.get<GetAgentBasedConnectionFieldsByCompanyIdResultItem[]>(
-      path,
-      options,
-    );
+    return this.http.get<GetAgentBasedConnectionFieldsByCompanyIdResultItem[]>(path, options);
   }
 
   /**
@@ -133,12 +119,9 @@ export class InsurUpInsuranceClient {
    * @returns Platform release notes / Platform sürüm notları
    */
   async getAllReleaseNotes(
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetAllReleaseNotesResultItem[]>> {
-    return this.http.get<GetAllReleaseNotesResultItem[]>(
-      endpoints.releaseNotes.getAll,
-      options,
-    );
+    return this.http.get<GetAllReleaseNotesResultItem[]>(endpoints.releaseNotes.getAll, options);
   }
 
   /**
@@ -162,7 +145,7 @@ export class InsurUpInsuranceClient {
    */
   async getBankBranches(
     bankId: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<BankBranch[]>> {
     const path = endpoints.banks.getBranches.render(bankId);
     return this.http.get<BankBranch[]>(path, options);
@@ -176,11 +159,8 @@ export class InsurUpInsuranceClient {
    * @returns List of financial institutions / Finansal kurumlar listesi
    */
   async getFinancialInstitutions(
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<FinancialInstitution[]>> {
-    return this.http.get<FinancialInstitution[]>(
-      endpoints.financialInstitutions.getAll,
-      options,
-    );
+    return this.http.get<FinancialInstitution[]>(endpoints.financialInstitutions.getAll, options);
   }
 }

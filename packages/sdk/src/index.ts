@@ -4,33 +4,33 @@
  */
 
 // Version export
-export { VERSION } from "./version.js";
+export { VERSION } from './version.js';
 
 // Main client export
-export { DefaultInsurUpClient } from "./client/client.js";
+export { DefaultInsurUpClient } from './client/client.js';
 
 // GraphQL transport types
-export type { GraphQLRequest, GraphQLResponse } from "./client/graphql.js";
-export { GraphQLTransport } from "./client/graphql.js";
+export type { GraphQLRequest, GraphQLResponse } from './client/graphql.js';
+export { GraphQLTransport } from './client/graphql.js';
 
 // Specialized client exports
-export { InsurUpAgentClient } from "./clients/agent.js";
-export { InsurUpAgentBranchClient } from "./clients/agentBranch.js";
-export { InsurUpAgentRoleClient } from "./clients/agentRole.js";
-export { InsurUpAgentSetupClient } from "./clients/agentSetup.js";
-export { InsurUpAgentUserClient } from "./clients/agentUser.js";
-export { InsurUpCustomerClient } from "./clients/customer.js";
-export { InsurUpVehicleClient } from "./clients/vehicle.js";
-export { InsurUpPropertyClient } from "./clients/property.js";
-export { InsurUpPolicyClient } from "./clients/policy.js";
-export { InsurUpCaseClient } from "./clients/case.js";
-export { InsurUpWebhookClient } from "./clients/webhook.js";
-export { InsurUpCoverageClient } from "./clients/coverage.js";
-export { InsurUpInsuranceClient } from "./clients/insurance.js";
-export { InsurUpProposalClient } from "./clients/proposal.js";
-export { InsurUpFileClient } from "./clients/file.js";
-export { InsurUpLanguageClient } from "./clients/language.js";
-export { InsurUpTemplateClient } from "./clients/template.js";
+export { InsurUpAgentClient } from './clients/agent.js';
+export { InsurUpAgentBranchClient } from './clients/agentBranch.js';
+export { InsurUpAgentRoleClient } from './clients/agentRole.js';
+export { InsurUpAgentSetupClient } from './clients/agentSetup.js';
+export { InsurUpAgentUserClient } from './clients/agentUser.js';
+export { InsurUpCustomerClient } from './clients/customer.js';
+export { InsurUpVehicleClient } from './clients/vehicle.js';
+export { InsurUpPropertyClient } from './clients/property.js';
+export { InsurUpPolicyClient } from './clients/policy.js';
+export { InsurUpCaseClient } from './clients/case.js';
+export { InsurUpWebhookClient } from './clients/webhook.js';
+export { InsurUpCoverageClient } from './clients/coverage.js';
+export { InsurUpInsuranceClient } from './clients/insurance.js';
+export { InsurUpProposalClient } from './clients/proposal.js';
+export { InsurUpFileClient } from './clients/file.js';
+export { InsurUpLanguageClient } from './clients/language.js';
+export { InsurUpTemplateClient } from './clients/template.js';
 
 // Core types and results
 export type {
@@ -47,7 +47,7 @@ export type {
   GraphQLErrorItem,
   GraphQLErrorExtensions,
   GraphQLErrorLocation,
-} from "./core/result.js";
+} from './core/result.js';
 
 export {
   InsurUpServerErrorType,
@@ -60,8 +60,8 @@ export {
   getGraphQLDataOrThrow,
   throwIfGraphQLError,
   createGraphQLErrors,
-} from "./core/result.js";
-export { InsurUpError, extractError } from "./core/errors.js";
+} from './core/result.js';
+export { InsurUpError, extractError } from './core/errors.js';
 
 export type {
   InsurUpClientOptions,
@@ -74,10 +74,10 @@ export type {
   RetryOptions,
   LogLevel,
   Logger,
-} from "./core/options.js";
+} from './core/options.js';
 
 // Re-export all contract types from @insurup/contracts
-export * from "@insurup/contracts";
+export * from '@insurup/contracts';
 
 // Export endpoint constants for advanced usage
-export * as Endpoints from "./core/endpoints.js";
+export * as Endpoints from './core/endpoints.js';

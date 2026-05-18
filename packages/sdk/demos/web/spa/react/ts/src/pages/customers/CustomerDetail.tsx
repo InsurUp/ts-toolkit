@@ -1,19 +1,13 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router";
-import { useClient } from "@/client";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { DetailSkeleton } from "@/components/DetailSkeleton";
-import { toast } from "sonner";
-import { ArrowLeft, Mail, Phone, Calendar, User } from "lucide-react";
-import { CustomerType, type GetCustomerResult } from "@insurup/contracts";
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router';
+import { useClient } from '@/client';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { DetailSkeleton } from '@/components/DetailSkeleton';
+import { toast } from 'sonner';
+import { ArrowLeft, Mail, Phone, Calendar, User } from 'lucide-react';
+import { CustomerType, type GetCustomerResult } from '@insurup/contracts';
 
 export function CustomerDetail() {
   const { id } = useParams<{ id: string }>();
@@ -33,13 +27,13 @@ export function CustomerDetail() {
         if (result.isSuccess) {
           setCustomer(result.data);
         } else {
-          toast.error("Failed to load customer");
-          navigate("/customers");
+          toast.error('Failed to load customer');
+          navigate('/customers');
         }
       } catch (error) {
-        toast.error("An error occurred");
+        toast.error('An error occurred');
         console.error(error);
-        navigate("/customers");
+        navigate('/customers');
       } finally {
         setIsLoading(false);
       }
@@ -58,33 +52,33 @@ export function CustomerDetail() {
 
   const getCustomerName = () => {
     if (customer.type === CustomerType.Company) {
-      return (customer as { title?: string }).title || "Unknown Company";
+      return (customer as { title?: string }).title || 'Unknown Company';
     }
-    return (customer as { fullName?: string }).fullName || "Unknown";
+    return (customer as { fullName?: string }).fullName || 'Unknown';
   };
 
   const formatPhoneNumber = (phone: unknown) => {
-    if (!phone) return "-";
-    if (typeof phone === "string") return phone;
-    if (typeof phone === "object" && phone !== null) {
+    if (!phone) return '-';
+    if (typeof phone === 'string') return phone;
+    if (typeof phone === 'object' && phone !== null) {
       const p = phone as { countryCode?: number; number?: string };
-      return p.countryCode && p.number ? `+${p.countryCode} ${p.number}` : "-";
+      return p.countryCode && p.number ? `+${p.countryCode} ${p.number}` : '-';
     }
-    return "-";
+    return '-';
   };
 
   const formatDate = (date: unknown) => {
-    if (!date) return "-";
-    if (typeof date === "string") {
+    if (!date) return '-';
+    if (typeof date === 'string') {
       return new Date(date).toLocaleDateString();
     }
-    return "-";
+    return '-';
   };
 
   return (
     <div className="space-y-6 animate-in fade-in-50 duration-300">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate("/customers")}>
+        <Button variant="ghost" size="icon" onClick={() => navigate('/customers')}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
@@ -111,24 +105,22 @@ export function CustomerDetail() {
               <>
                 <div className="flex items-center justify-between">
                   <span className="font-medium">Full Name</span>
-                  <span>{(customer as { fullName?: string }).fullName || "-"}</span>
+                  <span>{(customer as { fullName?: string }).fullName || '-'}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="font-medium">Birth Date</span>
-                  <span>
-                    {formatDate((customer as { birthDate?: unknown }).birthDate)}
-                  </span>
+                  <span>{formatDate((customer as { birthDate?: unknown }).birthDate)}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="font-medium">Gender</span>
-                  <span>{(customer as { gender?: string }).gender || "-"}</span>
+                  <span>{(customer as { gender?: string }).gender || '-'}</span>
                 </div>
               </>
             )}
             {customer.type === CustomerType.Company && (
               <div className="flex items-center justify-between">
                 <span className="font-medium">Company Title</span>
-                <span>{(customer as { title?: string }).title || "-"}</span>
+                <span>{(customer as { title?: string }).title || '-'}</span>
               </div>
             )}
           </CardContent>
@@ -146,7 +138,7 @@ export function CustomerDetail() {
             <div className="flex items-center gap-2">
               <Mail className="h-4 w-4 text-muted-foreground" />
               <span className="font-medium">Primary Email:</span>
-              <span>{customer.primaryEmail || "-"}</span>
+              <span>{customer.primaryEmail || '-'}</span>
             </div>
             <div className="flex items-center gap-2">
               <Phone className="h-4 w-4 text-muted-foreground" />

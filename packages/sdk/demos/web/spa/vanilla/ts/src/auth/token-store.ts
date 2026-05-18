@@ -3,8 +3,8 @@
  * Handles persistence of OAuth tokens with expiry tracking.
  */
 
-const STORAGE_KEY = "insurup_tokens";
-const PKCE_KEY = "insurup_pkce";
+const STORAGE_KEY = 'insurup_tokens';
+const PKCE_KEY = 'insurup_pkce';
 
 export interface TokenData {
   accessToken: string;

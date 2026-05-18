@@ -32,7 +32,7 @@ export enum PolicyTransferTriggerStatus {
    * kritik herhangi bir başarısızlık olmadan bitti. Bireysel poliçe transferleri
    * yine de atlanmış veya başarısız olmuş olabilir, ancak genel süreç tamamlandı.
    */
-  Succeeded = "SUCCEEDED",
+  Succeeded = 'SUCCEEDED',
 
   /**
    * The policy transfer process failed due to an error or exception.
@@ -45,7 +45,7 @@ export enum PolicyTransferTriggerStatus {
    * karşılaştığını gösterir. Bu, sistem bağlantı sorunları, kimlik doğrulama başarısızlıkları
    * veya süreci durduran diğer teknik sorunlar nedeniyle olabilir.
    */
-  Failed = "TRIGGER_STATUS_FAILED",
+  Failed = 'TRIGGER_STATUS_FAILED',
 }
 
 /**
@@ -73,7 +73,7 @@ export enum PolicyTransferCompanyFailureReason {
    * yedek olarak kullanılır. Sistem hataları, beklenmeyen yanıtlar veya diğer özel
    * başarısızlık kategorilerine uymayan teknik sorunları gösterebilir.
    */
-  Unknown = "UNKNOWN",
+  Unknown = 'UNKNOWN',
 
   /**
    * Failed to retrieve policies from the insurance company's system during the transfer process.
@@ -86,7 +86,7 @@ export enum PolicyTransferCompanyFailureReason {
    * veya talep edilen poliçe verilerine erişilemediğinde oluşur. Sistem kesintisi,
    * kimlik doğrulama sorunları veya veri erişim kısıtlamaları nedeniyle olabilir.
    */
-  CouldNotFetchPolicies = "COULD_NOT_FETCH_POLICIES",
+  CouldNotFetchPolicies = 'COULD_NOT_FETCH_POLICIES',
 }
 
 /**
@@ -115,7 +115,7 @@ export enum TransferredPolicyStatus {
    * tüm poliçe verilerinin doğrulandığını ve hatasız olarak içe aktarıldığını gösterir.
    * Poliçe artık hedef sistemde kullanılabilir durumda.
    */
-  Success = "SUCCESS",
+  Success = 'SUCCESS',
 
   /**
    * The policy transfer failed due to validation errors or processing issues.
@@ -128,7 +128,7 @@ export enum TransferredPolicyStatus {
    * eksik veya geçersiz bilgilere sahip olması veya işleme sırasında sistem
    * hatalarıyla karşılaşması durumunda oluşur. Özel başarısızlık nedeni genellikle ayrı olarak kaydedilir.
    */
-  Failed = "TRANSFER_FAILED",
+  Failed = 'TRANSFER_FAILED',
 
   /**
    * The policy was intentionally skipped during transfer due to business rules.
@@ -141,7 +141,7 @@ export enum TransferredPolicyStatus {
    * ürün türleri veya bağımlılık gereksinimleri gibi mantıksal nedenlerle atlanır.
    * Özel atlama nedeni genellikle ayrı olarak kaydedilir.
    */
-  Skipped = "TRANSFER_SKIPPED",
+  Skipped = 'TRANSFER_SKIPPED',
 }
 
 /**
@@ -169,7 +169,7 @@ export enum TransferredPolicySkipReason {
    * kategorilendirilemediği durumlarda kullanılır. Sınır durumları veya
    * beklenmeyen koşullar için yedek değer olarak hizmet eder.
    */
-  Unknown = "UNKNOWN",
+  Unknown = 'UNKNOWN',
 
   /**
    * The policy has already been transferred previously and exists in the target system.
@@ -182,7 +182,7 @@ export enum TransferredPolicySkipReason {
    * poliçe numarası, yenileme numarası ve sigorta şirket bilgileri gibi benzersiz
    * tanımlayıcıları kullanarak mevcut poliçeleri kontrol eder.
    */
-  AlreadyTransferred = "SKIP_ALREADY_TRANSFERRED",
+  AlreadyTransferred = 'SKIP_ALREADY_TRANSFERRED',
 
   /**
    * The previous version of the policy could not be found in the target system.
@@ -195,7 +195,7 @@ export enum TransferredPolicySkipReason {
    * transfer edilirken oluşur. Temel poliçe olmadan, yenileme veya zeyil düzgün şekilde
    * bağlanamaz ve referans bütünlüğünü korumak için atlanır.
    */
-  PreviousVersionNotFound = "PREVIOUS_VERSION_NOT_FOUND",
+  PreviousVersionNotFound = 'PREVIOUS_VERSION_NOT_FOUND',
 
   /**
    * The product branch is not supported by the target system.
@@ -209,7 +209,7 @@ export enum TransferredPolicySkipReason {
    * sigorta ürün türleri (hayat, sağlık, konut veya motorlu araç sigortası dalları gibi)
    * içermesi durumunda oluşur. Bu poliçeler içe aktarma hatalarını önlemek için atlanır.
    */
-  ProductBranchNotSupported = "PRODUCT_BRANCH_NOT_SUPPORTED",
+  ProductBranchNotSupported = 'PRODUCT_BRANCH_NOT_SUPPORTED',
 
   /**
    * The specific product is not supported by the target system.
@@ -223,7 +223,7 @@ export enum TransferredPolicySkipReason {
    * hedef sistemde karşılık gelen eşlemesi bulunmadığında oluşur. Genel ürün dalı
    * desteklense bile, özel ürün yapılandırmaları transfer edilemeyebilir.
    */
-  ProductNotSupported = "PRODUCT_NOT_SUPPORTED",
+  ProductNotSupported = 'PRODUCT_NOT_SUPPORTED',
 }
 
 /**
@@ -252,7 +252,7 @@ export enum TransferredPolicyFailureReason {
    * kategorilendirilemediği durumlarda kullanılır. Beklenmeyen hataları veya diğer özel
    * başarısızlık kategorileri kapsamında olmayan sınır durumları gösterebilir.
    */
-  Unknown = "UNKNOWN",
+  Unknown = 'UNKNOWN',
 
   /**
    * The customer's identity number (T.C. Kimlik No) is invalid or incorrectly formatted.
@@ -266,7 +266,7 @@ export enum TransferredPolicyFailureReason {
    * kontrol toplamı doğrulamasını geçemediğinde oluşur. Geçerli Türk kimlik numaraları
    * 11 haneli olmalı ve belirli algoritma kontrollerini geçmelidir.
    */
-  InvalidCustomerIdentityNumber = "INVALID_CUSTOMER_IDENTITY_NUMBER",
+  InvalidCustomerIdentityNumber = 'INVALID_CUSTOMER_IDENTITY_NUMBER',
 
   /**
    * The customer's company title is invalid or missing for corporate customers.
@@ -279,7 +279,7 @@ export enum TransferredPolicyFailureReason {
    * boş olması, çok kısa olması, geçersiz karakterler içermesi veya kurumsal
    * kuruluş tanımlaması için minimum gereksinimleri karşılamaması durumunda oluşur.
    */
-  InvalidCustomerCompanyTitle = "INVALID_CUSTOMER_COMPANY_TITLE",
+  InvalidCustomerCompanyTitle = 'INVALID_CUSTOMER_COMPANY_TITLE',
 
   /**
    * The customer's tax number is invalid or incorrectly formatted for corporate customers.
@@ -292,7 +292,7 @@ export enum TransferredPolicyFailureReason {
    * uzunluk veya doğrulama kurallarını karşılamaması durumunda oluşur. Geçerli vergi numaraları
    * şirketler için 10 haneli veya bireysel mükellefler için 11 haneli olmalıdır.
    */
-  InvalidCustomerTaxNumber = "INVALID_CUSTOMER_TAX_NUMBER",
+  InvalidCustomerTaxNumber = 'INVALID_CUSTOMER_TAX_NUMBER',
 
   /**
    * The customer type is invalid or not supported by the target system.
@@ -305,7 +305,7 @@ export enum TransferredPolicyFailureReason {
    * tanınmaması veya desteklenmemesi ya da müşteri türü alanının geçersiz
    * değerler içermesi durumunda oluşur.
    */
-  InvalidCustomerType = "INVALID_CUSTOMER_TYPE",
+  InvalidCustomerType = 'INVALID_CUSTOMER_TYPE',
 
   /**
    * The vehicle information is invalid or incomplete for motor insurance policies.
@@ -318,7 +318,7 @@ export enum TransferredPolicyFailureReason {
    * model bilgileri) eksik olması, yanlış formatlanması veya Türk araç tescil
    * standartları için doğrulama gereksinimlerini karşılamaması durumunda oluşabilir.
    */
-  InvalidVehicle = "INVALID_VEHICLE",
+  InvalidVehicle = 'INVALID_VEHICLE',
 
   /**
    * The property information is invalid or incomplete for property insurance policies.
@@ -331,7 +331,7 @@ export enum TransferredPolicyFailureReason {
    * eksik olması, yanlış formatlanması veya konut sigortası teminatı için
    * doğrulama gereksinimlerini karşılamaması durumunda oluşur.
    */
-  InvalidProperty = "INVALID_PROPERTY",
+  InvalidProperty = 'INVALID_PROPERTY',
 
   /**
    * The policy end date is invalid or in the wrong format.
@@ -345,7 +345,7 @@ export enum TransferredPolicyFailureReason {
    * (örneğin, bitiş tarihinin başlangıç tarihinden önce olması) durumunda oluşur.
    * Tüm poliçe tarihleri geçerli ve düzgün formatlanmış olmalıdır.
    */
-  InvalidEndDate = "INVALID_END_DATE",
+  InvalidEndDate = 'INVALID_END_DATE',
 
   /**
    * The policy start date is invalid or in the wrong format.
@@ -359,7 +359,7 @@ export enum TransferredPolicyFailureReason {
    * etmemesi durumunda oluşur. Poliçe başlangıç tarihleri geçerli ve düzgün
    * formatlanmış tarihler olmalıdır.
    */
-  InvalidStartDate = "INVALID_START_DATE",
+  InvalidStartDate = 'INVALID_START_DATE',
 
   /**
    * The proposal number is invalid or incorrectly formatted.
@@ -373,7 +373,7 @@ export enum TransferredPolicyFailureReason {
    * sigorta şirketi veya düzenleyici gereksinimler tarafından tanımlanan
    * belirli formatları takip etmelidir.
    */
-  InvalidProposalNumber = "INVALID_PROPOSAL_NUMBER",
+  InvalidProposalNumber = 'INVALID_PROPOSAL_NUMBER',
 
   /**
    * The premium amount is invalid or incorrectly formatted.
@@ -387,7 +387,7 @@ export enum TransferredPolicyFailureReason {
    * kurallarını karşılamaması durumunda oluşur. Prim tutarları geçerli pozitif
    * parasal değerler olmalıdır.
    */
-  InvalidPremium = "INVALID_PREMIUM",
+  InvalidPremium = 'INVALID_PREMIUM',
 
   /**
    * The commission amount is invalid or incorrectly formatted.
@@ -401,7 +401,7 @@ export enum TransferredPolicyFailureReason {
    * karşılamaması durumunda oluşur. Komisyon tutarları kabul edilebilir aralıklarda
    * geçerli parasal değerler olmalıdır.
    */
-  InvalidCommission = "INVALID_COMMISSION",
+  InvalidCommission = 'INVALID_COMMISSION',
 
   /**
    * The payment type is invalid or not supported by the target system.
@@ -414,7 +414,7 @@ export enum TransferredPolicyFailureReason {
    * hedef sistemde tanınmaması, desteklenmemesi veya düzgün formatlanmaması
    * durumunda oluşur. Tüm ödeme türleri geçerli ve desteklenen ödeme yöntemleri olmalıdır.
    */
-  InvalidPaymentType = "INVALID_PAYMENT_TYPE",
+  InvalidPaymentType = 'INVALID_PAYMENT_TYPE',
 
   /**
    * The insured customer information is invalid or incomplete.
@@ -427,7 +427,7 @@ export enum TransferredPolicyFailureReason {
    * bilgileri veya kimlik verileri gibi kişisel bilgilerinin eksik, yanlış
    * formatlanmış veya geçersiz olması durumunda oluşur.
    */
-  InvalidInsuredCustomer = "INVALID_INSURED_CUSTOMER",
+  InvalidInsuredCustomer = 'INVALID_INSURED_CUSTOMER',
 
   /**
    * The insurer customer information is invalid or incomplete.
@@ -440,5 +440,5 @@ export enum TransferredPolicyFailureReason {
    * ad, iletişim bilgileri veya kimlik verileri gibi kişisel bilgilerinin eksik,
    * yanlış formatlanmış veya geçersiz olması durumunda oluşur.
    */
-  InvalidInsurerCustomer = "INVALID_INSURER_CUSTOMER",
+  InvalidInsurerCustomer = 'INVALID_INSURER_CUSTOMER',
 }

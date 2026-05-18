@@ -3,34 +3,28 @@
  * @description Demonstrates infinite scroll with virtualization using TanStack Virtual
  */
 
-import "./style.css";
-import { DefaultInsurUpClient } from "@insurup/sdk";
+import './style.css';
+import { DefaultInsurUpClient } from '@insurup/sdk';
 import {
   createInfiniteCustomerTable,
   type CustomerRowType,
   type FieldColumnDef,
   type ColumnInfo,
-} from "@insurup/table-adapter-core";
-import type { Table, HeaderGroup, Header, Column } from "@tanstack/table-core";
-import {
-  startLogin,
-  handleCallback,
-  getAccessToken,
-  isAuthenticated,
-  clearTokens,
-} from "./auth";
+} from '@insurup/table-adapter-core';
+import type { Table, HeaderGroup, Header, Column } from '@tanstack/table-core';
+import { startLogin, handleCallback, getAccessToken, isAuthenticated, clearTokens } from './auth';
 
 // ============================================================================
 // Types
 // ============================================================================
 
 type CustomerColumns = [
-  FieldColumnDef<"id">,
-  FieldColumnDef<"name">,
-  FieldColumnDef<"type">,
-  FieldColumnDef<"primaryEmail">,
-  FieldColumnDef<"primaryPhoneNumber">,
-  FieldColumnDef<"createdAt">
+  FieldColumnDef<'id'>,
+  FieldColumnDef<'name'>,
+  FieldColumnDef<'type'>,
+  FieldColumnDef<'primaryEmail'>,
+  FieldColumnDef<'primaryPhoneNumber'>,
+  FieldColumnDef<'createdAt'>,
 ];
 
 type CustomerRow = CustomerRowType<CustomerColumns>;
@@ -40,10 +34,10 @@ type CustomerRow = CustomerRowType<CustomerColumns>;
 // ============================================================================
 
 const CONFIG = {
-  apiBaseUrl: "https://api.insurup.com",
+  apiBaseUrl: 'https://api.insurup.com',
 };
 
-const THEME_STORAGE_KEY = "table_adapter_vanilla_theme";
+const THEME_STORAGE_KEY = 'table_adapter_vanilla_theme';
 const ROW_HEIGHT = 48;
 const TABLE_HEIGHT = 600;
 
@@ -53,11 +47,9 @@ const TABLE_HEIGHT = 600;
 
 const state = {
   // Table adapter (manages TanStack Table internally with row accumulation)
-  customerTable: null as ReturnType<
-    typeof createInfiniteCustomerTable<CustomerColumns>
-  > | null,
+  customerTable: null as ReturnType<typeof createInfiniteCustomerTable<CustomerColumns>> | null,
   // UI
-  searchInput: "",
+  searchInput: '',
   searchDebounceTimer: null as ReturnType<typeof setTimeout> | null,
   showColumnMenu: false,
 };
@@ -67,19 +59,19 @@ const state = {
 // ============================================================================
 
 function isDark(): boolean {
-  return document.documentElement.classList.contains("dark");
+  return document.documentElement.classList.contains('dark');
 }
 
 function setTheme(dark: boolean): void {
-  document.documentElement.classList.toggle("dark", dark);
-  localStorage.setItem(THEME_STORAGE_KEY, dark ? "dark" : "light");
+  document.documentElement.classList.toggle('dark', dark);
+  localStorage.setItem(THEME_STORAGE_KEY, dark ? 'dark' : 'light');
 }
 
 function initTheme(): void {
   const stored = localStorage.getItem(THEME_STORAGE_KEY);
   const prefersDark = stored
-    ? stored === "dark"
-    : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    ? stored === 'dark'
+    : window.matchMedia('(prefers-color-scheme: dark)').matches;
   setTheme(prefersDark);
 }
 
@@ -106,17 +98,17 @@ function getClient(): DefaultInsurUpClient {
 function initCustomerTable(): void {
   state.customerTable = createInfiniteCustomerTable({
     columns: (col) => [
-      col.id({ header: "ID", sortable: true, hiddenByDefault: true }),
-      col.name({ header: "Name", sortable: true }),
-      col.type({ header: "Type", sortable: true }),
-      col.primaryEmail({ header: "Email" }),
-      col.primaryPhoneNumber({ header: "Phone", hiddenByDefault: true }),
-      col.createdAt({ header: "Created", sortable: true }),
+      col.id({ header: 'ID', sortable: true, hiddenByDefault: true }),
+      col.name({ header: 'Name', sortable: true }),
+      col.type({ header: 'Type', sortable: true }),
+      col.primaryEmail({ header: 'Email' }),
+      col.primaryPhoneNumber({ header: 'Phone', hiddenByDefault: true }),
+      col.createdAt({ header: 'Created', sortable: true }),
     ],
     fetch: (options) => getClient().customers.getCustomers(options),
     pagination: { type: 'cursor', pageSize: 50 }, // Larger page size for infinite scroll
     autoFetch: true,
-    onError: (error) => console.error("Failed to load customers:", error.message),
+    onError: (error) => console.error('Failed to load customers:', error.message),
     tableOptions: { enableSorting: true },
   });
 
@@ -133,9 +125,7 @@ function initCustomerTable(): void {
 // ============================================================================
 
 function handleScroll(): void {
-  const scrollContainer = document.getElementById(
-    "scroll-container"
-  ) as HTMLDivElement | null;
+  const scrollContainer = document.getElementById('scroll-container') as HTMLDivElement | null;
   if (!scrollContainer || !state.customerTable) return;
 
   const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
@@ -146,11 +136,7 @@ function handleScroll(): void {
   renderVirtualRows();
 
   // Load more when near bottom
-  if (
-    scrollHeight - scrollTop - clientHeight < 300 &&
-    table.getCanNextPage() &&
-    !isFetching
-  ) {
+  if (scrollHeight - scrollTop - clientHeight < 300 && table.getCanNextPage() && !isFetching) {
     table.nextPage();
   }
 }
@@ -158,21 +144,24 @@ function handleScroll(): void {
 function renderVirtualRows(): void {
   if (!state.customerTable) return;
 
-  const tbody = document.getElementById("virtual-tbody");
+  const tbody = document.getElementById('virtual-tbody');
   if (!tbody) return;
 
   const { rows } = state.customerTable.getSnapshot();
   const table = state.customerTable.getTable();
-  
+
   // Get scroll container to calculate visible range manually
-  const scrollContainer = document.getElementById("scroll-container") as HTMLDivElement | null;
+  const scrollContainer = document.getElementById('scroll-container') as HTMLDivElement | null;
   const scrollTop = scrollContainer?.scrollTop ?? 0;
   const clientHeight = scrollContainer?.clientHeight ?? TABLE_HEIGHT;
-  
+
   // Calculate visible range with overscan
   const overscan = 10;
   const startIndex = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - overscan);
-  const endIndex = Math.min(rows.length, Math.ceil((scrollTop + clientHeight) / ROW_HEIGHT) + overscan);
+  const endIndex = Math.min(
+    rows.length,
+    Math.ceil((scrollTop + clientHeight) / ROW_HEIGHT) + overscan
+  );
   const totalSize = rows.length * ROW_HEIGHT;
 
   // Update tbody height
@@ -191,7 +180,7 @@ function renderVirtualRows(): void {
   const html = virtualItems
     .map((virtualItem) => {
       const row = rows[virtualItem.index];
-      if (!row) return "";
+      if (!row) return '';
 
       const cells = visibleColumns
         .map((column: Column<CustomerRow, unknown>) => {
@@ -199,7 +188,7 @@ function renderVirtualRows(): void {
           const cellContent = formatCellValue(column.id, value);
           return `<td class="flex items-center overflow-hidden text-ellipsis whitespace-nowrap p-2 align-middle">${cellContent}</td>`;
         })
-        .join("");
+        .join('');
 
       return `
         <tr 
@@ -211,19 +200,19 @@ function renderVirtualRows(): void {
         </tr>
       `;
     })
-    .join("");
-  
+    .join('');
+
   tbody.innerHTML = html;
 }
 
 function formatCellValue(columnId: string, value: unknown): string {
-  if (value === null || value === undefined) return "-";
+  if (value === null || value === undefined) return '-';
 
-  if (columnId === "type") {
+  if (columnId === 'type') {
     return `<span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium">${value}</span>`;
   }
 
-  if (columnId === "createdAt" && typeof value === "string") {
+  if (columnId === 'createdAt' && typeof value === 'string') {
     return new Date(value).toLocaleDateString();
   }
 
@@ -244,20 +233,14 @@ function logout(): void {
 // Rendering
 // ============================================================================
 
-function renderSortIcon(
-  columnId: string,
-  table: Table<CustomerRow>
-): string {
+function renderSortIcon(columnId: string, table: Table<CustomerRow>): string {
   const sorting = table.getState().sorting;
   const sort = sorting.find((s) => s.id === columnId);
-  if (!sort) return " ↕️";
-  return sort.desc ? " ↓" : " ↑";
+  if (!sort) return ' ↕️';
+  return sort.desc ? ' ↓' : ' ↑';
 }
 
-function renderColumnMenu(
-  columnInfo: ColumnInfo[],
-  table: Table<CustomerRow>
-): string {
+function renderColumnMenu(columnInfo: ColumnInfo[], table: Table<CustomerRow>): string {
   const visibility = table.getState().columnVisibility;
   const hideableColumns = columnInfo.filter((col) => col.hideable);
 
@@ -277,17 +260,17 @@ function renderColumnMenu(
                 (col) => `
               <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-accent cursor-pointer">
                 <input type="checkbox" data-column="${col.key}" ${
-                  visibility[col.key] !== false ? "checked" : ""
+                  visibility[col.key] !== false ? 'checked' : ''
                 } class="h-4 w-4 rounded border" />
                 <span class="text-sm">${col.header}</span>
               </label>
             `
               )
-              .join("")}
+              .join('')}
           </div>
         </div>
       `
-          : ""
+          : ''
       }
     </div>
   `;
@@ -327,9 +310,9 @@ function renderTable(): string {
             📄 Pagination Demo
           </a>
           <button id="refresh-btn" class="inline-flex items-center gap-2 h-9 px-4 rounded-md border bg-background hover:bg-accent" ${
-            adapterState.isFetching ? "disabled" : ""
+            adapterState.isFetching ? 'disabled' : ''
           }>
-            ${adapterState.isFetching ? "⏳" : "🔄"} Refresh
+            ${adapterState.isFetching ? '⏳' : '🔄'} Refresh
           </button>
         </div>
       </div>
@@ -356,26 +339,26 @@ function renderTable(): string {
                     .map(
                       (h: Header<CustomerRow, unknown>) => `
                     <th class="flex items-center h-10 px-2 text-left align-middle font-medium text-foreground whitespace-nowrap ${
-                      h.column.getCanSort() ? "cursor-pointer select-none" : ""
+                      h.column.getCanSort() ? 'cursor-pointer select-none' : ''
                     }" data-sort="${h.column.id}">
                       <div class="flex items-center">
                         ${
-                          typeof h.column.columnDef.header === "string"
+                          typeof h.column.columnDef.header === 'string'
                             ? h.column.columnDef.header
                             : h.column.id
                         }
-                        ${h.column.getCanSort() ? renderSortIcon(h.column.id, table) : ""}
+                        ${h.column.getCanSort() ? renderSortIcon(h.column.id, table) : ''}
                       </div>
                     </th>
                   `
                     )
-                    .join("")}
+                    .join('')}
                 </tr>
               `
                 )
-                .join("")}
+                .join('')}
             </thead>
-            <tbody id="virtual-tbody" class="block relative w-full [&_tr:last-child]:border-0" ${adapterState.isLoading && adapterState.rows.length === 0 ? `style="height: ${10 * ROW_HEIGHT}px;"` : ""}>
+            <tbody id="virtual-tbody" class="block relative w-full [&_tr:last-child]:border-0" ${adapterState.isLoading && adapterState.rows.length === 0 ? `style="height: ${10 * ROW_HEIGHT}px;"` : ''}>
               ${
                 adapterState.isLoading && adapterState.rows.length === 0
                   ? Array.from(
@@ -386,23 +369,21 @@ function renderTable(): string {
                     { length: colCount },
                     () =>
                       `<td class="flex items-center p-2"><div class="h-4 w-full bg-accent animate-pulse rounded-md"></div></td>`
-                  ).join("")}
+                  ).join('')}
                 </tr>
               `
-                    ).join("")
-                  : ""
+                    ).join('')
+                  : ''
               }
               ${
                 adapterState.error
                   ? `<tr><td colspan="${colCount}" class="h-24 text-center text-destructive">Error: ${adapterState.error.message}</td></tr>`
-                  : ""
+                  : ''
               }
               ${
-                !adapterState.isLoading &&
-                !adapterState.error &&
-                adapterState.rows.length === 0
+                !adapterState.isLoading && !adapterState.error && adapterState.rows.length === 0
                   ? `<tr><td colspan="${colCount}" class="h-24 text-center">No customers found.</td></tr>`
-                  : ""
+                  : ''
               }
             </tbody>
           </table>
@@ -417,13 +398,13 @@ function renderTable(): string {
           <span class="ml-2 text-sm text-muted-foreground">Loading more...</span>
         </div>
       `
-          : ""
+          : ''
       }
 
       <div class="text-sm text-muted-foreground">
         ${
           table.getCanNextPage()
-            ? "Scroll down to load more..."
+            ? 'Scroll down to load more...'
             : `All ${adapterState.rows.length} customers loaded`
         }
       </div>
@@ -450,16 +431,16 @@ function renderContent(): string {
 }
 
 function render(): void {
-  const app = document.getElementById("app");
+  const app = document.getElementById('app');
   if (!app) return;
 
   // Preserve scroll position
-  const scrollContainer = document.getElementById("scroll-container");
+  const scrollContainer = document.getElementById('scroll-container');
   const savedScrollTop = scrollContainer?.scrollTop ?? 0;
 
   // Preserve focus state
   const activeEl = document.activeElement as HTMLInputElement | null;
-  const wasSearchFocused = activeEl?.id === "search-input";
+  const wasSearchFocused = activeEl?.id === 'search-input';
   const selStart = wasSearchFocused ? activeEl.selectionStart : null;
   const selEnd = wasSearchFocused ? activeEl.selectionEnd : null;
 
@@ -470,12 +451,12 @@ function render(): void {
           <div class="mr-4 font-bold">Infinite Scroll Demo</div>
           <div class="flex flex-1 items-center justify-end space-x-2">
             <button id="toggle-theme" class="inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-accent" aria-label="Toggle theme">
-              ${isDark() ? "☀️" : "🌙"}
+              ${isDark() ? '☀️' : '🌙'}
             </button>
             ${
               isAuthenticated()
                 ? `<button id="logout-btn" class="inline-flex items-center justify-center h-9 px-4 rounded-md border hover:bg-accent">Logout</button>`
-                : ""
+                : ''
             }
           </div>
         </div>
@@ -494,9 +475,11 @@ function render(): void {
     if (rows.length > 0) {
       // Render virtual rows FIRST to set tbody height
       renderVirtualRows();
-      
+
       // Set up scroll handler and restore scroll position AFTER height is set
-      const newScrollContainer = document.getElementById("scroll-container") as HTMLDivElement | null;
+      const newScrollContainer = document.getElementById(
+        'scroll-container'
+      ) as HTMLDivElement | null;
       if (newScrollContainer) {
         newScrollContainer.onscroll = handleScroll;
         // Restore scroll position (must be after renderVirtualRows sets tbody height)
@@ -507,9 +490,7 @@ function render(): void {
 
   // Restore focus
   if (wasSearchFocused) {
-    const searchInput = document.getElementById(
-      "search-input"
-    ) as HTMLInputElement | null;
+    const searchInput = document.getElementById('search-input') as HTMLInputElement | null;
     if (searchInput) {
       searchInput.focus();
       if (selStart !== null && selEnd !== null) {
@@ -520,18 +501,18 @@ function render(): void {
 }
 
 function attachEventListeners(): void {
-  document.getElementById("login-btn")?.addEventListener("click", startLogin);
-  document.getElementById("logout-btn")?.addEventListener("click", logout);
-  document.getElementById("toggle-theme")?.addEventListener("click", () => {
+  document.getElementById('login-btn')?.addEventListener('click', startLogin);
+  document.getElementById('logout-btn')?.addEventListener('click', logout);
+  document.getElementById('toggle-theme')?.addEventListener('click', () => {
     setTheme(!isDark());
     render();
   });
 
-  document.getElementById("refresh-btn")?.addEventListener("click", () => {
+  document.getElementById('refresh-btn')?.addEventListener('click', () => {
     state.customerTable?.invalidate();
   });
 
-  document.getElementById("search-input")?.addEventListener("input", (e) => {
+  document.getElementById('search-input')?.addEventListener('input', (e) => {
     const value = (e.target as HTMLInputElement).value;
     state.searchInput = value;
     if (state.searchDebounceTimer) clearTimeout(state.searchDebounceTimer);
@@ -546,39 +527,38 @@ function attachEventListeners(): void {
     }, 300);
   });
 
-  document.querySelectorAll("[data-sort]").forEach((el) => {
-    el.addEventListener("click", () => {
-      const columnId = el.getAttribute("data-sort");
+  document.querySelectorAll('[data-sort]').forEach((el) => {
+    el.addEventListener('click', () => {
+      const columnId = el.getAttribute('data-sort');
       if (columnId && state.customerTable) {
-        state.customerTable
-          .getTable()
-          .getColumn(columnId)
-          ?.getToggleSortingHandler()?.(new MouseEvent("click"));
+        state.customerTable.getTable().getColumn(columnId)?.getToggleSortingHandler()?.(
+          new MouseEvent('click')
+        );
       }
     });
   });
 
-  document.getElementById("column-menu-btn")?.addEventListener("click", (e) => {
+  document.getElementById('column-menu-btn')?.addEventListener('click', (e) => {
     e.stopPropagation();
     state.showColumnMenu = !state.showColumnMenu;
     render();
   });
 
-  document.querySelectorAll("[data-column]").forEach((el) => {
-    el.addEventListener("change", (e) => {
+  document.querySelectorAll('[data-column]').forEach((el) => {
+    el.addEventListener('change', (e) => {
       e.stopPropagation();
-      const columnKey = el.getAttribute("data-column");
+      const columnKey = el.getAttribute('data-column');
       if (columnKey && state.customerTable) {
         state.customerTable.getTable().getColumn(columnKey)?.toggleVisibility();
       }
     });
   });
 
-  document.addEventListener("click", (e) => {
+  document.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
     if (
-      !target.closest("#column-menu-btn") &&
-      !target.closest("#column-menu-dropdown") &&
+      !target.closest('#column-menu-btn') &&
+      !target.closest('#column-menu-dropdown') &&
       state.showColumnMenu
     ) {
       state.showColumnMenu = false;
@@ -595,19 +575,19 @@ async function init(): Promise<void> {
   initTheme();
 
   // Handle OAuth callback
-  if (window.location.pathname === "/callback") {
+  if (window.location.pathname === '/callback') {
     const params = new URLSearchParams(window.location.search);
-    const code = params.get("code");
-    const urlState = params.get("state");
+    const code = params.get('code');
+    const urlState = params.get('state');
 
     if (code && urlState) {
       try {
         await handleCallback(code, urlState);
       } catch (error) {
-        console.error("Login failed:", error);
+        console.error('Login failed:', error);
       }
     }
-    window.history.replaceState({}, "", "/infinite");
+    window.history.replaceState({}, '', '/infinite');
   }
 
   if (isAuthenticated() && !state.customerTable) {

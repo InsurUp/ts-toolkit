@@ -36,79 +36,79 @@ export enum Channel {
    * bilgilerini yakalayamaması durumunda ortaya çıkabilir. Uygun analitik ve komisyon işleme için
    * manuel inceleme ve kategorilendirme gerektirir.
    */
-  Unknown = "UNKNOWN",
+  Unknown = 'UNKNOWN',
 
   /**
    * Manual entry or direct agent input channel
    * Manuel giriş veya doğrudan acente girişi kanalı
    */
-  Manual = "MANUAL",
+  Manual = 'MANUAL',
 
   /**
    * Company website or web portal channel
    * Şirket web sitesi veya web portalı kanalı
    */
-  Website = "WEBSITE",
+  Website = 'WEBSITE',
 
   /**
    * Google Ads or Google advertising platform channel
    * Google Ads veya Google reklam platformu kanalı
    */
-  GoogleAds = "GOOGLE_ADS",
+  GoogleAds = 'GOOGLE_ADS',
 
   /**
    * Call center or telephone support channel
    * Çağrı merkezi veya telefon destek kanalı
    */
-  CallCenter = "CALL_CENTER",
+  CallCenter = 'CALL_CENTER',
 
   /**
    * Social media platforms channel
    * Sosyal medya platformları kanalı
    */
-  SocialMedia = "SOCIAL_MEDIA",
+  SocialMedia = 'SOCIAL_MEDIA',
 
   /**
    * Mobile application channel
    * Mobil uygulama kanalı
    */
-  MobileApp = "MOBILE_APP",
+  MobileApp = 'MOBILE_APP',
 
   /**
    * Offline proposal form or paper-based application channel
    * Çevrimdışı teklif formu veya kağıt tabanlı başvuru kanalı
    */
-  OfflineProposalForm = "OFFLINE_PROPOSAL_FORM",
+  OfflineProposalForm = 'OFFLINE_PROPOSAL_FORM',
 
   /**
    * Field sales or door-to-door sales channel
    * Saha satışı veya kapı kapı satış kanalı
    */
-  Field = "FIELD",
+  Field = 'FIELD',
 
   /**
    * Print media advertising channel
    * Basılı medya reklam kanalı
    */
-  PrintMedia = "PRINT_MEDIA",
+  PrintMedia = 'PRINT_MEDIA',
 
   /**
    * Trade fairs, exhibitions, or promotional events channel
    * Ticaret fuarları, sergiler veya promosyon etkinlikleri kanalı
    */
-  FairEvent = "FAIR_EVENT",
+  FairEvent = 'FAIR_EVENT',
 
   /**
    * Business partner or affiliate marketing channel
    * İş ortağı veya bağlı pazarlama kanalı
    */
-  BusinessPartner = "BUSINESS_PARTNER",
+  BusinessPartner = 'BUSINESS_PARTNER',
 
   /**
    * Automated chatbot or AI-powered customer service channel
    * Otomatik chatbot veya AI destekli müşteri hizmetleri kanalı
    */
-  Chatbot = "CHATBOT",
+  Chatbot = 'CHATBOT',
 }
 
 /**
@@ -134,7 +134,7 @@ export enum AssetType {
    * dahil sigortalanabilecek tüm motorlu araç türleri. Araç sigortası genellikle hasar, hırsızlık,
    * sorumluluk ve isteğe bağlı ek korumalar için kapsam içerir.
    */
-  Vehicle = "VEHICLE",
+  Vehicle = 'VEHICLE',
   /**
    * Property Assets / Konut Varlıkları
    *
@@ -146,7 +146,7 @@ export enum AssetType {
    * Konut sigortası genellikle yapısal hasar, hırsızlık, doğal afetler ve konutla ilgili sorumluluk
    * kapsamlarını içerir.
    */
-  Property = "PROPERTY",
+  Property = 'PROPERTY',
 }
 
 /**
@@ -180,7 +180,7 @@ export enum CustomerType {
    * kıyasla farklı dokümantasyon gereksinimlerine, kapsam limitelerine ve prim yapılarına
    * sahiptir. Tüketici koruma yasaları ve bireysel gizlilik düzenlemelerine tabidir.
    */
-  Individual = "INDIVIDUAL",
+  Individual = 'INDIVIDUAL',
   /**
    * Corporate Customer / Kurumsal Müşteri
    *
@@ -196,7 +196,7 @@ export enum CustomerType {
    * gerektirir. Ticari düzenlemelere tabidir ve farklı vergi etkileri ve raporlama
    * gereksinimlerine sahip olabilir.
    */
-  Company = "COMPANY",
+  Company = 'COMPANY',
   /**
    * Foreign Customer / Yabancı Müşteri
    *
@@ -212,7 +212,7 @@ export enum CustomerType {
    * Uluslararası anlaşmalara ve yerel düzenlemelere bağlı olarak ek uyumluluk kontrolleri
    * gerektirebilir ve farklı kapsam seçenekleri veya kısıtlamaları olabilir.
    */
-  Foreign = "FOREIGN",
+  Foreign = 'FOREIGN',
 }
 
 /**
@@ -235,199 +235,199 @@ export enum ProductBranch {
    * Comprehensive motor vehicle insurance (Kasko)
    * Kapsamlı motorlu araç sigortası (Kasko)
    */
-  Kasko = "KASKO",
+  Kasko = 'KASKO',
 
   /**
    * Compulsory Earthquake Insurance (DASK)
    * Zorunlu Deprem Sigortası (DASK)
    */
-  Dask = "DASK",
+  Dask = 'DASK',
 
   /**
    * Residential property insurance (Konut)
    * Konut sigortası
    */
-  Konut = "KONUT",
+  Konut = 'KONUT',
 
   /**
    * Mandatory motor vehicle liability insurance (Trafik)
    * Zorunlu motorlu araç sorumluluk sigortası (Trafik)
    */
-  Trafik = "TRAFIK",
+  Trafik = 'TRAFIK',
 
   /**
    * Supplementary Health Insurance (TSS)
    * Tamamlayıcı Sağlık Sigortası (TSS)
    */
-  Tss = "TSS",
+  Tss = 'TSS',
 
   /**
    * Voluntary Financial Liability Insurance (İMM)
    * İhtiyari Mali Mesuliyet Sigortası (İMM)
    */
-  Imm = "IMM",
+  Imm = 'IMM',
 
   /**
    * Green Card international motor insurance
    * Yeşil Kart uluslararası motorlu araç sigortası
    */
-  YesilKart = "YESIL_KART",
+  YesilKart = 'YESIL_KART',
 
   /**
    * Personal accident insurance (Ferdi Kaza)
    * Ferdi kaza sigortası
    */
-  FerdiKaza = "FERDI_KAZA",
+  FerdiKaza = 'FERDI_KAZA',
 
   /**
    * Group life insurance (Grup Hayat)
    * Grup hayat sigortası
    */
-  GrupHayat = "GRUP_HAYAT",
+  GrupHayat = 'GRUP_HAYAT',
 
   /**
    * Health insurance (Sağlık)
    * Sağlık sigortası
    */
-  Saglik = "SAGLIK",
+  Saglik = 'SAGLIK',
 
   /**
    * Credit card and identity protection insurance
    * Kredi kartı ve kimlik koruma sigortası
    */
-  KartKimlikKoruma = "KART_KIMLIK_KORUMA",
+  KartKimlikKoruma = 'KART_KIMLIK_KORUMA',
 
   /**
    * Third-party liability insurance
    * Üçüncü şahıs mali sorumluluk sigortası
    */
-  UcuncuSahisMaliSorumluluk = "UCUNCU_SAHIS_MALI_SORUMLULUK",
+  UcuncuSahisMaliSorumluluk = 'UCUNCU_SAHIS_MALI_SORUMLULUK',
 
   /**
    * Commercial property fire insurance
    * İşyeri yangın sigortası
    */
-  IsyeriYangin = "ISYERI_YANGIN",
+  IsyeriYangin = 'ISYERI_YANGIN',
 
   /**
    * Travel insurance (Seyahat)
    * Seyahat sigortası
    */
-  Seyahat = "SEYAHAT",
+  Seyahat = 'SEYAHAT',
 
   /**
    * Electronic device insurance
    * Elektronik cihaz sigortası
    */
-  ElektronikCihaz = "ELEKTRONIK_CIHAZ",
+  ElektronikCihaz = 'ELEKTRONIK_CIHAZ',
 
   /**
    * Pet insurance
    * Evcil hayvan sigortası
    */
-  Pet = "PET",
+  Pet = 'PET',
 
   /**
    * Individual Retirement System (BES)
    * Bireysel Emeklilik Sistemi (BES)
    */
-  Bes = "BES",
+  Bes = 'BES',
 
   /**
    * Construction all-risk insurance
    * İnşaat tüm riskler sigortası
    */
-  InsaatAllRisk = "INSAAT_ALL_RISK",
+  InsaatAllRisk = 'INSAAT_ALL_RISK',
 
   /**
    * Leasing all-risk insurance
    * Leasing tüm riskler sigortası
    */
-  LeasingAllRisk = "LEASING_ALL_RISK",
+  LeasingAllRisk = 'LEASING_ALL_RISK',
 
   /**
    * Assembly/installation all-risk insurance
    * Montaj tüm riskler sigortası
    */
-  MontajAllRisk = "MONTAJ_ALL_RISK",
+  MontajAllRisk = 'MONTAJ_ALL_RISK',
 
   /**
    * Transportation/cargo insurance
    * Nakliyat sigortası
    */
-  Nakliyat = "NAKLIYAT",
+  Nakliyat = 'NAKLIYAT',
 
   /**
    * Private security financial liability insurance
    * Özel güvenlik mali sorumluluk sigortası
    */
-  OzelGuvenlikMaliSorumluluk = "OZEL_GUVENLIK_MALI_SORUMLULUK",
+  OzelGuvenlikMaliSorumluluk = 'OZEL_GUVENLIK_MALI_SORUMLULUK',
 
   /**
    * Smart phone insurance
    * Akıllı telefon sigortası
    */
-  AkilliTelefon = "AKILLI_TELEFON",
+  AkilliTelefon = 'AKILLI_TELEFON',
 
   /**
    * Hazardous materials liability insurance
    * Tehlikeli maddeler mali sorumluluk sigortası
    */
-  TehlikeliMaddelerMaliSorumluluk = "TEHLIKELI_MADDELER_MALI_SORUMLULUK",
+  TehlikeliMaddelerMaliSorumluluk = 'TEHLIKELI_MADDELER_MALI_SORUMLULUK',
 
   /**
    * Yacht, boat, and pleasure craft insurance
    * Yat, gemi ve gezinti teknesi sigortası
    */
-  YatGemiGezintiTeknesi = "YAT_GEMI_GEZINTI_TEKNESI",
+  YatGemiGezintiTeknesi = 'YAT_GEMI_GEZINTI_TEKNESI',
 
   /**
    * Agricultural insurance
    * Tarım sigortası
    */
-  Tarim = "TARIM",
+  Tarim = 'TARIM',
 
   /**
    * Professional liability insurance
    * Mesleki sorumluluk sigortası
    */
-  MeslekiSorumluluk = "MESLEKI_SORUMLULUK",
+  MeslekiSorumluluk = 'MESLEKI_SORUMLULUK',
 
   /**
    * Credit insurance
    * Alacak sigortası
    */
-  Alacak = "ALACAK",
+  Alacak = 'ALACAK',
 
   /**
    * Employer's liability insurance
    * İşveren mali mesuliyet sigortası
    */
-  IsverenMaliMesuliyet = "ISVEREN_MALI_MESULIYET",
+  IsverenMaliMesuliyet = 'ISVEREN_MALI_MESULIYET',
 
   /**
    * Engineering insurance
    * Mühendislik sigortası
    */
-  Muhendislik = "MUHENDISLIK",
+  Muhendislik = 'MUHENDISLIK',
 
   /**
    * Legal protection insurance
    * Hukuksal koruma sigortası
    */
-  HukuksalKoruma = "HUKUKSAL_KORUMA",
+  HukuksalKoruma = 'HUKUKSAL_KORUMA',
 
   /**
    * First Fire Residential Insurance
    * İlk ateş konut sigortası
    */
-  IlkAtesKonut = "ILK_ATES_KONUT",
+  IlkAtesKonut = 'ILK_ATES_KONUT',
 
   /**
    * Surety Insurance
    * Kefalet sigortası
    */
-  Kefalet = "KEFALET",
+  Kefalet = 'KEFALET',
 }
 
 // ============================================================================
@@ -544,10 +544,10 @@ export interface CreditCard {
  * Currency Types
  */
 export enum Currency {
-  Unknown = "UNKNOWN",
-  TurkishLira = "TURKISH_LIRA",
-  UnitedStatesDollar = "UNITED_STATES_DOLLAR",
-  Euro = "EURO",
+  Unknown = 'UNKNOWN',
+  TurkishLira = 'TURKISH_LIRA',
+  UnitedStatesDollar = 'UNITED_STATES_DOLLAR',
+  Euro = 'EURO',
 }
 
 /**
@@ -566,37 +566,37 @@ export enum PaymentOption {
    * Unknown or unspecified payment option
    * Bilinmeyen veya belirtilmemiş ödeme seçeneği
    */
-  Unknown = "UNKNOWN",
+  Unknown = 'UNKNOWN',
 
   /**
    * Synchronous credit card payment processing
    * Senkron kredi kartı ödeme işlemi
    */
-  SyncCreditCard = "SYNC_CREDIT_CARD",
+  SyncCreditCard = 'SYNC_CREDIT_CARD',
 
   /**
    * Synchronous open account payment processing
    * Senkron açık hesap ödeme işlemi
    */
-  SyncOpenAccount = "SYNC_OPEN_ACCOUNT",
+  SyncOpenAccount = 'SYNC_OPEN_ACCOUNT',
 
   /**
    * Asynchronous 3D Secure payment processing
    * Asenkron 3D Secure ödeme işlemi
    */
-  Async3dSecure = "ASYNC_3D_SECURE",
+  Async3dSecure = 'ASYNC_3D_SECURE',
 
   /**
    * Asynchronous insurance company redirect payment processing
    * Asenkron sigorta şirketi yönlendirme ödeme işlemi
    */
-  AsyncInsuranceCompanyRedirect = "ASYNC_INSURANCE_COMPANY_REDIRECT",
+  AsyncInsuranceCompanyRedirect = 'ASYNC_INSURANCE_COMPANY_REDIRECT',
 
   /**
    * Asynchronous third-party 3D Secure payment processing
    * Asenkron üçüncü taraf 3D Secure ödeme işlemi
    */
-  AsyncThirdParty3dSecure = "ASYNC_THIRD_PARTY_3D_SECURE",
+  AsyncThirdParty3dSecure = 'ASYNC_THIRD_PARTY_3D_SECURE',
 }
 
 /**
@@ -613,19 +613,19 @@ export enum PolicyState {
    * The policy is currently active and providing coverage
    * Poliçe şu anda aktif durumda ve teminat sağlıyor
    */
-  Active = "ACTIVE",
+  Active = 'ACTIVE',
 
   /**
    * The policy has reached its natural end date and is no longer providing coverage
    * Poliçe doğal bitiş tarihine ulaşmış ve artık teminat sağlamıyor
    */
-  EndOfLife = "END_OF_LIFE",
+  EndOfLife = 'END_OF_LIFE',
 
   /**
    * The policy has been cancelled before its natural expiration date
    * Poliçe doğal bitiş tarihinden önce iptal edilmiş
    */
-  Cancelled = "CANCELLED",
+  Cancelled = 'CANCELLED',
 }
 
 /**
@@ -661,7 +661,7 @@ export enum InsuranceProductType {
    * sağlar. Anında yanıtlarla en iyi kullanıcı deneyimini sağlar ancak kararlı ağ
    * bağlantısı ve güvenilir harici servis kullanılabilirliği gerektirir.
    */
-  WebService = "WEB_SERVICE",
+  WebService = 'WEB_SERVICE',
 
   /**
    * Automated robot-based integration using screen scraping or automated processes.
@@ -681,7 +681,7 @@ export enum InsuranceProductType {
    * değişikliklerine uyum sağlamak için düzenli bakım gerektirir ancak eski sistemlerle
    * entegrasyonu mümkün kılar.
    */
-  Robot = "ROBOT",
+  Robot = 'ROBOT',
 }
 
 /**

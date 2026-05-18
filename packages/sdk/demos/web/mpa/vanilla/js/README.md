@@ -13,11 +13,11 @@ A Multi-Page Application demo for the InsurUp SDK using **plain JavaScript** wit
 
 ## Tech Stack
 
-| Technology | Purpose |
-|------------|---------|
-| JavaScript (ES2020+) | Application code |
-| [Bun](https://bun.sh/) | Simple static file server |
-| [Pico CSS](https://picocss.com/) | Minimal CSS framework |
+| Technology                            | Purpose                             |
+| ------------------------------------- | ----------------------------------- |
+| JavaScript (ES2020+)                  | Application code                    |
+| [Bun](https://bun.sh/)                | Simple static file server           |
+| [Pico CSS](https://picocss.com/)      | Minimal CSS framework               |
 | [@insurup/sdk](../../../../README.md) | InsurUp API client (browser bundle) |
 
 ## Quick Start
@@ -106,8 +106,8 @@ Each HTML page includes an import map that maps the SDK package to its browser b
 This allows JavaScript files to use familiar imports:
 
 ```javascript
-import { DefaultInsurUpClient } from "@insurup/sdk";
-import { PolicyState } from "@insurup/contracts";
+import { DefaultInsurUpClient } from '@insurup/sdk';
+import { PolicyState } from '@insurup/contracts';
 ```
 
 ### No Build Required
@@ -117,6 +117,7 @@ import { PolicyState } from "@insurup/contracts";
 - Changes are immediately visible
 
 This is possible because:
+
 1. Modern browsers support ES modules natively
 2. Import maps handle package resolution
 3. The SDK provides a pre-built browser bundle
@@ -144,8 +145,8 @@ This provides IDE autocomplete and type checking (in VS Code with `// @ts-check`
 ### Initializing the Client
 
 ```javascript
-import { DefaultInsurUpClient } from "@insurup/sdk";
-import { getAccessToken } from "./auth.js";
+import { DefaultInsurUpClient } from '@insurup/sdk';
+import { getAccessToken } from './auth.js';
 
 const client = new DefaultInsurUpClient({
   tokenProvider: () => getAccessToken(),
@@ -157,7 +158,7 @@ const client = new DefaultInsurUpClient({
 ```javascript
 const res = await client.customers.getCustomers({
   first: 10,
-  select: ["id", "name", "identityNumber"],
+  select: ['id', 'name', 'identityNumber'],
 });
 
 if (res.isSuccess) {
@@ -168,38 +169,40 @@ if (res.isSuccess) {
 ### Using Enums
 
 ```javascript
-import { PolicyState } from "@insurup/contracts";
+import { PolicyState } from '@insurup/contracts';
 
 if (policy.state === PolicyState.Active) {
-  console.log("Policy is active");
+  console.log('Policy is active');
 }
 ```
 
 ## Browser Compatibility
 
 This demo requires browsers that support:
+
 - ES Modules (`<script type="module">`)
 - Import Maps (`<script type="importmap">`)
 - Web Crypto API (for PKCE)
 
 | Browser | Minimum Version |
-|---------|-----------------|
-| Chrome | 89+ |
-| Firefox | 108+ |
-| Safari | 16.4+ |
-| Edge | 89+ |
+| ------- | --------------- |
+| Chrome  | 89+             |
+| Firefox | 108+            |
+| Safari  | 16.4+           |
+| Edge    | 89+             |
 
 ## Comparison with Other Demos
 
-| Feature | JS (This) | TS | SPA |
-|---------|-----------|-----|-----|
-| Build Step | None | Bun | Bun |
-| Language | JavaScript | TypeScript | TypeScript |
-| Type Safety | JSDoc | Full | Full |
-| Navigation | Page reload | Page reload | Client-side |
-| Complexity | Lowest | Medium | Highest |
+| Feature     | JS (This)   | TS          | SPA         |
+| ----------- | ----------- | ----------- | ----------- |
+| Build Step  | None        | Bun         | Bun         |
+| Language    | JavaScript  | TypeScript  | TypeScript  |
+| Type Safety | JSDoc       | Full        | Full        |
+| Navigation  | Page reload | Page reload | Client-side |
+| Complexity  | Lowest      | Medium      | Highest     |
 
 Choose this demo if you want:
+
 - The simplest possible setup
 - Quick prototyping
 - Learning the SDK basics

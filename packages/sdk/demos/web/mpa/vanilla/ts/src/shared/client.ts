@@ -2,9 +2,9 @@
  * InsurUp SDK client singleton.
  */
 
-import { DefaultInsurUpClient } from "@insurup/sdk";
-import { getAccessToken } from "./auth";
-import { getConfig } from "./config";
+import { DefaultInsurUpClient } from '@insurup/sdk';
+import { getAccessToken } from './auth';
+import { getConfig } from './config';
 
 let clientInstance: DefaultInsurUpClient | null = null;
 

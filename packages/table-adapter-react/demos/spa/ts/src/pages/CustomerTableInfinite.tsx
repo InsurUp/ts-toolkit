@@ -1,7 +1,7 @@
-import { useDeferredValue, useState, useCallback, useRef, useEffect } from "react";
-import { useInfiniteCustomerTable } from "@insurup/table-adapter-react";
-import { flexRender } from "@tanstack/react-table";
-import { useVirtualizer } from "@tanstack/react-virtual";
+import { useDeferredValue, useState, useCallback, useRef, useEffect } from 'react';
+import { useInfiniteCustomerTable } from '@insurup/table-adapter-react';
+import { flexRender } from '@tanstack/react-table';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import {
   DndContext,
   closestCenter,
@@ -10,31 +10,21 @@ import {
   useSensor,
   useSensors,
   type DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  horizontalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { useClient } from "@/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+} from '@dnd-kit/core';
+import { arrayMove, SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
+import { useClient } from '@/client';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { DraggableTableHeader } from "@/components/DraggableTableHeader";
+} from '@/components/ui/dropdown-menu';
+import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
+import { DraggableTableHeader } from '@/components/DraggableTableHeader';
 import {
   Search,
   ArrowUpDown,
@@ -43,12 +33,12 @@ import {
   RefreshCw,
   Settings2,
   Loader2,
-} from "lucide-react";
-import { toast } from "sonner";
+} from 'lucide-react';
+import { toast } from 'sonner';
 
 export function CustomerTableInfinite(): React.ReactElement {
   const client = useClient();
-  const [searchInput, setSearchInput] = useState("");
+  const [searchInput, setSearchInput] = useState('');
   const deferredSearch = useDeferredValue(searchInput);
 
   // Container ref for virtualization and scroll detection
@@ -58,8 +48,8 @@ export function CustomerTableInfinite(): React.ReactElement {
   // state.rows contains ALL accumulated rows, not just the current page
   const { state, table, adapter } = useInfiniteCustomerTable({
     columns: (col) => [
-      col.id({ 
-        header: "ID", 
+      col.id({
+        header: 'ID',
         sortable: true,
         size: 280,
         minSize: 100,
@@ -67,39 +57,39 @@ export function CustomerTableInfinite(): React.ReactElement {
         enableResizing: true,
         enablePinning: true,
       }),
-      col.name({ 
-        header: "Name", 
+      col.name({
+        header: 'Name',
         sortable: true,
         size: 180,
         minSize: 100,
         maxSize: 300,
         enableResizing: true,
       }),
-      col.type({ 
-        header: "Type", 
+      col.type({
+        header: 'Type',
         sortable: true,
         size: 120,
         minSize: 80,
         maxSize: 200,
         enableResizing: true,
       }),
-      col.primaryEmail({ 
-        header: "Email", 
+      col.primaryEmail({
+        header: 'Email',
         sortable: true,
         size: 220,
         minSize: 150,
         maxSize: 350,
         enableResizing: true,
       }),
-      col.primaryPhoneNumber({ 
-        header: "Phone",
+      col.primaryPhoneNumber({
+        header: 'Phone',
         size: 140,
         minSize: 100,
         maxSize: 200,
         enableResizing: true,
       }),
-      col.createdAt({ 
-        header: "Created", 
+      col.createdAt({
+        header: 'Created',
         sortable: true,
         sortDescFirst: true,
         size: 120,
@@ -115,11 +105,11 @@ export function CustomerTableInfinite(): React.ReactElement {
       toast.error(`Failed to load customers: ${error.message}`);
     },
     tableOptions: {
-      columnResizeMode: "onChange",
+      columnResizeMode: 'onChange',
       enableColumnResizing: true,
       enableSortingRemoval: false,
       initialState: {
-        sorting: [{ id: "createdAt", desc: true }],
+        sorting: [{ id: 'createdAt', desc: true }],
       },
     },
   });
@@ -147,20 +137,20 @@ export function CustomerTableInfinite(): React.ReactElement {
     const handleScroll = () => {
       const { scrollTop, scrollHeight, clientHeight } = container;
       const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
-      
+
       // Load more when within 200px of bottom
       if (distanceFromBottom < 200) {
         loadMore();
       }
     };
 
-    container.addEventListener("scroll", handleScroll, { passive: true });
-    
+    container.addEventListener('scroll', handleScroll, { passive: true });
+
     // Initial check
     handleScroll();
-    
+
     return () => {
-      container.removeEventListener("scroll", handleScroll);
+      container.removeEventListener('scroll', handleScroll);
     };
   }, [loadMore]);
 
@@ -176,18 +166,18 @@ export function CustomerTableInfinite(): React.ReactElement {
 
   // Get column IDs for sortable context - read from table state
   const tableColumnOrder = table.getState().columnOrder;
-  const columnIds = tableColumnOrder.length > 0 
-    ? tableColumnOrder 
-    : table.getAllLeafColumns().map((c) => c.id);
+  const columnIds =
+    tableColumnOrder.length > 0 ? tableColumnOrder : table.getAllLeafColumns().map((c) => c.id);
 
   // Handle drag end for column reordering - use table.setColumnOrder directly
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
       const { active, over } = event;
       if (over && active.id !== over.id) {
-        const currentOrder = table.getState().columnOrder.length > 0
-          ? table.getState().columnOrder
-          : table.getAllLeafColumns().map((c) => c.id);
+        const currentOrder =
+          table.getState().columnOrder.length > 0
+            ? table.getState().columnOrder
+            : table.getAllLeafColumns().map((c) => c.id);
         const oldIndex = currentOrder.indexOf(active.id as string);
         const newIndex = currentOrder.indexOf(over.id as string);
         table.setColumnOrder(arrayMove(currentOrder, oldIndex, newIndex));
@@ -212,7 +202,7 @@ export function CustomerTableInfinite(): React.ReactElement {
 
   const handleRefresh = useCallback((): void => {
     adapter.invalidate();
-    toast.success("Refreshing data...");
+    toast.success('Refreshing data...');
   }, [adapter]);
 
   const getSortIcon = (columnId: string): React.ReactElement => {
@@ -242,7 +232,7 @@ export function CustomerTableInfinite(): React.ReactElement {
           </p>
         </div>
         <Button variant="outline" onClick={handleRefresh} disabled={state.isFetching}>
-          <RefreshCw className={`mr-2 h-4 w-4 ${state.isFetching ? "animate-spin" : ""}`} />
+          <RefreshCw className={`mr-2 h-4 w-4 ${state.isFetching ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
       </div>
@@ -265,7 +255,8 @@ export function CustomerTableInfinite(): React.ReactElement {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {table.getAllColumns()
+            {table
+              .getAllColumns()
               .filter((column) => column.getCanHide())
               .map((column) => (
                 <DropdownMenuCheckboxItem
@@ -278,34 +269,29 @@ export function CustomerTableInfinite(): React.ReactElement {
               ))}
           </DropdownMenuContent>
         </DropdownMenu>
-        <div className="text-sm text-muted-foreground">
-          {totalLoaded} customers loaded
-        </div>
+        <div className="text-sm text-muted-foreground">{totalLoaded} customers loaded</div>
       </div>
 
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         {/* Scrollable container with fixed height for virtualization */}
         <div
           ref={tableContainerRef}
-          className={`h-[600px] overflow-auto rounded-md border ${searchInput !== deferredSearch ? "opacity-70" : "opacity-100"}`}
+          className={`h-[600px] overflow-auto rounded-md border ${searchInput !== deferredSearch ? 'opacity-70' : 'opacity-100'}`}
         >
           <Table className="w-full table-fixed">
             <TableHeader className="sticky top-0 z-10 bg-background">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
-                  <SortableContext
-                    items={columnIds}
-                    strategy={horizontalListSortingStrategy}
-                  >
+                  <SortableContext items={columnIds} strategy={horizontalListSortingStrategy}>
                     {headerGroup.headers.map((header) => (
                       <DraggableTableHeader
                         key={header.id}
                         header={header}
-                        onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
+                        onClick={
+                          header.column.getCanSort()
+                            ? header.column.getToggleSortingHandler()
+                            : undefined
+                        }
                       >
                         {header.isPlaceholder
                           ? null
@@ -350,13 +336,15 @@ export function CustomerTableInfinite(): React.ReactElement {
                 <>
                   {/* Spacer row for virtual scroll offset */}
                   {rowVirtualizer.getVirtualItems().length > 0 && (
-                    <tr style={{ height: `${rowVirtualizer.getVirtualItems()[0]?.start ?? 0}px` }} />
+                    <tr
+                      style={{ height: `${rowVirtualizer.getVirtualItems()[0]?.start ?? 0}px` }}
+                    />
                   )}
                   {rowVirtualizer.getVirtualItems().map((virtualRow) => {
                     const row = state.rows[virtualRow.index];
                     const rowData = row as Record<string, unknown>;
                     const rowId = (rowData.id as string) || `row-${virtualRow.index}`;
-                    
+
                     return (
                       <TableRow
                         key={rowId}
@@ -367,15 +355,20 @@ export function CustomerTableInfinite(): React.ReactElement {
                         {table.getVisibleLeafColumns().map((column) => {
                           const value = rowData[column.id];
                           return (
-                            <TableCell key={`${rowId}-${column.id}`} className="overflow-hidden truncate">
-                              {column.id === "type" ? (
-                                <Badge variant="outline">
-                                  {String(value ?? "")}
-                                </Badge>
-                              ) : column.id === "createdAt" ? (
-                                value ? new Date(value as string).toLocaleDateString() : "-"
+                            <TableCell
+                              key={`${rowId}-${column.id}`}
+                              className="overflow-hidden truncate"
+                            >
+                              {column.id === 'type' ? (
+                                <Badge variant="outline">{String(value ?? '')}</Badge>
+                              ) : column.id === 'createdAt' ? (
+                                value ? (
+                                  new Date(value as string).toLocaleDateString()
+                                ) : (
+                                  '-'
+                                )
                               ) : (
-                                String(value ?? "-")
+                                String(value ?? '-')
                               )}
                             </TableCell>
                           );

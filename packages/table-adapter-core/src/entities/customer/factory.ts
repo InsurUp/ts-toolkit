@@ -27,7 +27,10 @@ import {
   type TableApi,
 } from '../../lib/factory/index.js';
 import { createSortingConverters } from '../../lib/sorting/index.js';
-import type { CursorPaginationManager, CursorPaginationOptions } from '../../lib/pagination/index.js';
+import type {
+  CursorPaginationManager,
+  CursorPaginationOptions,
+} from '../../lib/pagination/index.js';
 
 // ============================================================================
 // Sorting Converters
@@ -69,8 +72,9 @@ function buildCustomerQueryOptions<TFields extends CustomerFieldKey[]>(
 function getCustomerFetchFn<TColumns extends CustomerColumnDef[]>(
   options: CustomerTableOptions<TColumns>
 ): FetchFn<CustomerRowType<TColumns>, GetCustomersOptions<CustomerExtractFields<TColumns>[]>> {
-  return getFetchFn(options, (client) => (vars, requestOptions) =>
-    client.customers.getCustomers(vars, requestOptions)
+  return getFetchFn(
+    options,
+    (client) => (vars, requestOptions) => client.customers.getCustomers(vars, requestOptions)
   );
 }
 

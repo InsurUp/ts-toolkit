@@ -37,7 +37,12 @@ export class InfiniteTableAdapter<
   TFilterInput,
   TSearchInput,
   TPaginationOptions extends PaginationOptions,
-> implements ITableAdapter<TRow, TFilterInput, TSearchInput, PaginationManagerFromOptions<TPaginationOptions>> {
+> implements ITableAdapter<
+  TRow,
+  TFilterInput,
+  TSearchInput,
+  PaginationManagerFromOptions<TPaginationOptions>
+> {
   /** Wrapped base adapter - handles all core functionality */
   private readonly baseAdapter: BaseTableAdapter<
     TEntity,
@@ -73,10 +78,25 @@ export class InfiniteTableAdapter<
       TFilterInput,
       TSearchInput
     >,
-    options: BaseTableAdapterOptions<TEntity, TRow, TSortInput, TFilterInput, TSearchInput, TPaginationOptions>
+    options: BaseTableAdapterOptions<
+      TEntity,
+      TRow,
+      TSortInput,
+      TFilterInput,
+      TSearchInput,
+      TPaginationOptions
+    >
   ) {
     // Create base adapter with autoFetch disabled - we control the first fetch
-    this.baseAdapter = new BaseTableAdapter<TEntity, TRow, TQueryOptions, TSortInput, TFilterInput, TSearchInput, TPaginationOptions>(fetchFn, buildQueryOptions, {
+    this.baseAdapter = new BaseTableAdapter<
+      TEntity,
+      TRow,
+      TQueryOptions,
+      TSortInput,
+      TFilterInput,
+      TSearchInput,
+      TPaginationOptions
+    >(fetchFn, buildQueryOptions, {
       ...options,
       autoFetch: false,
     });

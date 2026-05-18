@@ -1,14 +1,8 @@
-import { useAuthContext } from "react-oauth2-code-pkce";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { User, Mail, Clock, LogOut } from "lucide-react";
+import { useAuthContext } from 'react-oauth2-code-pkce';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { User, Mail, Clock, LogOut } from 'lucide-react';
 
 export function Profile() {
   const { token, idTokenData, logOut } = useAuthContext();
@@ -20,9 +14,7 @@ export function Profile() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
-        <p className="text-muted-foreground">
-          View your account information and session details.
-        </p>
+        <p className="text-muted-foreground">View your account information and session details.</p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -35,14 +27,14 @@ export function Profile() {
             <CardDescription>Your profile details from the identity provider.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {typeof claims?.name === "string" && (
+            {typeof claims?.name === 'string' && (
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4 text-muted-foreground" />
                 <span className="font-medium">Name:</span>
                 <span>{claims.name}</span>
               </div>
             )}
-            {typeof claims?.email === "string" && (
+            {typeof claims?.email === 'string' && (
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-muted-foreground" />
                 <span className="font-medium">Email:</span>
@@ -52,8 +44,8 @@ export function Profile() {
             {claims?.email_verified !== undefined && (
               <div className="flex items-center gap-2">
                 <span className="font-medium">Email Verified:</span>
-                <Badge variant={claims.email_verified ? "default" : "secondary"}>
-                  {claims.email_verified ? "Yes" : "No"}
+                <Badge variant={claims.email_verified ? 'default' : 'secondary'}>
+                  {claims.email_verified ? 'Yes' : 'No'}
                 </Badge>
               </div>
             )}
@@ -70,20 +62,20 @@ export function Profile() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <span className="font-medium">Status:</span>{" "}
+              <span className="font-medium">Status:</span>{' '}
               <Badge variant="default">Authenticated</Badge>
             </div>
-            {typeof claims?.iat === "number" && (
+            {typeof claims?.iat === 'number' && (
               <div>
-                <span className="font-medium">Issued At:</span>{" "}
+                <span className="font-medium">Issued At:</span>{' '}
                 <span className="text-muted-foreground">
                   {new Date(claims.iat * 1000).toLocaleString()}
                 </span>
               </div>
             )}
-            {typeof claims?.exp === "number" && (
+            {typeof claims?.exp === 'number' && (
               <div>
-                <span className="font-medium">Expires:</span>{" "}
+                <span className="font-medium">Expires:</span>{' '}
                 <span className="text-muted-foreground">
                   {new Date(claims.exp * 1000).toLocaleString()}
                 </span>
@@ -103,9 +95,7 @@ export function Profile() {
         <Card>
           <CardHeader>
             <CardTitle>Access Token</CardTitle>
-            <CardDescription>
-              The current access token (truncated for display).
-            </CardDescription>
+            <CardDescription>The current access token (truncated for display).</CardDescription>
           </CardHeader>
           <CardContent>
             <code className="block p-4 bg-muted rounded-md text-sm break-all">

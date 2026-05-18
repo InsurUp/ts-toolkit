@@ -3,20 +3,9 @@
  */
 
 // Re-export PKCE utilities from the library
-export { generateCodeVerifier } from "@badgateway/oauth2-client";
+export { generateCodeVerifier } from '@badgateway/oauth2-client';
 
-export {
-  login,
-  logout,
-  getAccessToken,
-  getAuthStatus,
-  isAuthenticated,
-} from "./oauth.js";
-export {
-  saveTokens,
-  loadTokens,
-  clearTokens,
-  type TokenData,
-} from "./credential-store.js";
-export { default as openBrowser } from "open";
-export { waitForCallback, type CallbackResult } from "./callback-server.js";
+export { login, logout, getAccessToken, getAuthStatus, isAuthenticated } from './oauth.js';
+export { saveTokens, loadTokens, clearTokens, type TokenData } from './credential-store.js';
+export { default as openBrowser } from 'open';
+export { waitForCallback, type CallbackResult } from './callback-server.js';

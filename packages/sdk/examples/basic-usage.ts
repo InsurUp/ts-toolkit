@@ -4,10 +4,10 @@
  * Demonstrates client initialization and simple operations with the InsurUp SDK.
  */
 
-import { DefaultInsurUpClient } from "@insurup/sdk";
+import { DefaultInsurUpClient } from '@insurup/sdk';
 
 // Print SDK info
-console.log("InsurUp SDK - Basic Usage Example");
+console.log('InsurUp SDK - Basic Usage Example');
 
 // ============================================================================
 // 1. Basic client initialization (no authentication)
@@ -20,7 +20,7 @@ const client = new DefaultInsurUpClient();
 // ============================================================================
 
 const authenticatedClient = new DefaultInsurUpClient({
-  tokenProvider: () => "your-api-token-here",
+  tokenProvider: () => 'your-api-token-here',
 });
 
 // ============================================================================
@@ -33,7 +33,7 @@ const dynamicAuthClient = new DefaultInsurUpClient({
     // const response = await fetch('/api/auth/token');
     // const { token } = await response.json();
     // return token;
-    return "dynamic-token";
+    return 'dynamic-token';
   },
 });
 
@@ -42,11 +42,11 @@ const dynamicAuthClient = new DefaultInsurUpClient({
 // ============================================================================
 
 const customClient = new DefaultInsurUpClient({
-  baseUrl: "https://api.staging.insurup.com/api/",
+  baseUrl: 'https://api.staging.insurup.com/api/',
   timeoutMs: 60000, // 60 second timeout
-  tokenProvider: () => "your-api-token-here",
+  tokenProvider: () => 'your-api-token-here',
   customHeaders: {
-    "X-Request-Source": "my-application",
+    'X-Request-Source': 'my-application',
   },
 });
 
@@ -59,9 +59,9 @@ async function basicUsage() {
   const languagesResult = await client.languages.getLanguages();
 
   if (languagesResult.isSuccess) {
-    console.log("Available languages:", languagesResult.data);
+    console.log('Available languages:', languagesResult.data);
   } else {
-    console.error("Failed to fetch languages:", languagesResult.message);
+    console.error('Failed to fetch languages:', languagesResult.message);
   }
 
   // Get insurance companies

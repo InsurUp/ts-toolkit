@@ -294,11 +294,13 @@ describe('createTableApi', () => {
   const sortingConverters = createSortingConverters<MockSortInput>();
 
   function createMockFetchFn() {
-    return vi.fn().mockResolvedValue(
-      createSuccessResult(
-        createMockConnection([{ id: '1', name: 'Test', email: 'test@example.com' }])
-      )
-    );
+    return vi
+      .fn()
+      .mockResolvedValue(
+        createSuccessResult(
+          createMockConnection([{ id: '1', name: 'Test', email: 'test@example.com' }])
+        )
+      );
   }
 
   function createMockColumns(): AnyColumnDef<keyof MockEntity>[] {
@@ -317,7 +319,15 @@ describe('createTableApi', () => {
 
   it('should create table API with all methods', () => {
     const fetchFn = createMockFetchFn();
-    const api = createTableApi<MockEntity, MockEntity, MockQueryOptions, MockSortInput, MockFilterInput, MockSearchInput, CursorPaginationOptions>({
+    const api = createTableApi<
+      MockEntity,
+      MockEntity,
+      MockQueryOptions,
+      MockSortInput,
+      MockFilterInput,
+      MockSearchInput,
+      CursorPaginationOptions
+    >({
       fetchFn,
       buildQueryOptions: (params) => ({
         first: params.first,
@@ -357,7 +367,15 @@ describe('createTableApi', () => {
 
   it('should return frozen columns', () => {
     const fetchFn = createMockFetchFn();
-    const api = createTableApi<MockEntity, MockEntity, MockQueryOptions, MockSortInput, MockFilterInput, MockSearchInput, CursorPaginationOptions>({
+    const api = createTableApi<
+      MockEntity,
+      MockEntity,
+      MockQueryOptions,
+      MockSortInput,
+      MockFilterInput,
+      MockSearchInput,
+      CursorPaginationOptions
+    >({
       fetchFn,
       buildQueryOptions: (params) => ({
         first: params.first,
@@ -384,7 +402,15 @@ describe('createTableApi', () => {
 
   it('should return same columns reference on multiple accesses', () => {
     const fetchFn = createMockFetchFn();
-    const api = createTableApi<MockEntity, MockEntity, MockQueryOptions, MockSortInput, MockFilterInput, MockSearchInput, CursorPaginationOptions>({
+    const api = createTableApi<
+      MockEntity,
+      MockEntity,
+      MockQueryOptions,
+      MockSortInput,
+      MockFilterInput,
+      MockSearchInput,
+      CursorPaginationOptions
+    >({
       fetchFn,
       buildQueryOptions: (params) => ({
         first: params.first,
@@ -410,7 +436,15 @@ describe('createTableApi', () => {
 
   it('should delegate methods to adapter', async () => {
     const fetchFn = createMockFetchFn();
-    const api = createTableApi<MockEntity, MockEntity, MockQueryOptions, MockSortInput, MockFilterInput, MockSearchInput, CursorPaginationOptions>({
+    const api = createTableApi<
+      MockEntity,
+      MockEntity,
+      MockQueryOptions,
+      MockSortInput,
+      MockFilterInput,
+      MockSearchInput,
+      CursorPaginationOptions
+    >({
       fetchFn,
       buildQueryOptions: (params) => ({
         first: params.first,
@@ -451,7 +485,15 @@ describe('createTableApi', () => {
     const onSettled = vi.fn();
 
     const fetchFn = createMockFetchFn();
-    const api = createTableApi<MockEntity, MockEntity, MockQueryOptions, MockSortInput, MockFilterInput, MockSearchInput, CursorPaginationOptions>({
+    const api = createTableApi<
+      MockEntity,
+      MockEntity,
+      MockQueryOptions,
+      MockSortInput,
+      MockFilterInput,
+      MockSearchInput,
+      CursorPaginationOptions
+    >({
       fetchFn,
       buildQueryOptions: (params) => ({
         first: params.first,
@@ -482,7 +524,15 @@ describe('createTableApi', () => {
 
   it('should auto-fetch when autoFetch is true', async () => {
     const fetchFn = createMockFetchFn();
-    const api = createTableApi<MockEntity, MockEntity, MockQueryOptions, MockSortInput, MockFilterInput, MockSearchInput, CursorPaginationOptions>({
+    const api = createTableApi<
+      MockEntity,
+      MockEntity,
+      MockQueryOptions,
+      MockSortInput,
+      MockFilterInput,
+      MockSearchInput,
+      CursorPaginationOptions
+    >({
       fetchFn,
       buildQueryOptions: (params) => ({
         first: params.first,

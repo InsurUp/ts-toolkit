@@ -5,7 +5,7 @@
 
 import type {
   CreateCustomerRequestIndividual,
-  GetCustomerResultIndividual
+  GetCustomerResultIndividual,
 } from '@insurup/contracts';
 import { CustomerType } from '@insurup/contracts';
 import { DateTime, DateOnly } from '@insurup/contracts';
@@ -23,10 +23,10 @@ export const customerRequests = {
     email: 'john.doe@example.com',
     phoneNumber: {
       number: '5551234567',
-      countryCode: 90
+      countryCode: 90,
     },
-    fillMissingFields: false
-  })
+    fillMissingFields: false,
+  }),
 } as const;
 
 /**
@@ -41,16 +41,16 @@ export const customerResponses = {
     primaryEmail: 'john.doe@example.com',
     primaryPhoneNumber: {
       number: '5551234567',
-      countryCode: 90
+      countryCode: 90,
     },
     birthDate: new DateOnly('1990-05-15'),
     createdAt: new DateTime('2024-01-01T00:00:00Z'),
     createdBy: {
       id: 'AGENT-456',
       name: 'Agent Smith',
-      role: 'agent'
-    }
-  })
+      role: 'agent',
+    },
+  }),
 } as const;
 
 /**
@@ -58,5 +58,7 @@ export const customerResponses = {
  */
 export const customerResults = {
   successfulCustomerRetrieval: () =>
-    createSuccess(customerResponses.individualCustomer()) as InsurUpResult<GetCustomerResultIndividual>
+    createSuccess(
+      customerResponses.individualCustomer()
+    ) as InsurUpResult<GetCustomerResultIndividual>,
 } as const;

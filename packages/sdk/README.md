@@ -66,7 +66,7 @@ graph TB
         direction TB
         HTTP[HttpTransport]
         GQL[GraphQLTransport]
-        
+
         subgraph Clients[Specialized Clients]
             direction LR
             C1[customers]
@@ -81,7 +81,7 @@ graph TB
             C10[...]
         end
     end
-    
+
     App[Your Application] --> SDK
     HTTP --> API[InsurUp REST API]
     GQL --> GQLAPI[InsurUp GraphQL API]
@@ -131,10 +131,10 @@ const customer = getDataOrThrow(await client.customers.getCustomer('id'));
 
 ### Error Types
 
-| Kind | Types |
-|------|-------|
+| Kind           | Types                                                                                                   |
+| -------------- | ------------------------------------------------------------------------------------------------------- |
 | `server-error` | `Unauthorized`, `AccessDenied`, `ResourceNotFound`, `InputValidation`, `BusinessValidation`, `Upstream` |
-| `client-error` | `Timeout`, `HttpRequestFailed`, `JsonDeserialization`, `NullResponse` |
+| `client-error` | `Timeout`, `HttpRequestFailed`, `JsonDeserialization`, `NullResponse`                                   |
 
 ---
 
@@ -144,16 +144,16 @@ The SDK includes built-in GraphQL support for querying entities with advanced fi
 
 ### Available GraphQL Methods
 
-| Client | Method | Description |
-|--------|--------|-------------|
-| `customers` | `getCustomers()` | Query customers with filters |
-| `policies` | `getPolicies()` | Query policies with filters |
-| `policies` | `getPolicyTransfers()` | Query policy transfers |
-| `policies` | `getFilePolicyTransfers()` | Query file-based policy transfers |
-| `proposals` | `getProposals()` | Query proposals with filters |
-| `cases` | `getCases()` | Query cases with filters |
-| `agentUsers` | `getAgentUsers()` | Query agent users with filters |
-| `webhooks` | `getWebhookDeliveries()` | Query webhook deliveries |
+| Client       | Method                     | Description                       |
+| ------------ | -------------------------- | --------------------------------- |
+| `customers`  | `getCustomers()`           | Query customers with filters      |
+| `policies`   | `getPolicies()`            | Query policies with filters       |
+| `policies`   | `getPolicyTransfers()`     | Query policy transfers            |
+| `policies`   | `getFilePolicyTransfers()` | Query file-based policy transfers |
+| `proposals`  | `getProposals()`           | Query proposals with filters      |
+| `cases`      | `getCases()`               | Query cases with filters          |
+| `agentUsers` | `getAgentUsers()`          | Query agent users with filters    |
+| `webhooks`   | `getWebhookDeliveries()`   | Query webhook deliveries          |
 
 ### Basic Usage
 
@@ -165,9 +165,9 @@ const result = await client.customers.getCustomers({
 });
 
 if (result.isSuccess) {
-  console.log(result.data.nodes);      // Customer[]
+  console.log(result.data.nodes); // Customer[]
   console.log(result.data.totalCount); // Total count
-  console.log(result.data.pageInfo);   // Pagination info
+  console.log(result.data.pageInfo); // Pagination info
 }
 ```
 
@@ -208,7 +208,7 @@ Full-text search with score boosting:
 const result = await client.customers.getCustomers({
   first: 10,
   search: {
-    name: { 
+    name: {
       text: { value: 'John' },
       score: { boost: 2 },
     },
@@ -223,10 +223,7 @@ import { SortEnumType } from '@insurup/sdk';
 
 const result = await client.cases.getCases({
   first: 20,
-  order: [
-    { priorityScore: SortEnumType.Desc },
-    { createdAt: SortEnumType.Desc },
-  ],
+  order: [{ priorityScore: SortEnumType.Desc }, { createdAt: SortEnumType.Desc }],
 });
 ```
 
@@ -246,15 +243,15 @@ const client = new DefaultInsurUpClient({
 });
 ```
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `baseUrl` | `string` | `https://api.insurup.com/api/` | API base URL |
-| `tokenProvider` | `() => string \| Promise<string>` | — | OAuth token provider |
-| `timeoutMs` | `number` | `30000` | Request timeout |
-| `customHeaders` | `Record<string, string>` | — | Headers for all requests |
-| `retry` | `RetryOptions` | — | Retry configuration |
-| `onRequest` | `RequestInterceptor` | — | Pre-request hook |
-| `onResponse` | `ResponseInterceptor` | — | Post-response hook |
+| Option          | Type                              | Default                        | Description              |
+| --------------- | --------------------------------- | ------------------------------ | ------------------------ |
+| `baseUrl`       | `string`                          | `https://api.insurup.com/api/` | API base URL             |
+| `tokenProvider` | `() => string \| Promise<string>` | —                              | OAuth token provider     |
+| `timeoutMs`     | `number`                          | `30000`                        | Request timeout          |
+| `customHeaders` | `Record<string, string>`          | —                              | Headers for all requests |
+| `retry`         | `RetryOptions`                    | —                              | Retry configuration      |
+| `onRequest`     | `RequestInterceptor`              | —                              | Pre-request hook         |
+| `onResponse`    | `ResponseInterceptor`             | —                              | Post-response hook       |
 
 ---
 
@@ -265,7 +262,7 @@ Add logging, correlation IDs, or transform requests/responses:
 ```typescript
 const client = new DefaultInsurUpClient({
   tokenProvider: () => token,
-  
+
   onRequest: (config) => {
     console.log(`→ ${config.method} ${config.url}`);
     return {
@@ -273,7 +270,7 @@ const client = new DefaultInsurUpClient({
       headers: { ...config.headers, 'X-Correlation-ID': crypto.randomUUID() },
     };
   },
-  
+
   onResponse: (result, config) => {
     console.log(`← ${config.url} ${result.isSuccess ? '✓' : '✗'}`);
     return result;
@@ -287,36 +284,36 @@ const client = new DefaultInsurUpClient({
 
 Access specialized clients through the main client instance:
 
-| Client | Description |
-|--------|-------------|
-| `client.customers` | Customer profiles, contact info, health data |
-| `client.policies` | Policy details, documents, representatives |
-| `client.proposals` | Insurance proposals, comparisons, purchasing |
-| `client.vehicles` | Vehicle data, brand/model lookups |
-| `client.properties` | Property data, DASK earthquake insurance |
-| `client.coverage` | Coverage configuration, coverage groups |
-| `client.cases` | Service requests, claims, complaints |
-| `client.agents` | Agent profiles, company connections |
-| `client.agentBranches` | Branch management |
-| `client.agentRoles` | Role-based access control |
-| `client.agentUsers` | Agency staff management |
-| `client.agentSetup` | Agent onboarding |
-| `client.webhooks` | Event notifications, integrations |
-| `client.insurance` | Companies, products, resource keys |
-| `client.files` | File uploads and management |
-| `client.languages` | Localization support |
-| `client.templates` | Document and email templates |
+| Client                 | Description                                  |
+| ---------------------- | -------------------------------------------- |
+| `client.customers`     | Customer profiles, contact info, health data |
+| `client.policies`      | Policy details, documents, representatives   |
+| `client.proposals`     | Insurance proposals, comparisons, purchasing |
+| `client.vehicles`      | Vehicle data, brand/model lookups            |
+| `client.properties`    | Property data, DASK earthquake insurance     |
+| `client.coverage`      | Coverage configuration, coverage groups      |
+| `client.cases`         | Service requests, claims, complaints         |
+| `client.agents`        | Agent profiles, company connections          |
+| `client.agentBranches` | Branch management                            |
+| `client.agentRoles`    | Role-based access control                    |
+| `client.agentUsers`    | Agency staff management                      |
+| `client.agentSetup`    | Agent onboarding                             |
+| `client.webhooks`      | Event notifications, integrations            |
+| `client.insurance`     | Companies, products, resource keys           |
+| `client.files`         | File uploads and management                  |
+| `client.languages`     | Localization support                         |
+| `client.templates`     | Document and email templates                 |
 
 ---
 
 ## Compatibility
 
-| Environment | Support |
-|-------------|---------|
-| Node.js | 18+ |
-| Browsers | ES2022+ (Chrome 94+, Firefox 93+, Safari 15+) |
-| Bun | ✓ |
-| Deno | ✓ |
+| Environment | Support                                       |
+| ----------- | --------------------------------------------- |
+| Node.js     | 18+                                           |
+| Browsers    | ES2022+ (Chrome 94+, Firefox 93+, Safari 15+) |
+| Bun         | ✓                                             |
+| Deno        | ✓                                             |
 
 Dual ESM/CJS builds included. Full tree-shaking support.
 

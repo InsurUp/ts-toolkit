@@ -16,11 +16,21 @@ export class MSWHandlerFactory {
   /**
    * Creates a successful JSON response handler
    */
-  successHandler<T extends JsonBodyType>(method: 'get' | 'post' | 'put' | 'delete', path: string, data: T, status = 200) {
+  successHandler<T extends JsonBodyType>(
+    method: 'get' | 'post' | 'put' | 'delete',
+    path: string,
+    data: T,
+    status = 200
+  ) {
     const fullPath = `${this.baseUrl}${path}`;
-    const httpMethod = method === 'get' ? http.get :
-                       method === 'post' ? http.post :
-                       method === 'put' ? http.put : http.delete;
+    const httpMethod =
+      method === 'get'
+        ? http.get
+        : method === 'post'
+          ? http.post
+          : method === 'put'
+            ? http.put
+            : http.delete;
 
     return httpMethod(fullPath, () => {
       return HttpResponse.json(data, { status });
@@ -32,8 +42,7 @@ export class MSWHandlerFactory {
    */
   noContentHandler(method: 'post' | 'put' | 'delete', path: string) {
     const fullPath = `${this.baseUrl}${path}`;
-    const httpMethod = method === 'post' ? http.post :
-                       method === 'put' ? http.put : http.delete;
+    const httpMethod = method === 'post' ? http.post : method === 'put' ? http.put : http.delete;
 
     return httpMethod(fullPath, () => {
       return new HttpResponse(null, { status: 204 });
@@ -59,9 +68,14 @@ export class MSWHandlerFactory {
     }
   ) {
     const fullPath = `${this.baseUrl}${path}`;
-    const httpMethod = method === 'get' ? http.get :
-                       method === 'post' ? http.post :
-                       method === 'put' ? http.put : http.delete;
+    const httpMethod =
+      method === 'get'
+        ? http.get
+        : method === 'post'
+          ? http.post
+          : method === 'put'
+            ? http.put
+            : http.delete;
 
     return httpMethod(fullPath, () => {
       return HttpResponse.json(
@@ -70,11 +84,11 @@ export class MSWHandlerFactory {
           title: options.title,
           detail: options.detail,
           status: options.status,
-          validationErrors: options.validationErrors || []
+          validationErrors: options.validationErrors || [],
         },
         {
           status: options.status,
-          headers: { 'Content-Type': 'application/problem+json' }
+          headers: { 'Content-Type': 'application/problem+json' },
         }
       );
     });
@@ -83,11 +97,21 @@ export class MSWHandlerFactory {
   /**
    * Creates a slow response handler for timeout testing
    */
-  slowHandler(method: 'get' | 'post' | 'put' | 'delete', path: string, delayMs: number, data?: unknown) {
+  slowHandler(
+    method: 'get' | 'post' | 'put' | 'delete',
+    path: string,
+    delayMs: number,
+    data?: unknown
+  ) {
     const fullPath = `${this.baseUrl}${path}`;
-    const httpMethod = method === 'get' ? http.get :
-                       method === 'post' ? http.post :
-                       method === 'put' ? http.put : http.delete;
+    const httpMethod =
+      method === 'get'
+        ? http.get
+        : method === 'post'
+          ? http.post
+          : method === 'put'
+            ? http.put
+            : http.delete;
 
     return httpMethod(fullPath, async () => {
       await new Promise((resolve) => setTimeout(resolve, delayMs));
@@ -103,7 +127,9 @@ export class E2EAssertionHelper {
   /**
    * Asserts that a result matches the expected success structure
    */
-  static assertSuccessResult<T>(result: InsurUpResult<T>): asserts result is Extract<InsurUpResult<T>, { kind: 'success' }> {
+  static assertSuccessResult<T>(
+    result: InsurUpResult<T>
+  ): asserts result is Extract<InsurUpResult<T>, { kind: 'success' }> {
     if (result.kind !== 'success') {
       throw new Error(`Expected success result, got ${result.kind}: ${result.message}`);
     }
@@ -186,16 +212,21 @@ export class MSWServerHelper {
   ): { getLastRequest: () => { body?: unknown; headers: Headers } | null } {
     let lastRequest: { body?: unknown; headers: Headers } | null = null;
 
-    const httpMethod = method === 'get' ? http.get :
-                       method === 'post' ? http.post :
-                       method === 'put' ? http.put : http.delete;
+    const httpMethod =
+      method === 'get'
+        ? http.get
+        : method === 'post'
+          ? http.post
+          : method === 'put'
+            ? http.put
+            : http.delete;
 
     this.server.use(
       httpMethod(path, async ({ request }) => {
         const body = method !== 'get' ? await request.json().catch(() => undefined) : undefined;
         lastRequest = {
           body,
-          headers: request.headers
+          headers: request.headers,
         };
         const responseData = typeof response === 'function' ? (response as () => T)() : response;
         return HttpResponse.json(responseData, { status });
@@ -203,7 +234,7 @@ export class MSWServerHelper {
     );
 
     return {
-      getLastRequest: () => lastRequest
+      getLastRequest: () => lastRequest,
     };
   }
 }

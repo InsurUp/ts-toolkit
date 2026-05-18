@@ -48,6 +48,7 @@ Columns carry field keys as branded types. `ExtractFieldsFromColumnDefs` extract
 ### Framework bindings
 
 Thin wrappers around the core adapter:
+
 - React: `useCustomerTable()` hook using useSyncExternalStore
 - Vue: `useCustomerTable()` composable with reactive refs
 - Svelte: `createCustomerTable()` using Svelte 5 runes ($state, $derived, $effect)

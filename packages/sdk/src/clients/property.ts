@@ -8,10 +8,10 @@
  * sigortası aramaları ve mülk tabanlı sigorta operasyonları için kapsamlı mülk yönetimi işlemlerini sağlar.
  */
 
-import type { HttpTransport } from "../client/http.js";
-import type { InsurUpResult } from "../core/result.js";
-import type { RequestOptions } from "../core/options.js";
-import type { InsuranceParameter } from "@insurup/contracts";
+import type { HttpTransport } from '../client/http.js';
+import type { InsurUpResult } from '../core/result.js';
+import type { RequestOptions } from '../core/options.js';
+import type { InsuranceParameter } from '@insurup/contracts';
 import type {
   // Address parameter requests
   QueryDistrictsRequest,
@@ -31,9 +31,9 @@ import type {
   GetCustomerPropertyByIdResult,
   GetAllCustomerPropertiesResult,
   QueryPropertyByDaskOldPolicyResult,
-} from "@insurup/contracts";
-import type { PropertyAddress } from "@insurup/contracts";
-import { addressParameters, properties } from "../core/endpoints.js";
+} from '@insurup/contracts';
+import type { PropertyAddress } from '@insurup/contracts';
+import { addressParameters, properties } from '../core/endpoints.js';
 
 /**
  * Property Management Client
@@ -63,13 +63,8 @@ export class InsurUpPropertyClient {
    *
    * @returns List of Turkish cities / Türk şehirleri listesi
    */
-  async queryCities(
-    options?: RequestOptions,
-  ): Promise<InsurUpResult<InsuranceParameter[]>> {
-    return this.http.get<InsuranceParameter[]>(
-      addressParameters.queryCities,
-      options,
-    );
+  async queryCities(options?: RequestOptions): Promise<InsurUpResult<InsuranceParameter[]>> {
+    return this.http.get<InsuranceParameter[]>(addressParameters.queryCities, options);
   }
 
   /**
@@ -82,11 +77,11 @@ export class InsurUpPropertyClient {
    */
   async queryDistricts(
     request: QueryDistrictsRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<InsuranceParameter[]>> {
     return this.http.get<InsuranceParameter[]>(
       addressParameters.queryDistricts.render(request),
-      options,
+      options
     );
   }
 
@@ -100,11 +95,11 @@ export class InsurUpPropertyClient {
    */
   async queryTowns(
     request: QueryTownsRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<InsuranceParameter[]>> {
     return this.http.get<InsuranceParameter[]>(
       addressParameters.queryTowns.render(request),
-      options,
+      options
     );
   }
 
@@ -118,11 +113,11 @@ export class InsurUpPropertyClient {
    */
   async queryNeighborhoods(
     request: QueryNeighbourhoodsRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<InsuranceParameter[]>> {
     return this.http.get<InsuranceParameter[]>(
       addressParameters.queryNeighbourhoods.render(request),
-      options,
+      options
     );
   }
 
@@ -136,11 +131,11 @@ export class InsurUpPropertyClient {
    */
   async queryStreets(
     request: QueryStreetsRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<InsuranceParameter[]>> {
     return this.http.get<InsuranceParameter[]>(
       addressParameters.queryStreets.render(request),
-      options,
+      options
     );
   }
 
@@ -154,11 +149,11 @@ export class InsurUpPropertyClient {
    */
   async queryBuildings(
     request: QueryBuildingsRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<InsuranceParameter[]>> {
     return this.http.get<InsuranceParameter[]>(
       addressParameters.queryBuildings.render(request),
-      options,
+      options
     );
   }
 
@@ -172,11 +167,11 @@ export class InsurUpPropertyClient {
    */
   async queryApartments(
     request: QueryApartmentsRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<InsuranceParameter[]>> {
     return this.http.get<InsuranceParameter[]>(
       addressParameters.queryApartments.render(request),
-      options,
+      options
     );
   }
 
@@ -192,12 +187,12 @@ export class InsurUpPropertyClient {
    */
   async createCustomerProperty(
     request: CreateCustomerPropertyRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<CreateCustomerPropertyResult>> {
     return this.http.post<CreateCustomerPropertyResult>(
       properties.create.render(request.customerId),
       request,
-      options,
+      options
     );
   }
 
@@ -211,12 +206,12 @@ export class InsurUpPropertyClient {
    */
   async updateCustomerProperty(
     request: UpdateCustomerPropertyRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.putNoContent(
       properties.update.render(request.customerId, request.propertyId),
       request,
-      options,
+      options
     );
   }
 
@@ -232,11 +227,11 @@ export class InsurUpPropertyClient {
   async getCustomerPropertyById(
     customerId: string,
     propertyId: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetCustomerPropertyByIdResult>> {
     return this.http.get<GetCustomerPropertyByIdResult>(
       properties.getById.render(customerId, propertyId),
-      options,
+      options
     );
   }
 
@@ -250,11 +245,11 @@ export class InsurUpPropertyClient {
    */
   async getCustomerProperties(
     customerId: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetAllCustomerPropertiesResult[]>> {
     return this.http.get<GetAllCustomerPropertiesResult[]>(
       properties.getAll.render(customerId),
-      options,
+      options
     );
   }
 
@@ -270,12 +265,9 @@ export class InsurUpPropertyClient {
   async deleteCustomerProperty(
     customerId: string,
     propertyId: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
-    return this.http.deleteNoContent(
-      properties.delete.render(customerId, propertyId),
-      options,
-    );
+    return this.http.deleteNoContent(properties.delete.render(customerId, propertyId), options);
   }
 
   /**
@@ -288,14 +280,14 @@ export class InsurUpPropertyClient {
    */
   async getPropertyAddressByPropertyNumber(
     propertyNumber: number,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<PropertyAddress>> {
     return this.http.post<PropertyAddress>(
       properties.getPropertyAddressByPropertyNumber,
       {
         propertyNumber,
       } satisfies GetPropertyAddressByPropertyNumberRequest,
-      options,
+      options
     );
   }
 
@@ -309,12 +301,12 @@ export class InsurUpPropertyClient {
    */
   async queryPropertyByDaskOldPolicy(
     daskPolicyNumber: number,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<QueryPropertyByDaskOldPolicyResult>> {
     return this.http.post<QueryPropertyByDaskOldPolicyResult>(
       properties.queryPropertyByDaskOldPolicy,
       { daskPolicyNumber },
-      options,
+      options
     );
   }
 }

@@ -14,7 +14,7 @@ import { AuthService } from '../../services/auth.service';
     <div class="profile">
       <h1>Profile</h1>
       <p class="subtitle">View your account information and session details.</p>
-      
+
       <div class="cards">
         <mat-card>
           <mat-card-header>
@@ -94,49 +94,51 @@ import { AuthService } from '../../services/auth.service';
       }
     </div>
   `,
-  styles: [`
-    .profile h1 {
-      font-size: 30px;
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
-    .subtitle {
-      opacity: 0.7;
-      margin-bottom: 24px;
-    }
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 16px;
-      margin-bottom: 16px;
-    }
-    .info-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-    .info-row mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-      opacity: 0.7;
-    }
-    .label {
-      font-weight: 500;
-    }
-    .token-card {
-      margin-top: 16px;
-    }
-    .token-display {
-      display: block;
-      padding: 16px;
-      background: rgba(0, 0, 0, 0.05);
-      border-radius: 8px;
-      word-break: break-all;
-      font-size: 14px;
-    }
-  `],
+  styles: [
+    `
+      .profile h1 {
+        font-size: 30px;
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
+      .subtitle {
+        opacity: 0.7;
+        margin-bottom: 24px;
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+      .info-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .info-row mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        opacity: 0.7;
+      }
+      .label {
+        font-weight: 500;
+      }
+      .token-card {
+        margin-top: 16px;
+      }
+      .token-display {
+        display: block;
+        padding: 16px;
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 8px;
+        word-break: break-all;
+        font-size: 14px;
+      }
+    `,
+  ],
 })
 export class ProfileComponent {
   authService = inject(AuthService);
