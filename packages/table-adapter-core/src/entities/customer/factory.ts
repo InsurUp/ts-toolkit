@@ -1,6 +1,7 @@
 /**
- * @fileoverview Customer Table Factory
- * @description Thin wrapper around `createEntityTable` bound to the customer SDK call.
+ * @fileoverview Customer Table Factories
+ * @description Thin wrappers around the generic entity-table helpers bound to
+ * the customers SDK call. Both paginated and infinite variants live here.
  */
 
 import type {
@@ -17,33 +18,28 @@ import type {
   CustomerFilterInput,
   CustomerSearchInput,
 } from './types.js';
-import { createEntityTable, type TableApi } from '../../lib/factory/index.js';
+import {
+  createEntityTable,
+  createInfiniteEntityTable,
+  type EntityFactoryConfig,
+  type TableApi,
+} from '../../lib/factory/index.js';
 import type {
   CursorPaginationManager,
   CursorPaginationOptions,
 } from '../../lib/pagination/index.js';
 
+type CustomerConfig = EntityFactoryConfig<GetCustomersOptions<CustomerFieldKey[]>>;
+
+const customerConfig: CustomerConfig = {
+  queryKeyPrefix: 'customers',
+  clientMethod: (client) => (vars, requestOptions) =>
+    client.customers.getCustomers(vars, requestOptions),
+};
+
 /**
  * Create a type-safe customer table adapter.
- *
- * The row type is narrowed to exactly the fields referenced by the columns.
- *
- * @example
- * ```typescript
- * const customerTable = createCustomerTable({
- *   columns: (col) => [
- *     col.id(),
- *     col.name('Customer Name'),
- *     col.computed({
- *       uses: ['cityText', 'districtText'] as const,
- *       header: 'Location',
- *       render: (row) => `${row.cityText}, ${row.districtText}`,
- *     }),
- *   ],
- *   fetch: (options) => client.customers.getCustomers(options),
- *   pagination: { type: 'cursor', pageSize: 10 },
- * });
- * ```
+ * Row type is narrowed to the fields referenced by the columns.
  */
 export function createCustomerTable<const TColumns extends CustomerColumnDef[]>(
   options: CustomerTableOptions<TColumns>
@@ -53,24 +49,47 @@ export function createCustomerTable<const TColumns extends CustomerColumnDef[]>(
     CustomerFieldKey,
     TColumns,
     CustomerRowType<TColumns>,
-    GetCustomersOptions<CustomerExtractFields<TColumns>[]>,
     QueryCustomerModelSortInput,
     CustomerFilterInput,
     CustomerSearchInput,
+    GetCustomersOptions<CustomerExtractFields<TColumns>[]>,
     CursorPaginationOptions
-  >(options, {
-    queryKeyPrefix: 'customers',
-    clientMethod: (client) => (vars, requestOptions) =>
-      client.customers.getCustomers(vars, requestOptions),
-  }) as CustomerTable<TColumns>;
+  >(options, customerConfig);
 }
 
 /**
- * Customer table type — row narrowed to the fields referenced by the columns.
+ * Create an infinite-scroll customer table adapter.
+ * Rows accumulate across page fetches.
  */
+export function createInfiniteCustomerTable<const TColumns extends CustomerColumnDef[]>(
+  options: CustomerTableOptions<TColumns>
+): InfiniteCustomerTable<TColumns> {
+  return createInfiniteEntityTable<
+    QueryCustomerModel,
+    CustomerFieldKey,
+    TColumns,
+    CustomerRowType<TColumns>,
+    QueryCustomerModelSortInput,
+    CustomerFilterInput,
+    CustomerSearchInput,
+    GetCustomersOptions<CustomerExtractFields<TColumns>[]>,
+    CursorPaginationOptions
+  >(options, customerConfig);
+}
+
+/** Customer table type — row narrowed to the fields referenced by the columns. */
 export type CustomerTable<TColumns extends CustomerColumnDef[] = CustomerColumnDef[]> = TableApi<
   CustomerRowType<TColumns>,
   CustomerFilterInput,
   CustomerSearchInput,
   CursorPaginationManager
 >;
+
+/** Infinite customer table type — same shape as `CustomerTable`. */
+export type InfiniteCustomerTable<TColumns extends CustomerColumnDef[] = CustomerColumnDef[]> =
+  TableApi<
+    CustomerRowType<TColumns>,
+    CustomerFilterInput,
+    CustomerSearchInput,
+    CursorPaginationManager
+  >;

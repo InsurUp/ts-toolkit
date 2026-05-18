@@ -9,7 +9,8 @@
  */
 
 import type { Table } from '@tanstack/table-core';
-import type { ITableAdapter, TableError, PaginationManager } from '@insurup/table-adapter-core';
+import type { TableError, PaginationManager } from '@insurup/table-adapter-core';
+import type { ITableAdapter } from '@insurup/table-adapter-core/internal';
 import { TableState } from './table-state.svelte.js';
 
 /**

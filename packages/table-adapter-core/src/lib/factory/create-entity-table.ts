@@ -48,18 +48,45 @@ export interface EntityFactoryConfig<TQueryOptions> {
 }
 
 /**
+ * Structural shape every SDK `Get*Options` satisfies — used as a constraint
+ * so `createEntityTable`'s `TQueryOptions` cannot be silently substituted
+ * with an incompatible shape.
+ *
+ * Each per-entity `GetXOptions<TFields>` (in `@insurup/contracts/graphql/*`)
+ * extends `GetQueryOptions<TFieldKey, TFilterInput, TSearchInput, TSortInput>`
+ * with the same field set — this interface mirrors it.
+ */
+export interface BaseEntityQueryOptions<TSortInput, TFilterInput, TSearchInput> {
+  first?: number | null;
+  after?: string | null;
+  order?: TSortInput[] | null;
+  select?: readonly string[] | null;
+  filter?: TFilterInput | null;
+  search?: TSearchInput | null;
+  includeTotalCount?: boolean | null;
+}
+
+/**
  * Build the standard query-options object passed to every SDK list method.
  * The shape is uniform across entities; only the narrow return type varies,
- * which is satisfied by the generic `TQueryOptions`.
+ * which is satisfied by the generic `TQueryOptions` constrained on
+ * `BaseEntityQueryOptions`.
  *
- * The `as unknown as TQueryOptions` cast localises the narrowing-by-construction
- * gap to this single site — previously duplicated across every entity factory.
+ * The single `as TQueryOptions` cast covers the per-entity branding of
+ * `select` (`TFields` rather than wide `string[]`); the rest of the shape
+ * is verified by `satisfies`.
  */
-function buildEntityQueryOptions<TEntity, TSortInput, TFilterInput, TSearchInput, TQueryOptions>(
+function buildEntityQueryOptions<
+  TEntity,
+  TSortInput,
+  TFilterInput,
+  TSearchInput,
+  TQueryOptions extends BaseEntityQueryOptions<TSortInput, TFilterInput, TSearchInput>,
+>(
   params: QueryOptionsBuilderArgs<TEntity, TSortInput, TFilterInput, TSearchInput>,
   includeTotalCount: boolean
 ): TQueryOptions {
-  const result: Record<string, unknown> = {
+  const base: BaseEntityQueryOptions<TSortInput, TFilterInput, TSearchInput> = {
     first: params.first,
     after: params.after,
     order: params.order,
@@ -68,9 +95,9 @@ function buildEntityQueryOptions<TEntity, TSortInput, TFilterInput, TSearchInput
     search: params.search,
   };
   if (includeTotalCount) {
-    result.includeTotalCount = params.includeTotalCount;
+    base.includeTotalCount = params.includeTotalCount;
   }
-  return result as unknown as TQueryOptions;
+  return base as TQueryOptions;
 }
 
 /**
@@ -100,10 +127,10 @@ export function createEntityTable<
   TFieldKey extends DeepFieldKeys<TEntity>,
   TColumns extends AnyColumnDef<TFieldKey & string>[],
   TRow,
-  TQueryOptions,
   TSortInput,
   TFilterInput,
   TSearchInput,
+  TQueryOptions extends BaseEntityQueryOptions<TSortInput, TFilterInput, TSearchInput>,
   TPaginationOptions extends PaginationOptions,
 >(
   options: EntityTableOptions<
@@ -167,10 +194,10 @@ export function createInfiniteEntityTable<
   TFieldKey extends DeepFieldKeys<TEntity>,
   TColumns extends AnyColumnDef<TFieldKey & string>[],
   TRow,
-  TQueryOptions,
   TSortInput,
   TFilterInput,
   TSearchInput,
+  TQueryOptions extends BaseEntityQueryOptions<TSortInput, TFilterInput, TSearchInput>,
   TPaginationOptions extends PaginationOptions,
 >(
   options: EntityTableOptions<

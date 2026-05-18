@@ -1,6 +1,7 @@
 /**
- * @fileoverview Policy Table Factory
- * @description Thin wrapper around `createEntityTable` bound to the policies SDK call.
+ * @fileoverview Policy Table Factories
+ * @description Thin wrappers around the generic entity-table helpers bound to
+ * the policies SDK call. Both paginated and infinite variants live here.
  */
 
 import type {
@@ -17,11 +18,24 @@ import type {
   PolicyFilterInput,
   PolicySearchInput,
 } from './types.js';
-import { createEntityTable, type TableApi } from '../../lib/factory/index.js';
+import {
+  createEntityTable,
+  createInfiniteEntityTable,
+  type EntityFactoryConfig,
+  type TableApi,
+} from '../../lib/factory/index.js';
 import type {
   CursorPaginationManager,
   CursorPaginationOptions,
 } from '../../lib/pagination/index.js';
+
+type PolicyConfig = EntityFactoryConfig<GetPoliciesOptions<PolicyFieldKey[]>>;
+
+const policyConfig: PolicyConfig = {
+  queryKeyPrefix: 'policies',
+  clientMethod: (client) => (vars, requestOptions) =>
+    client.policies.getPolicies(vars, requestOptions),
+};
 
 /**
  * Create a type-safe policy table adapter.
@@ -35,22 +49,44 @@ export function createPolicyTable<const TColumns extends PolicyColumnDef[]>(
     PolicyFieldKey,
     TColumns,
     PolicyRowType<TColumns>,
-    GetPoliciesOptions<PolicyExtractFields<TColumns>[]>,
     QueryPoliciesResultSortInput,
     PolicyFilterInput,
     PolicySearchInput,
+    GetPoliciesOptions<PolicyExtractFields<TColumns>[]>,
     CursorPaginationOptions
-  >(options, {
-    queryKeyPrefix: 'policies',
-    clientMethod: (client) => (vars, requestOptions) =>
-      client.policies.getPolicies(vars, requestOptions),
-  }) as PolicyTable<TColumns>;
+  >(options, policyConfig);
 }
 
 /**
- * Policy table type — row narrowed to the fields referenced by the columns.
+ * Create an infinite-scroll policy table adapter.
+ * Rows accumulate across page fetches.
  */
+export function createInfinitePolicyTable<const TColumns extends PolicyColumnDef[]>(
+  options: PolicyTableOptions<TColumns>
+): InfinitePolicyTable<TColumns> {
+  return createInfiniteEntityTable<
+    QueryPoliciesResult,
+    PolicyFieldKey,
+    TColumns,
+    PolicyRowType<TColumns>,
+    QueryPoliciesResultSortInput,
+    PolicyFilterInput,
+    PolicySearchInput,
+    GetPoliciesOptions<PolicyExtractFields<TColumns>[]>,
+    CursorPaginationOptions
+  >(options, policyConfig);
+}
+
+/** Policy table type — row narrowed to the fields referenced by the columns. */
 export type PolicyTable<TColumns extends PolicyColumnDef[] = PolicyColumnDef[]> = TableApi<
+  PolicyRowType<TColumns>,
+  PolicyFilterInput,
+  PolicySearchInput,
+  CursorPaginationManager
+>;
+
+/** Infinite policy table type — same shape as `PolicyTable`. */
+export type InfinitePolicyTable<TColumns extends PolicyColumnDef[] = PolicyColumnDef[]> = TableApi<
   PolicyRowType<TColumns>,
   PolicyFilterInput,
   PolicySearchInput,

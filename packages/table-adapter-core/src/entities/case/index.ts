@@ -2,8 +2,12 @@
  * @fileoverview Case Entity Exports
  */
 
-export { createCaseTable, type CaseTable } from './factory.js';
-export { createInfiniteCaseTable, type InfiniteCaseTable } from './infinite-factory.js';
+export {
+  createCaseTable,
+  createInfiniteCaseTable,
+  type CaseTable,
+  type InfiniteCaseTable,
+} from './factory.js';
 
 export type {
   CaseColumnDef,
@@ -13,7 +17,4 @@ export type {
   CaseFetchFn,
   CaseFilterInput,
   CaseSearchInput,
-  // Re-export SDK types for convenience
-  QueryCaseModelFilterInput,
-  QueryCaseModelSearchInput,
 } from './types.js';

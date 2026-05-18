@@ -1,9 +1,13 @@
 /**
- * @fileoverview Agent User Entity Exports
+ * @fileoverview AgentUser Entity Exports
  */
 
-export { createAgentUserTable, type AgentUserTable } from './factory.js';
-export { createInfiniteAgentUserTable, type InfiniteAgentUserTable } from './infinite-factory.js';
+export {
+  createAgentUserTable,
+  createInfiniteAgentUserTable,
+  type AgentUserTable,
+  type InfiniteAgentUserTable,
+} from './factory.js';
 
 export type {
   AgentUserColumnDef,
@@ -13,7 +17,4 @@ export type {
   AgentUserFetchFn,
   AgentUserFilterInput,
   AgentUserSearchInput,
-  // Re-export SDK types for convenience
-  QueryAgentUserResultFilterInput,
-  QueryAgentUserResultSearchInput,
 } from './types.js';

@@ -2,8 +2,12 @@
  * @fileoverview Policy Entity Exports
  */
 
-export { createPolicyTable, type PolicyTable } from './factory.js';
-export { createInfinitePolicyTable, type InfinitePolicyTable } from './infinite-factory.js';
+export {
+  createPolicyTable,
+  createInfinitePolicyTable,
+  type PolicyTable,
+  type InfinitePolicyTable,
+} from './factory.js';
 
 export type {
   PolicyColumnDef,
@@ -13,7 +17,4 @@ export type {
   PolicyFetchFn,
   PolicyFilterInput,
   PolicySearchInput,
-  // Re-export SDK types for convenience
-  QueryPoliciesResultFilterInput,
-  QueryPoliciesResultSearchInput,
 } from './types.js';

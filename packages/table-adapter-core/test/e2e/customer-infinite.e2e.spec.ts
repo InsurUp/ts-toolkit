@@ -3,7 +3,7 @@
  */
 
 import { expect, it } from 'vitest';
-import { createInfiniteCustomerTable } from '../../src/entities/customer/infinite-factory.js';
+import { createInfiniteCustomerTable } from '../../src/entities/customer/factory.js';
 import { createE2EClient } from '@insurup/test-helpers-e2e/client';
 import { describeE2E } from '@insurup/test-helpers-e2e/describe';
 import { waitForFetchCycle, waitForIdle } from '@insurup/test-helpers-e2e/wait';

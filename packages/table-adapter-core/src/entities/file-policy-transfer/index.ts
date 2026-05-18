@@ -1,12 +1,13 @@
 /**
- * @fileoverview File Policy Transfer Entity Exports
+ * @fileoverview FilePolicyTransfer Entity Exports
  */
 
-export { createFilePolicyTransferTable, type FilePolicyTransferTable } from './factory.js';
 export {
+  createFilePolicyTransferTable,
   createInfiniteFilePolicyTransferTable,
+  type FilePolicyTransferTable,
   type InfiniteFilePolicyTransferTable,
-} from './infinite-factory.js';
+} from './factory.js';
 
 export type {
   FilePolicyTransferColumnDef,
@@ -16,7 +17,4 @@ export type {
   FilePolicyTransferFetchFn,
   FilePolicyTransferFilterInput,
   FilePolicyTransferSearchInput,
-  // Re-export SDK types for convenience
-  QueryFilePolicyTransfersResultFilterInput,
-  QueryFilePolicyTransfersResultSearchInput,
 } from './types.js';

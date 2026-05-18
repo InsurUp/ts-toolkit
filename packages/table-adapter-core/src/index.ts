@@ -1,33 +1,26 @@
 /**
- * @insurup/tanstack-table-adapter
+ * @insurup/table-adapter-core
  *
  * A framework-agnostic adapter for using @insurup/sdk with TanStack Table.
  * Handles cursor pagination, sorting, caching, and state management.
  *
+ * For library extensions and custom entity factories, see the `/internal`
+ * subpath: `import { createEntityTable } from '@insurup/table-adapter-core/internal'`.
+ *
  * @example
  * ```typescript
- * import { createCustomerTable } from '@insurup/tanstack-table-adapter'
- * import { DefaultInsurUpClient } from '@insurup/sdk'
+ * import { createCustomerTable } from '@insurup/table-adapter-core';
+ * import { DefaultInsurUpClient } from '@insurup/sdk';
  *
- * const client = new DefaultInsurUpClient({ baseUrl, tokenProvider })
+ * const client = new DefaultInsurUpClient({ baseUrl, tokenProvider });
  *
  * const customerTable = createCustomerTable({
- *   columns: col => [
- *     col.id(),
- *     col.name('Customer Name'),
- *     col.type({ header: 'Type', render: v => v === 'Individual' ? '👤' : '🏢' }),
- *     col.computed({
- *       uses: ['cityText', 'districtText'] as const,
- *       header: 'Location',
- *       render: row => `${row.cityText}, ${row.districtText}`
- *     })
- *   ],
+ *   columns: (col) => [col.id(), col.name('Customer Name')],
  *   fetch: (options) => client.customers.getCustomers(options),
  *   pagination: { type: 'cursor', pageSize: 10 },
- * })
+ * });
  *
- * // state.rows[0] only has: id, name, type, cityText, districtText ✅
- * const state = useSyncExternalStore(customerTable.subscribe, customerTable.getSnapshot)
+ * const state = useSyncExternalStore(customerTable.subscribe, customerTable.getSnapshot);
  * ```
  *
  * @packageDocumentation
@@ -37,78 +30,59 @@
 // Entity Table Factories
 // ============================================================================
 
-// Customer entity - Pagination mode
-export { createCustomerTable, type CustomerTable } from './entities/customer/index.js';
-
-// Customer entity - Infinite scroll mode
 export {
+  createCustomerTable,
   createInfiniteCustomerTable,
+  type CustomerTable,
   type InfiniteCustomerTable,
 } from './entities/customer/index.js';
 
-// Policy entity - Pagination mode
-export { createPolicyTable, type PolicyTable } from './entities/policy/index.js';
-
-// Policy entity - Infinite scroll mode
-export { createInfinitePolicyTable, type InfinitePolicyTable } from './entities/policy/index.js';
-
-// Proposal entity - Pagination mode
-export { createProposalTable, type ProposalTable } from './entities/proposal/index.js';
-
-// Proposal entity - Infinite scroll mode
 export {
+  createPolicyTable,
+  createInfinitePolicyTable,
+  type PolicyTable,
+  type InfinitePolicyTable,
+} from './entities/policy/index.js';
+
+export {
+  createProposalTable,
   createInfiniteProposalTable,
+  type ProposalTable,
   type InfiniteProposalTable,
 } from './entities/proposal/index.js';
 
-// Case entity - Pagination mode
-export { createCaseTable, type CaseTable } from './entities/case/index.js';
-
-// Case entity - Infinite scroll mode
-export { createInfiniteCaseTable, type InfiniteCaseTable } from './entities/case/index.js';
-
-// AgentUser entity - Pagination mode
-export { createAgentUserTable, type AgentUserTable } from './entities/agent-user/index.js';
-
-// AgentUser entity - Infinite scroll mode
 export {
+  createCaseTable,
+  createInfiniteCaseTable,
+  type CaseTable,
+  type InfiniteCaseTable,
+} from './entities/case/index.js';
+
+export {
+  createAgentUserTable,
   createInfiniteAgentUserTable,
+  type AgentUserTable,
   type InfiniteAgentUserTable,
 } from './entities/agent-user/index.js';
 
-// PolicyTransfer entity - Pagination mode
 export {
   createPolicyTransferTable,
-  type PolicyTransferTable,
-} from './entities/policy-transfer/index.js';
-
-// PolicyTransfer entity - Infinite scroll mode
-export {
   createInfinitePolicyTransferTable,
+  type PolicyTransferTable,
   type InfinitePolicyTransferTable,
 } from './entities/policy-transfer/index.js';
 
-// FilePolicyTransfer entity - Pagination mode
 export {
   createFilePolicyTransferTable,
-  type FilePolicyTransferTable,
-} from './entities/file-policy-transfer/index.js';
-
-// FilePolicyTransfer entity - Infinite scroll mode
-export {
   createInfiniteFilePolicyTransferTable,
+  type FilePolicyTransferTable,
   type InfiniteFilePolicyTransferTable,
 } from './entities/file-policy-transfer/index.js';
 
-// Webhook Delivery entity - Pagination mode
 export {
   createWebhookDeliveryTable,
-  type WebhookDeliveryTable,
-} from './entities/webhook-delivery/index.js';
-
-// Webhook Delivery entity - Infinite scroll mode
-export {
   createInfiniteWebhookDeliveryTable,
+  type WebhookDeliveryTable,
   type InfiniteWebhookDeliveryTable,
 } from './entities/webhook-delivery/index.js';
 
@@ -116,7 +90,6 @@ export {
 // Entity-Specific Types
 // ============================================================================
 
-// Customer types
 export type {
   CustomerColumnDef,
   CustomerRowType,
@@ -127,7 +100,6 @@ export type {
   CustomerSearchInput,
 } from './entities/customer/index.js';
 
-// Policy types
 export type {
   PolicyColumnDef,
   PolicyRowType,
@@ -138,7 +110,6 @@ export type {
   PolicySearchInput,
 } from './entities/policy/index.js';
 
-// Proposal types
 export type {
   ProposalColumnDef,
   ProposalRowType,
@@ -149,7 +120,6 @@ export type {
   ProposalSearchInput,
 } from './entities/proposal/index.js';
 
-// Case types
 export type {
   CaseColumnDef,
   CaseRowType,
@@ -160,7 +130,6 @@ export type {
   CaseSearchInput,
 } from './entities/case/index.js';
 
-// AgentUser types
 export type {
   AgentUserColumnDef,
   AgentUserRowType,
@@ -171,7 +140,6 @@ export type {
   AgentUserSearchInput,
 } from './entities/agent-user/index.js';
 
-// PolicyTransfer types
 export type {
   PolicyTransferColumnDef,
   PolicyTransferRowType,
@@ -182,7 +150,6 @@ export type {
   PolicyTransferSearchInput,
 } from './entities/policy-transfer/index.js';
 
-// FilePolicyTransfer types
 export type {
   FilePolicyTransferColumnDef,
   FilePolicyTransferRowType,
@@ -193,7 +160,6 @@ export type {
   FilePolicyTransferSearchInput,
 } from './entities/file-policy-transfer/index.js';
 
-// Webhook Delivery types
 export type {
   WebhookDeliveryColumnDef,
   WebhookDeliveryRowType,
@@ -204,70 +170,37 @@ export type {
   WebhookDeliverySearchInput,
 } from './entities/webhook-delivery/index.js';
 
-// Note: SDK types (Query*, *FieldKey, Get*Options) are NOT re-exported here —
-// import them directly from `@insurup/sdk` to avoid two import paths for the
-// same symbol.
+// SDK types (Query*, *FieldKey, Get*Options) are NOT re-exported — import them
+// directly from `@insurup/sdk` to avoid two import paths for the same symbol.
 
 // ============================================================================
-// Base Adapter (for advanced usage)
+// Consumer-facing public types
 // ============================================================================
 
-export {
-  BaseTableAdapter,
-  InfiniteTableAdapter,
-  type BaseTableAdapterOptions,
-  type TableOptions,
-  type TableError,
-  type ErrorCallbacks,
-  type ITableAdapter,
-} from './lib/adapter/index.js';
+export type { TableApi, ColumnInfo } from './lib/factory/index.js';
 
-// ============================================================================
-// Query Manager (for advanced usage)
-// ============================================================================
-
-export { QueryManager } from './lib/query/index.js';
-export type { QueryManagerOptions, QueryState, QueryFnContext } from './lib/query/index.js';
-
-// ============================================================================
-// Core Utilities (for creating custom entity table factories)
-// ============================================================================
-
-export {
-  createSortingConverters,
-  createClientFetchFn,
-  createFetchFnFromClient,
-  createTableApi,
-  extractFieldsFromColumns,
-} from './lib/index.js';
-
-export type { TableApi, TableApiConfig, ColumnInfo } from './lib/factory/index.js';
-
-// ============================================================================
-// Shared Types
-// ============================================================================
+export type { TableOptions, TableError, ErrorCallbacks } from './lib/adapter/index.js';
 
 export type {
-  // Builder types
+  // Column builder types
   ColumnBuilder,
   ColumnDefinitionFn,
   AnyColumnDef,
   FieldColumnDef,
   ComputedColumnDef,
   ColumnDef,
+  ColumnConfig,
+  ComputedColumnConfig,
   // Field extraction
   ExtractFieldFromColumnDef,
   ExtractFieldsFromColumnDefs,
-  // Column types
-  ColumnConfig,
-  ComputedColumnConfig,
   // State and options
   AdapterState,
   TableAdapterOptionsBase,
   TableAdapterClientModeOptions,
   TableAdapterFetchModeOptions,
   TableAdapterOptions,
-  // Generic entity types (for creating new entity adapters)
+  // Generic entity types
   EntityExtractFields,
   EntityRowType,
   EntityFetchFn,
@@ -288,7 +221,7 @@ export type {
 } from './lib/index.js';
 
 // ============================================================================
-// Pagination & Sorting
+// Pagination & Sorting (public-facing helpers + types)
 // ============================================================================
 
 export { createCursorPagination, createPaginationManager } from './lib/pagination/index.js';
@@ -301,5 +234,16 @@ export type {
   PaginationManagerFromOptions,
 } from './lib/pagination/index.js';
 
+export { createSortingConverters, SortEnumType, SortDirection } from './lib/sorting/index.js';
 export type { SortingState, SortingConverters } from './lib/sorting/index.js';
-export { SortEnumType, SortDirection } from './lib/sorting/index.js';
+
+// ============================================================================
+// Column builder (for use with custom adapters)
+// ============================================================================
+
+export { createColumnBuilder } from './lib/factory/index.js';
+export {
+  extractFieldsFromColumns,
+  createClientFetchFn,
+  createFetchFnFromClient,
+} from './lib/index.js';

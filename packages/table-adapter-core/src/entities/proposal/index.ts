@@ -2,8 +2,12 @@
  * @fileoverview Proposal Entity Exports
  */
 
-export { createProposalTable, type ProposalTable } from './factory.js';
-export { createInfiniteProposalTable, type InfiniteProposalTable } from './infinite-factory.js';
+export {
+  createProposalTable,
+  createInfiniteProposalTable,
+  type ProposalTable,
+  type InfiniteProposalTable,
+} from './factory.js';
 
 export type {
   ProposalColumnDef,
@@ -13,7 +17,4 @@ export type {
   ProposalFetchFn,
   ProposalFilterInput,
   ProposalSearchInput,
-  // Re-export SDK types for convenience
-  QueryProposalsResultFilterInput,
-  QueryProposalsResultSearchInput,
 } from './types.js';

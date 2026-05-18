@@ -1,6 +1,7 @@
 /**
- * @fileoverview AgentUser Table Factory
- * @description Thin wrapper around `createEntityTable` bound to the agent-users SDK call.
+ * @fileoverview AgentUser Table Factories
+ * @description Thin wrappers around the generic entity-table helpers bound to
+ * the agent-users SDK call. Both paginated and infinite variants live here.
  */
 
 import type {
@@ -17,14 +18,27 @@ import type {
   AgentUserFilterInput,
   AgentUserSearchInput,
 } from './types.js';
-import { createEntityTable, type TableApi } from '../../lib/factory/index.js';
+import {
+  createEntityTable,
+  createInfiniteEntityTable,
+  type EntityFactoryConfig,
+  type TableApi,
+} from '../../lib/factory/index.js';
 import type {
   CursorPaginationManager,
   CursorPaginationOptions,
 } from '../../lib/pagination/index.js';
 
+type AgentUserConfig = EntityFactoryConfig<GetAgentUsersOptions<AgentUserFieldKey[]>>;
+
+const agentUserConfig: AgentUserConfig = {
+  queryKeyPrefix: 'agent-users',
+  clientMethod: (client) => (vars, requestOptions) =>
+    client.agentUsers.getAgentUsers(vars, requestOptions),
+};
+
 /**
- * Create a type-safe agentuser table adapter.
+ * Create a type-safe agent user table adapter.
  * Row type is narrowed to the fields referenced by the columns.
  */
 export function createAgentUserTable<const TColumns extends AgentUserColumnDef[]>(
@@ -35,24 +49,47 @@ export function createAgentUserTable<const TColumns extends AgentUserColumnDef[]
     AgentUserFieldKey,
     TColumns,
     AgentUserRowType<TColumns>,
-    GetAgentUsersOptions<AgentUserExtractFields<TColumns>[]>,
     QueryAgentUserResultSortInput,
     AgentUserFilterInput,
     AgentUserSearchInput,
+    GetAgentUsersOptions<AgentUserExtractFields<TColumns>[]>,
     CursorPaginationOptions
-  >(options, {
-    queryKeyPrefix: 'agent-users',
-    clientMethod: (client) => (vars, requestOptions) =>
-      client.agentUsers.getAgentUsers(vars, requestOptions),
-  }) as AgentUserTable<TColumns>;
+  >(options, agentUserConfig);
 }
 
 /**
- * AgentUser table type — row narrowed to the fields referenced by the columns.
+ * Create an infinite-scroll agent user table adapter.
+ * Rows accumulate across page fetches.
  */
+export function createInfiniteAgentUserTable<const TColumns extends AgentUserColumnDef[]>(
+  options: AgentUserTableOptions<TColumns>
+): InfiniteAgentUserTable<TColumns> {
+  return createInfiniteEntityTable<
+    QueryAgentUserResult,
+    AgentUserFieldKey,
+    TColumns,
+    AgentUserRowType<TColumns>,
+    QueryAgentUserResultSortInput,
+    AgentUserFilterInput,
+    AgentUserSearchInput,
+    GetAgentUsersOptions<AgentUserExtractFields<TColumns>[]>,
+    CursorPaginationOptions
+  >(options, agentUserConfig);
+}
+
+/** AgentUser table type — row narrowed to the fields referenced by the columns. */
 export type AgentUserTable<TColumns extends AgentUserColumnDef[] = AgentUserColumnDef[]> = TableApi<
   AgentUserRowType<TColumns>,
   AgentUserFilterInput,
   AgentUserSearchInput,
   CursorPaginationManager
 >;
+
+/** Infinite agent user table type — same shape as `AgentUserTable`. */
+export type InfiniteAgentUserTable<TColumns extends AgentUserColumnDef[] = AgentUserColumnDef[]> =
+  TableApi<
+    AgentUserRowType<TColumns>,
+    AgentUserFilterInput,
+    AgentUserSearchInput,
+    CursorPaginationManager
+  >;

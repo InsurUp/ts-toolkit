@@ -1,6 +1,7 @@
 /**
- * @fileoverview FilePolicyTransfer Table Factory
- * @description Thin wrapper around `createEntityTable` bound to the file-policy-transfers SDK call.
+ * @fileoverview FilePolicyTransfer Table Factories
+ * @description Thin wrappers around the generic entity-table helpers bound to
+ * the file-policy-transfers SDK call. Both paginated and infinite variants live here.
  */
 
 import type {
@@ -17,14 +18,29 @@ import type {
   FilePolicyTransferFilterInput,
   FilePolicyTransferSearchInput,
 } from './types.js';
-import { createEntityTable, type TableApi } from '../../lib/factory/index.js';
+import {
+  createEntityTable,
+  createInfiniteEntityTable,
+  type EntityFactoryConfig,
+  type TableApi,
+} from '../../lib/factory/index.js';
 import type {
   CursorPaginationManager,
   CursorPaginationOptions,
 } from '../../lib/pagination/index.js';
 
+type FilePolicyTransferConfig = EntityFactoryConfig<
+  GetFilePolicyTransfersOptions<FilePolicyTransferFieldKey[]>
+>;
+
+const filePolicyTransferConfig: FilePolicyTransferConfig = {
+  queryKeyPrefix: 'file-policy-transfers',
+  clientMethod: (client) => (vars, requestOptions) =>
+    client.policies.getFilePolicyTransfers(vars, requestOptions),
+};
+
 /**
- * Create a type-safe filepolicytransfer table adapter.
+ * Create a type-safe file policy transfer table adapter.
  * Row type is narrowed to the fields referenced by the columns.
  */
 export function createFilePolicyTransferTable<const TColumns extends FilePolicyTransferColumnDef[]>(
@@ -35,22 +51,46 @@ export function createFilePolicyTransferTable<const TColumns extends FilePolicyT
     FilePolicyTransferFieldKey,
     TColumns,
     FilePolicyTransferRowType<TColumns>,
-    GetFilePolicyTransfersOptions<FilePolicyTransferExtractFields<TColumns>[]>,
     QueryFilePolicyTransfersResultSortInput,
     FilePolicyTransferFilterInput,
     FilePolicyTransferSearchInput,
+    GetFilePolicyTransfersOptions<FilePolicyTransferExtractFields<TColumns>[]>,
     CursorPaginationOptions
-  >(options, {
-    queryKeyPrefix: 'file-policy-transfers',
-    clientMethod: (client) => (vars, requestOptions) =>
-      client.policies.getFilePolicyTransfers(vars, requestOptions),
-  }) as FilePolicyTransferTable<TColumns>;
+  >(options, filePolicyTransferConfig);
 }
 
 /**
- * FilePolicyTransfer table type — row narrowed to the fields referenced by the columns.
+ * Create an infinite-scroll file policy transfer table adapter.
+ * Rows accumulate across page fetches.
  */
+export function createInfiniteFilePolicyTransferTable<
+  const TColumns extends FilePolicyTransferColumnDef[],
+>(options: FilePolicyTransferTableOptions<TColumns>): InfiniteFilePolicyTransferTable<TColumns> {
+  return createInfiniteEntityTable<
+    QueryFilePolicyTransfersResult,
+    FilePolicyTransferFieldKey,
+    TColumns,
+    FilePolicyTransferRowType<TColumns>,
+    QueryFilePolicyTransfersResultSortInput,
+    FilePolicyTransferFilterInput,
+    FilePolicyTransferSearchInput,
+    GetFilePolicyTransfersOptions<FilePolicyTransferExtractFields<TColumns>[]>,
+    CursorPaginationOptions
+  >(options, filePolicyTransferConfig);
+}
+
+/** FilePolicyTransfer table type — row narrowed to the fields referenced by the columns. */
 export type FilePolicyTransferTable<
+  TColumns extends FilePolicyTransferColumnDef[] = FilePolicyTransferColumnDef[],
+> = TableApi<
+  FilePolicyTransferRowType<TColumns>,
+  FilePolicyTransferFilterInput,
+  FilePolicyTransferSearchInput,
+  CursorPaginationManager
+>;
+
+/** Infinite file policy transfer table type — same shape as `FilePolicyTransferTable`. */
+export type InfiniteFilePolicyTransferTable<
   TColumns extends FilePolicyTransferColumnDef[] = FilePolicyTransferColumnDef[],
 > = TableApi<
   FilePolicyTransferRowType<TColumns>,

@@ -1,12 +1,13 @@
 /**
- * @fileoverview Webhook Delivery Entity Exports
+ * @fileoverview WebhookDelivery Entity Exports
  */
 
-export { createWebhookDeliveryTable, type WebhookDeliveryTable } from './factory.js';
 export {
+  createWebhookDeliveryTable,
   createInfiniteWebhookDeliveryTable,
+  type WebhookDeliveryTable,
   type InfiniteWebhookDeliveryTable,
-} from './infinite-factory.js';
+} from './factory.js';
 
 export type {
   WebhookDeliveryColumnDef,
@@ -16,7 +17,4 @@ export type {
   WebhookDeliveryFetchFn,
   WebhookDeliveryFilterInput,
   WebhookDeliverySearchInput,
-  // Re-export SDK types for convenience
-  QueryWebhookDeliveryResultFilterInput,
-  QueryWebhookDeliveryResultSearchInput,
 } from './types.js';
