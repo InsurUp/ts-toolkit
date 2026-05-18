@@ -12,7 +12,6 @@
   "private": true,
   "scripts": {
     "build": "bun run --filter './packages/*' build",
-    "build-with-demos": "bun run --filter '*' build",
     "typecheck": "bun run --filter '*' typecheck",
     "test": "bun run --filter '*' test",
     "lint": "eslint .",

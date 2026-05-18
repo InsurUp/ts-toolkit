@@ -54,7 +54,7 @@
   },
   "peerDependencies": {
     "@insurup/sdk": "latest",
-    "typescript": "^6.0.3"
+    "typescript": ">=5"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.6",
