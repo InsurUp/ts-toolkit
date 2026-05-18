@@ -1,9 +1,9 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "lib": ["ESNext", "DOM"],
+    "lib": ["ESNext"],
     "types": ["node"],
-    "rootDir": "."
+    "noEmit": true
   },
-  "include": ["src/lib", "test"]
+  "include": ["src"]
 }

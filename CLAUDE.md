@@ -61,3 +61,17 @@ Thin wrappers around the core adapter:
 - **Simplicity** — prefer the simplest solution. No over-engineering, no premature abstraction, no unnecessary wrappers. If 10 lines solve it, don't write 50.
 - **Type imports** — use `import type { ... }` for type-only imports
 - **Unused variables** — prefix with `_` if intentionally unused
+
+## Verify after every task
+
+Before reporting code-writing work complete, run these from the repo root and confirm each passes:
+
+```bash
+bun run typecheck
+bun run lint
+bun run format:check
+bun run build
+bun run test
+```
+
+If `format:check` fails, run `bun run format` and re-check. E2E suites (`bun run test:e2e` per package) are opt-in — they hit the live InsurUp API and skip silently without credentials. See `.claude/rules/verify-after-work.md` for full details.

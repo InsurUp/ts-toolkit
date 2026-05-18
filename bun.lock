@@ -222,13 +222,15 @@
         "@tanstack/table-core": "^8.21.3",
       },
       "devDependencies": {
+        "@insurup/test-helpers-e2e": "workspace:*",
+        "@types/node": "^25.8.0",
         "@vitest/coverage-v8": "^4.1.6",
         "tsup": "^8.5.1",
         "vitest": "^4.1.6",
       },
       "peerDependencies": {
         "@insurup/sdk": "latest",
-        "typescript": "^6.0.3",
+        "typescript": ">=5",
       },
     },
     "packages/table-adapter-core/demos/vanilla/ts": {
@@ -262,8 +264,10 @@
         "@insurup/table-adapter-core": "workspace:*",
       },
       "devDependencies": {
+        "@insurup/test-helpers-e2e": "workspace:*",
         "@tanstack/react-table": "^8.21.3",
         "@testing-library/react": "^16.3.2",
+        "@types/node": "^25.8.0",
         "@types/react": "^19.2.14",
         "@types/react-dom": "^19.2.3",
         "@vitest/coverage-v8": "^4.1.6",
@@ -327,9 +331,11 @@
         "@insurup/table-adapter-core": "workspace:*",
       },
       "devDependencies": {
+        "@insurup/test-helpers-e2e": "workspace:*",
         "@sveltejs/package": "^2.5.7",
         "@sveltejs/vite-plugin-svelte": "^7.1.2",
         "@tanstack/table-core": "^8.21.3",
+        "@types/node": "^25.8.0",
         "@vitest/coverage-v8": "^4.1.6",
         "svelte": "^5.55.7",
         "svelte-check": "^4.4.8",
@@ -375,7 +381,9 @@
         "@insurup/table-adapter-core": "workspace:*",
       },
       "devDependencies": {
+        "@insurup/test-helpers-e2e": "workspace:*",
         "@tanstack/vue-table": "^8.21.3",
+        "@types/node": "^25.8.0",
         "@vitest/coverage-v8": "^4.1.6",
         "@vue/test-utils": "^2.4.10",
         "jsdom": "^29.1.1",
@@ -418,6 +426,17 @@
         "vite": "^8.0.13",
         "vue-eslint-parser": "^10.4.0",
         "vue-tsc": "^3.2.9",
+      },
+    },
+    "packages/test-helpers-e2e": {
+      "name": "@insurup/test-helpers-e2e",
+      "version": "0.0.0",
+      "dependencies": {
+        "@insurup/sdk": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/node": "^25.8.0",
+        "vitest": "^4.1.6",
       },
     },
   },
@@ -723,6 +742,8 @@
     "@insurup/table-adapter-vue": ["@insurup/table-adapter-vue@workspace:packages/table-adapter-vue"],
 
     "@insurup/table-adapter-vue-demo": ["@insurup/table-adapter-vue-demo@workspace:packages/table-adapter-vue/demos/spa/ts"],
+
+    "@insurup/test-helpers-e2e": ["@insurup/test-helpers-e2e@workspace:packages/test-helpers-e2e"],
 
     "@internationalized/date": ["@internationalized/date@3.10.1", "", { "dependencies": { "@swc/helpers": "^0.5.0" } }, "sha512-oJrXtQiAXLvT9clCf1K4kxp3eKsQhIaZqxEyowkBcsvZDdZkbWrVmnGknxs5flTD0VGsxrxKgBCZty1EzoiMzA=="],
 

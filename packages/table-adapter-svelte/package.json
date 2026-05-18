@@ -30,7 +30,9 @@
     "clean": "rm -rf dist",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "vitest run --config vitest.config.e2e.ts",
+    "test:e2e:watch": "vitest --config vitest.config.e2e.ts"
   },
   "keywords": [
     "tanstack-table",
@@ -60,9 +62,11 @@
     "@tanstack/table-core": "^8"
   },
   "devDependencies": {
+    "@insurup/test-helpers-e2e": "workspace:*",
     "@sveltejs/package": "^2.5.7",
     "@sveltejs/vite-plugin-svelte": "^7.1.2",
     "@tanstack/table-core": "^8.21.3",
+    "@types/node": "^25.8.0",
     "@vitest/coverage-v8": "^4.1.6",
     "svelte": "^5.55.7",
     "svelte-check": "^4.4.8",
