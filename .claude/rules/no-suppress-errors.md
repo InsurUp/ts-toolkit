@@ -1,6 +1,6 @@
 ---
 paths:
-  - "**/*.{ts,tsx,svelte,vue}"
+  - '**/*.{ts,tsx,svelte,vue}'
 ---
 
 # No Suppressing Errors or Warnings
@@ -41,11 +41,11 @@ if (obj.maybeUndefined) {
 ```typescript
 // Bad
 const data: any = fetchData();
-function process(input: any): any { }
+function process(input: any): any {}
 
 // Good
 const data: unknown = fetchData();
-function process<T>(input: T): Result<T> { }
+function process<T>(input: T): Result<T> {}
 ```
 
 ## Rules

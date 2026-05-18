@@ -23,10 +23,10 @@ import type {
   PersonWeight,
   ProposalSnapshotVehicle,
   ProposalSnapshotProperty,
-} from "./common.js";
-import type { CustomerPhoneNumber } from "./common.js";
-import type { Gender, Job, Surgery, Disease } from "./customers.js";
-import type { DaskOldPolicy } from "./common.js";
+} from './common.js';
+import type { CustomerPhoneNumber } from './common.js';
+import type { Gender, Job, Surgery, Disease } from './customers.js';
+import type { DaskOldPolicy } from './common.js';
 
 // ============================================================================
 // PROPOSAL ENUMS
@@ -46,31 +46,31 @@ export enum ProposalState {
    * The proposal is waiting for processing
    * Teklif işleme için bekliyor
    */
-  Waiting = "WAITING",
+  Waiting = 'WAITING',
 
   /**
    * The proposal is active and available for purchase
    * Teklif aktif ve satın alınabilir
    */
-  Active = "ACTIVE",
+  Active = 'ACTIVE',
 
   /**
    * The proposal purchase process is in progress
    * Teklif satın alma süreci devam ediyor
    */
-  Purchasing = "PURCHASING",
+  Purchasing = 'PURCHASING',
 
   /**
    * The proposal has been purchased and converted to a policy
    * Teklif satın alınmış ve poliçeye dönüştürülmüş
    */
-  Purchased = "PURCHASED",
+  Purchased = 'PURCHASED',
 
   /**
    * The proposal processing has failed
    * Teklif işleme başarısız oldu
    */
-  Failed = "FAILED",
+  Failed = 'FAILED',
 }
 
 /**
@@ -87,31 +87,31 @@ export enum ProposalProductState {
    * The product is waiting for processing or pricing
    * Ürün işleme veya fiyatlandırma için bekliyor
    */
-  Waiting = "WAITING",
+  Waiting = 'WAITING',
 
   /**
    * The product processing has failed
    * Ürün işleme başarısız oldu
    */
-  Failed = "FAILED",
+  Failed = 'FAILED',
 
   /**
    * The product has been successfully processed and priced
    * Ürün başarıyla işlendi ve fiyatlandırıldı
    */
-  Active = "ACTIVE",
+  Active = 'ACTIVE',
 
   /**
    * The product purchase is currently in progress
    * Ürün satın alma işlemi şu anda devam ediyor
    */
-  Purchasing = "PURCHASING",
+  Purchasing = 'PURCHASING',
 
   /**
    * The product has been successfully purchased
    * Ürün başarıyla satın alındı
    */
-  Purchased = "PURCHASED",
+  Purchased = 'PURCHASED',
 }
 
 // ============================================================================
@@ -212,49 +212,37 @@ type ProposalSnapshotBase = {
  */
 export type CreateProposalRequest =
   | ({
-      readonly $type: "kasko";
+      readonly $type: 'kasko';
       readonly productBranch: ProductBranch.Kasko;
       readonly vehicleId: string;
-      readonly coverage?: Extract<
-        Coverage,
-        { productBranch: ProductBranch.Kasko }
-      > | null;
+      readonly coverage?: Extract<Coverage, { productBranch: ProductBranch.Kasko }> | null;
     } & CreateProposalRequestBase)
   | ({
-      readonly $type: "dask";
+      readonly $type: 'dask';
       readonly productBranch: ProductBranch.Dask;
       readonly propertyId: string;
     } & CreateProposalRequestBase)
   | ({
-      readonly $type: "konut";
+      readonly $type: 'konut';
       readonly productBranch: ProductBranch.Konut;
       readonly propertyId: string;
-      readonly coverage?: Extract<
-        Coverage,
-        { productBranch: ProductBranch.Konut }
-      > | null;
+      readonly coverage?: Extract<Coverage, { productBranch: ProductBranch.Konut }> | null;
     } & CreateProposalRequestBase)
   | ({
-      readonly $type: "trafik";
+      readonly $type: 'trafik';
       readonly productBranch: ProductBranch.Trafik;
       readonly vehicleId: string;
     } & CreateProposalRequestBase)
   | ({
-      readonly $type: "tss";
+      readonly $type: 'tss';
       readonly productBranch: ProductBranch.Tss;
-      readonly coverage?: Extract<
-        Coverage,
-        { productBranch: ProductBranch.Tss }
-      > | null;
+      readonly coverage?: Extract<Coverage, { productBranch: ProductBranch.Tss }> | null;
     } & CreateProposalRequestBase)
   | ({
-      readonly $type: "imm";
+      readonly $type: 'imm';
       readonly productBranch: ProductBranch.Imm;
       readonly vehicleId: string;
-      readonly coverage?: Extract<
-        Coverage,
-        { productBranch: ProductBranch.Imm }
-      > | null;
+      readonly coverage?: Extract<Coverage, { productBranch: ProductBranch.Imm }> | null;
     } & CreateProposalRequestBase);
 
 type CreateProposalRequestBase = {
@@ -558,11 +546,11 @@ export interface SendProposalProductDocumentRequest {
  */
 export type Communication =
   | {
-      readonly type: "email";
+      readonly type: 'email';
       readonly email: string;
     }
   | {
-      readonly type: "sms";
+      readonly type: 'sms';
       readonly phoneNumber: CustomerPhoneNumber;
     };
 
@@ -678,11 +666,11 @@ export interface SendCompareProposalProductsPdfRequest {
  */
 export type SendCompareProposalCommunication =
   | {
-      readonly type: "email";
+      readonly type: 'email';
       readonly email: string;
     }
   | {
-      readonly type: "sms";
+      readonly type: 'sms';
       readonly phoneNumber: CustomerPhoneNumber;
     };
 

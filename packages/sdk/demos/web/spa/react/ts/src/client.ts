@@ -1,7 +1,7 @@
-import { DefaultInsurUpClient } from "@insurup/sdk";
-import { useAuthContext } from "react-oauth2-code-pkce";
-import { useMemo } from "react";
-import { apiConfig } from "./config";
+import { DefaultInsurUpClient } from '@insurup/sdk';
+import { useAuthContext } from 'react-oauth2-code-pkce';
+import { useMemo } from 'react';
+import { apiConfig } from './config';
 
 /**
  * Hook to get an authenticated InsurUp SDK client.
@@ -14,7 +14,7 @@ export function useClient() {
     () =>
       new DefaultInsurUpClient({
         baseUrl: apiConfig.baseUrl,
-        tokenProvider: () => token ?? "",
+        tokenProvider: () => token ?? '',
       }),
     [token]
   );

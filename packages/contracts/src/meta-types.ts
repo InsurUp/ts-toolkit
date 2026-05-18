@@ -5,32 +5,32 @@
  */
 
 export interface StringFieldMeta {
-  readonly type: "string";
+  readonly type: 'string';
   readonly nullable: boolean;
 }
 
 export interface NumberFieldMeta {
-  readonly type: "number";
+  readonly type: 'number';
   readonly nullable: boolean;
 }
 
 export interface BooleanFieldMeta {
-  readonly type: "boolean";
+  readonly type: 'boolean';
   readonly nullable: boolean;
 }
 
 export interface DateTimeFieldMeta {
-  readonly type: "DateTime";
+  readonly type: 'DateTime';
   readonly nullable: boolean;
 }
 
 export interface DateOnlyFieldMeta {
-  readonly type: "DateOnly";
+  readonly type: 'DateOnly';
   readonly nullable: boolean;
 }
 
 export interface EnumFieldMeta {
-  readonly type: "enum";
+  readonly type: 'enum';
   readonly values: readonly string[];
   readonly nullable: boolean;
 }

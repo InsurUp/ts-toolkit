@@ -142,7 +142,11 @@ export class TestScenarioHelper {
   /**
    * Creates a scenario where HTTP calls fail then succeed (for retry testing)
    */
-  static setupRetryScenario(mockFetch: Mock<typeof fetch>, failureCount: number, finalResponse: Response) {
+  static setupRetryScenario(
+    mockFetch: Mock<typeof fetch>,
+    failureCount: number,
+    finalResponse: Response
+  ) {
     // Add failure responses
     for (let i = 0; i < failureCount; i++) {
       mockFetch.mockResolvedValueOnce(
@@ -223,7 +227,7 @@ export class PerformanceTestHelper {
 
     return {
       result,
-      executionTimeMs: endTime - startTime
+      executionTimeMs: endTime - startTime,
     };
   }
 
@@ -243,8 +247,8 @@ export class PerformanceTestHelper {
         data: 'x'.repeat(100),
         nested: {
           array: new Array(10).fill(counter),
-          timestamp: new Date().toISOString()
-        }
+          timestamp: new Date().toISOString(),
+        },
       };
 
       obj[key] = value;

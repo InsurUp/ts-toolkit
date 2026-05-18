@@ -2,7 +2,7 @@
  * Shared UI components for the MPA demo.
  */
 
-import { getAuthStatus, logout } from "./auth";
+import { getAuthStatus, logout } from './auth';
 
 // ============ Header ============
 
@@ -18,7 +18,7 @@ export function renderHeader(container: HTMLElement): void {
     `
     : `<li><a href="/login.html" role="button">Login</a></li>`;
 
-  const expiryInfo = authStatus.expiresAt ? formatExpiry(authStatus.expiresAt) : "";
+  const expiryInfo = authStatus.expiresAt ? formatExpiry(authStatus.expiresAt) : '';
   const statusHtml = authStatus.isAuthenticated
     ? `<div class="auth-status">
         <span class="status-dot authenticated"></span>
@@ -38,10 +38,10 @@ export function renderHeader(container: HTMLElement): void {
     </div>
   `;
 
-  container.querySelector("#logout-link")?.addEventListener("click", handleLogout);
-  const themeToggle = container.querySelector("#theme-toggle") as HTMLButtonElement;
+  container.querySelector('#logout-link')?.addEventListener('click', handleLogout);
+  const themeToggle = container.querySelector('#theme-toggle') as HTMLButtonElement;
   if (themeToggle) {
-    themeToggle.addEventListener("click", toggleTheme);
+    themeToggle.addEventListener('click', toggleTheme);
     updateThemeIcon(themeToggle);
   }
 }
@@ -49,42 +49,42 @@ export function renderHeader(container: HTMLElement): void {
 function handleLogout(e: Event): void {
   e.preventDefault();
   logout();
-  window.location.href = "/";
+  window.location.href = '/';
 }
 
 function toggleTheme(): void {
   const html = document.documentElement;
-  const newTheme = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
-  html.setAttribute("data-theme", newTheme);
-  localStorage.setItem("theme", newTheme);
-  updateThemeIcon(document.querySelector("#theme-toggle") as HTMLButtonElement);
+  const newTheme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+  updateThemeIcon(document.querySelector('#theme-toggle') as HTMLButtonElement);
 }
 
 function updateThemeIcon(button: HTMLButtonElement): void {
-  const theme = document.documentElement.getAttribute("data-theme");
-  button.textContent = theme === "dark" ? "☀️" : "🌙";
+  const theme = document.documentElement.getAttribute('data-theme');
+  button.textContent = theme === 'dark' ? '☀️' : '🌙';
 }
 
 export function initTheme(): void {
-  const savedTheme = localStorage.getItem("theme");
+  const savedTheme = localStorage.getItem('theme');
   if (savedTheme) {
-    document.documentElement.setAttribute("data-theme", savedTheme);
+    document.documentElement.setAttribute('data-theme', savedTheme);
   }
 }
 
 function formatExpiry(expiresAt: Date): string {
   const diff = expiresAt.getTime() - Date.now();
-  if (diff <= 0) return " (expired)";
+  if (diff <= 0) return ' (expired)';
   const minutes = Math.floor(diff / 60000);
   const hours = Math.floor(minutes / 60);
   if (hours > 0) return ` (${hours}h ${minutes % 60}m)`;
   if (minutes > 0) return ` (${minutes}m)`;
-  return " (< 1m)";
+  return ' (< 1m)';
 }
 
 // ============ Loading States ============
 
-export function renderLoading(container: HTMLElement, message = "Loading..."): void {
+export function renderLoading(container: HTMLElement, message = 'Loading...'): void {
   container.innerHTML = `
     <div class="loading-container">
       <div class="loading-spinner large"></div>
@@ -97,7 +97,7 @@ export function renderEmptyState(container: HTMLElement, title: string, message?
   container.innerHTML = `
     <div class="empty-state">
       <h3>${title}</h3>
-      ${message ? `<p>${message}</p>` : ""}
+      ${message ? `<p>${message}</p>` : ''}
     </div>
   `;
 }
@@ -112,50 +112,50 @@ export function renderError(
     <article>
       <header><h3>${title}</h3></header>
       <p>${message}</p>
-      ${retryAction ? '<button id="retry-btn">Retry</button>' : ""}
+      ${retryAction ? '<button id="retry-btn">Retry</button>' : ''}
     </article>
   `;
   if (retryAction) {
-    container.querySelector("#retry-btn")?.addEventListener("click", retryAction);
+    container.querySelector('#retry-btn')?.addEventListener('click', retryAction);
   }
 }
 
 // ============ Toast Notifications ============
 
-type ToastType = "success" | "error" | "info";
+type ToastType = 'success' | 'error' | 'info';
 
-export function showToast(message: string, type: ToastType = "info", duration = 5000): void {
-  const container = document.getElementById("toast-container");
+export function showToast(message: string, type: ToastType = 'info', duration = 5000): void {
+  const container = document.getElementById('toast-container');
   if (!container) return;
 
-  const toast = document.createElement("div");
+  const toast = document.createElement('div');
   toast.className = `toast ${type}`;
   toast.textContent = message;
   container.appendChild(toast);
 
   setTimeout(() => {
-    toast.style.animation = "toast-out 0.3s ease-out forwards";
+    toast.style.animation = 'toast-out 0.3s ease-out forwards';
     setTimeout(() => toast.remove(), 300);
   }, duration);
 }
 
 export function showSuccess(message: string): void {
-  showToast(message, "success");
+  showToast(message, 'success');
 }
 
 export function showError(message: string): void {
-  showToast(message, "error");
+  showToast(message, 'error');
 }
 
 export function showInfo(message: string): void {
-  showToast(message, "info");
+  showToast(message, 'info');
 }
 
 // ============ DOM Utilities ============
 
 export function escapeHtml(str: string | undefined | null): string {
-  if (!str) return "";
-  const div = document.createElement("div");
+  if (!str) return '';
+  const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
 }
@@ -194,15 +194,17 @@ export function renderPagination(
   container.innerHTML = `
     <div class="pagination-info">${info}</div>
     <div class="pagination-controls">
-      <button class="secondary outline pagination-first" ${currentPage === 1 ? "disabled" : ""}>First</button>
-      <button class="secondary outline pagination-prev" ${!pageInfo.hasPreviousPage ? "disabled" : ""}>Previous</button>
-      <button class="secondary outline pagination-next" ${!pageInfo.hasNextPage ? "disabled" : ""}>Next</button>
+      <button class="secondary outline pagination-first" ${currentPage === 1 ? 'disabled' : ''}>First</button>
+      <button class="secondary outline pagination-prev" ${!pageInfo.hasPreviousPage ? 'disabled' : ''}>Previous</button>
+      <button class="secondary outline pagination-next" ${!pageInfo.hasNextPage ? 'disabled' : ''}>Next</button>
     </div>
   `;
 
-  container.querySelector(".pagination-first")?.addEventListener("click", () => options.onFirst());
-  container.querySelector(".pagination-prev")?.addEventListener("click", () => options.onPrevious());
-  container.querySelector(".pagination-next")?.addEventListener("click", () => {
+  container.querySelector('.pagination-first')?.addEventListener('click', () => options.onFirst());
+  container
+    .querySelector('.pagination-prev')
+    ?.addEventListener('click', () => options.onPrevious());
+  container.querySelector('.pagination-next')?.addEventListener('click', () => {
     if (pageInfo.endCursor) options.onNext(pageInfo.endCursor);
   });
 }
@@ -216,11 +218,11 @@ export function getQueryParam(key: string): string | null {
 export function setQueryParams(params: Record<string, string | number | null | undefined>): void {
   const url = new URL(window.location.href);
   for (const [key, value] of Object.entries(params)) {
-    if (value === null || value === undefined || value === "") {
+    if (value === null || value === undefined || value === '') {
       url.searchParams.delete(key);
     } else {
       url.searchParams.set(key, String(value));
     }
   }
-  history.replaceState(null, "", url.toString());
+  history.replaceState(null, '', url.toString());
 }

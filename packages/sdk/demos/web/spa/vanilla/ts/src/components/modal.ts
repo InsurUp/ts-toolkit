@@ -21,8 +21,8 @@ export function showModal(options: ModalOptions): HTMLDialogElement {
   const {
     title,
     content,
-    confirmText = "OK",
-    cancelText = "Cancel",
+    confirmText = 'OK',
+    cancelText = 'Cancel',
     onConfirm,
     onCancel,
     showCancel = true,
@@ -31,7 +31,7 @@ export function showModal(options: ModalOptions): HTMLDialogElement {
   // Close any existing modal
   closeModal();
 
-  const dialog = document.createElement("dialog");
+  const dialog = document.createElement('dialog');
   dialog.innerHTML = `
     <article>
       <header>
@@ -40,45 +40,45 @@ export function showModal(options: ModalOptions): HTMLDialogElement {
       </header>
       <div class="modal-content"></div>
       <footer>
-        ${showCancel ? `<button class="secondary modal-cancel">${cancelText}</button>` : ""}
+        ${showCancel ? `<button class="secondary modal-cancel">${cancelText}</button>` : ''}
         <button class="modal-confirm">${confirmText}</button>
       </footer>
     </article>
   `;
 
   // Set content
-  const contentContainer = dialog.querySelector(".modal-content") as HTMLElement;
-  if (typeof content === "string") {
+  const contentContainer = dialog.querySelector('.modal-content') as HTMLElement;
+  if (typeof content === 'string') {
     contentContainer.innerHTML = content;
   } else {
     contentContainer.appendChild(content);
   }
 
   // Attach event listeners
-  const closeBtn = dialog.querySelector(".modal-close");
-  const cancelBtn = dialog.querySelector(".modal-cancel");
-  const confirmBtn = dialog.querySelector(".modal-confirm");
+  const closeBtn = dialog.querySelector('.modal-close');
+  const cancelBtn = dialog.querySelector('.modal-cancel');
+  const confirmBtn = dialog.querySelector('.modal-confirm');
 
-  closeBtn?.addEventListener("click", () => {
+  closeBtn?.addEventListener('click', () => {
     onCancel?.();
     closeModal();
   });
 
-  cancelBtn?.addEventListener("click", () => {
+  cancelBtn?.addEventListener('click', () => {
     onCancel?.();
     closeModal();
   });
 
-  confirmBtn?.addEventListener("click", async () => {
+  confirmBtn?.addEventListener('click', async () => {
     if (onConfirm) {
-      confirmBtn.setAttribute("aria-busy", "true");
+      confirmBtn.setAttribute('aria-busy', 'true');
       try {
         await onConfirm();
         closeModal();
       } catch (error) {
-        console.error("Modal confirm error:", error);
+        console.error('Modal confirm error:', error);
       } finally {
-        confirmBtn.removeAttribute("aria-busy");
+        confirmBtn.removeAttribute('aria-busy');
       }
     } else {
       closeModal();
@@ -86,7 +86,7 @@ export function showModal(options: ModalOptions): HTMLDialogElement {
   });
 
   // Close on backdrop click
-  dialog.addEventListener("click", (e) => {
+  dialog.addEventListener('click', (e) => {
     if (e.target === dialog) {
       onCancel?.();
       closeModal();
@@ -94,8 +94,8 @@ export function showModal(options: ModalOptions): HTMLDialogElement {
   });
 
   // Close on Escape key
-  dialog.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
+  dialog.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
       onCancel?.();
       closeModal();
     }
@@ -131,8 +131,8 @@ export function confirm(
     showModal({
       title,
       content: `<p>${message}</p>`,
-      confirmText: options?.confirmText || "Confirm",
-      cancelText: options?.cancelText || "Cancel",
+      confirmText: options?.confirmText || 'Confirm',
+      cancelText: options?.cancelText || 'Cancel',
       showCancel: true,
       onConfirm: () => resolve(true),
       onCancel: () => resolve(false),
@@ -149,7 +149,7 @@ export function alert(title: string, message: string): Promise<void> {
     showModal({
       title,
       content: `<p>${message}</p>`,
-      confirmText: "OK",
+      confirmText: 'OK',
       showCancel: false,
       onConfirm: () => resolve(),
     });

@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface PaginationProps {
   hasNextPage: boolean;
@@ -45,12 +45,7 @@ export function Pagination({
           <ChevronLeft className="h-4 w-4 mr-1" />
           Previous
         </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onNext}
-          disabled={!hasNextPage || isLoading}
-        >
+        <Button variant="outline" size="sm" onClick={onNext} disabled={!hasNextPage || isLoading}>
           Next
           <ChevronRight className="h-4 w-4 ml-1" />
         </Button>

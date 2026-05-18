@@ -3,87 +3,107 @@
  * Supports URL state persistence for shareable/bookmarkable table views.
  */
 
-import { getClient } from "../../client";
-import { renderPagination, createPaginationTracker, type PageInfo } from "../../components/pagination";
-import { renderLoading, renderEmptyState, renderError } from "../../components/loading";
-import { renderTableToolbar, type FilterConfig } from "../../components/table-toolbar";
+import { getClient } from '../../client';
+import {
+  renderPagination,
+  createPaginationTracker,
+  type PageInfo,
+} from '../../components/pagination';
+import { renderLoading, renderEmptyState, renderError } from '../../components/loading';
+import { renderTableToolbar, type FilterConfig } from '../../components/table-toolbar';
 import {
   renderSortableHeaders,
   attachSortHandlers,
   buildOrderOptions,
   type SortState,
   type SortableColumn,
-} from "../../components/sortable-headers";
-import type { ColumnConfig } from "../../components/column-visibility";
-import { formatDate, formatCurrency, formatPolicyState, getPolicyStateBadgeClass, truncate } from "../../utils/format";
-import { escapeHtml } from "../../utils/dom";
-import { getTableState, setTableState } from "../../utils/url-state";
-import { PolicyState, ProductBranch, SortEnumType, type Currency, type DateOnly, type DateTime } from "@insurup/contracts";
-import type { PolicyFieldKey } from "@insurup/contracts";
-import type { QueryPoliciesResultSearchInput, QueryPoliciesResultFilterInput } from "@insurup/contracts";
+} from '../../components/sortable-headers';
+import type { ColumnConfig } from '../../components/column-visibility';
+import {
+  formatDate,
+  formatCurrency,
+  formatPolicyState,
+  getPolicyStateBadgeClass,
+  truncate,
+} from '../../utils/format';
+import { escapeHtml } from '../../utils/dom';
+import { getTableState, setTableState } from '../../utils/url-state';
+import {
+  PolicyState,
+  ProductBranch,
+  SortEnumType,
+  type Currency,
+  type DateOnly,
+  type DateTime,
+} from '@insurup/contracts';
+import type { PolicyFieldKey } from '@insurup/contracts';
+import type {
+  QueryPoliciesResultSearchInput,
+  QueryPoliciesResultFilterInput,
+} from '@insurup/contracts';
 
 const PAGE_SIZE = 10;
-const STORAGE_KEY = "demo-policies-columns";
+const STORAGE_KEY = 'demo-policies-columns';
 
 /** Map column IDs to SDK field names */
 const COLUMN_TO_FIELDS: Record<string, readonly string[]> = {
-  policyNumber: ["insuranceCompanyPolicyNumber"],
-  product: ["productName"],
-  customer: ["insuredCustomerName"],
-  state: ["state"],
-  startDate: ["startDate"],
-  endDate: ["endDate"],
-  premium: ["grossPremium", "currency"],
+  policyNumber: ['insuranceCompanyPolicyNumber'],
+  product: ['productName'],
+  customer: ['insuredCustomerName'],
+  state: ['state'],
+  startDate: ['startDate'],
+  endDate: ['endDate'],
+  premium: ['grossPremium', 'currency'],
 };
 
 /** Fields that are always required */
-const REQUIRED_FIELDS = ["id"] as const;
+const REQUIRED_FIELDS = ['id'] as const;
 
 /** Column configuration for the table */
 const COLUMNS: SortableColumn[] = [
-  { id: "policyNumber", label: "Policy Number" },
-  { id: "product", label: "Product" },
-  { id: "customer", label: "Customer" },
-  { id: "state", label: "State" },
-  { id: "startDate", label: "Start Date", sortField: "startDate", sortable: true },
-  { id: "endDate", label: "End Date", sortField: "endDate", sortable: true },
-  { id: "premium", label: "Premium", sortField: "grossPremium", sortable: true },
-  { id: "actions", label: "" },
+  { id: 'policyNumber', label: 'Policy Number' },
+  { id: 'product', label: 'Product' },
+  { id: 'customer', label: 'Customer' },
+  { id: 'state', label: 'State' },
+  { id: 'startDate', label: 'Start Date', sortField: 'startDate', sortable: true },
+  { id: 'endDate', label: 'End Date', sortField: 'endDate', sortable: true },
+  { id: 'premium', label: 'Premium', sortField: 'grossPremium', sortable: true },
+  { id: 'actions', label: '' },
 ];
 
 /** Column visibility configuration */
 const COLUMN_CONFIG: ColumnConfig[] = [
-  { id: "policyNumber", label: "Policy Number", defaultVisible: true },
-  { id: "product", label: "Product", defaultVisible: true },
-  { id: "customer", label: "Customer", defaultVisible: true },
-  { id: "state", label: "State", defaultVisible: true },
-  { id: "startDate", label: "Start Date", defaultVisible: true },
-  { id: "endDate", label: "End Date", defaultVisible: true },
-  { id: "premium", label: "Premium", defaultVisible: true },
+  { id: 'policyNumber', label: 'Policy Number', defaultVisible: true },
+  { id: 'product', label: 'Product', defaultVisible: true },
+  { id: 'customer', label: 'Customer', defaultVisible: true },
+  { id: 'state', label: 'State', defaultVisible: true },
+  { id: 'startDate', label: 'Start Date', defaultVisible: true },
+  { id: 'endDate', label: 'End Date', defaultVisible: true },
+  { id: 'premium', label: 'Premium', defaultVisible: true },
 ];
 
 /** Filter configuration */
 const FILTERS: FilterConfig[] = [
   {
-    id: "state",
-    label: "State",
+    id: 'state',
+    label: 'State',
     options: [
-      { value: "", label: "All States" },
-      { value: PolicyState.Active, label: "Active" },
-      { value: PolicyState.EndOfLife, label: "Expired" },
-      { value: PolicyState.Cancelled, label: "Cancelled" },
+      { value: '', label: 'All States' },
+      { value: PolicyState.Active, label: 'Active' },
+      { value: PolicyState.EndOfLife, label: 'Expired' },
+      { value: PolicyState.Cancelled, label: 'Cancelled' },
     ],
   },
   {
-    id: "branch",
-    label: "Branch",
+    id: 'branch',
+    label: 'Branch',
     options: [
-      { value: "", label: "All Branches" },
-      { value: ProductBranch.Trafik, label: "Traffic" },
-      { value: ProductBranch.Kasko, label: "Casco" },
-      { value: ProductBranch.Dask, label: "DASK" },
-      { value: ProductBranch.Tss, label: "Health (TSS)" },
-      { value: ProductBranch.Konut, label: "Home" },
+      { value: '', label: 'All Branches' },
+      { value: ProductBranch.Trafik, label: 'Traffic' },
+      { value: ProductBranch.Kasko, label: 'Casco' },
+      { value: ProductBranch.Dask, label: 'DASK' },
+      { value: ProductBranch.Tss, label: 'Health (TSS)' },
+      { value: ProductBranch.Konut, label: 'Home' },
     ],
   },
 ];
@@ -110,17 +130,20 @@ export async function render(container: HTMLElement): Promise<void> {
   const urlState = getTableState();
 
   // State
-  let searchQuery = urlState.search || "";
+  let searchQuery = urlState.search || '';
   let stateFilter: PolicyState | null = (urlState.filters?.state as PolicyState) || null;
   let branchFilter: ProductBranch | null = (urlState.filters?.branch as ProductBranch) || null;
   let sortState: SortState = urlState.sort
-    ? { field: urlState.sort.field, direction: urlState.sort.direction === "asc" ? SortEnumType.ASC : SortEnumType.DESC }
+    ? {
+        field: urlState.sort.field,
+        direction: urlState.sort.direction === 'asc' ? SortEnumType.ASC : SortEnumType.DESC,
+      }
     : { field: null, direction: null };
   let visibleColumns = new Set(COLUMN_CONFIG.map((c) => c.id));
   const targetPage = urlState.page || 1;
 
   // Always include actions column
-  visibleColumns.add("actions");
+  visibleColumns.add('actions');
 
   /**
    * Sync current state to URL.
@@ -134,9 +157,13 @@ export async function render(container: HTMLElement): Promise<void> {
       {
         search: searchQuery || undefined,
         filters: Object.keys(filters).length > 0 ? filters : undefined,
-        sort: sortState.field && sortState.direction
-          ? { field: sortState.field, direction: sortState.direction.toLowerCase() as "asc" | "desc" }
-          : undefined,
+        sort:
+          sortState.field && sortState.direction
+            ? {
+                field: sortState.field,
+                direction: sortState.direction.toLowerCase() as 'asc' | 'desc',
+              }
+            : undefined,
         page: tracker.currentPage > 1 ? tracker.currentPage : undefined,
       },
       pushHistory
@@ -198,14 +225,14 @@ export async function render(container: HTMLElement): Promise<void> {
 
   async function loadPage(cursor: string | null = null): Promise<void> {
     // Check if we have existing content (subsequent load) or need full page loading (initial load)
-    const dataTable = container.querySelector(".data-table");
+    const dataTable = container.querySelector('.data-table');
     const isInitialLoad = !dataTable;
 
     if (isInitialLoad) {
-      renderLoading(container, "Loading policies...");
+      renderLoading(container, 'Loading policies...');
     } else {
       // Show loading overlay on existing table
-      dataTable.classList.add("loading");
+      dataTable.classList.add('loading');
     }
 
     try {
@@ -218,7 +245,7 @@ export async function render(container: HTMLElement): Promise<void> {
         first: 1,
         search: searchOptions,
         filter: filterOptions,
-        select: ["id"] as const,
+        select: ['id'] as const,
       });
 
       const selectFields = buildSelectFields();
@@ -234,7 +261,7 @@ export async function render(container: HTMLElement): Promise<void> {
       });
 
       if (!dataRes.isSuccess || !dataRes.data) {
-        throw new Error(dataRes.message || "Failed to load policies");
+        throw new Error(dataRes.message || 'Failed to load policies');
       }
 
       const { nodes, pageInfo } = dataRes.data;
@@ -244,7 +271,9 @@ export async function render(container: HTMLElement): Promise<void> {
 
       countPromise.then((countRes) => {
         if (countRes.isSuccess && countRes.data && policies.length > 0) {
-          const paginationContainer = container.querySelector("#pagination-container") as HTMLElement;
+          const paginationContainer = container.querySelector(
+            '#pagination-container'
+          ) as HTMLElement;
           if (paginationContainer) {
             renderPagination(
               paginationContainer,
@@ -276,11 +305,11 @@ export async function render(container: HTMLElement): Promise<void> {
         }
       });
     } catch (error) {
-      console.error("Failed to load policies:", error);
+      console.error('Failed to load policies:', error);
       renderError(
         container,
-        "Error Loading Policies",
-        error instanceof Error ? error.message : "Unknown error",
+        'Error Loading Policies',
+        error instanceof Error ? error.message : 'Unknown error',
         () => loadPage(cursor)
       );
     }
@@ -296,11 +325,7 @@ export async function render(container: HTMLElement): Promise<void> {
     const hasFilters = searchQuery || stateFilter || branchFilter;
 
     if (policies.length === 0 && tracker.currentPage === 1 && !hasFilters) {
-      renderEmptyState(
-        container,
-        "No Policies Found",
-        "There are no policies in the system yet."
-      );
+      renderEmptyState(container, 'No Policies Found', 'There are no policies in the system yet.');
       return;
     }
 
@@ -327,13 +352,17 @@ export async function render(container: HTMLElement): Promise<void> {
               </tr>
             </thead>
             <tbody>
-              ${policies.length > 0 ? policies.map((p) => renderPolicyRow(p as unknown as PolicyRow)).join("") : `
+              ${
+                policies.length > 0
+                  ? policies.map((p) => renderPolicyRow(p as unknown as PolicyRow)).join('')
+                  : `
                 <tr>
                   <td colspan="${visibleColumns.size}" style="text-align: center; color: var(--pico-muted-color);">
-                    No policies found${hasFilters ? " matching your search criteria." : "."}
+                    No policies found${hasFilters ? ' matching your search criteria.' : '.'}
                   </td>
                 </tr>
-              `}
+              `
+              }
             </tbody>
           </table>
         </div>
@@ -343,9 +372,9 @@ export async function render(container: HTMLElement): Promise<void> {
     `;
 
     // Render toolbar and restore state
-    const toolbarContainer = container.querySelector("#toolbar-container") as HTMLElement;
+    const toolbarContainer = container.querySelector('#toolbar-container') as HTMLElement;
     const toolbarControls = renderTableToolbar(toolbarContainer, {
-      searchPlaceholder: "Search policies...",
+      searchPlaceholder: 'Search policies...',
       filters: FILTERS,
       columns: COLUMN_CONFIG,
       storageKey: STORAGE_KEY,
@@ -359,18 +388,18 @@ export async function render(container: HTMLElement): Promise<void> {
       toolbarControls.setSearchValue(searchQuery);
     }
     if (stateFilter) {
-      toolbarControls.setFilterValue("state", stateFilter);
+      toolbarControls.setFilterValue('state', stateFilter);
     }
     if (branchFilter) {
-      toolbarControls.setFilterValue("branch", branchFilter);
+      toolbarControls.setFilterValue('branch', branchFilter);
     }
 
     // Attach sort handlers
-    const table = container.querySelector("table") as HTMLElement;
+    const table = container.querySelector('table') as HTMLElement;
     attachSortHandlers(table, sortState, handleSort);
 
     if (policies.length > 0) {
-      const paginationContainer = container.querySelector("#pagination-container") as HTMLElement;
+      const paginationContainer = container.querySelector('#pagination-container') as HTMLElement;
       renderPagination(
         paginationContainer,
         {
@@ -405,25 +434,25 @@ export async function render(container: HTMLElement): Promise<void> {
 
     const cells: string[] = [];
 
-    if (visibleColumns.has("policyNumber")) {
+    if (visibleColumns.has('policyNumber')) {
       cells.push(`
         <td>
           <a href="#/policies/${policy.id}">
-            ${escapeHtml(policy.insuranceCompanyPolicyNumber || "N/A")}
+            ${escapeHtml(policy.insuranceCompanyPolicyNumber || 'N/A')}
           </a>
         </td>
       `);
     }
 
-    if (visibleColumns.has("product")) {
+    if (visibleColumns.has('product')) {
       cells.push(`<td>${escapeHtml(truncate(policy.productName, 25))}</td>`);
     }
 
-    if (visibleColumns.has("customer")) {
+    if (visibleColumns.has('customer')) {
       cells.push(`<td>${escapeHtml(truncate(policy.insuredCustomerName, 25))}</td>`);
     }
 
-    if (visibleColumns.has("state")) {
+    if (visibleColumns.has('state')) {
       cells.push(`
         <td>
           <span class="badge ${badgeClass}">
@@ -433,19 +462,19 @@ export async function render(container: HTMLElement): Promise<void> {
       `);
     }
 
-    if (visibleColumns.has("startDate")) {
+    if (visibleColumns.has('startDate')) {
       cells.push(`<td>${formatDate(policy.startDate?.toString())}</td>`);
     }
 
-    if (visibleColumns.has("endDate")) {
+    if (visibleColumns.has('endDate')) {
       cells.push(`<td>${formatDate(policy.endDate?.toString())}</td>`);
     }
 
-    if (visibleColumns.has("premium")) {
-      cells.push(`<td>${formatCurrency(policy.grossPremium, policy.currency || "TRY")}</td>`);
+    if (visibleColumns.has('premium')) {
+      cells.push(`<td>${formatCurrency(policy.grossPremium, policy.currency || 'TRY')}</td>`);
     }
 
-    if (visibleColumns.has("actions")) {
+    if (visibleColumns.has('actions')) {
       cells.push(`
         <td>
           <a href="#/policies/${policy.id}">View</a>
@@ -453,7 +482,7 @@ export async function render(container: HTMLElement): Promise<void> {
       `);
     }
 
-    return `<tr>${cells.join("")}</tr>`;
+    return `<tr>${cells.join('')}</tr>`;
   }
 
   async function handleSearch(query: string): Promise<void> {
@@ -464,9 +493,9 @@ export async function render(container: HTMLElement): Promise<void> {
   }
 
   async function handleFilterChange(filterId: string, value: string): Promise<void> {
-    if (filterId === "state") {
+    if (filterId === 'state') {
       stateFilter = value ? (value as PolicyState) : null;
-    } else if (filterId === "branch") {
+    } else if (filterId === 'branch') {
       branchFilter = value ? (value as ProductBranch) : null;
     }
     tracker.reset();
@@ -474,7 +503,10 @@ export async function render(container: HTMLElement): Promise<void> {
     await loadPage(null);
   }
 
-  async function handleSort(field: string, direction: typeof SortEnumType.ASC | typeof SortEnumType.DESC | null): Promise<void> {
+  async function handleSort(
+    field: string,
+    direction: typeof SortEnumType.ASC | typeof SortEnumType.DESC | null
+  ): Promise<void> {
     sortState = { field: direction ? field : null, direction };
     tracker.reset();
     syncToUrl();
@@ -483,7 +515,7 @@ export async function render(container: HTMLElement): Promise<void> {
 
   function handleColumnsChange(columns: Set<string>): void {
     visibleColumns = new Set(columns);
-    visibleColumns.add("actions"); // Always show actions
+    visibleColumns.add('actions'); // Always show actions
     loadPage(tracker.getCurrentCursor());
   }
 
@@ -496,7 +528,7 @@ export async function render(container: HTMLElement): Promise<void> {
       return;
     }
 
-    renderLoading(container, "Loading policies...");
+    renderLoading(container, 'Loading policies...');
 
     try {
       const client = getClient();
@@ -507,14 +539,15 @@ export async function render(container: HTMLElement): Promise<void> {
       // Fetch pages sequentially to get cursors
       const cursors: string[] = [];
       for (let i = 1; i < page; i++) {
-        const afterCursor: string | undefined = cursors.length > 0 ? cursors[cursors.length - 1] : undefined;
+        const afterCursor: string | undefined =
+          cursors.length > 0 ? cursors[cursors.length - 1] : undefined;
         const pageRes = await client.policies.getPolicies({
           first: PAGE_SIZE,
           after: afterCursor,
           search: searchOptions,
           filter: filterOptions,
           order: orderOptions,
-          select: ["id"] as const,
+          select: ['id'] as const,
         });
 
         if (!pageRes.isSuccess || !pageRes.data?.pageInfo.endCursor) {
@@ -534,7 +567,7 @@ export async function render(container: HTMLElement): Promise<void> {
       const finalCursor = cursors.length > 0 ? cursors[cursors.length - 1] : null;
       await loadPage(finalCursor);
     } catch (error) {
-      console.error("Failed to navigate to page:", error);
+      console.error('Failed to navigate to page:', error);
       tracker.reset();
       syncToUrl();
       await loadPage(null);

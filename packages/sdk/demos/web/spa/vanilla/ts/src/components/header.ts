@@ -2,8 +2,8 @@
  * Header component with navigation and auth status.
  */
 
-import { getAuthStatus, logout } from "../auth";
-import { navigate } from "../utils/router";
+import { getAuthStatus, logout } from '../auth';
+import { navigate } from '../utils/router';
 
 /**
  * Render the header navigation.
@@ -24,9 +24,7 @@ export function renderHeader(container: HTMLElement): void {
       <li><a href="#/login" role="button">Login</a></li>
     `;
 
-  const expiryInfo = authStatus.expiresAt
-    ? formatExpiry(authStatus.expiresAt)
-    : "";
+  const expiryInfo = authStatus.expiresAt ? formatExpiry(authStatus.expiresAt) : '';
 
   const statusHtml = authStatus.isAuthenticated
     ? `
@@ -56,14 +54,14 @@ export function renderHeader(container: HTMLElement): void {
   `;
 
   // Attach event listeners
-  const logoutLink = container.querySelector("#logout-link");
+  const logoutLink = container.querySelector('#logout-link');
   if (logoutLink) {
-    logoutLink.addEventListener("click", handleLogout);
+    logoutLink.addEventListener('click', handleLogout);
   }
 
-  const themeToggle = container.querySelector("#theme-toggle");
+  const themeToggle = container.querySelector('#theme-toggle');
   if (themeToggle) {
-    themeToggle.addEventListener("click", toggleTheme);
+    themeToggle.addEventListener('click', toggleTheme);
     updateThemeIcon(themeToggle as HTMLButtonElement);
   }
 }
@@ -74,7 +72,7 @@ export function renderHeader(container: HTMLElement): void {
 function handleLogout(e: Event): void {
   e.preventDefault();
   logout();
-  navigate("/");
+  navigate('/');
   // Refresh the page to update header
   window.location.reload();
 }
@@ -84,12 +82,12 @@ function handleLogout(e: Event): void {
  */
 function toggleTheme(): void {
   const html = document.documentElement;
-  const currentTheme = html.getAttribute("data-theme");
-  const newTheme = currentTheme === "dark" ? "light" : "dark";
-  html.setAttribute("data-theme", newTheme);
-  localStorage.setItem("theme", newTheme);
+  const currentTheme = html.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
 
-  const button = document.querySelector("#theme-toggle") as HTMLButtonElement;
+  const button = document.querySelector('#theme-toggle') as HTMLButtonElement;
   if (button) {
     updateThemeIcon(button);
   }
@@ -99,17 +97,17 @@ function toggleTheme(): void {
  * Update the theme toggle icon.
  */
 function updateThemeIcon(button: HTMLButtonElement): void {
-  const theme = document.documentElement.getAttribute("data-theme");
-  button.textContent = theme === "dark" ? "☀️" : "🌙";
+  const theme = document.documentElement.getAttribute('data-theme');
+  button.textContent = theme === 'dark' ? '☀️' : '🌙';
 }
 
 /**
  * Initialize theme from localStorage.
  */
 export function initTheme(): void {
-  const savedTheme = localStorage.getItem("theme");
+  const savedTheme = localStorage.getItem('theme');
   if (savedTheme) {
-    document.documentElement.setAttribute("data-theme", savedTheme);
+    document.documentElement.setAttribute('data-theme', savedTheme);
   }
 }
 
@@ -118,7 +116,7 @@ export function initTheme(): void {
  */
 function formatExpiry(expiresAt: Date): string {
   const diff = expiresAt.getTime() - Date.now();
-  if (diff <= 0) return " (expired)";
+  if (diff <= 0) return ' (expired)';
 
   const minutes = Math.floor(diff / 60000);
   const hours = Math.floor(minutes / 60);
@@ -128,6 +126,6 @@ function formatExpiry(expiresAt: Date): string {
   } else if (minutes > 0) {
     return ` (${minutes}m)`;
   } else {
-    return " (< 1m)";
+    return ' (< 1m)';
   }
 }

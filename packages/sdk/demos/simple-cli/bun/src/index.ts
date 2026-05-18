@@ -5,19 +5,19 @@
  * Run with: bun src/index.ts
  */
 
-import * as p from "@clack/prompts";
-import color from "picocolors";
-import { loadConfig } from "./config";
-import { getAuthStatus } from "./auth";
-import { getMenuActions, getAction } from "./actions";
+import * as p from '@clack/prompts';
+import color from 'picocolors';
+import { loadConfig } from './config';
+import { getAuthStatus } from './auth';
+import { getMenuActions, getAction } from './actions';
 
 async function showHeader(): Promise<void> {
   console.clear();
 
   const authStatus = await getAuthStatus();
-  const statusIcon = authStatus.isAuthenticated ? color.green("●") : color.red("○");
+  const statusIcon = authStatus.isAuthenticated ? color.green('●') : color.red('○');
 
-  let statusText = authStatus.isAuthenticated ? "Authenticated" : "Not authenticated";
+  let statusText = authStatus.isAuthenticated ? 'Authenticated' : 'Not authenticated';
 
   // Add expiry time if authenticated
   if (authStatus.isAuthenticated && authStatus.expiresAt) {
@@ -36,18 +36,18 @@ async function showHeader(): Promise<void> {
 
   // Add auto-refresh indicator
   if (authStatus.isAuthenticated && authStatus.hasRefreshToken) {
-    statusText += color.dim(" [auto-refresh]");
+    statusText += color.dim(' [auto-refresh]');
   }
 
-  p.intro(color.bgCyan(color.black(" InsurUp SDK CLI ")));
+  p.intro(color.bgCyan(color.black(' InsurUp SDK CLI ')));
   console.log(`  ${statusIcon} ${statusText}`);
   console.log();
 }
 
 async function main(): Promise<void> {
-  process.on("SIGINT", () => {
+  process.on('SIGINT', () => {
     console.log();
-    p.outro("Interrupted. Goodbye!");
+    p.outro('Interrupted. Goodbye!');
     process.exit(0);
   });
 
@@ -63,15 +63,15 @@ async function main(): Promise<void> {
 
       const options = [
         ...actions.map((a) => ({ value: a.id, label: a.label, hint: a.hint })),
-        { value: "__quit__", label: color.dim("Quit"), hint: "Exit the CLI" },
+        { value: '__quit__', label: color.dim('Quit'), hint: 'Exit the CLI' },
       ];
 
       const result = await p.select({
-        message: "What would you like to do?",
+        message: 'What would you like to do?',
         options,
       });
 
-      if (p.isCancel(result) || result === "__quit__") {
+      if (p.isCancel(result) || result === '__quit__') {
         running = false;
         continue;
       }
@@ -86,10 +86,12 @@ async function main(): Promise<void> {
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
-    p.outro("Thanks for using InsurUp SDK CLI!");
+    p.outro('Thanks for using InsurUp SDK CLI!');
   } catch (error) {
     console.error();
-    console.error(color.red(`  Fatal error: ${error instanceof Error ? error.message : "Unknown error"}`));
+    console.error(
+      color.red(`  Fatal error: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    );
     console.error();
     process.exit(1);
   }

@@ -26,8 +26,10 @@ import { createTableCore, type TableCoreResult } from './internal/index.js';
  *
  * @template TColumns - The column definitions type
  */
-export type CustomerTableInstance<TColumns extends CustomerColumnDef[]> =
-  TableCoreResult<CustomerRowType<TColumns>, CustomerTable<TColumns>>;
+export type CustomerTableInstance<TColumns extends CustomerColumnDef[]> = TableCoreResult<
+  CustomerRowType<TColumns>,
+  CustomerTable<TColumns>
+>;
 
 /**
  * Creates a customer table for Svelte 5 with fine-grained reactive state.

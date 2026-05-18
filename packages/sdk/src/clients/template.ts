@@ -3,17 +3,17 @@
  * @description Provides template management operations for the InsurUp platform
  */
 
-import type { HttpTransport } from "../client/http.js";
-import type { InsurUpResult } from "../core/result.js";
-import type { RequestOptions } from "../core/options.js";
-import { templates } from "../core/endpoints.js";
+import type { HttpTransport } from '../client/http.js';
+import type { InsurUpResult } from '../core/result.js';
+import type { RequestOptions } from '../core/options.js';
+import { templates } from '../core/endpoints.js';
 import type {
   GetTemplateDefinitionsResult,
   QueryTemplatesResult,
   GetTemplateByKeyResult,
   UpdateTemplateRequest,
   DeleteTemplateRequest,
-} from "@insurup/contracts";
+} from '@insurup/contracts';
 
 /**
  * Provides template management operations for the InsurUp platform, enabling agents to retrieve and update
@@ -34,12 +34,9 @@ export class InsurUpTemplateClient {
    * @returns List of all template definitions
    */
   async getTemplateDefinitions(
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetTemplateDefinitionsResult[]>> {
-    return this.http.get<GetTemplateDefinitionsResult[]>(
-      templates.getDefinitions,
-      options,
-    );
+    return this.http.get<GetTemplateDefinitionsResult[]>(templates.getDefinitions, options);
   }
 
   /**
@@ -51,9 +48,7 @@ export class InsurUpTemplateClient {
    *
    * @returns List of all templates with their details
    */
-  async getAllTemplates(
-    options?: RequestOptions,
-  ): Promise<InsurUpResult<QueryTemplatesResult[]>> {
+  async getAllTemplates(options?: RequestOptions): Promise<InsurUpResult<QueryTemplatesResult[]>> {
     return this.http.get<QueryTemplatesResult[]>(templates.getAll, options);
   }
 
@@ -71,7 +66,7 @@ export class InsurUpTemplateClient {
   async getTemplateByKey(
     key: string,
     languageId: number,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetTemplateByKeyResult>> {
     const endpoint = `${templates.getByKey.render(key)}?languageId=${languageId}`;
     return this.http.get<GetTemplateByKeyResult>(endpoint, options);
@@ -89,7 +84,7 @@ export class InsurUpTemplateClient {
    */
   async updateTemplate(
     request: UpdateTemplateRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     const endpoint = templates.update.render(request.key);
     return this.http.putNoContent(endpoint, request, options);
@@ -107,7 +102,7 @@ export class InsurUpTemplateClient {
    */
   async deleteTemplate(
     request: DeleteTemplateRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     const endpoint = `${templates.delete.render(request.key)}?languageId=${request.languageId}`;
     return this.http.deleteNoContent(endpoint, options);

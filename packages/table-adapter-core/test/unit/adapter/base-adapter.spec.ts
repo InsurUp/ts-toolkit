@@ -106,9 +106,7 @@ function createMockConnection(
   };
 }
 
-function createMockFetchFn(
-  data?: Connection<MockEntity>
-): FetchFn<MockEntity, MockQueryOptions> {
+function createMockFetchFn(data?: Connection<MockEntity>): FetchFn<MockEntity, MockQueryOptions> {
   const defaultData = createMockConnection([
     { id: '1', name: 'Test 1', email: 'test1@example.com' },
     { id: '2', name: 'Test 2', email: 'test2@example.com' },
@@ -136,8 +134,24 @@ function createMockBuildQueryOptions(): QueryOptionsBuilder<
 }
 
 function createAdapterOptions(
-  overrides: Partial<BaseTableAdapterOptions<MockEntity, MockEntity, MockSortInput, MockFilterInput, MockSearchInput, CursorPaginationOptions>> = {}
-): BaseTableAdapterOptions<MockEntity, MockEntity, MockSortInput, MockFilterInput, MockSearchInput, CursorPaginationOptions> {
+  overrides: Partial<
+    BaseTableAdapterOptions<
+      MockEntity,
+      MockEntity,
+      MockSortInput,
+      MockFilterInput,
+      MockSearchInput,
+      CursorPaginationOptions
+    >
+  > = {}
+): BaseTableAdapterOptions<
+  MockEntity,
+  MockEntity,
+  MockSortInput,
+  MockFilterInput,
+  MockSearchInput,
+  CursorPaginationOptions
+> {
   return {
     columns: createMockColumns(),
     pagination: { type: 'cursor', pageSize: 10 },
@@ -163,11 +177,7 @@ describe('BaseTableAdapter', () => {
 
   describe('constructor', () => {
     it('should create an adapter instance', () => {
-      const adapter = new BaseTableAdapter(
-        fetchFn,
-        buildQueryOptions,
-        createAdapterOptions()
-      );
+      const adapter = new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions());
 
       expect(adapter).toBeInstanceOf(BaseTableAdapter);
       adapter.destroy();
@@ -175,11 +185,19 @@ describe('BaseTableAdapter', () => {
 
     it('should throw error for pageSize <= 0', () => {
       expect(() => {
-        new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions({ pagination: { type: 'cursor', pageSize: 0 } }));
+        new BaseTableAdapter(
+          fetchFn,
+          buildQueryOptions,
+          createAdapterOptions({ pagination: { type: 'cursor', pageSize: 0 } })
+        );
       }).toThrow('pageSize must be greater than 0');
 
       expect(() => {
-        new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions({ pagination: { type: 'cursor', pageSize: -5 } }));
+        new BaseTableAdapter(
+          fetchFn,
+          buildQueryOptions,
+          createAdapterOptions({ pagination: { type: 'cursor', pageSize: -5 } })
+        );
       }).toThrow('pageSize must be greater than 0');
     });
 
@@ -190,11 +208,7 @@ describe('BaseTableAdapter', () => {
     });
 
     it('should initialize with default state', () => {
-      const adapter = new BaseTableAdapter(
-        fetchFn,
-        buildQueryOptions,
-        createAdapterOptions()
-      );
+      const adapter = new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions());
 
       const state = adapter.getState();
 
@@ -225,11 +239,7 @@ describe('BaseTableAdapter', () => {
     });
 
     it('should not auto-fetch by default', () => {
-      const adapter = new BaseTableAdapter(
-        fetchFn,
-        buildQueryOptions,
-        createAdapterOptions()
-      );
+      const adapter = new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions());
 
       expect(fetchFn).not.toHaveBeenCalled();
 
@@ -237,11 +247,7 @@ describe('BaseTableAdapter', () => {
     });
 
     it('should convert columns to TanStack ColumnDef', () => {
-      const adapter = new BaseTableAdapter(
-        fetchFn,
-        buildQueryOptions,
-        createAdapterOptions()
-      );
+      const adapter = new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions());
 
       expect(adapter.columns).toHaveLength(2);
       expect(adapter.columns[0]).toHaveProperty('id', 'id');
@@ -261,11 +267,7 @@ describe('BaseTableAdapter', () => {
       );
       fetchFn = createMockFetchFn(mockData);
 
-      const adapter = new BaseTableAdapter(
-        fetchFn,
-        buildQueryOptions,
-        createAdapterOptions()
-      );
+      const adapter = new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions());
 
       await adapter.fetch();
       await flushPromises();
@@ -326,11 +328,7 @@ describe('BaseTableAdapter', () => {
 
   describe('invalidate', () => {
     it('should invalidate cache and refetch', async () => {
-      const adapter = new BaseTableAdapter(
-        fetchFn,
-        buildQueryOptions,
-        createAdapterOptions()
-      );
+      const adapter = new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions());
 
       await adapter.fetch();
       const firstCallCount = (fetchFn as ReturnType<typeof vi.fn>).mock.calls.length;
@@ -339,7 +337,9 @@ describe('BaseTableAdapter', () => {
       await flushPromises();
 
       // Invalidate should trigger a refetch
-      expect((fetchFn as ReturnType<typeof vi.fn>).mock.calls.length).toBeGreaterThanOrEqual(firstCallCount);
+      expect((fetchFn as ReturnType<typeof vi.fn>).mock.calls.length).toBeGreaterThanOrEqual(
+        firstCallCount
+      );
 
       adapter.destroy();
     });
@@ -347,11 +347,7 @@ describe('BaseTableAdapter', () => {
 
   describe('refetch', () => {
     it('should refetch data', async () => {
-      const adapter = new BaseTableAdapter(
-        fetchFn,
-        buildQueryOptions,
-        createAdapterOptions()
-      );
+      const adapter = new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions());
 
       await adapter.fetch();
       await adapter.refetch();
@@ -362,11 +358,7 @@ describe('BaseTableAdapter', () => {
     });
 
     it('should force refetch when force option is true', async () => {
-      const adapter = new BaseTableAdapter(
-        fetchFn,
-        buildQueryOptions,
-        createAdapterOptions()
-      );
+      const adapter = new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions());
 
       await adapter.fetch();
       await adapter.refetch({ force: true });
@@ -398,11 +390,7 @@ describe('BaseTableAdapter', () => {
     });
 
     it('should throw error for invalid page size', () => {
-      const adapter = new BaseTableAdapter(
-        fetchFn,
-        buildQueryOptions,
-        createAdapterOptions()
-      );
+      const adapter = new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions());
 
       expect(() => adapter.setPageSize(0)).toThrow('pageSize must be greater than 0');
       expect(() => adapter.setPageSize(-10)).toThrow('pageSize must be greater than 0');
@@ -452,11 +440,7 @@ describe('BaseTableAdapter', () => {
       );
       fetchFn = createMockFetchFn(mockData);
 
-      const adapter = new BaseTableAdapter(
-        fetchFn,
-        buildQueryOptions,
-        createAdapterOptions()
-      );
+      const adapter = new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions());
 
       await adapter.fetch();
       await flushPromises();
@@ -476,11 +460,7 @@ describe('BaseTableAdapter', () => {
     });
 
     it('should return consistent options values across calls', async () => {
-      const adapter = new BaseTableAdapter(
-        fetchFn,
-        buildQueryOptions,
-        createAdapterOptions()
-      );
+      const adapter = new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions());
 
       await adapter.fetch();
       await flushPromises();
@@ -520,11 +500,7 @@ describe('BaseTableAdapter', () => {
 
   describe('subscribe / getSnapshot / getServerSnapshot', () => {
     it('should notify listeners on state change', async () => {
-      const adapter = new BaseTableAdapter(
-        fetchFn,
-        buildQueryOptions,
-        createAdapterOptions()
-      );
+      const adapter = new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions());
 
       const listener = vi.fn();
       adapter.subscribe(listener);
@@ -538,11 +514,7 @@ describe('BaseTableAdapter', () => {
     });
 
     it('should return unsubscribe function', () => {
-      const adapter = new BaseTableAdapter(
-        fetchFn,
-        buildQueryOptions,
-        createAdapterOptions()
-      );
+      const adapter = new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions());
 
       const listener = vi.fn();
       const unsubscribe = adapter.subscribe(listener);
@@ -553,11 +525,7 @@ describe('BaseTableAdapter', () => {
     });
 
     it('should stop notifying after unsubscribe', async () => {
-      const adapter = new BaseTableAdapter(
-        fetchFn,
-        buildQueryOptions,
-        createAdapterOptions()
-      );
+      const adapter = new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions());
 
       const listener = vi.fn();
       const unsubscribe = adapter.subscribe(listener);
@@ -574,11 +542,7 @@ describe('BaseTableAdapter', () => {
     });
 
     it('getSnapshot should return cached state', () => {
-      const adapter = new BaseTableAdapter(
-        fetchFn,
-        buildQueryOptions,
-        createAdapterOptions()
-      );
+      const adapter = new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions());
 
       const state1 = adapter.getSnapshot();
       const state2 = adapter.getSnapshot();
@@ -589,11 +553,7 @@ describe('BaseTableAdapter', () => {
     });
 
     it('getServerSnapshot should return static loading state', () => {
-      const adapter = new BaseTableAdapter(
-        fetchFn,
-        buildQueryOptions,
-        createAdapterOptions()
-      );
+      const adapter = new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions());
 
       const serverState = adapter.getServerSnapshot();
 
@@ -605,16 +565,8 @@ describe('BaseTableAdapter', () => {
     });
 
     it('getServerSnapshot should return same reference', () => {
-      const adapter1 = new BaseTableAdapter(
-        fetchFn,
-        buildQueryOptions,
-        createAdapterOptions()
-      );
-      const adapter2 = new BaseTableAdapter(
-        fetchFn,
-        buildQueryOptions,
-        createAdapterOptions()
-      );
+      const adapter1 = new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions());
+      const adapter2 = new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions());
 
       const serverState1 = adapter1.getServerSnapshot();
       const serverState2 = adapter2.getServerSnapshot();
@@ -629,11 +581,7 @@ describe('BaseTableAdapter', () => {
 
   describe('filter methods', () => {
     it('setFilter should update filter and refetch', async () => {
-      const adapter = new BaseTableAdapter(
-        fetchFn,
-        buildQueryOptions,
-        createAdapterOptions()
-      );
+      const adapter = new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions());
 
       adapter.setFilter({ name: { contains: 'test' } });
 
@@ -688,11 +636,7 @@ describe('BaseTableAdapter', () => {
 
   describe('search methods', () => {
     it('setSearch should update search and refetch', async () => {
-      const adapter = new BaseTableAdapter(
-        fetchFn,
-        buildQueryOptions,
-        createAdapterOptions()
-      );
+      const adapter = new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions());
 
       adapter.setSearch({ query: 'test search' });
 
@@ -821,11 +765,7 @@ describe('BaseTableAdapter', () => {
 
       fetchFn = vi.fn().mockResolvedValue(errorResponse);
 
-      const adapter = new BaseTableAdapter(
-        fetchFn,
-        buildQueryOptions,
-        createAdapterOptions()
-      );
+      const adapter = new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions());
 
       await adapter.fetch();
       await flushPromises();
@@ -882,11 +822,7 @@ describe('BaseTableAdapter', () => {
 
   describe('destroy', () => {
     it('should clean up resources', () => {
-      const adapter = new BaseTableAdapter(
-        fetchFn,
-        buildQueryOptions,
-        createAdapterOptions()
-      );
+      const adapter = new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions());
 
       const listener = vi.fn();
       adapter.subscribe(listener);
@@ -1139,7 +1075,9 @@ describe('BaseTableAdapter', () => {
       expect(allQueryOptions).toHaveLength(2);
 
       // Find the count query (has first: 1 and includeTotalCount: true)
-      const countOptions = allQueryOptions.find((opts) => opts.first === 1 && opts.includeTotalCount === true);
+      const countOptions = allQueryOptions.find(
+        (opts) => opts.first === 1 && opts.includeTotalCount === true
+      );
       expect(countOptions).toBeDefined();
       expect(countOptions?.after).toBeUndefined();
       // Count query uses empty select - only needs totalCount
@@ -1166,7 +1104,7 @@ describe('BaseTableAdapter', () => {
 
       let fetchCallCount = 0;
       let countQueryCallCount = 0;
-      
+
       fetchFn = vi.fn().mockImplementation((vars) => {
         fetchCallCount++;
         // Count query uses first: 1
@@ -1216,7 +1154,7 @@ describe('BaseTableAdapter', () => {
       );
 
       let countQueryCallCount = 0;
-      
+
       fetchFn = vi.fn().mockImplementation((vars) => {
         if (vars.first === 1 && vars.includeTotalCount === true) {
           countQueryCallCount++;
@@ -1354,11 +1292,10 @@ describe('BaseTableAdapter', () => {
 
     it('should keep isLoading=true on the very first fetch even with keepPreviousData=true', async () => {
       const deferred: Deferred<Connection<MockEntity>> = { resolve: null };
-      const blockedFetch: FetchFn<MockEntity, MockQueryOptions> = vi.fn().mockImplementation(
-        () =>
-          new Promise<Connection<MockEntity>>((resolve) => {
-            deferred.resolve = resolve;
-          }).then((data) => createSuccessResult(data))
+      const blockedFetch: FetchFn<MockEntity, MockQueryOptions> = vi.fn().mockImplementation(() =>
+        new Promise<Connection<MockEntity>>((resolve) => {
+          deferred.resolve = resolve;
+        }).then((data) => createSuccessResult(data))
       );
 
       const adapter = new BaseTableAdapter(

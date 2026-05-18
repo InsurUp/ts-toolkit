@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { DialogRoot } from "reka-ui";
+import { DialogRoot } from 'reka-ui';
 
 interface Props {
   open?: boolean;
@@ -10,7 +10,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  (e: "update:open", value: boolean): void;
+  (e: 'update:open', value: boolean): void;
 }>();
 </script>
 

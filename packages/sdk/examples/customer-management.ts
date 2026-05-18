@@ -4,19 +4,14 @@
  * Demonstrates CRUD operations for customer management with the InsurUp SDK.
  */
 
-import {
-  DefaultInsurUpClient,
-  Gender,
-  CustomerType,
-  getDataOrThrow,
-} from "@insurup/sdk";
+import { DefaultInsurUpClient, Gender, CustomerType, getDataOrThrow } from '@insurup/sdk';
 import type {
   CreateCustomerRequestIndividual,
   UpdateCustomerRequestIndividual,
-} from "@insurup/sdk";
+} from '@insurup/sdk';
 
 const client = new DefaultInsurUpClient({
-  tokenProvider: () => "your-api-token-here",
+  tokenProvider: () => 'your-api-token-here',
 });
 
 // ============================================================================
@@ -26,14 +21,14 @@ const client = new DefaultInsurUpClient({
 async function createCustomer() {
   const request: CreateCustomerRequestIndividual = {
     type: CustomerType.Individual,
-    identityNumber: "12345678901",
-    fullName: "John Doe",
-    birthDate: "1990-01-15",
+    identityNumber: '12345678901',
+    fullName: 'John Doe',
+    birthDate: '1990-01-15',
     gender: Gender.Male,
-    email: "john.doe@example.com",
+    email: 'john.doe@example.com',
     phoneNumber: {
       countryCode: 90,
-      number: "5551234567",
+      number: '5551234567',
     },
     fillMissingFields: false,
   };
@@ -41,10 +36,10 @@ async function createCustomer() {
   const result = await client.customers.createCustomer(request);
 
   if (result.isSuccess) {
-    console.log("Customer created with ID:", result.data.id);
+    console.log('Customer created with ID:', result.data.id);
     return result.data.id;
   } else {
-    console.error("Failed to create customer:", result.message);
+    console.error('Failed to create customer:', result.message);
     return null;
   }
 }
@@ -68,7 +63,7 @@ async function getCustomer(customerId: string) {
     }
     return customer;
   } else {
-    console.error("Customer not found:", result.message);
+    console.error('Customer not found:', result.message);
     return null;
   }
 }
@@ -81,16 +76,16 @@ async function updateCustomer(customerId: string) {
   const request: UpdateCustomerRequestIndividual = {
     type: CustomerType.Individual,
     id: customerId,
-    fullName: "Jonathan Doe",
+    fullName: 'Jonathan Doe',
     fillMissingFields: false,
   };
 
   const result = await client.customers.updateCustomer(request);
 
   if (result.isSuccess) {
-    console.log("Customer updated successfully");
+    console.log('Customer updated successfully');
   } else {
-    console.error("Failed to update customer:", result.message);
+    console.error('Failed to update customer:', result.message);
   }
 }
 
@@ -102,19 +97,19 @@ async function manageCustomerEmails(customerId: string) {
   // Get current emails
   const emailsResult = await client.customers.getCustomerEmails(customerId);
   if (emailsResult.isSuccess) {
-    console.log("Current emails:", emailsResult.data);
+    console.log('Current emails:', emailsResult.data);
   }
 
   // Add a new email
   await client.customers.addCustomerEmail({
     customerId,
-    email: "john.work@example.com",
+    email: 'john.work@example.com',
   });
 
   // Change primary email
   await client.customers.changePrimaryCustomerEmail({
     customerId,
-    email: "john.work@example.com",
+    email: 'john.work@example.com',
   });
 }
 
@@ -124,10 +119,9 @@ async function manageCustomerEmails(customerId: string) {
 
 async function manageCustomerPhones(customerId: string) {
   // Get current phone numbers
-  const phonesResult =
-    await client.customers.getCustomerPhoneNumbers(customerId);
+  const phonesResult = await client.customers.getCustomerPhoneNumbers(customerId);
   if (phonesResult.isSuccess) {
-    console.log("Current phones:", phonesResult.data);
+    console.log('Current phones:', phonesResult.data);
   }
 
   // Add a new phone number
@@ -135,7 +129,7 @@ async function manageCustomerPhones(customerId: string) {
     customerId,
     phoneNumber: {
       countryCode: 90,
-      number: "5559876543",
+      number: '5559876543',
     },
   });
 }
@@ -149,16 +143,15 @@ async function manageCustomerAddresses(customerId: string) {
   const createResult = await client.customers.createCustomerAddress({
     customerId,
     propertyNumber: 123456,
-    addressType: "Home",
+    addressType: 'Home',
   });
 
   if (createResult.isSuccess) {
     const addressId = createResult.data.addressId;
-    console.log("Address created:", addressId);
+    console.log('Address created:', addressId);
 
     // Get all addresses
-    const addressesResult =
-      await client.customers.getCustomerAddresses(customerId);
+    const addressesResult = await client.customers.getCustomerAddresses(customerId);
     if (addressesResult.isSuccess) {
       console.log(`Customer has ${addressesResult.data.length} addresses`);
     }
@@ -167,7 +160,7 @@ async function manageCustomerAddresses(customerId: string) {
     await client.customers.updateCustomerAddress({
       customerId,
       addressId,
-      addressType: "Work",
+      addressType: 'Work',
     });
   }
 }
@@ -180,7 +173,7 @@ async function manageHealthInfo(customerId: string) {
   // Get current health info
   const healthResult = await client.customers.getCustomerHealthInfo(customerId);
   if (healthResult.isSuccess) {
-    console.log("Current health info:", healthResult.data);
+    console.log('Current health info:', healthResult.data);
   }
 
   // Update health info
@@ -202,15 +195,15 @@ async function createCustomerWithThrow() {
   const customer = getDataOrThrow(
     await client.customers.createCustomer({
       type: CustomerType.Individual,
-      identityNumber: "98765432109",
-      fullName: "Jane Smith",
-      birthDate: "1985-06-20",
+      identityNumber: '98765432109',
+      fullName: 'Jane Smith',
+      birthDate: '1985-06-20',
       gender: Gender.Female,
       fillMissingFields: false,
-    }),
+    })
   );
 
-  console.log("Created customer:", customer.id);
+  console.log('Created customer:', customer.id);
   return customer;
 }
 
@@ -222,9 +215,9 @@ async function deleteCustomer(customerId: string) {
   const result = await client.customers.deleteCustomer(customerId);
 
   if (result.isSuccess) {
-    console.log("Customer deleted successfully");
+    console.log('Customer deleted successfully');
   } else {
-    console.error("Failed to delete customer:", result.message);
+    console.error('Failed to delete customer:', result.message);
   }
 }
 

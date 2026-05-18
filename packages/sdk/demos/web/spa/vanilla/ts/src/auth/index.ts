@@ -9,6 +9,6 @@ export {
   getAuthStatus,
   logout,
   isAuthenticated,
-} from "./oauth";
+} from './oauth';
 
-export type { TokenData } from "./token-store";
+export type { TokenData } from './token-store';

@@ -19,7 +19,7 @@ export class MockHttpTransportFactory {
       get: vi.fn(),
       post: vi.fn(),
       put: vi.fn(),
-      delete: vi.fn()
+      delete: vi.fn(),
     } as unknown as HttpTransport;
   }
 
@@ -33,7 +33,7 @@ export class MockHttpTransportFactory {
       kind: 'success',
       data: null,
       isSuccess: true,
-      message: 'Success'
+      message: 'Success',
     } as const;
 
     vi.mocked(mockHttp.get).mockResolvedValue(successResult);
@@ -47,7 +47,9 @@ export class MockHttpTransportFactory {
   /**
    * Creates a mock HttpTransport that returns specific results for specific endpoints
    */
-  static createWithEndpointMocks(endpointMocks: Record<string, InsurUpResult<unknown>>): HttpTransport {
+  static createWithEndpointMocks(
+    endpointMocks: Record<string, InsurUpResult<unknown>>
+  ): HttpTransport {
     const mockHttp = MockHttpTransportFactory.create();
 
     // Configure mocks to return specific results based on endpoint
@@ -63,7 +65,7 @@ export class MockHttpTransportFactory {
             status: 404,
             instance: endpoint,
             isSuccess: false,
-            message: 'Endpoint not found'
+            message: 'Endpoint not found',
           }
         );
       });
@@ -91,9 +93,9 @@ export class MockFetchResponseFactory {
       status,
       statusText: status === 200 ? 'OK' : 'Success',
       headers: {
-        get: (header: string) => (header === 'content-type' ? 'application/json' : null)
+        get: (header: string) => (header === 'content-type' ? 'application/json' : null),
       },
-      text: () => Promise.resolve(JSON.stringify(data))
+      text: () => Promise.resolve(JSON.stringify(data)),
     } as unknown as Response;
   }
 
@@ -106,9 +108,9 @@ export class MockFetchResponseFactory {
       status,
       statusText: status === 204 ? 'No Content' : 'Success',
       headers: {
-        get: (header: string) => (header === 'content-type' ? 'application/json' : null)
+        get: (header: string) => (header === 'content-type' ? 'application/json' : null),
       },
-      text: () => Promise.resolve('')
+      text: () => Promise.resolve(''),
     } as unknown as Response;
   }
 
@@ -127,7 +129,7 @@ export class MockFetchResponseFactory {
       status,
       statusText: title,
       headers: {
-        get: (header: string) => (header === 'content-type' ? 'application/problem+json' : null)
+        get: (header: string) => (header === 'content-type' ? 'application/problem+json' : null),
       },
       text: () =>
         Promise.resolve(
@@ -136,9 +138,9 @@ export class MockFetchResponseFactory {
             title,
             detail,
             status,
-            instance
+            instance,
           })
-        )
+        ),
     } as unknown as Response;
   }
 
@@ -151,10 +153,10 @@ export class MockFetchResponseFactory {
       status,
       statusText: 'OK',
       headers: {
-        get: (header: string) => (header === 'content-type' ? blob.type : null)
+        get: (header: string) => (header === 'content-type' ? blob.type : null),
       },
       blob: () => Promise.resolve(blob),
-      text: () => Promise.resolve('[Binary Data]')
+      text: () => Promise.resolve('[Binary Data]'),
     } as unknown as Response;
   }
 }

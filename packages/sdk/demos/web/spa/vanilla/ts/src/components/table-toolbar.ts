@@ -2,8 +2,8 @@
  * Table toolbar component - container for search, filters, and column visibility.
  */
 
-import { renderSearchBar } from "./search-bar";
-import { renderColumnVisibility, type ColumnConfig } from "./column-visibility";
+import { renderSearchBar } from './search-bar';
+import { renderColumnVisibility, type ColumnConfig } from './column-visibility';
 
 export interface FilterOption {
   value: string;
@@ -43,7 +43,7 @@ export function renderTableToolbar(
   options: TableToolbarOptions
 ): TableToolbarControls {
   const {
-    searchPlaceholder = "Search...",
+    searchPlaceholder = 'Search...',
     filters = [],
     columns = [],
     storageKey,
@@ -59,12 +59,12 @@ export function renderTableToolbar(
       <div class="filter-group">
         <label for="filter-${filter.id}" style="margin: 0; font-size: 0.875rem;">${filter.label}:</label>
         <select id="filter-${filter.id}" style="width: auto; margin: 0;">
-          ${filter.options.map((opt) => `<option value="${opt.value}" ${filter.value === opt.value ? "selected" : ""}>${opt.label}</option>`).join("")}
+          ${filter.options.map((opt) => `<option value="${opt.value}" ${filter.value === opt.value ? 'selected' : ''}>${opt.label}</option>`).join('')}
         </select>
       </div>
     `
     )
-    .join("");
+    .join('');
 
   container.innerHTML = `
     <div class="table-toolbar">
@@ -79,7 +79,7 @@ export function renderTableToolbar(
   `;
 
   // Render search bar
-  const searchContainer = container.querySelector("#search-container") as HTMLElement;
+  const searchContainer = container.querySelector('#search-container') as HTMLElement;
   const searchControls = renderSearchBar(searchContainer, {
     placeholder: searchPlaceholder,
     onSearch,
@@ -88,7 +88,7 @@ export function renderTableToolbar(
   // Render column visibility if columns provided
   let columnVisibilityControls: ReturnType<typeof renderColumnVisibility> | null = null;
   if (columns.length > 0) {
-    const columnContainer = container.querySelector("#column-visibility-container") as HTMLElement;
+    const columnContainer = container.querySelector('#column-visibility-container') as HTMLElement;
     columnVisibilityControls = renderColumnVisibility(columnContainer, {
       columns,
       storageKey,
@@ -100,7 +100,7 @@ export function renderTableToolbar(
   filters.forEach((filter) => {
     const select = container.querySelector(`#filter-${filter.id}`) as HTMLSelectElement;
     if (select && onFilterChange) {
-      select.addEventListener("change", () => {
+      select.addEventListener('change', () => {
         onFilterChange(filter.id, select.value);
       });
     }
@@ -111,7 +111,7 @@ export function renderTableToolbar(
     setSearchValue: (value: string) => searchControls.setValue(value),
     getFilterValue: (filterId: string) => {
       const select = container.querySelector(`#filter-${filterId}`) as HTMLSelectElement;
-      return select?.value ?? "";
+      return select?.value ?? '';
     },
     setFilterValue: (filterId: string, value: string) => {
       const select = container.querySelector(`#filter-${filterId}`) as HTMLSelectElement;

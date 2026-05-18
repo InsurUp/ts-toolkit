@@ -12,10 +12,10 @@ import type {
   ModelFilterInput,
   ModelSearchInput,
   GetQueryOptions,
-} from "./common.js";
-import type { DateTime, DateOnly } from "../common.date.js";
+} from './common.js';
+import type { DateTime, DateOnly } from '../common.date.js';
 
-import type { CustomerType } from "../common.js";
+import type { CustomerType } from '../common.js';
 import type {
   ConsentType,
   EducationStatus,
@@ -23,7 +23,7 @@ import type {
   Job,
   MaritalStatus,
   Nationality,
-} from "../customers.js";
+} from '../customers.js';
 
 // === Output Types ===
 
@@ -74,15 +74,13 @@ export interface QueryCustomerModel {
  * Filter input for QueryCustomerModel.
  * Auto-generated from model fields using ModelFilterInput.
  */
-export type QueryCustomerModelFilterInput =
-  ModelFilterInput<QueryCustomerModel>;
+export type QueryCustomerModelFilterInput = ModelFilterInput<QueryCustomerModel>;
 
 /**
  * Search input for QueryCustomerModel.
  * Auto-generated from model fields using ModelSearchInput.
  */
-export type QueryCustomerModelSearchInput =
-  ModelSearchInput<QueryCustomerModel>;
+export type QueryCustomerModelSearchInput = ModelSearchInput<QueryCustomerModel>;
 
 /**
  * Sort input for QueryCustomerModel.
@@ -117,54 +115,57 @@ export type CustomerFieldKey = DeepFieldKeys<QueryCustomerModel>;
  */
 export const ALL_CUSTOMER_FIELDS = [
   // Primitive fields
-  "agentBranchId",
-  "id",
-  "name",
-  "identityNumber",
-  "taxNumber",
-  "type",
-  "primaryEmail",
-  "primaryPhoneNumber",
-  "primaryPhoneNumberCountryCode",
-  "cityText",
-  "cityValue",
-  "districtText",
-  "districtValue",
-  "createdAt",
-  "birthDate",
-  "gender",
-  "educationStatus",
-  "nationality",
-  "maritalStatus",
-  "job",
-  "passportNumber",
-  "searchScore",
+  'agentBranchId',
+  'id',
+  'name',
+  'identityNumber',
+  'taxNumber',
+  'type',
+  'primaryEmail',
+  'primaryPhoneNumber',
+  'primaryPhoneNumberCountryCode',
+  'cityText',
+  'cityValue',
+  'districtText',
+  'districtValue',
+  'createdAt',
+  'birthDate',
+  'gender',
+  'educationStatus',
+  'nationality',
+  'maritalStatus',
+  'job',
+  'passportNumber',
+  'searchScore',
   // Nested agentBranch fields
-  "agentBranch.id",
-  "agentBranch.name",
-  "agentBranch.parentId",
-  "agentBranch.parentName",
+  'agentBranch.id',
+  'agentBranch.name',
+  'agentBranch.parentId',
+  'agentBranch.parentName',
   // Nested consents fields
-  "consents.consentType",
-  "consents.isActive",
+  'consents.consentType',
+  'consents.isActive',
 ] as const satisfies readonly CustomerFieldKey[];
 
 /**
  * Helper type to pick selected fields from QueryCustomerModel.
  * Uses the generic PickFields utility from common.ts.
  */
-export type PickCustomerFields<T extends readonly CustomerFieldKey[]> =
-  PickFields<QueryCustomerModel, T>;
+export type PickCustomerFields<T extends readonly CustomerFieldKey[]> = PickFields<
+  QueryCustomerModel,
+  T
+>;
 
 /**
  * Type-safe connection result based on selected fields
  */
-export interface SelectedCustomersConnection<
-  TFields extends CustomerFieldKey[],
-> extends Omit<CustomersConnection, "nodes" | "edges"> {
+export interface SelectedCustomersConnection<TFields extends CustomerFieldKey[]> extends Omit<
+  CustomersConnection,
+  'nodes' | 'edges'
+> {
   nodes?: (PickCustomerFields<TFields> | null)[] | null;
   edges?:
-    | (Omit<CustomersEdge, "node"> & {
+    | (Omit<CustomersEdge, 'node'> & {
         node?: PickCustomerFields<TFields> | null;
       })[]
     | null;

@@ -1,14 +1,14 @@
-import type { HttpTransport } from "../client/http.js";
-import type { InsurUpResult } from "../core/result.js";
-import type { RequestOptions } from "../core/options.js";
-import { agentRoles } from "../core/endpoints.js";
+import type { HttpTransport } from '../client/http.js';
+import type { InsurUpResult } from '../core/result.js';
+import type { RequestOptions } from '../core/options.js';
+import { agentRoles } from '../core/endpoints.js';
 import type {
   CreateAgentRoleRequest,
   UpdateAgentRoleRequest,
   DeleteAgentRoleRequest,
   GetAgentRoleByIdResult,
   GetAllAgentRolesResult,
-} from "@insurup/contracts";
+} from '@insurup/contracts';
 
 /**
  * Provides role management operations for insurance agents, enabling the creation and administration
@@ -30,7 +30,7 @@ export class InsurUpAgentRoleClient {
    */
   async createAgentRole(
     request: CreateAgentRoleRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.postNoContent(agentRoles.create, request, options);
   }
@@ -45,7 +45,7 @@ export class InsurUpAgentRoleClient {
    */
   async getAgentRoleById(
     id: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetAgentRoleByIdResult>> {
     const endpoint = agentRoles.getById.render(id);
     return this.http.get<GetAgentRoleByIdResult>(endpoint, options);
@@ -58,9 +58,7 @@ export class InsurUpAgentRoleClient {
    *
    * @returns List of all agent roles / Tüm acente rolleri listesi
    */
-  async getAgentRoles(
-    options?: RequestOptions,
-  ): Promise<InsurUpResult<GetAllAgentRolesResult[]>> {
+  async getAgentRoles(options?: RequestOptions): Promise<InsurUpResult<GetAllAgentRolesResult[]>> {
     return this.http.get<GetAllAgentRolesResult[]>(agentRoles.getAll, options);
   }
 
@@ -74,7 +72,7 @@ export class InsurUpAgentRoleClient {
    */
   async updateAgentRole(
     request: UpdateAgentRoleRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     const endpoint = agentRoles.update.render(request.id);
     return this.http.putNoContent(endpoint, request, options);
@@ -90,7 +88,7 @@ export class InsurUpAgentRoleClient {
    */
   async deleteAgentRole(
     request: DeleteAgentRoleRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     const endpoint = agentRoles.delete.render(request.id);
     return this.http.deleteNoContent(endpoint, options);

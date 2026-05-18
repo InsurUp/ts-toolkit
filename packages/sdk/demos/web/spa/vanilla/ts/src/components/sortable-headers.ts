@@ -2,7 +2,7 @@
  * Sortable headers component for table sorting.
  */
 
-import { SortEnumType } from "@insurup/contracts";
+import { SortEnumType } from '@insurup/contracts';
 
 export type SortDirection = typeof SortEnumType.ASC | typeof SortEnumType.DESC | null;
 
@@ -38,9 +38,9 @@ function getNextSortDirection(current: SortDirection): SortDirection {
  * Get sort indicator arrow.
  */
 function getSortIndicator(direction: SortDirection): string {
-  if (direction === SortEnumType.ASC) return " ↑";
-  if (direction === SortEnumType.DESC) return " ↓";
-  return "";
+  if (direction === SortEnumType.ASC) return ' ↑';
+  if (direction === SortEnumType.DESC) return ' ↓';
+  return '';
 }
 
 /**
@@ -60,10 +60,10 @@ export function renderSortableHeaders(options: SortableHeadersOptions): string {
 
       if (isSortable) {
         return `
-          <th class="sort-header ${isCurrentSort ? "sorted" : ""}" 
+          <th class="sort-header ${isCurrentSort ? 'sorted' : ''}" 
               data-sort-field="${sortField}"
               role="columnheader"
-              aria-sort="${direction === SortEnumType.ASC ? "ascending" : direction === SortEnumType.DESC ? "descending" : "none"}">
+              aria-sort="${direction === SortEnumType.ASC ? 'ascending' : direction === SortEnumType.DESC ? 'descending' : 'none'}">
             <span class="sort-header-content">
               ${col.label}${indicator}
             </span>
@@ -73,7 +73,7 @@ export function renderSortableHeaders(options: SortableHeadersOptions): string {
 
       return `<th>${col.label}</th>`;
     })
-    .join("");
+    .join('');
 }
 
 /**
@@ -84,10 +84,10 @@ export function attachSortHandlers(
   currentSort: SortState,
   onSort: (field: string, direction: SortDirection) => void | Promise<void>
 ): void {
-  const headers = table.querySelectorAll(".sort-header");
+  const headers = table.querySelectorAll('.sort-header');
 
   headers.forEach((header) => {
-    header.addEventListener("click", async () => {
+    header.addEventListener('click', async () => {
       const sortField = (header as HTMLElement).dataset.sortField!;
       const isCurrentField = currentSort.field === sortField;
       const currentDirection = isCurrentField ? currentSort.direction : null;

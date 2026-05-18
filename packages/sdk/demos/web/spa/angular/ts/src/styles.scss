@@ -8,27 +8,31 @@
 html {
   height: 100%;
   // Light theme (default)
-  @include mat.theme((
-    color: (
-      theme-type: light,
-      primary: mat.$azure-palette,
-      tertiary: mat.$blue-palette,
-    ),
-    typography: Roboto,
-    density: 0,
-  ));
-
-  // Dark theme when .dark class is present
-  &.dark {
-    @include mat.theme((
+  @include mat.theme(
+    (
       color: (
-        theme-type: dark,
+        theme-type: light,
         primary: mat.$azure-palette,
         tertiary: mat.$blue-palette,
       ),
       typography: Roboto,
       density: 0,
-    ));
+    )
+  );
+
+  // Dark theme when .dark class is present
+  &.dark {
+    @include mat.theme(
+      (
+        color: (
+          theme-type: dark,
+          primary: mat.$azure-palette,
+          tertiary: mat.$blue-palette,
+        ),
+        typography: Roboto,
+        density: 0,
+      )
+    );
   }
 }
 

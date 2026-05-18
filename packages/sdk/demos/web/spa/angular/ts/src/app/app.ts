@@ -14,15 +14,17 @@ import { HeaderComponent } from './components/header.component';
       </main>
     </div>
   `,
-  styles: [`
-    .app-container {
-      min-height: 100vh;
-    }
-    .main-content {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 24px;
-    }
-  `],
+  styles: [
+    `
+      .app-container {
+        min-height: 100vh;
+      }
+      .main-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+    `,
+  ],
 })
 export class App {}

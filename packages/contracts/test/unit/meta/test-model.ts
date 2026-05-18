@@ -4,12 +4,12 @@
  * Not included in the production registry.
  */
 
-import type { DateTime, DateOnly } from "../../../src/common.date.js";
+import type { DateTime, DateOnly } from '../../../src/common.date.js';
 
 export enum TestStatus {
-  Active = "Active",
-  Inactive = "Inactive",
-  Pending = "Pending",
+  Active = 'Active',
+  Inactive = 'Inactive',
+  Pending = 'Pending',
 }
 
 /** @meta */

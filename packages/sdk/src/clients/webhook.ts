@@ -1,15 +1,15 @@
-import type { HttpTransport } from "../client/http.js";
-import type { GraphQLTransport } from "../client/graphql.js";
-import type { InsurUpResult, InsurUpGraphQLResult } from "../core/result.js";
-import type { RequestOptions } from "../core/options.js";
-import { webhooks } from "../core/endpoints.js";
+import type { HttpTransport } from '../client/http.js';
+import type { GraphQLTransport } from '../client/graphql.js';
+import type { InsurUpResult, InsurUpGraphQLResult } from '../core/result.js';
+import type { RequestOptions } from '../core/options.js';
+import { webhooks } from '../core/endpoints.js';
 import {
   ALL_WEBHOOK_DELIVERY_FIELDS,
   type WebhookDeliveryFieldKey,
   type GetWebhookDeliveriesOptions,
   type WebhookDeliveriesConnection,
-} from "@insurup/contracts";
-import { buildFieldSelection } from "@insurup/contracts";
+} from '@insurup/contracts';
+import { buildFieldSelection } from '@insurup/contracts';
 import type {
   CreateWebhookRequest,
   CreateWebhookResult,
@@ -17,7 +17,7 @@ import type {
   GetWebhooksResult,
   UpdateWebhookRequest,
   GetWebhookDeliveryResult,
-} from "@insurup/contracts";
+} from '@insurup/contracts';
 
 /**
  * Provides comprehensive webhook management operations for configuring event notifications, monitoring delivery status,
@@ -29,7 +29,7 @@ import type {
 export class InsurUpWebhookClient {
   constructor(
     private readonly http: HttpTransport,
-    private readonly graphql?: GraphQLTransport,
+    private readonly graphql?: GraphQLTransport
   ) {}
 
   /**
@@ -42,13 +42,9 @@ export class InsurUpWebhookClient {
    */
   async createWebhook(
     request: CreateWebhookRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<CreateWebhookResult>> {
-    return this.http.post<CreateWebhookResult>(
-      webhooks.create,
-      request,
-      options,
-    );
+    return this.http.post<CreateWebhookResult>(webhooks.create, request, options);
   }
 
   /**
@@ -61,7 +57,7 @@ export class InsurUpWebhookClient {
    */
   async getWebhookById(
     webhookId: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetWebhookByIdResult>> {
     const endpoint = webhooks.getById.render(webhookId);
     return this.http.get<GetWebhookByIdResult>(endpoint, options);
@@ -74,9 +70,7 @@ export class InsurUpWebhookClient {
    *
    * @returns List of configured webhooks / Yapılandırılmış webhook'lar listesi
    */
-  async getWebhooks(
-    options?: RequestOptions,
-  ): Promise<InsurUpResult<GetWebhooksResult[]>> {
+  async getWebhooks(options?: RequestOptions): Promise<InsurUpResult<GetWebhooksResult[]>> {
     return this.http.get<GetWebhooksResult[]>(webhooks.getAll, options);
   }
 
@@ -90,7 +84,7 @@ export class InsurUpWebhookClient {
    */
   async updateWebhook(
     request: UpdateWebhookRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     const endpoint = webhooks.update.render(request.id);
     return this.http.putNoContent(endpoint, request, options);
@@ -104,10 +98,7 @@ export class InsurUpWebhookClient {
    * @param webhookId Unique identifier of the webhook to delete / Silinecek webhook'un benzersiz tanımlayıcısı
    * @returns Operation result / İşlem sonucu
    */
-  async deleteWebhook(
-    webhookId: string,
-    options?: RequestOptions,
-  ): Promise<InsurUpResult> {
+  async deleteWebhook(webhookId: string, options?: RequestOptions): Promise<InsurUpResult> {
     const endpoint = webhooks.delete.render(webhookId);
     return this.http.deleteNoContent(endpoint, options);
   }
@@ -124,12 +115,9 @@ export class InsurUpWebhookClient {
   async getWebhookDelivery(
     webhookId: string,
     webhookDeliveryId: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetWebhookDeliveryResult>> {
-    const endpoint = webhooks.deliveries.getById.render(
-      webhookId,
-      webhookDeliveryId,
-    );
+    const endpoint = webhooks.deliveries.getById.render(webhookId, webhookDeliveryId);
     return this.http.get<GetWebhookDeliveryResult>(endpoint, options);
   }
 
@@ -145,12 +133,9 @@ export class InsurUpWebhookClient {
   async redeliverWebhookEvent(
     webhookId: string,
     webhookDeliveryId: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
-    const endpoint = webhooks.deliveries.redeliver.render(
-      webhookId,
-      webhookDeliveryId,
-    );
+    const endpoint = webhooks.deliveries.redeliver.render(webhookId, webhookDeliveryId);
     return this.http.postNoContent(endpoint, undefined, options);
   }
 
@@ -182,11 +167,11 @@ export class InsurUpWebhookClient {
    */
   async getWebhookDeliveries<const TFields extends WebhookDeliveryFieldKey[]>(
     requestOptions?: GetWebhookDeliveriesOptions<TFields>,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpGraphQLResult<WebhookDeliveriesConnection<TFields>>> {
     if (!this.graphql) {
       throw new Error(
-        "GraphQL transport is not available. Ensure the client is properly initialized.",
+        'GraphQL transport is not available. Ensure the client is properly initialized.'
       );
     }
 
@@ -221,12 +206,16 @@ export class InsurUpWebhookClient {
             endCursor
           }
           totalCount
-          ${hasFieldSelection ? `edges {
+          ${
+            hasFieldSelection
+              ? `edges {
             cursor
             node {
               ${fieldSelection}
             }
-          }` : ""}
+          }`
+              : ''
+          }
         }
       }
     `;
@@ -242,13 +231,11 @@ export class InsurUpWebhookClient {
     };
 
     const result = await this.graphql.query<{
-      webhookDeliveriesNew: Omit<WebhookDeliveriesConnection, "nodes">;
+      webhookDeliveriesNew: Omit<WebhookDeliveriesConnection, 'nodes'>;
     }>(query, variables, options);
 
     if (!result.isSuccess) {
-      return result as InsurUpGraphQLResult<
-        WebhookDeliveriesConnection<TFields>
-      >;
+      return result as InsurUpGraphQLResult<WebhookDeliveriesConnection<TFields>>;
     }
 
     // Derive nodes from edges

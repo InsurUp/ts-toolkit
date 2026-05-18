@@ -9,18 +9,18 @@
     "dev": "node --import=tsx/esm --watch src/index.ts"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
-    "tsx": "^4.0.0"
+    "@types/node": "^25.8.0",
+    "tsx": "^4.22.1"
   },
   "peerDependencies": {
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   },
   "dependencies": {
     "@badgateway/oauth2-client": "^3.3.1",
-    "@clack/prompts": "^0.11.0",
+    "@clack/prompts": "^1.4.0",
     "@insurup/contracts": "workspace:*",
     "@insurup/sdk": "workspace:*",
-    "dotenv": "^16.4.0",
+    "dotenv": "^17.4.2",
     "keytar": "^7.9.0",
     "open": "^11.0.0",
     "picocolors": "^1.1.1"

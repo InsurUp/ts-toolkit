@@ -1,10 +1,10 @@
-import { Routes, Route } from "react-router";
-import { Header } from "@/components/Header";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { Home } from "@/pages/Home";
-import { Callback } from "@/pages/Callback";
-import { CustomerTable } from "@/pages/CustomerTable";
-import { CustomerTableInfinite } from "@/pages/CustomerTableInfinite";
+import { Routes, Route } from 'react-router';
+import { Header } from '@/components/Header';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { Home } from '@/pages/Home';
+import { Callback } from '@/pages/Callback';
+import { CustomerTable } from '@/pages/CustomerTable';
+import { CustomerTableInfinite } from '@/pages/CustomerTableInfinite';
 
 function App(): React.ReactElement {
   return (

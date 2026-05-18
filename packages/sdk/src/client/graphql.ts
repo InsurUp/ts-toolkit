@@ -8,15 +8,11 @@ import type {
   GraphQLErrorItem,
   GraphQLErrorExtensions,
   GraphQLErrorLocation,
-} from "../core/result.js";
-import {
-  createSuccess,
-  createGraphQLErrors,
-  InsurUpGraphQLErrorCode,
-} from "../core/result.js";
-import { createDeserializationError } from "../core/errors.js";
-import type { RequestOptions } from "../core/options.js";
-import type { HttpTransport } from "./http.js";
+} from '../core/result.js';
+import { createSuccess, createGraphQLErrors, InsurUpGraphQLErrorCode } from '../core/result.js';
+import { createDeserializationError } from '../core/errors.js';
+import type { RequestOptions } from '../core/options.js';
+import type { HttpTransport } from './http.js';
 
 /**
  * Raw GraphQL error from the server response
@@ -49,34 +45,34 @@ export interface GraphQLRequest {
  * Maps a raw error code string to the InsurUpGraphQLErrorCode enum
  */
 function mapGraphQLErrorCode(code: unknown): InsurUpGraphQLErrorCode {
-  if (typeof code !== "string") {
+  if (typeof code !== 'string') {
     return InsurUpGraphQLErrorCode.Unknown;
   }
 
   const upperCode = code.toUpperCase();
 
   switch (upperCode) {
-    case "FORBIDDEN":
+    case 'FORBIDDEN':
       return InsurUpGraphQLErrorCode.Forbidden;
-    case "UNAUTHORIZED":
+    case 'UNAUTHORIZED':
       return InsurUpGraphQLErrorCode.Unauthorized;
-    case "NOT_FOUND":
+    case 'NOT_FOUND':
       return InsurUpGraphQLErrorCode.NotFound;
-    case "BAD_REQUEST":
+    case 'BAD_REQUEST':
       return InsurUpGraphQLErrorCode.BadRequest;
-    case "CONFLICT":
+    case 'CONFLICT':
       return InsurUpGraphQLErrorCode.Conflict;
-    case "NOT_SUPPORTED":
+    case 'NOT_SUPPORTED':
       return InsurUpGraphQLErrorCode.NotSupported;
-    case "UPSTREAM_ERROR":
+    case 'UPSTREAM_ERROR':
       return InsurUpGraphQLErrorCode.UpstreamError;
-    case "INTERNAL_ERROR":
+    case 'INTERNAL_ERROR':
       return InsurUpGraphQLErrorCode.InternalError;
-    case "VALIDATION_ERROR":
+    case 'VALIDATION_ERROR':
       return InsurUpGraphQLErrorCode.ValidationError;
-    case "FILTER_REQUIRED":
+    case 'FILTER_REQUIRED':
       return InsurUpGraphQLErrorCode.FilterRequired;
-    case "FILTER_MAX_SPAN_EXCEEDED":
+    case 'FILTER_MAX_SPAN_EXCEEDED':
       return InsurUpGraphQLErrorCode.FilterMaxSpanExceeded;
     default:
       return InsurUpGraphQLErrorCode.Unknown;
@@ -87,7 +83,7 @@ function mapGraphQLErrorCode(code: unknown): InsurUpGraphQLErrorCode {
  * Parses raw extensions into typed GraphQLErrorExtensions
  */
 function parseExtensions(
-  raw: Record<string, unknown> | undefined,
+  raw: Record<string, unknown> | undefined
 ): GraphQLErrorExtensions | undefined {
   if (!raw) {
     return undefined;
@@ -96,17 +92,17 @@ function parseExtensions(
   const extensions: GraphQLErrorExtensions = {
     ...raw,
     code: mapGraphQLErrorCode(raw.code),
-    traceId: typeof raw.traceId === "string" ? raw.traceId : undefined,
+    traceId: typeof raw.traceId === 'string' ? raw.traceId : undefined,
     codes: Array.isArray(raw.codes)
-      ? (raw.codes.filter((c) => typeof c === "string") as string[])
+      ? (raw.codes.filter((c) => typeof c === 'string') as string[])
       : undefined,
-    template: typeof raw.template === "string" ? raw.template : undefined,
+    template: typeof raw.template === 'string' ? raw.template : undefined,
     templateArgs:
-      typeof raw.templateArgs === "object" && raw.templateArgs !== null
+      typeof raw.templateArgs === 'object' && raw.templateArgs !== null
         ? (raw.templateArgs as Record<string, unknown>)
         : undefined,
     suggestions: Array.isArray(raw.suggestions)
-      ? (raw.suggestions.filter((s) => typeof s === "string") as string[])
+      ? (raw.suggestions.filter((s) => typeof s === 'string') as string[])
       : undefined,
   };
 
@@ -118,12 +114,10 @@ function parseExtensions(
  */
 function parseGraphQLErrors(rawErrors: RawGraphQLError[]): GraphQLErrorItem[] {
   return rawErrors.map((error): GraphQLErrorItem => {
-    const locations: GraphQLErrorLocation[] | undefined = error.locations?.map(
-      (loc) => ({
-        line: loc.line,
-        column: loc.column,
-      }),
-    );
+    const locations: GraphQLErrorLocation[] | undefined = error.locations?.map((loc) => ({
+      line: loc.line,
+      column: loc.column,
+    }));
 
     return {
       message: error.message,
@@ -150,7 +144,7 @@ export class GraphQLTransport {
   async query<T>(
     query: string,
     variables?: Record<string, unknown>,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpGraphQLResult<T>> {
     const payload: GraphQLRequest = {
       query,
@@ -158,11 +152,7 @@ export class GraphQLTransport {
     };
 
     // Use the existing HTTP transport to send the POST request
-    const result = await this.http.post<GraphQLResponse<T>>(
-      "graphql",
-      payload,
-      options,
-    );
+    const result = await this.http.post<GraphQLResponse<T>>('graphql', payload, options);
 
     // Handle transport-level errors (network, timeout, etc.)
     if (!result.isSuccess) {
@@ -181,7 +171,7 @@ export class GraphQLTransport {
     // If no data and no errors, something is wrong with the response
     if (!response.data) {
       return createDeserializationError(
-        new Error("GraphQL response contained no data and no errors"),
+        new Error('GraphQL response contained no data and no errors')
       ) as InsurUpGraphQLResult<T>;
     }
 

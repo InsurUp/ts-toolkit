@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Toaster } from "vue-sonner";
-import Header from "@/components/Header.vue";
+import { Toaster } from 'vue-sonner';
+import Header from '@/components/Header.vue';
 </script>
 
 <template>

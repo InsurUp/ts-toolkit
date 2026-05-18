@@ -75,7 +75,8 @@ export class QueryManager<TData, TVars> {
     // Update query options with current key and variables
     this.observer.setOptions({
       queryKey: this.options.getQueryKey() as readonly unknown[],
-      queryFn: (context) => this.options.queryFn(this.options.getVariables(), { signal: context.signal }),
+      queryFn: (context) =>
+        this.options.queryFn(this.options.getVariables(), { signal: context.signal }),
       enabled: true,
       // Re-apply on every setOptions; setOptions performs a shallow replace so
       // omitting placeholderData here would clear the previous-data behavior.

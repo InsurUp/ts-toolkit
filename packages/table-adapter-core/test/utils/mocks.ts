@@ -4,7 +4,14 @@
  */
 
 import { vi, type Mock } from 'vitest';
-import type { InsurUpGraphQLResult, Connection, PageInfo, Success, ClientError, GraphQLErrors } from '@insurup/sdk';
+import type {
+  InsurUpGraphQLResult,
+  Connection,
+  PageInfo,
+  Success,
+  ClientError,
+  GraphQLErrors,
+} from '@insurup/sdk';
 import { InsurUpClientErrorType, InsurUpGraphQLErrorCode } from '@insurup/sdk';
 import type { AnyColumnDef } from '../../src/lib/types.js';
 

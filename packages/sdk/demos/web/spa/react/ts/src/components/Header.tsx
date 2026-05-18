@@ -1,23 +1,23 @@
-import { NavLink } from "react-router";
-import { useAuthContext } from "react-oauth2-code-pkce";
-import { Button } from "@/components/ui/button";
+import { NavLink } from 'react-router';
+import { useAuthContext } from 'react-oauth2-code-pkce';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { User, LogOut, Moon, Sun } from "lucide-react";
-import { useState, useEffect } from "react";
+} from '@/components/ui/dropdown-menu';
+import { User, LogOut, Moon, Sun } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
-const THEME_KEY = "insurup-demo-theme";
+const THEME_KEY = 'insurup-demo-theme';
 
 function getInitialTheme(): boolean {
-  if (typeof window === "undefined") return false;
+  if (typeof window === 'undefined') return false;
   const stored = localStorage.getItem(THEME_KEY);
-  if (stored) return stored === "dark";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  if (stored) return stored === 'dark';
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
 export function Header() {
@@ -27,11 +27,11 @@ export function Header() {
 
   useEffect(() => {
     if (isDark) {
-      document.documentElement.classList.add("dark");
+      document.documentElement.classList.add('dark');
     } else {
-      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.remove('dark');
     }
-    localStorage.setItem(THEME_KEY, isDark ? "dark" : "light");
+    localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
   }, [isDark]);
 
   const toggleTheme = () => {
@@ -51,8 +51,8 @@ export function Header() {
                 to="/customers"
                 className={({ isActive }) =>
                   isActive
-                    ? "text-foreground"
-                    : "text-foreground/60 transition-colors hover:text-foreground"
+                    ? 'text-foreground'
+                    : 'text-foreground/60 transition-colors hover:text-foreground'
                 }
               >
                 Customers
@@ -61,8 +61,8 @@ export function Header() {
                 to="/policies"
                 className={({ isActive }) =>
                   isActive
-                    ? "text-foreground"
-                    : "text-foreground/60 transition-colors hover:text-foreground"
+                    ? 'text-foreground'
+                    : 'text-foreground/60 transition-colors hover:text-foreground'
                 }
               >
                 Policies
@@ -71,17 +71,8 @@ export function Header() {
           )}
         </div>
         <div className="flex flex-1 items-center justify-end space-x-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleTheme}
-            aria-label="Toggle theme"
-          >
-            {isDark ? (
-              <Sun className="h-5 w-5" />
-            ) : (
-              <Moon className="h-5 w-5" />
-            )}
+          <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme">
+            {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </Button>
           {isAuthenticated ? (
             <DropdownMenu>
@@ -103,7 +94,7 @@ export function Header() {
             </DropdownMenu>
           ) : (
             <Button onClick={() => login()} disabled={loginInProgress}>
-              {loginInProgress ? "Logging in..." : "Login"}
+              {loginInProgress ? 'Logging in...' : 'Login'}
             </Button>
           )}
         </div>

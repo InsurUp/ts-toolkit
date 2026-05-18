@@ -3,16 +3,16 @@
  * Uses Bun's built-in HTML imports with HMR support.
  */
 
-import index from "./index.html";
+import index from './index.html';
 
 const PORT = Number(process.env.PORT) || 3004;
 
 const server = Bun.serve({
   port: PORT,
   routes: {
-    "/": index,
+    '/': index,
     // Serve index.html for all routes (SPA routing)
-    "/*": index,
+    '/*': index,
   },
   development: {
     hmr: true,

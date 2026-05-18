@@ -46,11 +46,7 @@ import type {
 ### Use with Your Own API Client
 
 ```typescript
-import type { 
-  Customer, 
-  CreateCustomerRequest, 
-  CustomerResponse 
-} from '@insurup/contracts';
+import type { Customer, CreateCustomerRequest, CustomerResponse } from '@insurup/contracts';
 
 async function createCustomer(data: CreateCustomerRequest): Promise<Customer> {
   const response = await fetch('/api/customers', {
@@ -58,7 +54,7 @@ async function createCustomer(data: CreateCustomerRequest): Promise<Customer> {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
-  
+
   const result: CustomerResponse = await response.json();
   return result.data;
 }
@@ -104,43 +100,43 @@ const sort: CustomerSortInput = {
 
 ### Core Domains
 
-| Module | Description | Key Types |
-|--------|-------------|-----------|
-| **Customers** | Customer profiles and contact info | `Customer`, `CustomerType`, `CreateCustomerRequest`, `UpdateCustomerRequest` |
-| **Policies** | Insurance policies and documents | `Policy`, `PolicyState`, `PolicyDocument`, `PolicyRepresentative` |
-| **Proposals** | Insurance quotes and comparisons | `Proposal`, `ProposalComparison`, `CreateProposalRequest` |
-| **Vehicles** | Vehicle data and lookups | `Vehicle`, `VehicleBrand`, `VehicleModel`, `UsageType` |
-| **Properties** | Property and DASK insurance | `Property`, `PropertyType`, `DaskPolicy` |
-| **Cases** | Claims, complaints, service requests | `Case`, `CaseState`, `CaseType`, `CasePriority` |
-| **Coverage** | Coverage configuration | `Coverage`, `CoverageGroup`, `CoverageDefinition` |
+| Module         | Description                          | Key Types                                                                    |
+| -------------- | ------------------------------------ | ---------------------------------------------------------------------------- |
+| **Customers**  | Customer profiles and contact info   | `Customer`, `CustomerType`, `CreateCustomerRequest`, `UpdateCustomerRequest` |
+| **Policies**   | Insurance policies and documents     | `Policy`, `PolicyState`, `PolicyDocument`, `PolicyRepresentative`            |
+| **Proposals**  | Insurance quotes and comparisons     | `Proposal`, `ProposalComparison`, `CreateProposalRequest`                    |
+| **Vehicles**   | Vehicle data and lookups             | `Vehicle`, `VehicleBrand`, `VehicleModel`, `UsageType`                       |
+| **Properties** | Property and DASK insurance          | `Property`, `PropertyType`, `DaskPolicy`                                     |
+| **Cases**      | Claims, complaints, service requests | `Case`, `CaseState`, `CaseType`, `CasePriority`                              |
+| **Coverage**   | Coverage configuration               | `Coverage`, `CoverageGroup`, `CoverageDefinition`                            |
 
 ### Agent & Organization
 
-| Module | Description | Key Types |
-|--------|-------------|-----------|
-| **Agents** | Insurance agents and companies | `Agent`, `AgentProfile`, `AgentCompanyConnection` |
-| **Agent Branches** | Branch management | `AgentBranch`, `CreateBranchRequest` |
-| **Agent Users** | Staff and access control | `AgentUser`, `AgentRole`, `Permission` |
+| Module             | Description                    | Key Types                                         |
+| ------------------ | ------------------------------ | ------------------------------------------------- |
+| **Agents**         | Insurance agents and companies | `Agent`, `AgentProfile`, `AgentCompanyConnection` |
+| **Agent Branches** | Branch management              | `AgentBranch`, `CreateBranchRequest`              |
+| **Agent Users**    | Staff and access control       | `AgentUser`, `AgentRole`, `Permission`            |
 
 ### Platform
 
-| Module | Description | Key Types |
-|--------|-------------|-----------|
+| Module        | Description            | Key Types                                             |
+| ------------- | ---------------------- | ----------------------------------------------------- |
 | **Insurance** | Companies and products | `InsuranceCompany`, `InsuranceProduct`, `ResourceKey` |
-| **Webhooks** | Event notifications | `Webhook`, `WebhookEvent`, `WebhookDelivery` |
-| **Files** | Document management | `FileUpload`, `FileMetadata` |
-| **Templates** | Document templates | `Template`, `TemplateType` |
-| **Languages** | Localization | `Language`, `TranslationKey` |
+| **Webhooks**  | Event notifications    | `Webhook`, `WebhookEvent`, `WebhookDelivery`          |
+| **Files**     | Document management    | `FileUpload`, `FileMetadata`                          |
+| **Templates** | Document templates     | `Template`, `TemplateType`                            |
+| **Languages** | Localization           | `Language`, `TranslationKey`                          |
 
 ### Common Types
 
-| Type | Description |
-|------|-------------|
-| `DateTime` | ISO 8601 date-time string |
-| `DateOnly` | ISO 8601 date string (YYYY-MM-DD) |
-| `Money` | Monetary value with currency |
-| `Address` | Structured address |
-| `PhoneNumber` | Phone with country code |
+| Type            | Description                                                 |
+| --------------- | ----------------------------------------------------------- |
+| `DateTime`      | ISO 8601 date-time string                                   |
+| `DateOnly`      | ISO 8601 date string (YYYY-MM-DD)                           |
+| `Money`         | Monetary value with currency                                |
+| `Address`       | Structured address                                          |
+| `PhoneNumber`   | Phone with country code                                     |
 | `ProductBranch` | Insurance product categories (Traffic, Casco, Health, etc.) |
 
 ### GraphQL Types
@@ -152,7 +148,7 @@ import type {
   // Pagination
   GraphQLPageInfo,
   GraphQLConnection,
-  
+
   // Filtering
   CustomerFilterInput,
   PolicyFilterInput,
@@ -160,12 +156,12 @@ import type {
   StringOperationFilterInput,
   IntOperationFilterInput,
   DateTimeOperationFilterInput,
-  
+
   // Sorting
   CustomerSortInput,
   PolicySortInput,
   SortEnumType,
-  
+
   // Search
   CustomerSearchInput,
   SearchTextInput,
@@ -185,25 +181,22 @@ Look up any model's metadata by name with full autocomplete and type safety:
 ```typescript
 import { getModelMeta } from '@insurup/contracts';
 
-const meta = getModelMeta("QueryCustomerModel");
+const meta = getModelMeta('QueryCustomerModel');
 
-meta.id.type;           // "string"
-meta.createdAt.type;    // "DateTime"
-meta.gender.type;       // "enum"
-meta.gender.values;     // readonly ["UNKNOWN", "MALE", "FEMALE", "OTHER"]
-meta.gender.nullable;   // true
+meta.id.type; // "string"
+meta.createdAt.type; // "DateTime"
+meta.gender.type; // "enum"
+meta.gender.values; // readonly ["UNKNOWN", "MALE", "FEMALE", "OTHER"]
+meta.gender.nullable; // true
 ```
 
 ### Importing Individual Meta Objects
 
 ```typescript
-import {
-  QueryCustomerModelMeta,
-  QueryPoliciesResultMeta,
-} from '@insurup/contracts';
+import { QueryCustomerModelMeta, QueryPoliciesResultMeta } from '@insurup/contracts';
 
 // Check if a field is an enum
-if (QueryCustomerModelMeta.type.type === "enum") {
+if (QueryCustomerModelMeta.type.type === 'enum') {
   console.log(QueryCustomerModelMeta.type.values);
   // ["INDIVIDUAL", "COMPANY", "FOREIGN"]
 }
@@ -211,30 +204,30 @@ if (QueryCustomerModelMeta.type.type === "enum") {
 
 ### Available Meta Objects
 
-| Meta Object | Source Interface |
-|---|---|
-| `QueryCustomerModelMeta` | `QueryCustomerModel` |
-| `QueryCustomerConsentModelMeta` | `QueryCustomerConsentModel` |
-| `QueryCaseModelMeta` | `QueryCaseModel` |
-| `QueryPoliciesResultMeta` | `QueryPoliciesResult` |
-| `QueryProposalsResultMeta` | `QueryProposalsResult` |
-| `QueryAgentUserResultMeta` | `QueryAgentUserResult` |
-| `QueryWebhookDeliveryResultMeta` | `QueryWebhookDeliveryResult` |
-| `QueryPolicyTransfersResultMeta` | `QueryPolicyTransfersResult` |
+| Meta Object                          | Source Interface                 |
+| ------------------------------------ | -------------------------------- |
+| `QueryCustomerModelMeta`             | `QueryCustomerModel`             |
+| `QueryCustomerConsentModelMeta`      | `QueryCustomerConsentModel`      |
+| `QueryCaseModelMeta`                 | `QueryCaseModel`                 |
+| `QueryPoliciesResultMeta`            | `QueryPoliciesResult`            |
+| `QueryProposalsResultMeta`           | `QueryProposalsResult`           |
+| `QueryAgentUserResultMeta`           | `QueryAgentUserResult`           |
+| `QueryWebhookDeliveryResultMeta`     | `QueryWebhookDeliveryResult`     |
+| `QueryPolicyTransfersResultMeta`     | `QueryPolicyTransfersResult`     |
 | `QueryFilePolicyTransfersResultMeta` | `QueryFilePolicyTransfersResult` |
 
 ### Field Types
 
 Each field in a meta object has a `type` discriminant:
 
-| `type` | Description | Extra Properties |
-|---|---|---|
-| `"string"` | String field | `nullable?` |
-| `"number"` | Number field | `nullable?` |
-| `"boolean"` | Boolean field | `nullable?` |
-| `"DateTime"` | ISO 8601 date-time | `nullable?` |
-| `"DateOnly"` | Date-only (YYYY-MM-DD) | `nullable?` |
-| `"enum"` | Enum field | `values`, `nullable?` |
+| `type`       | Description            | Extra Properties      |
+| ------------ | ---------------------- | --------------------- |
+| `"string"`   | String field           | `nullable?`           |
+| `"number"`   | Number field           | `nullable?`           |
+| `"boolean"`  | Boolean field          | `nullable?`           |
+| `"DateTime"` | ISO 8601 date-time     | `nullable?`           |
+| `"DateOnly"` | Date-only (YYYY-MM-DD) | `nullable?`           |
+| `"enum"`     | Enum field             | `values`, `nullable?` |
 
 > **Note:** Meta objects are auto-generated from interfaces marked with `@meta` JSDoc tags. Object and array properties are excluded -- only primitive, date, and enum fields are included.
 
@@ -245,12 +238,12 @@ Each field in a meta object has a `type` discriminant:
 All enums are exported as both types and runtime values:
 
 ```typescript
-import { 
-  CustomerType,      // Enum value
-  PolicyState,       // Enum value
-  ProductBranch,     // Enum value
-  CaseState,         // Enum value
-  CasePriority,      // Enum value
+import {
+  CustomerType, // Enum value
+  PolicyState, // Enum value
+  ProductBranch, // Enum value
+  CaseState, // Enum value
+  CasePriority, // Enum value
 } from '@insurup/contracts';
 
 // Use as values
@@ -273,38 +266,38 @@ function handlePolicy(state: PolicyState): void {
 
 ### Key Enums
 
-| Enum | Values |
-|------|--------|
-| `CustomerType` | `Individual`, `Corporate` |
-| `PolicyState` | `Active`, `Cancelled`, `Expired`, `Pending` |
+| Enum            | Values                                                           |
+| --------------- | ---------------------------------------------------------------- |
+| `CustomerType`  | `Individual`, `Corporate`                                        |
+| `PolicyState`   | `Active`, `Cancelled`, `Expired`, `Pending`                      |
 | `ProductBranch` | `Traffic`, `Casco`, `Health`, `Dask`, `Travel`, `Liability`, ... |
-| `CaseState` | `Open`, `InProgress`, `Resolved`, `Closed` |
-| `CasePriority` | `Low`, `Medium`, `High`, `Critical` |
-| `CaseType` | `Claim`, `Complaint`, `ServiceRequest`, `Inquiry` |
-| `SortEnumType` | `Asc`, `Desc` |
+| `CaseState`     | `Open`, `InProgress`, `Resolved`, `Closed`                       |
+| `CasePriority`  | `Low`, `Medium`, `High`, `Critical`                              |
+| `CaseType`      | `Claim`, `Complaint`, `ServiceRequest`, `Inquiry`                |
+| `SortEnumType`  | `Asc`, `Desc`                                                    |
 
 ---
 
 ## When to Use This Package
 
-| Scenario | Recommendation |
-|----------|----------------|
+| Scenario                                 | Recommendation                          |
+| ---------------------------------------- | --------------------------------------- |
 | Building a full application with InsurUp | Use `@insurup/sdk` (includes all types) |
-| Custom HTTP client implementation | Use `@insurup/contracts` |
-| Shared library with InsurUp types | Use `@insurup/contracts` |
-| Backend validation schemas | Use `@insurup/contracts` |
-| Type-only imports (no runtime) | Use `@insurup/contracts` |
+| Custom HTTP client implementation        | Use `@insurup/contracts`                |
+| Shared library with InsurUp types        | Use `@insurup/contracts`                |
+| Backend validation schemas               | Use `@insurup/contracts`                |
+| Type-only imports (no runtime)           | Use `@insurup/contracts`                |
 
 ---
 
 ## Compatibility
 
 | Environment | Support |
-|-------------|---------|
-| Node.js | 18+ |
-| Browsers | ES2022+ |
-| Bun | 1.0+ |
-| Deno | 1.0+ |
+| ----------- | ------- |
+| Node.js     | 18+     |
+| Browsers    | ES2022+ |
+| Bun         | 1.0+    |
+| Deno        | 1.0+    |
 
 Dual ESM/CJS builds included. Full tree-shaking support.
 

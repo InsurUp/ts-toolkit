@@ -12,17 +12,17 @@ import type {
   ModelFilterInput,
   ModelSearchInput,
   GetQueryOptions,
-} from "./common.js";
-import type { DateTime, DateOnly } from "../common.date.js";
+} from './common.js';
+import type { DateTime, DateOnly } from '../common.date.js';
 
-import type { ProductBranch, Channel, CustomerType, AssetType } from "../common.js";
-import type { VehicleFuelType, VehicleUtilizationStyle } from "../common.vehicle.js";
+import type { ProductBranch, Channel, CustomerType, AssetType } from '../common.js';
+import type { VehicleFuelType, VehicleUtilizationStyle } from '../common.vehicle.js';
 import type {
   PropertyDamageStatus,
   PropertyStructure,
   PropertyUtilizationStyle,
   PropertyOwnershipType,
-} from "../common.property.js";
+} from '../common.property.js';
 import type {
   CaseType,
   CaseStatus,
@@ -32,9 +32,9 @@ import type {
   CancelCaseSubType,
   EndorsementCaseSubType,
   ComplaintCaseSubType,
-} from "../cases.js";
-import type { Job } from "../customers.js";
-import type { UserType } from "./policies.js";
+} from '../cases.js';
+import type { Job } from '../customers.js';
+import type { UserType } from './policies.js';
 
 // === Output Types ===
 
@@ -172,9 +172,8 @@ export interface QueryCaseModelSortInput {
 // === Connection Types ===
 
 export type CasesEdge = Edge<QueryCaseModel>;
-export type CasesConnection<
-  TFields extends readonly CaseFieldKey[] = readonly CaseFieldKey[],
-> = Connection<PickCaseFields<TFields>>;
+export type CasesConnection<TFields extends readonly CaseFieldKey[] = readonly CaseFieldKey[]> =
+  Connection<PickCaseFields<TFields>>;
 
 // === Select Options ===
 
@@ -188,112 +187,110 @@ export type CaseFieldKey = DeepFieldKeys<QueryCaseModel>;
  */
 export const ALL_CASE_FIELDS = [
   // Primitive fields
-  "agentBranchId",
-  "id",
-  "ref",
-  "type",
-  "status",
-  "cancelSubType",
-  "saleOpportunitySubType",
-  "endorsementSubType",
-  "complaintSubType",
-  "mainState",
-  "subState",
-  "productBranch",
-  "channel",
-  "createdAt",
-  "createdByName",
-  "createdById",
-  "createdByEmail",
-  "createdByType",
-  "representedByName",
-  "representedById",
-  "representedByEmail",
-  "representedByType",
-  "policyEndDate",
-  "assetType",
-  "assetId",
-  "sourceCaseId",
-  "policyCount",
-  "proposalCount",
-  "lastProposalDate",
-  "lastPolicyDate",
-  "lastUpdateDate",
-  "lastUpdatedByName",
-  "lastUpdatedById",
-  "lastUpdatedByEmail",
-  "lastUpdatedByType",
-  "priorityScore",
-  "customerId",
-  "customerName",
-  "customerType",
-  "customerIdentity",
-  "customerCityText",
-  "customerCityValue",
-  "customerDistrictText",
-  "customerDistrictValue",
-  "customerPrimaryPhoneNumber",
-  "customerPrimaryPhoneCountryCode",
-  "customerPrimaryEmail",
-  "customerBirthDate",
-  "customerPassportNumber",
-  "customerJob",
-  "vehiclePlateCode",
-  "vehiclePlateCity",
-  "vehicleModelBrandText",
-  "vehicleModelBrandValue",
-  "vehicleModelTypeText",
-  "vehicleModelTypeValue",
-  "vehicleModelYear",
-  "vehicleUtilizationStyle",
-  "vehicleEngineNumber",
-  "vehicleChassisNumber",
-  "vehicleRegistrationDate",
-  "vehicleFuelType",
-  "vehicleSeatNumber",
-  "vehicleDocumentSerialCode",
-  "vehicleDocumentSerialNumber",
-  "propertyNumber",
-  "propertySquareMeter",
-  "propertyConstructionYear",
-  "propertyDamageStatus",
-  "propertyFloorNumber",
-  "propertyStructure",
-  "propertyUtilizationStyle",
-  "propertyOwnershipType",
-  "propertyDaskPolicyNumber",
-  "advertisingSource",
-  "advertisingCampaign",
-  "searchScore",
+  'agentBranchId',
+  'id',
+  'ref',
+  'type',
+  'status',
+  'cancelSubType',
+  'saleOpportunitySubType',
+  'endorsementSubType',
+  'complaintSubType',
+  'mainState',
+  'subState',
+  'productBranch',
+  'channel',
+  'createdAt',
+  'createdByName',
+  'createdById',
+  'createdByEmail',
+  'createdByType',
+  'representedByName',
+  'representedById',
+  'representedByEmail',
+  'representedByType',
+  'policyEndDate',
+  'assetType',
+  'assetId',
+  'sourceCaseId',
+  'policyCount',
+  'proposalCount',
+  'lastProposalDate',
+  'lastPolicyDate',
+  'lastUpdateDate',
+  'lastUpdatedByName',
+  'lastUpdatedById',
+  'lastUpdatedByEmail',
+  'lastUpdatedByType',
+  'priorityScore',
+  'customerId',
+  'customerName',
+  'customerType',
+  'customerIdentity',
+  'customerCityText',
+  'customerCityValue',
+  'customerDistrictText',
+  'customerDistrictValue',
+  'customerPrimaryPhoneNumber',
+  'customerPrimaryPhoneCountryCode',
+  'customerPrimaryEmail',
+  'customerBirthDate',
+  'customerPassportNumber',
+  'customerJob',
+  'vehiclePlateCode',
+  'vehiclePlateCity',
+  'vehicleModelBrandText',
+  'vehicleModelBrandValue',
+  'vehicleModelTypeText',
+  'vehicleModelTypeValue',
+  'vehicleModelYear',
+  'vehicleUtilizationStyle',
+  'vehicleEngineNumber',
+  'vehicleChassisNumber',
+  'vehicleRegistrationDate',
+  'vehicleFuelType',
+  'vehicleSeatNumber',
+  'vehicleDocumentSerialCode',
+  'vehicleDocumentSerialNumber',
+  'propertyNumber',
+  'propertySquareMeter',
+  'propertyConstructionYear',
+  'propertyDamageStatus',
+  'propertyFloorNumber',
+  'propertyStructure',
+  'propertyUtilizationStyle',
+  'propertyOwnershipType',
+  'propertyDaskPolicyNumber',
+  'advertisingSource',
+  'advertisingCampaign',
+  'searchScore',
   // Nested agentBranch fields
-  "agentBranch.id",
-  "agentBranch.name",
-  "agentBranch.parentId",
-  "agentBranch.parentName",
+  'agentBranch.id',
+  'agentBranch.name',
+  'agentBranch.parentId',
+  'agentBranch.parentName',
   // Nested priorityRuleHits fields
-  "priorityRuleHits.label",
-  "priorityRuleHits.description",
-  "priorityRuleHits.ruleName",
-  "priorityRuleHits.score",
+  'priorityRuleHits.label',
+  'priorityRuleHits.description',
+  'priorityRuleHits.ruleName',
+  'priorityRuleHits.score',
 ] as const satisfies readonly CaseFieldKey[];
 
 /**
  * Helper type to pick selected fields from QueryCaseModel.
  */
-export type PickCaseFields<T extends readonly CaseFieldKey[]> = PickFields<
-  QueryCaseModel,
-  T
->;
+export type PickCaseFields<T extends readonly CaseFieldKey[]> = PickFields<QueryCaseModel, T>;
 
 /**
  * Type-safe connection result based on selected fields
  */
-export interface SelectedCasesConnection<
-  TFields extends CaseFieldKey[],
-> extends Omit<CasesConnection, "nodes" | "edges"> {
+export interface SelectedCasesConnection<TFields extends CaseFieldKey[]> extends Omit<
+  CasesConnection,
+  'nodes' | 'edges'
+> {
   nodes?: (PickCaseFields<TFields> | null)[] | null;
   edges?:
-    | (Omit<CasesEdge, "node"> & {
+    | (Omit<CasesEdge, 'node'> & {
         node?: PickCaseFields<TFields> | null;
       })[]
     | null;

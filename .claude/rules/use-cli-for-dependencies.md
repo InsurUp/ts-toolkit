@@ -15,6 +15,7 @@ bun remove <package>
 ```
 
 This ensures:
+
 - Lockfile stays in sync
 - Version resolution is handled correctly
 - No typos in package names or versions

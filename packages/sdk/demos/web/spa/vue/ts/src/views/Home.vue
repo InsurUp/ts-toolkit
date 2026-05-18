@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import { useRouter } from "vue-router";
-import { useAuth } from "@/composables/useAuth";
-import { Button, Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui";
-import { Users, FileText, Shield } from "lucide-vue-next";
+import { useRouter } from 'vue-router';
+import { useAuth } from '@/composables/useAuth';
+import { Button, Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui';
+import { Users, FileText, Shield } from 'lucide-vue-next';
 
 const router = useRouter();
 const { isAuthenticated, loginInProgress, login } = useAuth();
 </script>
 
 <template>
-  <div v-if="!isAuthenticated" class="flex flex-col items-center justify-center min-h-[70vh] text-center">
+  <div
+    v-if="!isAuthenticated"
+    class="flex flex-col items-center justify-center min-h-[70vh] text-center"
+  >
     <Shield class="h-16 w-16 text-primary mb-6" />
-    <h1 class="text-4xl font-bold tracking-tight mb-4">
-      InsurUp SDK Demo
-    </h1>
+    <h1 class="text-4xl font-bold tracking-tight mb-4">InsurUp SDK Demo</h1>
     <p class="text-xl text-muted-foreground mb-8 max-w-md">
-      A Vue SPA demonstrating the InsurUp SDK for insurance platform
-      integration.
+      A Vue SPA demonstrating the InsurUp SDK for insurance platform integration.
     </p>
     <Button size="lg" @click="login" :disabled="loginInProgress">
-      {{ loginInProgress ? "Signing in..." : "Sign in to get started" }}
+      {{ loginInProgress ? 'Signing in...' : 'Sign in to get started' }}
     </Button>
   </div>
 
@@ -42,8 +42,7 @@ const { isAuthenticated, loginInProgress, login } = useAuth();
         </CardHeader>
         <CardContent>
           <CardDescription>
-            View and manage customer records. Create new customers, search,
-            and filter.
+            View and manage customer records. Create new customers, search, and filter.
           </CardDescription>
         </CardContent>
       </Card>
@@ -58,8 +57,7 @@ const { isAuthenticated, loginInProgress, login } = useAuth();
         </CardHeader>
         <CardContent>
           <CardDescription>
-            Browse insurance policies. View details, coverage, and status
-            information.
+            Browse insurance policies. View details, coverage, and status information.
           </CardDescription>
         </CardContent>
       </Card>

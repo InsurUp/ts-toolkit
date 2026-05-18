@@ -13,11 +13,7 @@ import type {
   GetCustomersOptions,
 } from '@insurup/sdk';
 import { flushPromises } from '../utils/helpers.js';
-import {
-  createMockPageInfo,
-  createSuccessResult,
-  createClientError,
-} from '../utils/mocks.js';
+import { createMockPageInfo, createSuccessResult, createClientError } from '../utils/mocks.js';
 import type {
   CustomerFetchFn,
   CustomerRowType,
@@ -46,9 +42,7 @@ type ExpectedFetchFn = CustomerFetchFn<FullCustomerRow, CustomerFieldKey[]>;
 /**
  * Create a mock customer with all fields as required (matching FullCustomerRow)
  */
-function createMockCustomer(
-  overrides: Partial<FullCustomerRow> = {}
-): FullCustomerRow {
+function createMockCustomer(overrides: Partial<FullCustomerRow> = {}): FullCustomerRow {
   return {
     id: 'CUST-001',
     name: 'John Doe',
@@ -105,12 +99,14 @@ function createCustomerConnection(
 function createCustomerFetchMock(
   response: InsurUpGraphQLResult<Connection<FullCustomerRow>>
 ): ExpectedFetchFn {
-  return vi.fn<
-    (
-      options: GetCustomersOptions<CustomerFieldKey[]>,
-      requestOptions?: { signal?: AbortSignal }
-    ) => Promise<InsurUpGraphQLResult<Connection<FullCustomerRow>>>
-  >().mockResolvedValue(response);
+  return vi
+    .fn<
+      (
+        options: GetCustomersOptions<CustomerFieldKey[]>,
+        requestOptions?: { signal?: AbortSignal }
+      ) => Promise<InsurUpGraphQLResult<Connection<FullCustomerRow>>>
+    >()
+    .mockResolvedValue(response);
 }
 
 // ============================================================================
@@ -507,9 +503,7 @@ describe('createCustomerTable', () => {
   describe('table options', () => {
     it('should return valid table options for TanStack Table', async () => {
       const localMock = createCustomerFetchMock(
-        createSuccessResult(
-          createCustomerConnection([createMockCustomer()], false, 1)
-        )
+        createSuccessResult(createCustomerConnection([createMockCustomer()], false, 1))
       );
 
       const table = createCustomerTable({

@@ -3,7 +3,7 @@
  * @description Property data structures, models, and enums used throughout the InsurUp platform
  */
 
-import type { InsuranceParameter } from "./common.base.js";
+import type { InsuranceParameter } from './common.base.js';
 
 // ============================================================================
 // PROPERTY-RELATED ENUMS
@@ -22,21 +22,21 @@ export enum PropertyStructure {
    *
    * Yapı türü bilinmiyor veya henüz belirlenmedi.
    */
-  Unknown = "UNKNOWN",
+  Unknown = 'UNKNOWN',
 
   /**
    * Steel-reinforced concrete construction - highest earthquake resistance.
    *
    * Betonarme yapı - en yüksek deprem direnci.
    */
-  SteelReinforcedConcrete = "STEEL_REINFORCED_CONCRETE",
+  SteelReinforcedConcrete = 'STEEL_REINFORCED_CONCRETE',
 
   /**
    * Other construction types including wood, brick, stone, or mixed materials.
    *
    * Ahşap, tuğla, taş veya karışık malzemeler dahil diğer yapı türleri.
    */
-  Other = "OTHER",
+  Other = 'OTHER',
 }
 
 /**
@@ -52,35 +52,35 @@ export enum PropertyDamageStatus {
    *
    * Hasar durumu bilinmiyor veya henüz değerlendirilmedi.
    */
-  Unknown = "UNKNOWN",
+  Unknown = 'UNKNOWN',
 
   /**
    * No damage detected or property is in perfect condition.
    *
    * Hasar tespit edilmedi veya konut mükemmel durumda.
    */
-  None = "NONE",
+  None = 'NONE',
 
   /**
    * Minor damage that does not affect structural integrity.
    *
    * Yapısal bütünlüğü etkilemeyen küçük hasar.
    */
-  SlightlyDamaged = "SLIGHTLY_DAMAGED",
+  SlightlyDamaged = 'SLIGHTLY_DAMAGED',
 
   /**
    * Moderate damage requiring significant repairs but structure remains sound.
    *
    * Önemli onarım gerektiren orta derecede hasar ancak yapı sağlam kalır.
    */
-  ModeratelyDamaged = "MODERATELY_DAMAGED",
+  ModeratelyDamaged = 'MODERATELY_DAMAGED',
 
   /**
    * Severe damage compromising structural integrity and safety.
    *
    * Yapısal bütünlük ve güvenliği tehlikeye atan ciddi hasar.
    */
-  SeverelyDamaged = "SEVERELY_DAMAGED",
+  SeverelyDamaged = 'SEVERELY_DAMAGED',
 }
 
 /**
@@ -96,28 +96,28 @@ export enum PropertyUtilizationStyle {
    *
    * Konut kullanımı bilinmiyor veya henüz belirlenmedi.
    */
-  Unknown = "UNKNOWN",
+  Unknown = 'UNKNOWN',
 
   /**
    * Residential property used as a home or dwelling.
    *
    * Ev veya yaşam yeri olarak kullanılan konut amaçlı konut.
    */
-  House = "HOUSE",
+  House = 'HOUSE',
 
   /**
    * Commercial property used for business operations.
    *
    * İş operasyonları için kullanılan ticari konut.
    */
-  Business = "BUSINESS",
+  Business = 'BUSINESS',
 
   /**
    * Other usage types including mixed-use, industrial, agricultural, or special purposes.
    *
    * Karma kullanım, sanayi, tarım veya özel amaçlar dahil diğer kullanım türleri.
    */
-  Other = "OTHER",
+  Other = 'OTHER',
 }
 
 /**
@@ -133,21 +133,21 @@ export enum PropertyOwnershipType {
    *
    * Sahiplik türü bilinmiyor veya henüz belirlenmedi.
    */
-  Unknown = "UNKNOWN",
+  Unknown = 'UNKNOWN',
 
   /**
    * The person legally owns the property and holds the title deed.
    *
    * Kişi konutun yasal sahibidir ve tapu senedine sahiptir.
    */
-  Proprietor = "PROPRIETOR",
+  Proprietor = 'PROPRIETOR',
 
   /**
    * The person rents or leases the property under a rental agreement.
    *
    * Kişi kira sözleşmesi kapsamında konuta kiralar veya leasing yapar.
    */
-  Tenant = "TENANT",
+  Tenant = 'TENANT',
 }
 
 /**
@@ -163,14 +163,14 @@ export enum LossPayeeClauseType {
    *
    * Hasar alacaklısı olarak banka.
    */
-  Bank = "BANK",
+  Bank = 'BANK',
 
   /**
    * Financial institution as loss payee.
    *
    * Hasar alacaklısı olarak finansal kurum.
    */
-  FinancialInstitution = "FINANCIAL_INSTITUTION",
+  FinancialInstitution = 'FINANCIAL_INSTITUTION',
 }
 
 // ============================================================================

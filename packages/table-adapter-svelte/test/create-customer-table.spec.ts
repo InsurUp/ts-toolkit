@@ -186,7 +186,9 @@ describe('createCustomerTable', () => {
 
     it('should auto-fetch when autoFetch is true', async () => {
       const mockFetch = createMockFetchFn();
-      const result = createCustomerTable(createTestOptionsGetter({ fetch: mockFetch, autoFetch: true }));
+      const result = createCustomerTable(
+        createTestOptionsGetter({ fetch: mockFetch, autoFetch: true })
+      );
 
       await flushPromises();
 
@@ -334,9 +336,7 @@ describe('createCustomerTable', () => {
     });
 
     it('should update fine-grained signals after fetch', async () => {
-      const mockData = createMockConnection([
-        { id: '1', name: 'Test User' },
-      ]);
+      const mockData = createMockConnection([{ id: '1', name: 'Test User' }]);
       const mockFetch = vi.fn().mockResolvedValue(createSuccessResult(mockData));
       const result = createCustomerTable(createTestOptionsGetter({ fetch: mockFetch }));
 

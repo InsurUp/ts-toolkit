@@ -26,31 +26,31 @@ import { CustomerType } from '@insurup/contracts';
     <h2 mat-dialog-title>Create Customer</h2>
     <mat-dialog-content>
       <p class="dialog-description">Add a new individual customer to the system.</p>
-      
+
       <form class="form-container">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Full Name *</mat-label>
-          <input matInput [(ngModel)]="fullName" name="fullName" required>
+          <input matInput [(ngModel)]="fullName" name="fullName" required />
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Identity Number (TC Kimlik No)</mat-label>
-          <input matInput [(ngModel)]="identityNumber" name="identityNumber" maxlength="11">
+          <input matInput [(ngModel)]="identityNumber" name="identityNumber" maxlength="11" />
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Birth Date</mat-label>
-          <input matInput type="date" [(ngModel)]="birthDate" name="birthDate">
+          <input matInput type="date" [(ngModel)]="birthDate" name="birthDate" />
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Email Address</mat-label>
-          <input matInput type="email" [(ngModel)]="email" name="email">
+          <input matInput type="email" [(ngModel)]="email" name="email" />
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Phone Number</mat-label>
-          <input matInput [(ngModel)]="phoneNumber" name="phoneNumber" maxlength="10">
+          <input matInput [(ngModel)]="phoneNumber" name="phoneNumber" maxlength="10" />
           <mat-hint>Enter 10-digit phone number without country code</mat-hint>
         </mat-form-field>
 
@@ -61,31 +61,36 @@ import { CustomerType } from '@insurup/contracts';
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close [disabled]="isPending()">Cancel</button>
-      <button mat-raised-button color="primary" 
-              (click)="submit()" 
-              [disabled]="isPending() || !fullName">
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="submit()"
+        [disabled]="isPending() || !fullName"
+      >
         {{ isPending() ? 'Creating...' : 'Create Customer' }}
       </button>
     </mat-dialog-actions>
   `,
-  styles: [`
-    .dialog-description {
-      margin-bottom: 16px;
-      opacity: 0.7;
-    }
-    .form-container {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      min-width: 400px;
-    }
-    .full-width {
-      width: 100%;
-    }
-    .error-message {
-      color: var(--mat-warn-color);
-    }
-  `],
+  styles: [
+    `
+      .dialog-description {
+        margin-bottom: 16px;
+        opacity: 0.7;
+      }
+      .form-container {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 400px;
+      }
+      .full-width {
+        width: 100%;
+      }
+      .error-message {
+        color: var(--mat-warn-color);
+      }
+    `,
+  ],
 })
 export class CustomerCreateDialogComponent {
   private dialogRef = inject(MatDialogRef<CustomerCreateDialogComponent>);
@@ -111,9 +116,7 @@ export class CustomerCreateDialogComponent {
         type: CustomerType.Individual,
         fullName: this.fullName,
         email: this.email || undefined,
-        phoneNumber: this.phoneNumber
-          ? { countryCode: 90, number: this.phoneNumber }
-          : undefined,
+        phoneNumber: this.phoneNumber ? { countryCode: 90, number: this.phoneNumber } : undefined,
         identityNumber: this.identityNumber || '',
         birthDate: this.birthDate || undefined,
         fillMissingFields: false,

@@ -12,9 +12,9 @@ import type {
   ModelFilterInput,
   ModelSearchInput,
   GetQueryOptions,
-} from "./common.js";
-import type { DateTime } from "../common.date.js";
-import type { UserType } from "./policies.js";
+} from './common.js';
+import type { DateTime } from '../common.date.js';
+import type { UserType } from './policies.js';
 
 // === Output Types ===
 
@@ -72,8 +72,7 @@ export interface QueryFilePolicyTransfersResultSortInput {
 
 export type FilePolicyTransfersEdge = Edge<QueryFilePolicyTransfersResult>;
 export type FilePolicyTransfersConnection<
-  TFields extends readonly FilePolicyTransferFieldKey[] =
-    readonly FilePolicyTransferFieldKey[],
+  TFields extends readonly FilePolicyTransferFieldKey[] = readonly FilePolicyTransferFieldKey[],
 > = Connection<PickFilePolicyTransferFields<TFields>>;
 
 // === Select Options ===
@@ -81,47 +80,45 @@ export type FilePolicyTransfersConnection<
 /**
  * All available field keys for QueryFilePolicyTransfersResult with nested dot-notation paths.
  */
-export type FilePolicyTransferFieldKey =
-  DeepFieldKeys<QueryFilePolicyTransfersResult>;
+export type FilePolicyTransferFieldKey = DeepFieldKeys<QueryFilePolicyTransfersResult>;
 
 /**
  * Runtime array of all file policy transfer field keys including nested paths.
  */
 export const ALL_FILE_POLICY_TRANSFER_FIELDS = [
   // Primitive fields
-  "id",
-  "insuranceCompanyId",
-  "insuranceCompanyName",
-  "insuranceCompanyLogo",
-  "fileName",
-  "fileUrl",
-  "createdAt",
-  "totalPolicyCount",
-  "completedPolicyCount",
-  "failedPolicyCount",
+  'id',
+  'insuranceCompanyId',
+  'insuranceCompanyName',
+  'insuranceCompanyLogo',
+  'fileName',
+  'fileUrl',
+  'createdAt',
+  'totalPolicyCount',
+  'completedPolicyCount',
+  'failedPolicyCount',
   // Nested createdBy fields
-  "createdBy.id",
-  "createdBy.name",
-  "createdBy.email",
-  "createdBy.userType",
+  'createdBy.id',
+  'createdBy.name',
+  'createdBy.email',
+  'createdBy.userType',
 ] as const satisfies readonly FilePolicyTransferFieldKey[];
 
 /**
  * Helper type to pick selected fields from QueryFilePolicyTransfersResult.
  */
-export type PickFilePolicyTransferFields<
-  T extends readonly FilePolicyTransferFieldKey[],
-> = PickFields<QueryFilePolicyTransfersResult, T>;
+export type PickFilePolicyTransferFields<T extends readonly FilePolicyTransferFieldKey[]> =
+  PickFields<QueryFilePolicyTransfersResult, T>;
 
 /**
  * Type-safe connection result based on selected fields
  */
 export interface SelectedFilePolicyTransfersConnection<
   TFields extends FilePolicyTransferFieldKey[],
-> extends Omit<FilePolicyTransfersConnection, "nodes" | "edges"> {
+> extends Omit<FilePolicyTransfersConnection, 'nodes' | 'edges'> {
   nodes?: (PickFilePolicyTransferFields<TFields> | null)[] | null;
   edges?:
-    | (Omit<FilePolicyTransfersEdge, "node"> & {
+    | (Omit<FilePolicyTransfersEdge, 'node'> & {
         node?: PickFilePolicyTransferFields<TFields> | null;
       })[]
     | null;

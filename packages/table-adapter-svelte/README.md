@@ -98,12 +98,12 @@ const ct = createCustomerTable(options);
 
 **Returns a `CustomerTableInstance` with:**
 
-| Property  | Type            | Description                            |
-| --------- | --------------- | -------------------------------------- |
-| `state`   | `AdapterState`  | **Reactive** adapter state via `$state`|
-| `table`   | `Table`         | TanStack Table instance                |
-| `adapter` | `CustomerTable` | Raw adapter for advanced use           |
-| `destroy` | `Function`      | Cleanup function - call in `onDestroy` |
+| Property  | Type            | Description                             |
+| --------- | --------------- | --------------------------------------- |
+| `state`   | `AdapterState`  | **Reactive** adapter state via `$state` |
+| `table`   | `Table`         | TanStack Table instance                 |
+| `adapter` | `CustomerTable` | Raw adapter for advanced use            |
+| `destroy` | `Function`      | Cleanup function - call in `onDestroy`  |
 
 **`state` properties:**
 

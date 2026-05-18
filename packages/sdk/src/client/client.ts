@@ -3,28 +3,28 @@
  * @description Main SDK client implementation
  */
 
-import { HttpTransport } from "./http.js";
-import { GraphQLTransport } from "./graphql.js";
-import type { InsurUpClientOptions } from "../core/options.js";
+import { HttpTransport } from './http.js';
+import { GraphQLTransport } from './graphql.js';
+import type { InsurUpClientOptions } from '../core/options.js';
 
 // Import specialized clients
-import { InsurUpAgentClient } from "../clients/agent.js";
-import { InsurUpAgentBranchClient } from "../clients/agentBranch.js";
-import { InsurUpAgentRoleClient } from "../clients/agentRole.js";
-import { InsurUpAgentSetupClient } from "../clients/agentSetup.js";
-import { InsurUpAgentUserClient } from "../clients/agentUser.js";
-import { InsurUpCustomerClient } from "../clients/customer.js";
-import { InsurUpVehicleClient } from "../clients/vehicle.js";
-import { InsurUpPropertyClient } from "../clients/property.js";
-import { InsurUpPolicyClient } from "../clients/policy.js";
-import { InsurUpCaseClient } from "../clients/case.js";
-import { InsurUpWebhookClient } from "../clients/webhook.js";
-import { InsurUpCoverageClient } from "../clients/coverage.js";
-import { InsurUpInsuranceClient } from "../clients/insurance.js";
-import { InsurUpProposalClient } from "../clients/proposal.js";
-import { InsurUpFileClient } from "../clients/file.js";
-import { InsurUpLanguageClient } from "../clients/language.js";
-import { InsurUpTemplateClient } from "../clients/template.js";
+import { InsurUpAgentClient } from '../clients/agent.js';
+import { InsurUpAgentBranchClient } from '../clients/agentBranch.js';
+import { InsurUpAgentRoleClient } from '../clients/agentRole.js';
+import { InsurUpAgentSetupClient } from '../clients/agentSetup.js';
+import { InsurUpAgentUserClient } from '../clients/agentUser.js';
+import { InsurUpCustomerClient } from '../clients/customer.js';
+import { InsurUpVehicleClient } from '../clients/vehicle.js';
+import { InsurUpPropertyClient } from '../clients/property.js';
+import { InsurUpPolicyClient } from '../clients/policy.js';
+import { InsurUpCaseClient } from '../clients/case.js';
+import { InsurUpWebhookClient } from '../clients/webhook.js';
+import { InsurUpCoverageClient } from '../clients/coverage.js';
+import { InsurUpInsuranceClient } from '../clients/insurance.js';
+import { InsurUpProposalClient } from '../clients/proposal.js';
+import { InsurUpFileClient } from '../clients/file.js';
+import { InsurUpLanguageClient } from '../clients/language.js';
+import { InsurUpTemplateClient } from '../clients/template.js';
 
 /**
  * Main unified client providing comprehensive access to all InsurUp platform operations.

@@ -14,7 +14,7 @@ import type {
   VehicleAccessory,
   VehicleOldPolicy,
   LossPayeeClause,
-} from "./common.js";
+} from './common.js';
 
 // ============================================================================
 // VEHICLE ENUMS AND TYPES - Now imported from common.ts

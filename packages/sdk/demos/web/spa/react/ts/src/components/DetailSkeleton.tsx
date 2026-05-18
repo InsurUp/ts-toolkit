@@ -1,5 +1,5 @@
-import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
 interface DetailSkeletonProps {
   title?: boolean;
@@ -35,14 +35,9 @@ export function DetailSkeleton({
             </CardHeader>
             <CardContent className="space-y-4">
               {Array.from({ length: rowsPerCard }).map((_, rowIndex) => (
-                <div
-                  key={rowIndex}
-                  className="flex items-center justify-between"
-                >
+                <div key={rowIndex} className="flex items-center justify-between">
                   <Skeleton className="h-4 w-24" />
-                  <Skeleton
-                    className={`h-4 ${rowIndex % 2 === 0 ? "w-20" : "w-28"}`}
-                  />
+                  <Skeleton className={`h-4 ${rowIndex % 2 === 0 ? 'w-20' : 'w-28'}`} />
                 </div>
               ))}
             </CardContent>

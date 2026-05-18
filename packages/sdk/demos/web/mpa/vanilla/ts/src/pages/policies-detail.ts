@@ -2,26 +2,39 @@
  * Policy detail page entry point.
  */
 
-import { loadConfig } from "../shared/config";
-import { renderHeader, initTheme, renderLoading, renderError, escapeHtml, getQueryParam } from "../shared/components";
-import { requireAuth } from "../shared/auth";
-import { getClient } from "../shared/client";
-import { formatDate, formatDateTime, formatCurrency, formatPolicyState, getPolicyStateBadgeClass } from "../shared/format";
-import type { GetPolicyDetailResult } from "@insurup/contracts";
+import { loadConfig } from '../shared/config';
+import {
+  renderHeader,
+  initTheme,
+  renderLoading,
+  renderError,
+  escapeHtml,
+  getQueryParam,
+} from '../shared/components';
+import { requireAuth } from '../shared/auth';
+import { getClient } from '../shared/client';
+import {
+  formatDate,
+  formatDateTime,
+  formatCurrency,
+  formatPolicyState,
+  getPolicyStateBadgeClass,
+} from '../shared/format';
+import type { GetPolicyDetailResult } from '@insurup/contracts';
 
 async function init(): Promise<void> {
   loadConfig();
   initTheme();
   await requireAuth();
 
-  const nav = document.getElementById("main-nav");
+  const nav = document.getElementById('main-nav');
   if (nav) renderHeader(nav);
 
-  const main = document.getElementById("main-content");
-  const policyId = getQueryParam("id");
+  const main = document.getElementById('main-content');
+  const policyId = getQueryParam('id');
 
   if (!policyId) {
-    if (main) renderError(main, "Error", "No policy ID provided");
+    if (main) renderError(main, 'Error', 'No policy ID provided');
     return;
   }
 
@@ -29,23 +42,23 @@ async function init(): Promise<void> {
 }
 
 async function loadPolicy(container: HTMLElement, policyId: string): Promise<void> {
-  renderLoading(container, "Loading policy...");
+  renderLoading(container, 'Loading policy...');
 
   try {
     const client = getClient();
     const res = await client.policies.getPolicyDetail({ policyId });
 
     if (!res.isSuccess || !res.data) {
-      throw new Error(res.message || "Failed to load policy");
+      throw new Error(res.message || 'Failed to load policy');
     }
 
     renderPolicy(container, res.data);
   } catch (error) {
-    console.error("Failed to load policy:", error);
+    console.error('Failed to load policy:', error);
     renderError(
       container,
-      "Error Loading Policy",
-      error instanceof Error ? error.message : "Unknown error",
+      'Error Loading Policy',
+      error instanceof Error ? error.message : 'Unknown error',
       () => loadPolicy(container, policyId)
     );
   }
@@ -57,7 +70,7 @@ function renderPolicy(container: HTMLElement, policy: GetPolicyDetailResult): vo
   container.innerHTML = `
     <div class="detail-header">
       <div>
-        <h1>Policy ${escapeHtml(policy.insuranceCompanyPolicyNumber || "N/A")}</h1>
+        <h1>Policy ${escapeHtml(policy.insuranceCompanyPolicyNumber || 'N/A')}</h1>
         <span class="badge ${badgeClass}">${formatPolicyState(policy.state)}</span>
       </div>
       <a href="/policies/" role="button" class="secondary outline">Back to List</a>
@@ -71,7 +84,7 @@ function renderPolicy(container: HTMLElement, policy: GetPolicyDetailResult): vo
           <dd><code>${escapeHtml(policy.id)}</code></dd>
           
           <dt>Policy Number</dt>
-          <dd>${escapeHtml(policy.insuranceCompanyPolicyNumber || "-")}</dd>
+          <dd>${escapeHtml(policy.insuranceCompanyPolicyNumber || '-')}</dd>
           
           <dt>State</dt>
           <dd><span class="badge ${badgeClass}">${formatPolicyState(policy.state)}</span></dd>
@@ -88,7 +101,7 @@ function renderPolicy(container: HTMLElement, policy: GetPolicyDetailResult): vo
         <header><strong>Product Details</strong></header>
         <dl>
           <dt>Product Branch</dt>
-          <dd>${escapeHtml(policy.productBranch || "-")}</dd>
+          <dd>${escapeHtml(policy.productBranch || '-')}</dd>
           
           <dt>Product ID</dt>
           <dd><code>${policy.productId}</code></dd>

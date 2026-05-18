@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useClient } from "@/composables/useClient";
+import { ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useClient } from '@/composables/useClient';
 import {
   Button,
   Card,
@@ -10,11 +10,11 @@ import {
   CardHeader,
   CardTitle,
   Badge,
-} from "@/components/ui";
-import DetailSkeleton from "@/components/DetailSkeleton.vue";
-import { toast } from "vue-sonner";
-import { ArrowLeft, Mail, Phone, Calendar, User } from "lucide-vue-next";
-import { CustomerType, type GetCustomerResult } from "@insurup/contracts";
+} from '@/components/ui';
+import DetailSkeleton from '@/components/DetailSkeleton.vue';
+import { toast } from 'vue-sonner';
+import { ArrowLeft, Mail, Phone, Calendar, User } from 'lucide-vue-next';
+import { CustomerType, type GetCustomerResult } from '@insurup/contracts';
 
 const route = useRoute();
 const router = useRouter();
@@ -23,51 +23,55 @@ const client = useClient();
 const customer = ref<GetCustomerResult | null>(null);
 const isLoading = ref(true);
 
-watch(() => route.params.id, async (id) => {
-  if (!id) return;
+watch(
+  () => route.params.id,
+  async (id) => {
+    if (!id) return;
 
-  isLoading.value = true;
-  try {
-    const result = await client.customers.getCustomer(id as string);
-    if (result.isSuccess) {
-      customer.value = result.data;
-    } else {
-      toast.error("Failed to load customer");
-      router.push("/customers");
+    isLoading.value = true;
+    try {
+      const result = await client.customers.getCustomer(id as string);
+      if (result.isSuccess) {
+        customer.value = result.data;
+      } else {
+        toast.error('Failed to load customer');
+        router.push('/customers');
+      }
+    } catch (error) {
+      toast.error('An error occurred');
+      console.error(error);
+      router.push('/customers');
+    } finally {
+      isLoading.value = false;
     }
-  } catch (error) {
-    toast.error("An error occurred");
-    console.error(error);
-    router.push("/customers");
-  } finally {
-    isLoading.value = false;
-  }
-}, { immediate: true });
+  },
+  { immediate: true }
+);
 
 function getCustomerName(): string {
-  if (!customer.value) return "";
+  if (!customer.value) return '';
   if (customer.value.type === CustomerType.Company) {
-    return (customer.value as { title?: string }).title || "Unknown Company";
+    return (customer.value as { title?: string }).title || 'Unknown Company';
   }
-  return (customer.value as { fullName?: string }).fullName || "Unknown";
+  return (customer.value as { fullName?: string }).fullName || 'Unknown';
 }
 
 function formatPhoneNumber(phone: unknown): string {
-  if (!phone) return "-";
-  if (typeof phone === "string") return phone;
-  if (typeof phone === "object" && phone !== null) {
+  if (!phone) return '-';
+  if (typeof phone === 'string') return phone;
+  if (typeof phone === 'object' && phone !== null) {
     const p = phone as { countryCode?: number; number?: string };
-    return p.countryCode && p.number ? `+${p.countryCode} ${p.number}` : "-";
+    return p.countryCode && p.number ? `+${p.countryCode} ${p.number}` : '-';
   }
-  return "-";
+  return '-';
 }
 
 function formatDate(date: unknown): string {
-  if (!date) return "-";
-  if (typeof date === "string") {
+  if (!date) return '-';
+  if (typeof date === 'string') {
     return new Date(date).toLocaleDateString();
   }
-  return "-";
+  return '-';
 }
 </script>
 
@@ -102,7 +106,7 @@ function formatDate(date: unknown): string {
           <template v-if="customer.type === CustomerType.Individual">
             <div class="flex items-center justify-between">
               <span class="font-medium">Full Name</span>
-              <span>{{ (customer as { fullName?: string }).fullName || "-" }}</span>
+              <span>{{ (customer as { fullName?: string }).fullName || '-' }}</span>
             </div>
             <div class="flex items-center justify-between">
               <span class="font-medium">Birth Date</span>
@@ -110,13 +114,13 @@ function formatDate(date: unknown): string {
             </div>
             <div class="flex items-center justify-between">
               <span class="font-medium">Gender</span>
-              <span>{{ (customer as { gender?: string }).gender || "-" }}</span>
+              <span>{{ (customer as { gender?: string }).gender || '-' }}</span>
             </div>
           </template>
           <template v-if="customer.type === CustomerType.Company">
             <div class="flex items-center justify-between">
               <span class="font-medium">Company Title</span>
-              <span>{{ (customer as { title?: string }).title || "-" }}</span>
+              <span>{{ (customer as { title?: string }).title || '-' }}</span>
             </div>
           </template>
         </CardContent>
@@ -134,7 +138,7 @@ function formatDate(date: unknown): string {
           <div class="flex items-center gap-2">
             <Mail class="h-4 w-4 text-muted-foreground" />
             <span class="font-medium">Primary Email:</span>
-            <span>{{ customer.primaryEmail || "-" }}</span>
+            <span>{{ customer.primaryEmail || '-' }}</span>
           </div>
           <div class="flex items-center gap-2">
             <Phone class="h-4 w-4 text-muted-foreground" />

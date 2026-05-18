@@ -50,11 +50,11 @@ bun run dev
 ### Getting Authenticated Client
 
 ```tsx
-import { useClient } from "@/client";
+import { useClient } from '@/client';
 
 function MyComponent() {
   const client = useClient();
-  
+
   // Now use client.customers, client.policies, etc.
 }
 ```
@@ -63,10 +63,10 @@ function MyComponent() {
 
 ```tsx
 const result = await client.customers.getCustomers({
-  select: ["id", "name", "type", "primaryEmail"] as const,
+  select: ['id', 'name', 'type', 'primaryEmail'] as const,
   first: 10,
-  search: { name: { textSearch: { query: "John" } } },
-  order: [{ createdAt: "DESC" }],
+  search: { name: { textSearch: { query: 'John' } } },
+  order: [{ createdAt: 'DESC' }],
 });
 ```
 
@@ -75,9 +75,9 @@ const result = await client.customers.getCustomers({
 ```tsx
 const result = await client.customers.createCustomer({
   type: CustomerType.Individual,
-  fullName: "John Doe",
-  identityNumber: "12345678901",
-  email: "john@example.com",
+  fullName: 'John Doe',
+  identityNumber: '12345678901',
+  email: 'john@example.com',
   fillMissingFields: true,
 });
 ```
@@ -105,9 +105,9 @@ src/
 
 ## Environment Variables
 
-| Variable | Description |
-|----------|-------------|
-| `VITE_OAUTH_CLIENT_ID` | OAuth2 client ID |
-| `VITE_OAUTH_AUTH_ENDPOINT` | OAuth2 authorization endpoint |
-| `VITE_OAUTH_TOKEN_ENDPOINT` | OAuth2 token endpoint |
-| `VITE_API_BASE_URL` | InsurUp API base URL |
+| Variable                    | Description                   |
+| --------------------------- | ----------------------------- |
+| `VITE_OAUTH_CLIENT_ID`      | OAuth2 client ID              |
+| `VITE_OAUTH_AUTH_ENDPOINT`  | OAuth2 authorization endpoint |
+| `VITE_OAUTH_TOKEN_ENDPOINT` | OAuth2 token endpoint         |
+| `VITE_API_BASE_URL`         | InsurUp API base URL          |

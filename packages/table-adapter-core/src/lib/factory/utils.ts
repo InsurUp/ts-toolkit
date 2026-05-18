@@ -348,7 +348,15 @@ export function createTableApi<
   TSearchInput,
   TPaginationOptions extends PaginationOptions,
 >(
-  config: TableApiConfig<TEntity, TRow, TQueryOptions, TSortInput, TFilterInput, TSearchInput, TPaginationOptions>
+  config: TableApiConfig<
+    TEntity,
+    TRow,
+    TQueryOptions,
+    TSortInput,
+    TFilterInput,
+    TSearchInput,
+    TPaginationOptions
+  >
 ): TableApi<TRow, TFilterInput, TSearchInput, PaginationManagerFromOptions<TPaginationOptions>> {
   const adapter = new BaseTableAdapter<
     TEntity,

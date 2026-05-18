@@ -20,7 +20,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src/ test/",
     "clean": "rm -rf dist",
@@ -53,8 +53,8 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@insurup/sdk": ">=0.0.1",
-    "typescript": "^5"
+    "@insurup/sdk": "latest",
+    "typescript": "^6.0.3"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.6",
@@ -62,8 +62,8 @@
     "vitest": "^4.1.6"
   },
   "dependencies": {
-    "@insurup/sdk": "workspace:*",
-    "@tanstack/query-core": "^5.90.19",
+    "@insurup/sdk": "^0.1.13",
+    "@tanstack/query-core": "^5.100.10",
     "@tanstack/table-core": "^8.21.3"
   }
 }

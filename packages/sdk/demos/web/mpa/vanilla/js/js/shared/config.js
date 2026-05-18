@@ -3,7 +3,7 @@
  * @module config
  */
 
-import { STORAGE_KEYS } from "./constants.js";
+import { STORAGE_KEYS } from './constants.js';
 
 /**
  * @typedef {import('./constants.js').Config} Config
@@ -11,9 +11,9 @@ import { STORAGE_KEYS } from "./constants.js";
 
 /** @type {Config} */
 const defaults = {
-  authServer: "https://auth.insurup.com",
-  clientId: "demo",
-  scopes: ["openid", "profile", "offline_access", "core-api"],
+  authServer: 'https://auth.insurup.com',
+  clientId: 'demo',
+  scopes: ['openid', 'profile', 'offline_access', 'core-api'],
   redirectUri: `${window.location.origin}/callback`,
 };
 

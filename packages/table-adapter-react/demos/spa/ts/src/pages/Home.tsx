@@ -1,14 +1,8 @@
-import { useAuthContext } from "react-oauth2-code-pkce";
-import { useNavigate } from "react-router";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Users, TableIcon } from "lucide-react";
+import { useAuthContext } from 'react-oauth2-code-pkce';
+import { useNavigate } from 'react-router';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Users, TableIcon } from 'lucide-react';
 
 export function Home(): React.ReactElement {
   const { token, login, loginInProgress } = useAuthContext();
@@ -19,15 +13,13 @@ export function Home(): React.ReactElement {
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] text-center">
         <TableIcon className="h-16 w-16 text-primary mb-6" />
-        <h1 className="text-4xl font-bold tracking-tight mb-4">
-          Table Adapter React Demo
-        </h1>
+        <h1 className="text-4xl font-bold tracking-tight mb-4">Table Adapter React Demo</h1>
         <p className="text-xl text-muted-foreground mb-8 max-w-md">
-          A React SPA demonstrating the @insurup/table-adapter-react package
-          with TanStack Table integration.
+          A React SPA demonstrating the @insurup/table-adapter-react package with TanStack Table
+          integration.
         </p>
         <Button size="lg" onClick={() => login()} disabled={loginInProgress}>
-          {loginInProgress ? "Signing in..." : "Sign in to get started"}
+          {loginInProgress ? 'Signing in...' : 'Sign in to get started'}
         </Button>
       </div>
     );
@@ -45,7 +37,7 @@ export function Home(): React.ReactElement {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card
           className="cursor-pointer hover:bg-muted/50 transition-colors"
-          onClick={() => navigate("/customers")}
+          onClick={() => navigate('/customers')}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Customer Table</CardTitle>
@@ -53,8 +45,8 @@ export function Home(): React.ReactElement {
           </CardHeader>
           <CardContent>
             <CardDescription>
-              View customers using the useCustomerTable hook with TanStack Table.
-              Features sorting, pagination, and search.
+              View customers using the useCustomerTable hook with TanStack Table. Features sorting,
+              pagination, and search.
             </CardDescription>
           </CardContent>
         </Card>

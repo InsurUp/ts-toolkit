@@ -3,14 +3,11 @@
  * @description Provides file management operations for the InsurUp platform
  */
 
-import type { HttpTransport } from "../client/http.js";
-import type { InsurUpResult } from "../core/result.js";
-import type { RequestOptions } from "../core/options.js";
-import { files } from "../core/endpoints.js";
-import type {
-  UploadPublicFileRequest,
-  UploadPublicFileResult,
-} from "@insurup/contracts";
+import type { HttpTransport } from '../client/http.js';
+import type { InsurUpResult } from '../core/result.js';
+import type { RequestOptions } from '../core/options.js';
+import { files } from '../core/endpoints.js';
+import type { UploadPublicFileRequest, UploadPublicFileResult } from '@insurup/contracts';
 
 /**
  * Provides file management operations for the InsurUp platform, enabling agents to upload and manage files
@@ -35,19 +32,15 @@ export class InsurUpFileClient {
     request: UploadPublicFileRequest,
     file: File,
     fileName: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<UploadPublicFileResult>> {
     const formData = new FormData();
-    formData.append("file", file, fileName);
+    formData.append('file', file, fileName);
 
     if (request.path) {
-      formData.append("path", request.path);
+      formData.append('path', request.path);
     }
 
-    return this.http.post<UploadPublicFileResult>(
-      files.uploadPublicFile,
-      formData,
-      options,
-    );
+    return this.http.post<UploadPublicFileResult>(files.uploadPublicFile, formData, options);
   }
 }

@@ -5,16 +5,16 @@
  * including field selection, pagination, filtering, searching, and sorting.
  */
 
-import { DefaultInsurUpClient, CustomerType, Gender, SortEnumType } from "@insurup/sdk";
+import { DefaultInsurUpClient, CustomerType, Gender, SortEnumType } from '@insurup/sdk';
 import type {
   GetCustomersOptions,
   QueryCustomerModelFilterInput,
   QueryCustomerModelSearchInput,
   QueryCustomerModelSortInput,
-} from "@insurup/sdk";
+} from '@insurup/sdk';
 
 const client = new DefaultInsurUpClient({
-  tokenProvider: () => "your-api-token-here",
+  tokenProvider: () => 'your-api-token-here',
 });
 
 // ============================================================================
@@ -37,7 +37,7 @@ async function getAllCustomers() {
       }
     }
   } else {
-    console.error("Failed to fetch customers:", result.message);
+    console.error('Failed to fetch customers:', result.message);
   }
 }
 
@@ -50,7 +50,7 @@ async function getCustomersWithSelectedFields() {
   // knows exactly which fields are available
   const result = await client.customers.getCustomers({
     first: 10,
-    select: ["id", "name", "primaryEmail", "type", "gender"],
+    select: ['id', 'name', 'primaryEmail', 'type', 'gender'],
   });
 
   if (result.isSuccess) {
@@ -82,11 +82,11 @@ async function paginateThroughCustomers() {
     const result = await client.customers.getCustomers({
       first: 20,
       after: cursor,
-      select: ["id", "name"],
+      select: ['id', 'name'],
     });
 
     if (!result.isSuccess) {
-      console.error("Pagination failed:", result.message);
+      console.error('Pagination failed:', result.message);
       break;
     }
 
@@ -103,7 +103,7 @@ async function paginateThroughCustomers() {
 
     // Safety break for demo
     if (pageNumber > 5) {
-      console.log("Stopping after 5 pages for demo purposes");
+      console.log('Stopping after 5 pages for demo purposes');
       break;
     }
   }
@@ -123,7 +123,7 @@ async function filterCustomers() {
   const result = await client.customers.getCustomers({
     first: 10,
     filter,
-    select: ["id", "name", "type", "gender"],
+    select: ['id', 'name', 'type', 'gender'],
   });
 
   if (result.isSuccess) {
@@ -141,9 +141,9 @@ async function filterWithComplexConditions() {
   const filter: QueryCustomerModelFilterInput = {
     or: [
       // Customers from Istanbul
-      { cityText: { contains: "Istanbul" } },
+      { cityText: { contains: 'Istanbul' } },
       // OR customers from Ankara
-      { cityText: { contains: "Ankara" } },
+      { cityText: { contains: 'Ankara' } },
     ],
     // AND must be Individual type
     type: { eq: CustomerType.Individual },
@@ -152,11 +152,11 @@ async function filterWithComplexConditions() {
   const result = await client.customers.getCustomers({
     first: 10,
     filter,
-    select: ["id", "name", "cityText", "type"],
+    select: ['id', 'name', 'cityText', 'type'],
   });
 
   if (result.isSuccess) {
-    console.log("Customers from Istanbul or Ankara:");
+    console.log('Customers from Istanbul or Ankara:');
     for (const customer of result.data.nodes ?? []) {
       if (customer) {
         console.log(`- ${customer.name} (${customer.cityText})`);
@@ -169,19 +169,19 @@ async function filterWithComplexConditions() {
 async function filterByDateRange() {
   const filter: QueryCustomerModelFilterInput = {
     createdAt: {
-      gte: "2024-01-01T00:00:00Z",
-      lte: "2024-12-31T23:59:59Z",
+      gte: '2024-01-01T00:00:00Z',
+      lte: '2024-12-31T23:59:59Z',
     },
   };
 
   const result = await client.customers.getCustomers({
     first: 10,
     filter,
-    select: ["id", "name", "createdAt", "agentBranch.id"],
+    select: ['id', 'name', 'createdAt', 'agentBranch.id'],
   });
 
   if (result.isSuccess) {
-    console.log("Customers created in 2024:");
+    console.log('Customers created in 2024:');
     for (const customer of result.data.nodes ?? []) {
       if (customer) {
         console.log(`- ${customer.name} (created: ${customer.createdAt})`);
@@ -197,15 +197,15 @@ async function filterByDateRange() {
 async function searchCustomers() {
   const search: QueryCustomerModelSearchInput = {
     or: [
-      { name: { textSearch: { value: "John" } } },
-      { primaryEmail: { textSearch: { value: "john" } } },
+      { name: { textSearch: { value: 'John' } } },
+      { primaryEmail: { textSearch: { value: 'john' } } },
     ],
   };
 
   const result = await client.customers.getCustomers({
     first: 10,
     search,
-    select: ["id", "name", "primaryEmail", "searchScore"],
+    select: ['id', 'name', 'primaryEmail', 'searchScore'],
   });
 
   if (result.isSuccess) {
@@ -213,7 +213,7 @@ async function searchCustomers() {
     for (const customer of result.data.nodes ?? []) {
       if (customer) {
         console.log(
-          `- ${customer.name} (${customer.primaryEmail}) - score: ${customer.searchScore}`,
+          `- ${customer.name} (${customer.primaryEmail}) - score: ${customer.searchScore}`
         );
       }
     }
@@ -234,11 +234,11 @@ async function sortCustomers() {
   const result = await client.customers.getCustomers({
     first: 10,
     order,
-    select: ["id", "name", "createdAt"],
+    select: ['id', 'name', 'createdAt'],
   });
 
   if (result.isSuccess) {
-    console.log("Customers sorted by newest first:");
+    console.log('Customers sorted by newest first:');
     for (const customer of result.data.nodes ?? []) {
       if (customer) {
         console.log(`- ${customer.name} (${customer.createdAt})`);
@@ -250,7 +250,7 @@ async function sortCustomers() {
 // Sort by search relevance when searching
 async function sortBySearchRelevance() {
   const search: QueryCustomerModelSearchInput = {
-    name: { textSearch: { value: "Smith" } },
+    name: { textSearch: { value: 'Smith' } },
   };
 
   const order: QueryCustomerModelSortInput[] = [
@@ -261,11 +261,11 @@ async function sortBySearchRelevance() {
     first: 10,
     search,
     order,
-    select: ["id", "name", "searchScore"],
+    select: ['id', 'name', 'searchScore'],
   });
 
   if (result.isSuccess) {
-    console.log("Search results sorted by relevance:");
+    console.log('Search results sorted by relevance:');
     for (const customer of result.data.nodes ?? []) {
       if (customer) {
         console.log(`- ${customer.name} (score: ${customer.searchScore})`);
@@ -280,10 +280,10 @@ async function sortBySearchRelevance() {
 
 async function combinedQuery() {
   const options: GetCustomersOptions<
-    ["id", "name", "primaryEmail", "cityText", "type", "createdAt"]
+    ['id', 'name', 'primaryEmail', 'cityText', 'type', 'createdAt']
   > = {
     // Only select the fields we need
-    select: ["id", "name", "primaryEmail", "cityText", "type", "createdAt"],
+    select: ['id', 'name', 'primaryEmail', 'cityText', 'type', 'createdAt'],
 
     // Pagination
     first: 20,
@@ -291,7 +291,7 @@ async function combinedQuery() {
     // Filter: Only Individual customers from Istanbul
     filter: {
       type: { eq: CustomerType.Individual },
-      cityText: { contains: "Istanbul" },
+      cityText: { contains: 'Istanbul' },
     },
 
     // Sort: Newest first
@@ -301,19 +301,17 @@ async function combinedQuery() {
   const result = await client.customers.getCustomers(options);
 
   if (result.isSuccess) {
-    console.log(
-      `\nFound ${result.data.totalCount} individual customers in Istanbul`,
-    );
-    console.log("Showing newest 20:");
-    console.log("-".repeat(60));
+    console.log(`\nFound ${result.data.totalCount} individual customers in Istanbul`);
+    console.log('Showing newest 20:');
+    console.log('-'.repeat(60));
 
     for (const customer of result.data.nodes ?? []) {
       if (customer) {
         console.log(`Name:     ${customer.name}`);
-        console.log(`Email:    ${customer.primaryEmail ?? "N/A"}`);
-        console.log(`City:     ${customer.cityText ?? "N/A"}`);
+        console.log(`Email:    ${customer.primaryEmail ?? 'N/A'}`);
+        console.log(`City:     ${customer.cityText ?? 'N/A'}`);
         console.log(`Created:  ${customer.createdAt}`);
-        console.log("-".repeat(60));
+        console.log('-'.repeat(60));
       }
     }
 
@@ -326,7 +324,7 @@ async function combinedQuery() {
       console.log(`  Next page cursor: ${pageInfo.endCursor}`);
     }
   } else {
-    console.error("Query failed:", result.message);
+    console.error('Query failed:', result.message);
   }
 }
 
@@ -337,11 +335,11 @@ async function combinedQuery() {
 async function useEdgesForCursor() {
   const result = await client.customers.getCustomers({
     first: 5,
-    select: ["id", "name"],
+    select: ['id', 'name'],
   });
 
   if (result.isSuccess) {
-    console.log("Using edges to access cursors for each item:");
+    console.log('Using edges to access cursors for each item:');
     for (const edge of result.data.edges ?? []) {
       if (edge && edge.node) {
         console.log(`- ${edge.node.name} (cursor: ${edge.cursor})`);
@@ -366,11 +364,11 @@ async function filterByConsents() {
   const result = await client.customers.getCustomers({
     first: 10,
     filter,
-    select: ["id", "name", "consents.consentType", "consents.isActive"],
+    select: ['id', 'name', 'consents.consentType', 'consents.isActive'],
   });
 
   if (result.isSuccess) {
-    console.log("Customers with active consents:");
+    console.log('Customers with active consents:');
     for (const customer of result.data.nodes ?? []) {
       if (customer) {
         const activeConsents = customer.consents.filter((c) => c.isActive);
@@ -385,36 +383,36 @@ async function filterByConsents() {
 // ============================================================================
 
 async function main() {
-  console.log("=== GraphQL Customer Queries Examples ===\n");
+  console.log('=== GraphQL Customer Queries Examples ===\n');
 
-  console.log("\n1. Basic Query");
+  console.log('\n1. Basic Query');
   await getAllCustomers();
 
-  console.log("\n2. Field Selection");
+  console.log('\n2. Field Selection');
   await getCustomersWithSelectedFields();
 
-  console.log("\n3. Pagination");
+  console.log('\n3. Pagination');
   await paginateThroughCustomers();
 
-  console.log("\n4. Filtering");
+  console.log('\n4. Filtering');
   await filterCustomers();
   await filterWithComplexConditions();
   await filterByDateRange();
 
-  console.log("\n5. Searching");
+  console.log('\n5. Searching');
   await searchCustomers();
 
-  console.log("\n6. Sorting");
+  console.log('\n6. Sorting');
   await sortCustomers();
   await sortBySearchRelevance();
 
-  console.log("\n7. Combined Query");
+  console.log('\n7. Combined Query');
   await combinedQuery();
 
-  console.log("\n8. Using Edges");
+  console.log('\n8. Using Edges');
   await useEdgesForCursor();
 
-  console.log("\n9. Filter by Consents");
+  console.log('\n9. Filter by Consents');
   await filterByConsents();
 }
 

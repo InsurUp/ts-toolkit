@@ -1,12 +1,12 @@
-import type { HttpTransport } from "../client/http.js";
-import type { InsurUpResult } from "../core/result.js";
-import type { RequestOptions } from "../core/options.js";
-import { agentSetupRequests } from "../core/endpoints.js";
+import type { HttpTransport } from '../client/http.js';
+import type { InsurUpResult } from '../core/result.js';
+import type { RequestOptions } from '../core/options.js';
+import { agentSetupRequests } from '../core/endpoints.js';
 import type {
   EnterAgentSetupRequestRequest,
   EnterAgentSetupRequestResult,
   CompleteAgentSetupRequestRequest,
-} from "@insurup/contracts";
+} from '@insurup/contracts';
 
 /**
  * Provides agent onboarding and setup operations for new insurance agents joining the InsurUp platform,
@@ -28,13 +28,9 @@ export class InsurUpAgentSetupClient {
    */
   async enterAgentSetupRequest(
     request: EnterAgentSetupRequestRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<EnterAgentSetupRequestResult>> {
-    return this.http.post<EnterAgentSetupRequestResult>(
-      agentSetupRequests.enter,
-      request,
-      options,
-    );
+    return this.http.post<EnterAgentSetupRequestResult>(agentSetupRequests.enter, request, options);
   }
 
   /**
@@ -47,12 +43,8 @@ export class InsurUpAgentSetupClient {
    */
   async completeAgentSetupRequest(
     request: CompleteAgentSetupRequestRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
-    return this.http.postNoContent(
-      agentSetupRequests.complete,
-      request,
-      options,
-    );
+    return this.http.postNoContent(agentSetupRequests.complete, request, options);
   }
 }

@@ -3,9 +3,9 @@
  * Provides a reactive client that uses the auth state.
  */
 
-import { DefaultInsurUpClient } from "@insurup/sdk";
-import { getConfig } from "./config";
-import { getAccessToken } from "./auth/oauth";
+import { DefaultInsurUpClient } from '@insurup/sdk';
+import { getConfig } from './config';
+import { getAccessToken } from './auth/oauth';
 
 let clientInstance: DefaultInsurUpClient | null = null;
 

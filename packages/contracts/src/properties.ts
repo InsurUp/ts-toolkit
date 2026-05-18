@@ -17,7 +17,7 @@ import type {
   PropertyAddress,
   DaskOldPolicy,
   LossPayeeClause,
-} from "./common.js";
+} from './common.js';
 
 // ===== PROPERTY ENUMS AND TYPES - Now imported from common.ts =====
 // Note: Property-related enums and interfaces have been moved to common.ts

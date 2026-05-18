@@ -112,50 +112,52 @@ import { CustomerType, type GetCustomerResult } from '@insurup/contracts';
       </div>
     }
   `,
-  styles: [`
-    .loading-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 50vh;
-    }
-    .customer-detail .header {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-    .customer-detail h1 {
-      font-size: 30px;
-      font-weight: bold;
-      margin: 0;
-    }
-    .id {
-      font-family: monospace;
-      opacity: 0.7;
-      font-size: 14px;
-    }
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 16px;
-    }
-    .info-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-    .info-row mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-      opacity: 0.7;
-    }
-    .label {
-      font-weight: 500;
-    }
-  `],
+  styles: [
+    `
+      .loading-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 50vh;
+      }
+      .customer-detail .header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+      .customer-detail h1 {
+        font-size: 30px;
+        font-weight: bold;
+        margin: 0;
+      }
+      .id {
+        font-family: monospace;
+        opacity: 0.7;
+        font-size: 14px;
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 16px;
+      }
+      .info-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .info-row mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        opacity: 0.7;
+      }
+      .label {
+        font-weight: 500;
+      }
+    `,
+  ],
 })
 export class CustomerDetailComponent implements OnInit {
   router = inject(Router);

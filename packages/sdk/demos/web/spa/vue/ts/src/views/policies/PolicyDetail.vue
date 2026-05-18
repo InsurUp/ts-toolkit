@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useClient } from "@/composables/useClient";
+import { ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useClient } from '@/composables/useClient';
 import {
   Button,
   Card,
@@ -10,18 +10,11 @@ import {
   CardHeader,
   CardTitle,
   Badge,
-} from "@/components/ui";
-import DetailSkeleton from "@/components/DetailSkeleton.vue";
-import { toast } from "vue-sonner";
-import {
-  ArrowLeft,
-  FileText,
-  User,
-  Building,
-  Calendar,
-  DollarSign,
-} from "lucide-vue-next";
-import type { GetPolicyDetailResult } from "@insurup/contracts";
+} from '@/components/ui';
+import DetailSkeleton from '@/components/DetailSkeleton.vue';
+import { toast } from 'vue-sonner';
+import { ArrowLeft, FileText, User, Building, Calendar, DollarSign } from 'lucide-vue-next';
+import type { GetPolicyDetailResult } from '@insurup/contracts';
 
 const route = useRoute();
 const router = useRouter();
@@ -30,37 +23,41 @@ const client = useClient();
 const policy = ref<GetPolicyDetailResult | null>(null);
 const isLoading = ref(true);
 
-watch(() => route.params.id, async (id) => {
-  if (!id) return;
+watch(
+  () => route.params.id,
+  async (id) => {
+    if (!id) return;
 
-  isLoading.value = true;
-  try {
-    const result = await client.policies.getPolicyDetail({ policyId: id as string });
-    if (result.isSuccess) {
-      policy.value = result.data;
-    } else {
-      toast.error("Failed to load policy");
-      router.push("/policies");
+    isLoading.value = true;
+    try {
+      const result = await client.policies.getPolicyDetail({ policyId: id as string });
+      if (result.isSuccess) {
+        policy.value = result.data;
+      } else {
+        toast.error('Failed to load policy');
+        router.push('/policies');
+      }
+    } catch (error) {
+      toast.error('An error occurred');
+      console.error(error);
+      router.push('/policies');
+    } finally {
+      isLoading.value = false;
     }
-  } catch (error) {
-    toast.error("An error occurred");
-    console.error(error);
-    router.push("/policies");
-  } finally {
-    isLoading.value = false;
-  }
-}, { immediate: true });
+  },
+  { immediate: true }
+);
 
 function formatCurrency(value: number | null | undefined): string {
-  if (value === null || value === undefined) return "-";
-  return new Intl.NumberFormat("tr-TR", {
-    style: "currency",
-    currency: "TRY",
+  if (value === null || value === undefined) return '-';
+  return new Intl.NumberFormat('tr-TR', {
+    style: 'currency',
+    currency: 'TRY',
   }).format(value);
 }
 
 function formatDate(value: string | null | undefined): string {
-  if (!value) return "-";
+  if (!value) return '-';
   return new Date(value).toLocaleDateString();
 }
 </script>
@@ -93,19 +90,19 @@ function formatDate(value: string | null | undefined): string {
         <CardContent class="space-y-4">
           <div class="flex items-center justify-between">
             <span class="font-medium">Policy Number</span>
-            <span>{{ policy.insuranceCompanyPolicyNumber || "-" }}</span>
+            <span>{{ policy.insuranceCompanyPolicyNumber || '-' }}</span>
           </div>
           <div class="flex items-center justify-between">
             <span class="font-medium">Branch</span>
-            <Badge variant="outline">{{ policy.productBranch || "-" }}</Badge>
+            <Badge variant="outline">{{ policy.productBranch || '-' }}</Badge>
           </div>
           <div class="flex items-center justify-between">
             <span class="font-medium">Product ID</span>
-            <span>{{ policy.productId || "-" }}</span>
+            <span>{{ policy.productId || '-' }}</span>
           </div>
           <div class="flex items-center justify-between">
             <span class="font-medium">Status</span>
-            <Badge>{{ policy.state || "-" }}</Badge>
+            <Badge>{{ policy.state || '-' }}</Badge>
           </div>
         </CardContent>
       </Card>
@@ -121,7 +118,7 @@ function formatDate(value: string | null | undefined): string {
         <CardContent class="space-y-4">
           <div class="flex items-center justify-between">
             <span class="font-medium">Company ID</span>
-            <span>{{ policy.insuranceCompanyId || "-" }}</span>
+            <span>{{ policy.insuranceCompanyId || '-' }}</span>
           </div>
         </CardContent>
       </Card>
@@ -137,7 +134,7 @@ function formatDate(value: string | null | undefined): string {
         <CardContent class="space-y-4">
           <div class="flex items-center justify-between">
             <span class="font-medium">Insurer Customer ID</span>
-            <span>{{ policy.insurerCustomerId || "-" }}</span>
+            <span>{{ policy.insurerCustomerId || '-' }}</span>
           </div>
           <Button
             v-if="policy.insurerCustomerId"

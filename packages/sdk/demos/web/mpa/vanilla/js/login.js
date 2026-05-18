@@ -3,9 +3,9 @@
  * @module pages/login
  */
 
-import { loadConfig } from "./js/shared/config.js";
-import { renderHeader, initTheme } from "./js/shared/components.js";
-import { startLogin, isAuthenticated } from "./js/shared/auth.js";
+import { loadConfig } from './js/shared/config.js';
+import { renderHeader, initTheme } from './js/shared/components.js';
+import { startLogin, isAuthenticated } from './js/shared/auth.js';
 
 /**
  * Initializes the login page.
@@ -14,15 +14,15 @@ function init() {
   loadConfig();
   initTheme();
 
-  const nav = document.getElementById("main-nav");
+  const nav = document.getElementById('main-nav');
   if (nav) renderHeader(nav);
 
   if (isAuthenticated()) {
-    window.location.href = "/";
+    window.location.href = '/';
     return;
   }
 
-  const main = document.getElementById("main-content");
+  const main = document.getElementById('main-content');
   if (main) renderLogin(main);
 }
 
@@ -44,16 +44,16 @@ function renderLogin(container) {
     </article>
   `;
 
-  const loginBtn = container.querySelector("#login-btn");
-  loginBtn?.addEventListener("click", async () => {
-    loginBtn.setAttribute("aria-busy", "true");
-    loginBtn.textContent = "Redirecting...";
+  const loginBtn = container.querySelector('#login-btn');
+  loginBtn?.addEventListener('click', async () => {
+    loginBtn.setAttribute('aria-busy', 'true');
+    loginBtn.textContent = 'Redirecting...';
     try {
       await startLogin();
     } catch (error) {
-      console.error("Login error:", error);
-      loginBtn.removeAttribute("aria-busy");
-      loginBtn.textContent = "Login with InsurUp";
+      console.error('Login error:', error);
+      loginBtn.removeAttribute('aria-busy');
+      loginBtn.textContent = 'Login with InsurUp';
     }
   });
 }

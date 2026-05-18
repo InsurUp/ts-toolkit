@@ -8,14 +8,14 @@
  * ve harici müşteri veri entegrasyonunu yönetmek için kapsamlı müşteri yönetimi işlemlerini sağlar.
  */
 
-import type { CustomerType } from "./common.js";
+import type { CustomerType } from './common.js';
 import type {
   InsuranceParameter,
   UserReference,
   CustomerPhoneNumber,
   PropertyAddress,
-} from "./common.js";
-import type { DateTime, DateOnly } from "./common.date.js";
+} from './common.js';
+import type { DateTime, DateOnly } from './common.date.js';
 
 // ============================================================================
 // ENUMS
@@ -25,71 +25,71 @@ import type { DateTime, DateOnly } from "./common.date.js";
  * Gender enumeration
  */
 export enum Gender {
-  Unknown = "UNKNOWN",
-  Male = "MALE",
-  Female = "FEMALE",
-  Other = "OTHER",
+  Unknown = 'UNKNOWN',
+  Male = 'MALE',
+  Female = 'FEMALE',
+  Other = 'OTHER',
 }
 
 /**
  * Education status enumeration
  */
 export enum EducationStatus {
-  Unknown = "UNKNOWN",
-  PrimarySchool = "PRIMARY_SCHOOL",
-  MiddleSchool = "MIDDLE_SCHOOL",
-  HighSchool = "HIGH_SCHOOL",
-  University = "UNIVERSITY",
-  Postgraduate = "POSTGRADUATE",
-  Doctorate = "DOCTORATE",
-  Other = "OTHER",
+  Unknown = 'UNKNOWN',
+  PrimarySchool = 'PRIMARY_SCHOOL',
+  MiddleSchool = 'MIDDLE_SCHOOL',
+  HighSchool = 'HIGH_SCHOOL',
+  University = 'UNIVERSITY',
+  Postgraduate = 'POSTGRADUATE',
+  Doctorate = 'DOCTORATE',
+  Other = 'OTHER',
 }
 
 /**
  * Nationality enumeration
  */
 export enum Nationality {
-  Unknown = "UNKNOWN",
-  Turk = "TURK",
-  Other = "OTHER",
+  Unknown = 'UNKNOWN',
+  Turk = 'TURK',
+  Other = 'OTHER',
 }
 
 /**
  * Marital status enumeration
  */
 export enum MaritalStatus {
-  Unknown = "UNKNOWN",
-  Single = "SINGLE",
-  Married = "MARRIED",
+  Unknown = 'UNKNOWN',
+  Single = 'SINGLE',
+  Married = 'MARRIED',
 }
 
 /**
  * Job/occupation enumeration
  */
 export enum Job {
-  Unknown = "UNKNOWN",
-  Banker = "BANKER",
-  CorporateEmployee = "CORPORATE_EMPLOYEE",
-  LtdEmployee = "LTD_EMPLOYEE",
-  Police = "POLICE",
-  MilitaryPersonnel = "MILITARY_PERSONNEL",
-  RetiredSpouse = "RETIRED_SPOUSE",
-  Teacher = "TEACHER",
-  Doctor = "DOCTOR",
-  Pharmacist = "PHARMACIST",
-  Nurse = "NURSE",
-  HealthcareWorker = "HEALTHCARE_WORKER",
-  Lawyer = "LAWYER",
-  Judge = "JUDGE",
-  Prosecutor = "PROSECUTOR",
-  Freelancer = "FREELANCER",
-  Farmer = "FARMER",
-  Instructor = "INSTRUCTOR",
-  ReligiousOfficial = "RELIGIOUS_OFFICIAL",
-  AssociationManager = "ASSOCIATION_MANAGER",
-  Officer = "OFFICER",
-  Retired = "RETIRED",
-  Housewife = "HOUSEWIFE",
+  Unknown = 'UNKNOWN',
+  Banker = 'BANKER',
+  CorporateEmployee = 'CORPORATE_EMPLOYEE',
+  LtdEmployee = 'LTD_EMPLOYEE',
+  Police = 'POLICE',
+  MilitaryPersonnel = 'MILITARY_PERSONNEL',
+  RetiredSpouse = 'RETIRED_SPOUSE',
+  Teacher = 'TEACHER',
+  Doctor = 'DOCTOR',
+  Pharmacist = 'PHARMACIST',
+  Nurse = 'NURSE',
+  HealthcareWorker = 'HEALTHCARE_WORKER',
+  Lawyer = 'LAWYER',
+  Judge = 'JUDGE',
+  Prosecutor = 'PROSECUTOR',
+  Freelancer = 'FREELANCER',
+  Farmer = 'FARMER',
+  Instructor = 'INSTRUCTOR',
+  ReligiousOfficial = 'RELIGIOUS_OFFICIAL',
+  AssociationManager = 'ASSOCIATION_MANAGER',
+  Officer = 'OFFICER',
+  Retired = 'RETIRED',
+  Housewife = 'HOUSEWIFE',
 }
 
 /**
@@ -98,11 +98,11 @@ export enum Job {
  */
 export enum ContactFlowState {
   /** The contact flow is currently active and in progress */
-  Active = "ACTIVE",
+  Active = 'ACTIVE',
   /** The contact flow has completed successfully */
-  Succeeded = "SUCCEEDED",
+  Succeeded = 'SUCCEEDED',
   /** The contact flow has failed to complete successfully */
-  Failed = "FAILED",
+  Failed = 'FAILED',
 }
 
 /**
@@ -111,7 +111,7 @@ export enum ContactFlowState {
  */
 export enum ContactType {
   /** Contact via telephone or phone call */
-  PhoneCall = "PHONE_CALL",
+  PhoneCall = 'PHONE_CALL',
 }
 
 /**
@@ -120,35 +120,35 @@ export enum ContactType {
  */
 export enum ContactState {
   /** The contact has been planned or scheduled but not yet executed */
-  Planned = "PLANNED",
+  Planned = 'PLANNED',
   /** The contact has been successfully executed or completed */
-  Occurred = "OCCURRED",
+  Occurred = 'OCCURRED',
   /** The contact was planned but did not occur as scheduled */
-  NotOccurred = "NOT_OCCURRED",
+  NotOccurred = 'NOT_OCCURRED',
 }
 
 /**
  * Surgery enumeration for health data
  */
 export enum Surgery {
-  Other = "OTHER",
-  OrganTransplant = "ORGAN_TRANSPLANT",
-  BoneMarrowTransplant = "BONE_MARROW_TRANSPLANT",
-  HeartSurgery = "HEART_SURGERY",
-  BrainSurgery = "BRAIN_SURGERY",
+  Other = 'OTHER',
+  OrganTransplant = 'ORGAN_TRANSPLANT',
+  BoneMarrowTransplant = 'BONE_MARROW_TRANSPLANT',
+  HeartSurgery = 'HEART_SURGERY',
+  BrainSurgery = 'BRAIN_SURGERY',
 }
 
 /**
  * Disease enumeration for health data
  */
 export enum Disease {
-  Other = "OTHER",
-  KidneyFailure = "KIDNEY_FAILURE",
-  Cancer = "CANCER",
-  LiverDisease = "LIVER_DISEASE",
-  HeartFailure = "HEART_FAILURE",
-  HeartRhythmAndConductionDisorders = "HEART_RHYTHM_AND_CONDUCTION_DISORDERS",
-  ImmuneSystemDisorders = "IMMUNE_SYSTEM_DISORDERS",
+  Other = 'OTHER',
+  KidneyFailure = 'KIDNEY_FAILURE',
+  Cancer = 'CANCER',
+  LiverDisease = 'LIVER_DISEASE',
+  HeartFailure = 'HEART_FAILURE',
+  HeartRhythmAndConductionDisorders = 'HEART_RHYTHM_AND_CONDUCTION_DISORDERS',
+  ImmuneSystemDisorders = 'IMMUNE_SYSTEM_DISORDERS',
 }
 
 /**
@@ -157,9 +157,9 @@ export enum Disease {
  */
 export enum ConsentType {
   /** KVKK (Personal Data Protection Law) consent */
-  KVKK = "KVKK",
+  KVKK = 'KVKK',
   /** ETK (Electronic Commerce) consent */
-  ETK = "ETK",
+  ETK = 'ETK',
 }
 
 // ============================================================================

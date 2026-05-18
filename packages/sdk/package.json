@@ -50,8 +50,7 @@
     }
   },
   "scripts": {
-    "build": "tsup",
-    "build:tsc": "tsc",
+    "build": "tsup && tsc -p tsconfig.build.json",
     "check-types": "tsc --noEmit",
     "dev": "tsup --watch",
     "docs": "typedoc",
@@ -68,17 +67,17 @@
     "access": "public"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.2",
+    "@eslint/js": "^10.0.1",
     "@vitest/coverage-v8": "^4.1.6",
-    "eslint": "^9.39.2",
+    "eslint": "^10.4.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
-    "msw": "^2.12.7",
-    "prettier": "^3.8.0",
+    "msw": "^2.14.6",
+    "prettier": "^3.8.3",
     "tsup": "^8.5.1",
-    "typedoc": "^0.28.16",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.53.1",
+    "typedoc": "^0.28.19",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.3",
     "vitest": "^4.1.6"
   },
   "dependencies": {

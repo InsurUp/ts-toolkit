@@ -12,8 +12,8 @@ import type {
   ModelFilterInput,
   ModelSearchInput,
   GetQueryOptions,
-} from "./common.js";
-import type { DateTime, DateOnly } from "../common.date.js";
+} from './common.js';
+import type { DateTime, DateOnly } from '../common.date.js';
 
 import type {
   ProductBranch,
@@ -22,8 +22,8 @@ import type {
   PolicyState,
   Channel,
   CustomerType,
-} from "../common.js";
-import type { VehicleFuelType } from "../common.vehicle.js";
+} from '../common.js';
+import type { VehicleFuelType } from '../common.vehicle.js';
 
 // === Output Types ===
 
@@ -42,10 +42,10 @@ export interface PolicyUserReference {
 }
 
 export enum UserType {
-  None = "NONE",
-  AdminPanel = "ADMIN_PANEL",
-  Agent = "AGENT",
-  Customer = "CUSTOMER",
+  None = 'NONE',
+  AdminPanel = 'ADMIN_PANEL',
+  Agent = 'AGENT',
+  Customer = 'CUSTOMER',
 }
 
 /** @meta */
@@ -118,15 +118,13 @@ export interface QueryPoliciesResult {
  * Filter input for QueryPoliciesResult.
  * Auto-generated from model fields using ModelFilterInput.
  */
-export type QueryPoliciesResultFilterInput =
-  ModelFilterInput<QueryPoliciesResult>;
+export type QueryPoliciesResultFilterInput = ModelFilterInput<QueryPoliciesResult>;
 
 /**
  * Search input for QueryPoliciesResult.
  * Auto-generated from model fields using ModelSearchInput.
  */
-export type QueryPoliciesResultSearchInput =
-  ModelSearchInput<QueryPoliciesResult>;
+export type QueryPoliciesResultSearchInput = ModelSearchInput<QueryPoliciesResult>;
 
 /**
  * Sort input for QueryPoliciesResult.
@@ -161,78 +159,78 @@ export type PolicyFieldKey = DeepFieldKeys<QueryPoliciesResult>;
  */
 export const ALL_POLICY_FIELDS = [
   // Primitive fields
-  "agentBranchId",
-  "id",
-  "insurerCustomerId",
-  "insuredCustomerId",
-  "installmentNumber",
-  "productBranch",
-  "netPremium",
-  "grossPremium",
-  "commission",
-  "paymentType",
-  "currency",
-  "insuranceCompanyProposalNumber",
-  "insuranceCompanyPolicyNumber",
-  "createdAt",
-  "startDate",
-  "endDate",
-  "arrangementDate",
-  "insuredCustomerName",
-  "insuredCustomerIdentityNumber",
-  "insuredCustomerTaxNumber",
-  "insuredCustomerType",
-  "insuredCustomerCityText",
-  "insuredCustomerCityValue",
-  "insuredCustomerDistrictText",
-  "insuredCustomerDistrictValue",
-  "insuredCustomerBirthDate",
-  "insurerCustomerName",
-  "insurerCustomerIdentityNumber",
-  "insurerCustomerTaxNumber",
-  "insurerCustomerCityText",
-  "insurerCustomerCityValue",
-  "insurerCustomerDistrictText",
-  "insurerCustomerDistrictValue",
-  "insurerCustomerBirthDate",
-  "vehiclePlateCode",
-  "vehiclePlateCity",
-  "vehicleDocumentSerialCode",
-  "vehicleDocumentSerialNumber",
-  "vehicleModelBrandText",
-  "vehicleModelBrandValue",
-  "vehicleModelTypeText",
-  "vehicleModelTypeValue",
-  "vehicleModelYear",
-  "vehicleFuelType",
-  "productId",
-  "productName",
-  "insuranceCompanyId",
-  "insuranceCompanyName",
-  "insuranceCompanyLogo",
-  "state",
-  "propertyNumber",
-  "daskOldPolicyNumber",
-  "daskPolicyNumber",
-  "vehicleId",
-  "propertyId",
-  "channel",
-  "campaign",
+  'agentBranchId',
+  'id',
+  'insurerCustomerId',
+  'insuredCustomerId',
+  'installmentNumber',
+  'productBranch',
+  'netPremium',
+  'grossPremium',
+  'commission',
+  'paymentType',
+  'currency',
+  'insuranceCompanyProposalNumber',
+  'insuranceCompanyPolicyNumber',
+  'createdAt',
+  'startDate',
+  'endDate',
+  'arrangementDate',
+  'insuredCustomerName',
+  'insuredCustomerIdentityNumber',
+  'insuredCustomerTaxNumber',
+  'insuredCustomerType',
+  'insuredCustomerCityText',
+  'insuredCustomerCityValue',
+  'insuredCustomerDistrictText',
+  'insuredCustomerDistrictValue',
+  'insuredCustomerBirthDate',
+  'insurerCustomerName',
+  'insurerCustomerIdentityNumber',
+  'insurerCustomerTaxNumber',
+  'insurerCustomerCityText',
+  'insurerCustomerCityValue',
+  'insurerCustomerDistrictText',
+  'insurerCustomerDistrictValue',
+  'insurerCustomerBirthDate',
+  'vehiclePlateCode',
+  'vehiclePlateCity',
+  'vehicleDocumentSerialCode',
+  'vehicleDocumentSerialNumber',
+  'vehicleModelBrandText',
+  'vehicleModelBrandValue',
+  'vehicleModelTypeText',
+  'vehicleModelTypeValue',
+  'vehicleModelYear',
+  'vehicleFuelType',
+  'productId',
+  'productName',
+  'insuranceCompanyId',
+  'insuranceCompanyName',
+  'insuranceCompanyLogo',
+  'state',
+  'propertyNumber',
+  'daskOldPolicyNumber',
+  'daskPolicyNumber',
+  'vehicleId',
+  'propertyId',
+  'channel',
+  'campaign',
   // Nested agentBranch fields
-  "agentBranch.id",
-  "agentBranch.name",
-  "agentBranch.parentId",
-  "agentBranch.parentName",
+  'agentBranch.id',
+  'agentBranch.name',
+  'agentBranch.parentId',
+  'agentBranch.parentName',
   // Nested createdBy fields
-  "createdBy.id",
-  "createdBy.name",
-  "createdBy.email",
-  "createdBy.userType",
+  'createdBy.id',
+  'createdBy.name',
+  'createdBy.email',
+  'createdBy.userType',
   // Nested representedBy fields
-  "representedBy.id",
-  "representedBy.name",
-  "representedBy.email",
-  "representedBy.userType",
+  'representedBy.id',
+  'representedBy.name',
+  'representedBy.email',
+  'representedBy.userType',
 ] as const satisfies readonly PolicyFieldKey[];
 
 /**
@@ -246,12 +244,13 @@ export type PickPolicyFields<T extends readonly PolicyFieldKey[]> = PickFields<
 /**
  * Type-safe connection result based on selected fields
  */
-export interface SelectedPoliciesConnection<
-  TFields extends PolicyFieldKey[],
-> extends Omit<PoliciesConnection, "nodes" | "edges"> {
+export interface SelectedPoliciesConnection<TFields extends PolicyFieldKey[]> extends Omit<
+  PoliciesConnection,
+  'nodes' | 'edges'
+> {
   nodes?: (PickPolicyFields<TFields> | null)[] | null;
   edges?:
-    | (Omit<PoliciesEdge, "node"> & {
+    | (Omit<PoliciesEdge, 'node'> & {
         node?: PickPolicyFields<TFields> | null;
       })[]
     | null;

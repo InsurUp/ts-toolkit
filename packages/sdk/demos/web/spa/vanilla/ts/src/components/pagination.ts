@@ -47,24 +47,24 @@ export function renderPagination(
       ${paginationInfo}
     </div>
     <div class="pagination-controls">
-      <button class="secondary outline pagination-first" ${currentPage === 1 ? "disabled" : ""}>
+      <button class="secondary outline pagination-first" ${currentPage === 1 ? 'disabled' : ''}>
         First
       </button>
-      <button class="secondary outline pagination-prev" ${!pageInfo.hasPreviousPage ? "disabled" : ""}>
+      <button class="secondary outline pagination-prev" ${!pageInfo.hasPreviousPage ? 'disabled' : ''}>
         Previous
       </button>
-      <button class="secondary outline pagination-next" ${!pageInfo.hasNextPage ? "disabled" : ""}>
+      <button class="secondary outline pagination-next" ${!pageInfo.hasNextPage ? 'disabled' : ''}>
         Next
       </button>
     </div>
   `;
 
   // Attach event listeners
-  const firstBtn = container.querySelector(".pagination-first");
-  const prevBtn = container.querySelector(".pagination-prev");
-  const nextBtn = container.querySelector(".pagination-next");
+  const firstBtn = container.querySelector('.pagination-first');
+  const prevBtn = container.querySelector('.pagination-prev');
+  const nextBtn = container.querySelector('.pagination-next');
 
-  firstBtn?.addEventListener("click", async () => {
+  firstBtn?.addEventListener('click', async () => {
     setButtonLoading(firstBtn, true);
     try {
       await onFirst();
@@ -73,7 +73,7 @@ export function renderPagination(
     }
   });
 
-  prevBtn?.addEventListener("click", async () => {
+  prevBtn?.addEventListener('click', async () => {
     setButtonLoading(prevBtn, true);
     try {
       await onPrevious();
@@ -82,7 +82,7 @@ export function renderPagination(
     }
   });
 
-  nextBtn?.addEventListener("click", async () => {
+  nextBtn?.addEventListener('click', async () => {
     if (pageInfo.endCursor) {
       setButtonLoading(nextBtn, true);
       try {
@@ -100,9 +100,9 @@ export function renderPagination(
 function setButtonLoading(button: Element | null, loading: boolean): void {
   if (!button) return;
   if (loading) {
-    button.setAttribute("aria-busy", "true");
+    button.setAttribute('aria-busy', 'true');
   } else {
-    button.removeAttribute("aria-busy");
+    button.removeAttribute('aria-busy');
   }
 }
 

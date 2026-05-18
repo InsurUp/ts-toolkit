@@ -3,7 +3,7 @@
  * @module version
  */
 
-import pkg from "../package.json" with { type: "json" };
+import pkg from '../package.json' with { type: 'json' };
 
 /**
  * The current version of the InsurUp SDK.

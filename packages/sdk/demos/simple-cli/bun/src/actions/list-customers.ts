@@ -2,18 +2,18 @@
  * List customers action - browse customers with pagination.
  */
 
-import color from "picocolors";
-import { client } from "../client";
-import { createPaginator } from "../pagination";
-import type { Action } from "./index";
+import color from 'picocolors';
+import { client } from '../client';
+import { createPaginator } from '../pagination';
+import type { Action } from './index';
 
 const PAGE_SIZE = 10;
 
 export const action: Action = {
-  id: "list-customers",
-  label: color.cyan("List customers"),
-  hint: "Browse customers with pagination",
-  showWhen: "authenticated",
+  id: 'list-customers',
+  label: color.cyan('List customers'),
+  hint: 'Browse customers with pagination',
+  showWhen: 'authenticated',
 
   async execute() {
     try {
@@ -22,11 +22,19 @@ export const action: Action = {
           const res = await client.customers.getCustomers({
             first: PAGE_SIZE,
             after: cursor ?? undefined,
-            select: ["id", "name", "identityNumber", "taxNumber", "primaryEmail", "type", "createdAt"] as const,
+            select: [
+              'id',
+              'name',
+              'identityNumber',
+              'taxNumber',
+              'primaryEmail',
+              'type',
+              'createdAt',
+            ] as const,
           });
 
           if (!res.isSuccess || !res.data) {
-            throw new Error(res.message || "Failed to fetch customers");
+            throw new Error(res.message || 'Failed to fetch customers');
           }
 
           return {
@@ -43,19 +51,23 @@ export const action: Action = {
 
         if (customers.length === 0) {
           console.log();
-          console.log(color.dim("  No customers found"));
+          console.log(color.dim('  No customers found'));
           console.log();
           return;
         }
 
         console.log();
-        console.log(`  ${color.bold("Customers")} (${customers.length} of ${data.totalCount.toLocaleString()})`);
+        console.log(
+          `  ${color.bold('Customers')} (${customers.length} of ${data.totalCount.toLocaleString()})`
+        );
         console.log();
         console.log(JSON.stringify(customers, null, 2));
         console.log();
       });
     } catch (error) {
-      console.log(`  ${color.red("✗")} ${error instanceof Error ? error.message : "Unknown error"}`);
+      console.log(
+        `  ${color.red('✗')} ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   },
 };

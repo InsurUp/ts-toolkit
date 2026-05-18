@@ -2,12 +2,12 @@
  * Create customer page.
  */
 
-import { getClient } from "../../client";
-import { showSuccess, showError } from "../../components/toast";
-import { navigate } from "../../utils/router";
-import { CustomerType, type CreateCustomerRequest } from "@insurup/contracts";
+import { getClient } from '../../client';
+import { showSuccess, showError } from '../../components/toast';
+import { navigate } from '../../utils/router';
+import { CustomerType, type CreateCustomerRequest } from '@insurup/contracts';
 
-type FormCustomerType = "Individual" | "Company" | "Foreign";
+type FormCustomerType = 'Individual' | 'Company' | 'Foreign';
 
 export async function render(container: HTMLElement): Promise<void> {
   container.innerHTML = `
@@ -97,89 +97,89 @@ export async function render(container: HTMLElement): Promise<void> {
     </div>
   `;
 
-  const form = container.querySelector("#create-customer-form") as HTMLFormElement;
+  const form = container.querySelector('#create-customer-form') as HTMLFormElement;
   const typeRadios = form.querySelectorAll('input[name="type"]');
-  const individualFields = container.querySelector("#individual-fields") as HTMLElement;
-  const companyFields = container.querySelector("#company-fields") as HTMLElement;
-  const foreignFields = container.querySelector("#foreign-fields") as HTMLElement;
+  const individualFields = container.querySelector('#individual-fields') as HTMLElement;
+  const companyFields = container.querySelector('#company-fields') as HTMLElement;
+  const foreignFields = container.querySelector('#foreign-fields') as HTMLElement;
 
   // Toggle fields based on customer type
   function updateFieldVisibility(type: FormCustomerType): void {
-    individualFields.style.display = type === "Individual" ? "block" : "none";
-    companyFields.style.display = type === "Company" ? "block" : "none";
-    foreignFields.style.display = type === "Foreign" ? "block" : "none";
+    individualFields.style.display = type === 'Individual' ? 'block' : 'none';
+    companyFields.style.display = type === 'Company' ? 'block' : 'none';
+    foreignFields.style.display = type === 'Foreign' ? 'block' : 'none';
 
     // Update required attributes
-    const indivInputs = individualFields.querySelectorAll("input");
-    const companyInputs = companyFields.querySelectorAll("input");
-    const foreignInputs = foreignFields.querySelectorAll("input");
+    const indivInputs = individualFields.querySelectorAll('input');
+    const companyInputs = companyFields.querySelectorAll('input');
+    const foreignInputs = foreignFields.querySelectorAll('input');
 
     indivInputs.forEach((i) => {
-      if (i.name === "fullName" || i.name === "identityNumber") {
-        i.required = type === "Individual";
+      if (i.name === 'fullName' || i.name === 'identityNumber') {
+        i.required = type === 'Individual';
       }
     });
     companyInputs.forEach((i) => {
-      if (i.name === "title" || i.name === "taxNumber") {
-        i.required = type === "Company";
+      if (i.name === 'title' || i.name === 'taxNumber') {
+        i.required = type === 'Company';
       }
     });
     foreignInputs.forEach((i) => {
-      if (i.name === "foreignFullName" || i.name === "foreignIdentityNumber") {
-        i.required = type === "Foreign";
+      if (i.name === 'foreignFullName' || i.name === 'foreignIdentityNumber') {
+        i.required = type === 'Foreign';
       }
     });
   }
 
   typeRadios.forEach((radio) => {
-    radio.addEventListener("change", (e) => {
+    radio.addEventListener('change', (e) => {
       const type = (e.target as HTMLInputElement).value as FormCustomerType;
       updateFieldVisibility(type);
     });
   });
 
   // Handle form submission
-  form.addEventListener("submit", async (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
-    submitBtn.setAttribute("aria-busy", "true");
+    submitBtn.setAttribute('aria-busy', 'true');
     submitBtn.disabled = true;
 
     try {
       const formData = new FormData(form);
-      const type = formData.get("type") as FormCustomerType;
+      const type = formData.get('type') as FormCustomerType;
 
       // Build request based on type
       let request: CreateCustomerRequest;
 
-      if (type === "Individual") {
+      if (type === 'Individual') {
         request = {
           type: CustomerType.Individual,
-          identityNumber: formData.get("identityNumber") as string,
-          fullName: (formData.get("fullName") as string) || undefined,
-          birthDate: (formData.get("birthDate") as string) || undefined,
+          identityNumber: formData.get('identityNumber') as string,
+          fullName: (formData.get('fullName') as string) || undefined,
+          birthDate: (formData.get('birthDate') as string) || undefined,
           fillMissingFields: true,
         };
-      } else if (type === "Company") {
+      } else if (type === 'Company') {
         request = {
           type: CustomerType.Company,
-          title: formData.get("title") as string,
-          taxNumber: formData.get("taxNumber") as string,
+          title: formData.get('title') as string,
+          taxNumber: formData.get('taxNumber') as string,
           fillMissingFields: true,
         };
       } else {
         request = {
           type: CustomerType.Foreign,
-          identityNumber: formData.get("foreignIdentityNumber") as string,
-          fullName: (formData.get("foreignFullName") as string) || undefined,
-          birthDate: (formData.get("foreignBirthDate") as string) || undefined,
+          identityNumber: formData.get('foreignIdentityNumber') as string,
+          fullName: (formData.get('foreignFullName') as string) || undefined,
+          birthDate: (formData.get('foreignBirthDate') as string) || undefined,
           fillMissingFields: true,
         };
       }
 
       // Add optional contact info
-      const email = formData.get("email") as string;
+      const email = formData.get('email') as string;
       if (email) {
         request.email = email;
       }
@@ -188,16 +188,16 @@ export async function render(container: HTMLElement): Promise<void> {
       const res = await client.customers.createCustomer(request);
 
       if (!res.isSuccess) {
-        throw new Error(res.message || "Failed to create customer");
+        throw new Error(res.message || 'Failed to create customer');
       }
 
-      showSuccess("Customer created successfully!");
-      navigate(`/customers/${res.data?.id || ""}`);
+      showSuccess('Customer created successfully!');
+      navigate(`/customers/${res.data?.id || ''}`);
     } catch (error) {
-      console.error("Failed to create customer:", error);
-      showError(error instanceof Error ? error.message : "Failed to create customer");
+      console.error('Failed to create customer:', error);
+      showError(error instanceof Error ? error.message : 'Failed to create customer');
     } finally {
-      submitBtn.removeAttribute("aria-busy");
+      submitBtn.removeAttribute('aria-busy');
       submitBtn.disabled = false;
     }
   });

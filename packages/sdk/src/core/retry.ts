@@ -3,7 +3,7 @@
  * @description Provides configurable backoff strategies with jitter, zero-dependency replacement for p-retry
  */
 
-import type { RetryOptions } from "./options.js";
+import type { RetryOptions } from './options.js';
 
 /**
  * Executes a function with configurable backoff retry logic
@@ -15,17 +15,10 @@ import type { RetryOptions } from "./options.js";
  */
 export async function withRetry<T>(
   fn: (attemptNumber: number) => Promise<T>,
-  options: Required<RetryOptions>,
+  options: Required<RetryOptions>
 ): Promise<T> {
-  const {
-    retries,
-    factor,
-    minTimeout,
-    maxTimeout,
-    randomize,
-    backoffStrategy,
-    onFailedAttempt,
-  } = options;
+  const { retries, factor, minTimeout, maxTimeout, randomize, backoffStrategy, onFailedAttempt } =
+    options;
 
   let attempt = 1;
 
@@ -42,13 +35,13 @@ export async function withRetry<T>(
       // Calculate delay based on backoff strategy
       let delay: number;
       switch (backoffStrategy) {
-        case "linear":
+        case 'linear':
           delay = minTimeout * attempt;
           break;
-        case "constant":
+        case 'constant':
           delay = minTimeout;
           break;
-        case "exponential":
+        case 'exponential':
         default:
           delay = minTimeout * Math.pow(factor, attempt - 1);
       }
@@ -67,7 +60,7 @@ export async function withRetry<T>(
         onFailedAttempt({
           attemptNumber: attempt,
           retriesLeft: retries - attempt + 1,
-          name: error instanceof Error ? error.name : "Error",
+          name: error instanceof Error ? error.name : 'Error',
           message: error instanceof Error ? error.message : String(error),
           error: error instanceof Error ? error : new Error(String(error)),
         });

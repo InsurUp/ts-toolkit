@@ -2,9 +2,9 @@
  * InsurUp SDK client for Svelte.
  */
 
-import { DefaultInsurUpClient } from "@insurup/sdk";
-import { getConfig } from "$lib/config";
-import { getAccessToken } from "$lib/auth/oauth";
+import { DefaultInsurUpClient } from '@insurup/sdk';
+import { getConfig } from '$lib/config';
+import { getAccessToken } from '$lib/auth/oauth';
 
 let clientInstance: DefaultInsurUpClient | null = null;
 

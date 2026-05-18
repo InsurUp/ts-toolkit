@@ -7,33 +7,33 @@
  * Client-side error types that can occur during API operations
  */
 export enum InsurUpClientErrorType {
-  Unknown = "Unknown",
-  JsonSerialization = "JsonSerialization",
-  JsonDeserialization = "JsonDeserialization",
-  NullResponse = "NullResponse",
-  Timeout = "Timeout",
-  HttpRequestFailed = "HttpRequestFailed",
-  UnexpectedNoContent = "UnexpectedNoContent",
-  GraphQLError = "GraphQLError",
+  Unknown = 'Unknown',
+  JsonSerialization = 'JsonSerialization',
+  JsonDeserialization = 'JsonDeserialization',
+  NullResponse = 'NullResponse',
+  Timeout = 'Timeout',
+  HttpRequestFailed = 'HttpRequestFailed',
+  UnexpectedNoContent = 'UnexpectedNoContent',
+  GraphQLError = 'GraphQLError',
 }
 
 /**
  * Server-side error types from HTTP responses
  */
 export enum InsurUpServerErrorType {
-  Unknown = "Unknown",
-  AccessDenied = "AccessDenied",
-  BusinessValidation = "BusinessValidation",
-  FeatureNotSupported = "FeatureNotSupported",
-  InputValidation = "InputValidation",
-  ResourceDuplicate = "ResourceDuplicate",
-  ResourceInvalidState = "ResourceInvalidState",
-  ResourceNotFound = "ResourceNotFound",
-  EndpointNotFound = "EndpointNotFound",
-  UnsupportedMediaType = "UnsupportedMediaType",
-  MethodNotAllowed = "MethodNotAllowed",
-  Unauthorized = "Unauthorized",
-  Upstream = "Upstream",
+  Unknown = 'Unknown',
+  AccessDenied = 'AccessDenied',
+  BusinessValidation = 'BusinessValidation',
+  FeatureNotSupported = 'FeatureNotSupported',
+  InputValidation = 'InputValidation',
+  ResourceDuplicate = 'ResourceDuplicate',
+  ResourceInvalidState = 'ResourceInvalidState',
+  ResourceNotFound = 'ResourceNotFound',
+  EndpointNotFound = 'EndpointNotFound',
+  UnsupportedMediaType = 'UnsupportedMediaType',
+  MethodNotAllowed = 'MethodNotAllowed',
+  Unauthorized = 'Unauthorized',
+  Upstream = 'Upstream',
 }
 
 /**
@@ -42,27 +42,27 @@ export enum InsurUpServerErrorType {
  */
 export enum InsurUpGraphQLErrorCode {
   /** Access denied - user lacks permission */
-  Forbidden = "FORBIDDEN",
+  Forbidden = 'FORBIDDEN',
   /** Authentication required or invalid */
-  Unauthorized = "UNAUTHORIZED",
+  Unauthorized = 'UNAUTHORIZED',
   /** Requested resource not found */
-  NotFound = "NOT_FOUND",
+  NotFound = 'NOT_FOUND',
   /** Invalid input or business validation failure */
-  BadRequest = "BAD_REQUEST",
+  BadRequest = 'BAD_REQUEST',
   /** Resource conflict (duplicate or invalid state) */
-  Conflict = "CONFLICT",
+  Conflict = 'CONFLICT',
   /** Feature not supported */
-  NotSupported = "NOT_SUPPORTED",
+  NotSupported = 'NOT_SUPPORTED',
   /** Upstream service error */
-  UpstreamError = "UPSTREAM_ERROR",
+  UpstreamError = 'UPSTREAM_ERROR',
   /** Internal server error */
-  InternalError = "INTERNAL_ERROR",
+  InternalError = 'INTERNAL_ERROR',
   /** GraphQL validation error */
-  ValidationError = "VALIDATION_ERROR",
+  ValidationError = 'VALIDATION_ERROR',
   /** Filter is required for this query */
-  FilterRequired = "FILTER_REQUIRED",
+  FilterRequired = 'FILTER_REQUIRED',
   /** Filter time span exceeds maximum allowed */
-  FilterMaxSpanExceeded = "FILTER_MAX_SPAN_EXCEEDED",
+  FilterMaxSpanExceeded = 'FILTER_MAX_SPAN_EXCEEDED',
   /** Unknown error code */
-  Unknown = "UNKNOWN",
+  Unknown = 'UNKNOWN',
 }

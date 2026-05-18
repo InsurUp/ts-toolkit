@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { DialogTitle } from "reka-ui";
-import { cn } from "@/lib/utils";
+import { DialogTitle } from 'reka-ui';
+import { cn } from '@/lib/utils';
 
 interface Props {
   class?: string;

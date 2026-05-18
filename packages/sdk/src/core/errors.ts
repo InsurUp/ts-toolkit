@@ -3,46 +3,29 @@
  * @description Error type mapping and parsing logic
  */
 
-import {
-  InsurUpServerErrorType,
-  InsurUpClientErrorType,
-} from "./error-types.js";
-import type {
-  ValidationError} from "./result.js";
-import {
-  type ServerError,
-  type ClientError,
-  type GraphQLErrors,
-} from "./result.js";
+import { InsurUpServerErrorType, InsurUpClientErrorType } from './error-types.js';
+import type { ValidationError } from './result.js';
+import { type ServerError, type ClientError, type GraphQLErrors } from './result.js';
 
 /**
  * Error type URLs from the API
  */
 const ERROR_TYPE_URLS = {
-  "https://api.insurup.com/problems/access-denied":
-    InsurUpServerErrorType.AccessDenied,
-  "https://api.insurup.com/problems/business-validation":
-    InsurUpServerErrorType.BusinessValidation,
-  "https://api.insurup.com/problems/feature-not-supported":
+  'https://api.insurup.com/problems/access-denied': InsurUpServerErrorType.AccessDenied,
+  'https://api.insurup.com/problems/business-validation': InsurUpServerErrorType.BusinessValidation,
+  'https://api.insurup.com/problems/feature-not-supported':
     InsurUpServerErrorType.FeatureNotSupported,
-  "https://api.insurup.com/problems/input-validation":
-    InsurUpServerErrorType.InputValidation,
-  "https://api.insurup.com/problems/resource-duplicate":
-    InsurUpServerErrorType.ResourceDuplicate,
-  "https://api.insurup.com/problems/resource-invalid-state":
+  'https://api.insurup.com/problems/input-validation': InsurUpServerErrorType.InputValidation,
+  'https://api.insurup.com/problems/resource-duplicate': InsurUpServerErrorType.ResourceDuplicate,
+  'https://api.insurup.com/problems/resource-invalid-state':
     InsurUpServerErrorType.ResourceInvalidState,
-  "https://api.insurup.com/problems/resource-not-found":
-    InsurUpServerErrorType.ResourceNotFound,
-  "https://api.insurup.com/problems/endpoint-not-found":
-    InsurUpServerErrorType.EndpointNotFound,
-  "https://api.insurup.com/problems/unauthorized":
-    InsurUpServerErrorType.Unauthorized,
-  "https://api.insurup.com/problems/upstream-service":
-    InsurUpServerErrorType.Upstream,
-  "https://api.insurup.com/problems/unsupported-media-type":
+  'https://api.insurup.com/problems/resource-not-found': InsurUpServerErrorType.ResourceNotFound,
+  'https://api.insurup.com/problems/endpoint-not-found': InsurUpServerErrorType.EndpointNotFound,
+  'https://api.insurup.com/problems/unauthorized': InsurUpServerErrorType.Unauthorized,
+  'https://api.insurup.com/problems/upstream-service': InsurUpServerErrorType.Upstream,
+  'https://api.insurup.com/problems/unsupported-media-type':
     InsurUpServerErrorType.UnsupportedMediaType,
-  "https://api.insurup.com/problems/method-not-allowed":
-    InsurUpServerErrorType.MethodNotAllowed,
+  'https://api.insurup.com/problems/method-not-allowed': InsurUpServerErrorType.MethodNotAllowed,
 } as const;
 
 /**
@@ -85,7 +68,7 @@ function parseValidationErrors(
     propertyName?: string;
     errorMessage?: string;
     attemptedValue?: unknown;
-  }>,
+  }>
 ): ValidationError[] {
   if (!validationErrors || !Array.isArray(validationErrors)) {
     return [];
@@ -95,27 +78,24 @@ function parseValidationErrors(
     .filter((error): error is NonNullable<typeof error> => error != null)
     .map(
       (error): ValidationError => ({
-        propertyName: error.propertyName ?? "",
-        errorMessage: error.errorMessage ?? "",
+        propertyName: error.propertyName ?? '',
+        errorMessage: error.errorMessage ?? '',
         attemptedValue: error.attemptedValue ?? null,
-      }),
+      })
     );
 }
 
 /**
  * Parses server error response and creates a ServerError object
  */
-export function parseServerError(
-  response: Response,
-  responseBody: string,
-): ServerError {
+export function parseServerError(response: Response, responseBody: string): ServerError {
   let errorData: ServerErrorResponse = {};
 
   // Try to parse JSON response body
   try {
     if (responseBody.trim()) {
       const parsed = JSON.parse(responseBody) as unknown;
-      if (typeof parsed === "object" && parsed !== null) {
+      if (typeof parsed === 'object' && parsed !== null) {
         errorData = parsed as ServerErrorResponse;
       }
     }
@@ -123,24 +103,22 @@ export function parseServerError(
     // If JSON parsing fails, create minimal error info from response
   }
 
-  const typeString =
-    errorData.type ?? "https://api.insurup.com/problems/unknown";
+  const typeString = errorData.type ?? 'https://api.insurup.com/problems/unknown';
   const type = mapServerErrorType(typeString);
 
   return {
-    kind: "server-error",
+    kind: 'server-error',
     isSuccess: false,
-    message:
-      errorData.detail ?? (response.statusText || "Unknown server error"),
+    message: errorData.detail ?? (response.statusText || 'Unknown server error'),
     type,
     typeString,
     title: errorData.title ?? `HTTP ${response.status}`,
-    detail: errorData.detail ?? (response.statusText || "Unknown server error"),
-    instance: errorData.instance ?? "",
+    detail: errorData.detail ?? (response.statusText || 'Unknown server error'),
+    instance: errorData.instance ?? '',
     status: errorData.status ?? response.status,
     codes: errorData.codes ?? [],
     traceId: errorData.traceId ?? undefined,
-    template: errorData.template ?? "",
+    template: errorData.template ?? '',
     templateArgs: errorData.templateArgs ?? {},
     suggestions: errorData.suggestions ?? [],
     validationErrors: parseValidationErrors(errorData.validationErrors),
@@ -152,11 +130,11 @@ export function parseServerError(
  */
 export function createNetworkError(error: unknown): ClientError {
   if (error instanceof Error) {
-    if (error.name === "AbortError" || error.message.includes("timeout")) {
+    if (error.name === 'AbortError' || error.message.includes('timeout')) {
       return {
-        kind: "client-error",
+        kind: 'client-error',
         isSuccess: false,
-        message: "Request timed out",
+        message: 'Request timed out',
         type: InsurUpClientErrorType.Timeout,
         error: error,
       };
@@ -164,17 +142,17 @@ export function createNetworkError(error: unknown): ClientError {
 
     const messageLower = error.message.toLowerCase();
     if (
-      error.name === "TypeError" ||
-      messageLower.includes("fetch") ||
-      messageLower.includes("network") ||
-      messageLower.includes("failed") ||
-      messageLower.includes("econn") ||
-      messageLower.includes("enotfound")
+      error.name === 'TypeError' ||
+      messageLower.includes('fetch') ||
+      messageLower.includes('network') ||
+      messageLower.includes('failed') ||
+      messageLower.includes('econn') ||
+      messageLower.includes('enotfound')
     ) {
       return {
-        kind: "client-error",
+        kind: 'client-error',
         isSuccess: false,
-        message: "HTTP request failed",
+        message: 'HTTP request failed',
         type: InsurUpClientErrorType.HttpRequestFailed,
         error: error,
       };
@@ -182,18 +160,18 @@ export function createNetworkError(error: unknown): ClientError {
 
     // Default other Error instances to HttpRequestFailed for better DX
     return {
-      kind: "client-error",
+      kind: 'client-error',
       isSuccess: false,
-      message: "HTTP request failed",
+      message: 'HTTP request failed',
       type: InsurUpClientErrorType.HttpRequestFailed,
       error: error,
     };
   }
 
   return {
-    kind: "client-error",
+    kind: 'client-error',
     isSuccess: false,
-    message: "Unknown error occurred",
+    message: 'Unknown error occurred',
     type: InsurUpClientErrorType.Unknown,
     error: error,
   };
@@ -204,12 +182,9 @@ export function createNetworkError(error: unknown): ClientError {
  */
 export function createSerializationError(error: unknown): ClientError {
   return {
-    kind: "client-error",
+    kind: 'client-error',
     isSuccess: false,
-    message:
-      error instanceof Error
-        ? error.message
-        : "Failed to serialize request to JSON",
+    message: error instanceof Error ? error.message : 'Failed to serialize request to JSON',
     type: InsurUpClientErrorType.JsonSerialization,
     error: error,
   };
@@ -220,9 +195,9 @@ export function createSerializationError(error: unknown): ClientError {
  */
 export function createDeserializationError(error: unknown): ClientError {
   return {
-    kind: "client-error",
+    kind: 'client-error',
     isSuccess: false,
-    message: "Failed to parse response JSON",
+    message: 'Failed to parse response JSON',
     type: InsurUpClientErrorType.JsonDeserialization,
     error: error,
   };
@@ -233,9 +208,9 @@ export function createDeserializationError(error: unknown): ClientError {
  */
 export function createNullResponseError(): ClientError {
   return {
-    kind: "client-error",
+    kind: 'client-error',
     isSuccess: false,
-    message: "Response was empty or null when data was expected",
+    message: 'Response was empty or null when data was expected',
     type: InsurUpClientErrorType.NullResponse,
   };
 }
@@ -246,22 +221,20 @@ export function createNullResponseError(): ClientError {
  */
 export function createUnexpectedNoContentError(): ClientError {
   return {
-    kind: "client-error",
+    kind: 'client-error',
     isSuccess: false,
-    message: "Expected response data but received no content",
+    message: 'Expected response data but received no content',
     type: InsurUpClientErrorType.UnexpectedNoContent,
   };
 }
 
-export function extractError(
-  error: Error,
-): ClientError | ServerError | GraphQLErrors {
+export function extractError(error: Error): ClientError | ServerError | GraphQLErrors {
   if (error instanceof InsurUpError) {
     return error.error;
   }
 
   return {
-    kind: "client-error",
+    kind: 'client-error',
     isSuccess: false,
     message: error.message,
     type: InsurUpClientErrorType.Unknown,
@@ -279,7 +252,7 @@ export class InsurUpError extends Error {
 
   constructor(error: ClientError | ServerError | GraphQLErrors) {
     super(error.message);
-    this.name = "InsurUpError";
+    this.name = 'InsurUpError';
     this.error = error;
   }
 }

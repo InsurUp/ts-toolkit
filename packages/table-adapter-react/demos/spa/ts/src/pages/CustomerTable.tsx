@@ -1,6 +1,6 @@
-import { useDeferredValue, useState, useCallback } from "react";
-import { useCustomerTable } from "@insurup/table-adapter-react";
-import { flexRender } from "@tanstack/react-table";
+import { useDeferredValue, useState, useCallback } from 'react';
+import { useCustomerTable } from '@insurup/table-adapter-react';
+import { flexRender } from '@tanstack/react-table';
 import {
   DndContext,
   closestCenter,
@@ -9,17 +9,13 @@ import {
   useSensor,
   useSensors,
   type DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  horizontalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { useClient } from "@/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+} from '@dnd-kit/core';
+import { arrayMove, SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
+import { useClient } from '@/client';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -27,15 +23,9 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { DraggableTableHeader } from "@/components/DraggableTableHeader";
+} from '@/components/ui/dropdown-menu';
+import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
+import { DraggableTableHeader } from '@/components/DraggableTableHeader';
 import {
   ChevronLeft,
   ChevronRight,
@@ -45,12 +35,12 @@ import {
   ArrowDown,
   RefreshCw,
   Settings2,
-} from "lucide-react";
-import { toast } from "sonner";
+} from 'lucide-react';
+import { toast } from 'sonner';
 
 export function CustomerTable(): React.ReactElement {
   const client = useClient();
-  const [searchInput, setSearchInput] = useState("");
+  const [searchInput, setSearchInput] = useState('');
   const deferredSearch = useDeferredValue(searchInput);
 
   // useCustomerTable returns a fully configured table
@@ -58,8 +48,8 @@ export function CustomerTable(): React.ReactElement {
   // Changes to sorting/visibility trigger refetch via adapter's onStateChange
   const { state, table, adapter } = useCustomerTable({
     columns: (col) => [
-      col.id({ 
-        header: "ID", 
+      col.id({
+        header: 'ID',
         sortable: true,
         size: 280,
         minSize: 100,
@@ -67,39 +57,39 @@ export function CustomerTable(): React.ReactElement {
         enableResizing: true,
         enablePinning: true,
       }),
-      col.name({ 
-        header: "Name", 
+      col.name({
+        header: 'Name',
         sortable: true,
         size: 180,
         minSize: 100,
         maxSize: 300,
         enableResizing: true,
       }),
-      col.type({ 
-        header: "Type", 
+      col.type({
+        header: 'Type',
         sortable: true,
         size: 120,
         minSize: 80,
         maxSize: 200,
         enableResizing: true,
       }),
-      col.primaryEmail({ 
-        header: "Email", 
+      col.primaryEmail({
+        header: 'Email',
         sortable: true,
         size: 220,
         minSize: 150,
         maxSize: 350,
         enableResizing: true,
       }),
-      col.primaryPhoneNumber({ 
-        header: "Phone",
+      col.primaryPhoneNumber({
+        header: 'Phone',
         size: 140,
         minSize: 100,
         maxSize: 200,
         enableResizing: true,
       }),
-      col.createdAt({ 
-        header: "Created", 
+      col.createdAt({
+        header: 'Created',
         sortable: true,
         sortDescFirst: true, // Newest first when sorting
         size: 120,
@@ -116,7 +106,7 @@ export function CustomerTable(): React.ReactElement {
     },
     // Initial table options - state changes go through table instance directly
     tableOptions: {
-      columnResizeMode: "onChange",
+      columnResizeMode: 'onChange',
       enableColumnResizing: true,
       debugTable: true,
       debugHeaders: true,
@@ -137,18 +127,18 @@ export function CustomerTable(): React.ReactElement {
   // Get column IDs for sortable context (from table state)
   // Computed on each render - re-renders are triggered by adapter state changes
   const tableColumnOrder = table.getState().columnOrder;
-  const columnIds = tableColumnOrder.length > 0 
-    ? tableColumnOrder 
-    : table.getAllLeafColumns().map((c) => c.id);
+  const columnIds =
+    tableColumnOrder.length > 0 ? tableColumnOrder : table.getAllLeafColumns().map((c) => c.id);
 
   // Handle drag end for column reordering - use table.setColumnOrder directly
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
       const { active, over } = event;
       if (over && active.id !== over.id) {
-        const currentOrder = table.getState().columnOrder.length > 0
-          ? table.getState().columnOrder
-          : table.getAllLeafColumns().map((c) => c.id);
+        const currentOrder =
+          table.getState().columnOrder.length > 0
+            ? table.getState().columnOrder
+            : table.getAllLeafColumns().map((c) => c.id);
         const oldIndex = currentOrder.indexOf(active.id as string);
         const newIndex = currentOrder.indexOf(over.id as string);
         table.setColumnOrder(arrayMove(currentOrder, oldIndex, newIndex));
@@ -173,12 +163,10 @@ export function CustomerTable(): React.ReactElement {
 
   const handleRefresh = useCallback((): void => {
     adapter.invalidate();
-    toast.success("Refreshing data...");
+    toast.success('Refreshing data...');
   }, [adapter]);
 
-  const getSortIcon = (
-    columnId: string
-  ): React.ReactElement => {
+  const getSortIcon = (columnId: string): React.ReactElement => {
     const sorting = table.getState().sorting;
     const sortItem = sorting.find((s) => s.id === columnId);
     if (!sortItem) {
@@ -201,7 +189,7 @@ export function CustomerTable(): React.ReactElement {
           </p>
         </div>
         <Button variant="outline" onClick={handleRefresh} disabled={state.isFetching}>
-          <RefreshCw className={`mr-2 h-4 w-4 ${state.isFetching ? "animate-spin" : ""}`} />
+          <RefreshCw className={`mr-2 h-4 w-4 ${state.isFetching ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
       </div>
@@ -224,7 +212,8 @@ export function CustomerTable(): React.ReactElement {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {table.getAllColumns()
+            {table
+              .getAllColumns()
               .filter((column) => column.getCanHide())
               .map((column) => (
                 <DropdownMenuCheckboxItem
@@ -239,25 +228,22 @@ export function CustomerTable(): React.ReactElement {
         </DropdownMenu>
       </div>
 
-      <div className={searchInput !== deferredSearch ? "opacity-70" : "opacity-100"}>
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
+      <div className={searchInput !== deferredSearch ? 'opacity-70' : 'opacity-100'}>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <Table className="w-full table-fixed">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
-                  <SortableContext
-                    items={columnIds}
-                    strategy={horizontalListSortingStrategy}
-                  >
+                  <SortableContext items={columnIds} strategy={horizontalListSortingStrategy}>
                     {headerGroup.headers.map((header) => (
                       <DraggableTableHeader
                         key={header.id}
                         header={header}
-                        onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
+                        onClick={
+                          header.column.getCanSort()
+                            ? header.column.getToggleSortingHandler()
+                            : undefined
+                        }
                       >
                         {header.isPlaceholder
                           ? null
@@ -269,55 +255,52 @@ export function CustomerTable(): React.ReactElement {
                 </TableRow>
               ))}
             </TableHeader>
-          <TableBody>
-            {state.isLoading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <TableRow key={`skeleton-${i}`}>
-                  {table.getAllColumns().map((col) => (
-                    <TableCell key={col.id} className="overflow-hidden">
-                      <Skeleton className="h-4 w-full" />
-                    </TableCell>
-                  ))}
+            <TableBody>
+              {state.isLoading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <TableRow key={`skeleton-${i}`}>
+                    {table.getAllColumns().map((col) => (
+                      <TableCell key={col.id} className="overflow-hidden">
+                        <Skeleton className="h-4 w-full" />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : state.error ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={table.getAllColumns().length}
+                    className="h-24 text-center text-destructive"
+                  >
+                    Error: {state.error.message}
+                  </TableCell>
                 </TableRow>
-              ))
-            ) : state.error ? (
-              <TableRow>
-                <TableCell
-                  colSpan={table.getAllColumns().length}
-                  className="h-24 text-center text-destructive"
-                >
-                  Error: {state.error.message}
-                </TableCell>
-              </TableRow>
-            ) : table.getRowModel().rows.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={table.getAllColumns().length}
-                  className="h-24 text-center"
-                >
-                  No customers found.
-                </TableCell>
-              </TableRow>
-            ) : (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} className="hover:bg-muted/50">
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="overflow-hidden truncate">
-                      {cell.column.id === "type" ? (
-                        <Badge variant="outline">
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </Badge>
-                      ) : cell.column.id === "createdAt" ? (
-                        new Date(cell.getValue() as string).toLocaleDateString()
-                      ) : (
-                        flexRender(cell.column.columnDef.cell, cell.getContext()) ?? "-"
-                      )}
-                    </TableCell>
-                  ))}
+              ) : table.getRowModel().rows.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={table.getAllColumns().length} className="h-24 text-center">
+                    No customers found.
+                  </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
+              ) : (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id} className="hover:bg-muted/50">
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="overflow-hidden truncate">
+                        {cell.column.id === 'type' ? (
+                          <Badge variant="outline">
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </Badge>
+                        ) : cell.column.id === 'createdAt' ? (
+                          new Date(cell.getValue() as string).toLocaleDateString()
+                        ) : (
+                          (flexRender(cell.column.columnDef.cell, cell.getContext()) ?? '-')
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
           </Table>
         </DndContext>
       </div>

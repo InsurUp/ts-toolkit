@@ -25,7 +25,11 @@ import type {
   ColumnInfo,
   ITableAdapter,
 } from './types.js';
-import type { FetchFn, QueryOptionsBuilder as FetchQueryOptionsBuilder, AnyColumnDef } from '../types.js';
+import type {
+  FetchFn,
+  QueryOptionsBuilder as FetchQueryOptionsBuilder,
+  AnyColumnDef,
+} from '../types.js';
 import type { SortingConverters } from '../sorting/types.js';
 import { columnsToTanStackColumnDefs, createTableError } from './utils.js';
 
@@ -58,7 +62,12 @@ export class BaseTableAdapter<
   TFilterInput,
   TSearchInput,
   TPaginationOptions extends PaginationOptions,
-> implements ITableAdapter<TRow, TFilterInput, TSearchInput, PaginationManagerFromOptions<TPaginationOptions>> {
+> implements ITableAdapter<
+  TRow,
+  TFilterInput,
+  TSearchInput,
+  PaginationManagerFromOptions<TPaginationOptions>
+> {
   /** Static server snapshot for SSR - frozen for referential stability */
   private static readonly SERVER_SNAPSHOT: AdapterState<unknown> = Object.freeze({
     rows: [],
@@ -84,7 +93,10 @@ export class BaseTableAdapter<
   private queryKeyPrefix: string;
   private queryManager: QueryManager<InsurUpGraphQLResult<Connection<TRow>>, TQueryOptions>;
   /** Second QueryManager for count query (when splitTotalCount is enabled) */
-  private countQueryManager: QueryManager<InsurUpGraphQLResult<Connection<TRow>>, TQueryOptions> | null = null;
+  private countQueryManager: QueryManager<
+    InsurUpGraphQLResult<Connection<TRow>>,
+    TQueryOptions
+  > | null = null;
   private pageSize: number;
   private listeners: Set<() => void> = new Set();
   private state: AdapterState<TRow>;
@@ -119,7 +131,10 @@ export class BaseTableAdapter<
    */
   private computeVisibleFields(): DeepFieldKeys<TEntity>[] {
     // Use tableState if available (after getTable() is called), otherwise fall back to initial options
-    const visibility = this.tableInstance?.getState().columnVisibility ?? this.initialTableOptions?.state?.columnVisibility ?? {};
+    const visibility =
+      this.tableInstance?.getState().columnVisibility ??
+      this.initialTableOptions?.state?.columnVisibility ??
+      {};
     const visibleFields: string[] = [];
     for (const col of this.internalColumns) {
       // Column is visible if not explicitly set to false
@@ -154,7 +169,14 @@ export class BaseTableAdapter<
       TFilterInput,
       TSearchInput
     >,
-    options: BaseTableAdapterOptions<TEntity, TRow, TSortInput, TFilterInput, TSearchInput, TPaginationOptions>
+    options: BaseTableAdapterOptions<
+      TEntity,
+      TRow,
+      TSortInput,
+      TFilterInput,
+      TSearchInput,
+      TPaginationOptions
+    >
   ) {
     // Input validation
     if (!options.columns || options.columns.length === 0) {
@@ -315,7 +337,8 @@ export class BaseTableAdapter<
     }
 
     // isCountLoading: true when count is unknown (null) and we're fetching
-    const isCountLoading = rowCount === null && (queryState.isFetching || (countQueryState?.isFetching ?? false));
+    const isCountLoading =
+      rowCount === null && (queryState.isFetching || (countQueryState?.isFetching ?? false));
 
     // Also check for query-level errors (network errors caught by query manager)
     if (queryState.error && !tableError) {
@@ -453,12 +476,7 @@ export class BaseTableAdapter<
    * Excludes pagination and sorting since count doesn't change with page or sort order.
    */
   private getCountQueryKey(): unknown[] {
-    return [
-      this.queryKeyPrefix,
-      'count',
-      this.filter,
-      this.search,
-    ];
+    return [this.queryKeyPrefix, 'count', this.filter, this.search];
   }
 
   /**
@@ -481,15 +499,12 @@ export class BaseTableAdapter<
     if (this.countQueryManager) {
       // Only fetch count if the count query key has changed (filter/sort/search changed)
       const shouldFetchCount = this.hasCountQueryKeyChanged();
-      
+
       if (shouldFetchCount) {
         // Update the last count query key
         this.lastCountQueryKey = this.getCountQueryKey();
         // Fire both queries in parallel
-        await Promise.all([
-          this.queryManager.fetch(),
-          this.countQueryManager.fetch(),
-        ]);
+        await Promise.all([this.queryManager.fetch(), this.countQueryManager.fetch()]);
       } else {
         // Only fetch main data, count is cached
         await this.queryManager.fetch();
@@ -505,12 +520,9 @@ export class BaseTableAdapter<
   async invalidate(): Promise<void> {
     // Reset count key tracking so next fetch will refetch count
     this.lastCountQueryKey = null;
-    
+
     if (this.countQueryManager) {
-      await Promise.all([
-        this.queryManager.invalidate(),
-        this.countQueryManager.invalidate(),
-      ]);
+      await Promise.all([this.queryManager.invalidate(), this.countQueryManager.invalidate()]);
     } else {
       await this.queryManager.invalidate();
     }
@@ -529,7 +541,7 @@ export class BaseTableAdapter<
     if (options?.force) {
       // Force refetch - reset count key tracking too
       this.lastCountQueryKey = null;
-      
+
       if (this.countQueryManager) {
         await Promise.all([
           this.queryManager.refetch({ throwOnError: false }),
@@ -734,7 +746,10 @@ export class BaseTableAdapter<
           if (newPagination.pageIndex > prevPagination.pageIndex && this._pagination.canGoNext()) {
             this._pagination.next();
             needsRefetch = true;
-          } else if (newPagination.pageIndex < prevPagination.pageIndex && this._pagination.canGoPrevious()) {
+          } else if (
+            newPagination.pageIndex < prevPagination.pageIndex &&
+            this._pagination.canGoPrevious()
+          ) {
             this._pagination.previous();
             needsRefetch = true;
           }

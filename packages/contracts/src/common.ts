@@ -4,9 +4,9 @@
  */
 
 // Re-export all types from split common files for backward compatibility
-export * from "./common.base.js";
-export * from "./common.coverage.js";
-export * from "./common.customer.js";
-export * from "./common.policy.js";
-export * from "./common.property.js";
-export * from "./common.vehicle.js";
+export * from './common.base.js';
+export * from './common.coverage.js';
+export * from './common.customer.js';
+export * from './common.policy.js';
+export * from './common.property.js';
+export * from './common.vehicle.js';

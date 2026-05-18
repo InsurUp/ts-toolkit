@@ -26,7 +26,7 @@ import { AuthService } from '../../services/auth.service';
       <div class="dashboard">
         <h1>Dashboard</h1>
         <p class="subtitle">Welcome to the InsurUp SDK Demo. Explore customers and policies.</p>
-        
+
         <div class="cards">
           <mat-card class="dashboard-card" (click)="router.navigate(['/customers'])">
             <mat-card-header>
@@ -51,55 +51,57 @@ import { AuthService } from '../../services/auth.service';
       </div>
     }
   `,
-  styles: [`
-    .landing {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 70vh;
-      text-align: center;
-    }
-    .landing-icon {
-      font-size: 64px;
-      width: 64px;
-      height: 64px;
-      margin-bottom: 24px;
-      color: var(--mat-primary-color);
-    }
-    .landing-title {
-      font-size: 36px;
-      font-weight: bold;
-      margin-bottom: 16px;
-    }
-    .landing-description {
-      font-size: 18px;
-      opacity: 0.7;
-      margin-bottom: 32px;
-      max-width: 400px;
-    }
-    .dashboard h1 {
-      font-size: 30px;
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
-    .subtitle {
-      opacity: 0.7;
-      margin-bottom: 32px;
-    }
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 16px;
-    }
-    .dashboard-card {
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .dashboard-card:hover {
-      background: rgba(0, 0, 0, 0.04);
-    }
-  `],
+  styles: [
+    `
+      .landing {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 70vh;
+        text-align: center;
+      }
+      .landing-icon {
+        font-size: 64px;
+        width: 64px;
+        height: 64px;
+        margin-bottom: 24px;
+        color: var(--mat-primary-color);
+      }
+      .landing-title {
+        font-size: 36px;
+        font-weight: bold;
+        margin-bottom: 16px;
+      }
+      .landing-description {
+        font-size: 18px;
+        opacity: 0.7;
+        margin-bottom: 32px;
+        max-width: 400px;
+      }
+      .dashboard h1 {
+        font-size: 30px;
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
+      .subtitle {
+        opacity: 0.7;
+        margin-bottom: 32px;
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 16px;
+      }
+      .dashboard-card {
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .dashboard-card:hover {
+        background: rgba(0, 0, 0, 0.04);
+      }
+    `,
+  ],
 })
 export class HomeComponent {
   authService = inject(AuthService);

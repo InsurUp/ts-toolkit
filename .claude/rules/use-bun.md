@@ -1,7 +1,7 @@
 ---
 paths:
-  - "**/*.{ts,tsx,js,jsx,html,css}"
-  - "**/package.json"
+  - '**/*.{ts,tsx,js,jsx,html,css}'
+  - '**/package.json'
 ---
 
 # Use Bun Instead of Node.js, npm, pnpm, or vite

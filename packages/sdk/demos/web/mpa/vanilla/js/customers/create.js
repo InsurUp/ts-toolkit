@@ -3,10 +3,10 @@
  * @module pages/customers/create
  */
 
-import { loadConfig } from "../js/shared/config.js";
-import { renderHeader, initTheme, showSuccess, showError } from "../js/shared/components.js";
-import { requireAuth } from "../js/shared/auth.js";
-import { getClient } from "../js/shared/client.js";
+import { loadConfig } from '../js/shared/config.js';
+import { renderHeader, initTheme, showSuccess, showError } from '../js/shared/components.js';
+import { requireAuth } from '../js/shared/auth.js';
+import { getClient } from '../js/shared/client.js';
 
 /**
  * Initializes the create customer page.
@@ -16,10 +16,10 @@ async function init() {
   initTheme();
   await requireAuth();
 
-  const nav = document.getElementById("main-nav");
+  const nav = document.getElementById('main-nav');
   if (nav) renderHeader(nav);
 
-  const main = document.getElementById("main-content");
+  const main = document.getElementById('main-content');
   if (main) renderForm(main);
 }
 
@@ -77,8 +77,8 @@ function renderForm(container) {
     </article>
   `;
 
-  const form = container.querySelector("#create-form");
-  form?.addEventListener("submit", handleSubmit);
+  const form = container.querySelector('#create-form');
+  form?.addEventListener('submit', handleSubmit);
 }
 
 /**
@@ -91,32 +91,32 @@ async function handleSubmit(e) {
   const submitBtn = form.querySelector('button[type="submit"]');
   const formData = new FormData(form);
 
-  submitBtn.setAttribute("aria-busy", "true");
+  submitBtn.setAttribute('aria-busy', 'true');
   submitBtn.disabled = true;
 
   try {
     const client = getClient();
     const res = await client.customers.createCustomer({
-      type: formData.get("type"),
-      firstName: formData.get("firstName"),
-      lastName: formData.get("lastName"),
-      identityNumber: formData.get("identityNumber"),
-      email: formData.get("email") || undefined,
-      phone: formData.get("phone") || undefined,
+      type: formData.get('type'),
+      firstName: formData.get('firstName'),
+      lastName: formData.get('lastName'),
+      identityNumber: formData.get('identityNumber'),
+      email: formData.get('email') || undefined,
+      phone: formData.get('phone') || undefined,
     });
 
     if (!res.isSuccess) {
-      throw new Error(res.message || "Failed to create customer");
+      throw new Error(res.message || 'Failed to create customer');
     }
 
-    showSuccess("Customer created successfully!");
+    showSuccess('Customer created successfully!');
     setTimeout(() => {
       window.location.href = `/customers/detail.html?id=${res.data?.id}`;
     }, 500);
   } catch (error) {
-    console.error("Failed to create customer:", error);
-    showError(error instanceof Error ? error.message : "Failed to create customer");
-    submitBtn.removeAttribute("aria-busy");
+    console.error('Failed to create customer:', error);
+    showError(error instanceof Error ? error.message : 'Failed to create customer');
+    submitBtn.removeAttribute('aria-busy');
     submitBtn.disabled = false;
   }
 }

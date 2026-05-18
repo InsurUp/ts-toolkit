@@ -3,11 +3,17 @@
  * Supports route guards, dynamic parameters, and query string handling.
  */
 
-import { isAuthenticated } from "../auth";
+import { isAuthenticated } from '../auth';
 
 export interface Route {
   path: string;
-  component: () => Promise<{ render: (container: HTMLElement, params?: RouteParams, query?: QueryParams) => void | Promise<void> }>;
+  component: () => Promise<{
+    render: (
+      container: HTMLElement,
+      params?: RouteParams,
+      query?: QueryParams
+    ) => void | Promise<void>;
+  }>;
   /** If true, requires authentication */
   protected?: boolean;
   /** Page title */
@@ -34,7 +40,7 @@ class Router {
   private container: HTMLElement;
   private onNavigate?: (path: string) => void;
   private onAuthRequired?: () => void;
-  private currentPath: string = "";
+  private currentPath: string = '';
   private currentQuery: QueryParams = {};
 
   constructor(options: RouterOptions) {
@@ -44,18 +50,18 @@ class Router {
     this.onAuthRequired = options.onAuthRequired;
 
     // Listen for hash changes
-    window.addEventListener("hashchange", () => this.handleRoute());
+    window.addEventListener('hashchange', () => this.handleRoute());
     // Listen for popstate (back/forward navigation)
-    window.addEventListener("popstate", () => this.handleRoute());
+    window.addEventListener('popstate', () => this.handleRoute());
     // Handle initial route
-    window.addEventListener("load", () => this.handleRoute());
+    window.addEventListener('load', () => this.handleRoute());
   }
 
   /**
    * Parse query string from hash.
    */
   private parseQuery(hash: string): { path: string; query: QueryParams } {
-    const queryIndex = hash.indexOf("?");
+    const queryIndex = hash.indexOf('?');
     if (queryIndex === -1) {
       return { path: hash, query: {} };
     }
@@ -97,7 +103,7 @@ class Router {
    * Handle route changes.
    */
   async handleRoute(): Promise<void> {
-    const hash = window.location.hash.slice(1) || "/";
+    const hash = window.location.hash.slice(1) || '/';
     const { path, query } = this.parseQuery(hash);
 
     this.currentPath = path;
@@ -121,7 +127,7 @@ class Router {
     // Check auth guard
     if (route.protected && !isAuthenticated()) {
       this.onAuthRequired?.();
-      this.navigate("/login");
+      this.navigate('/login');
       return;
     }
 
@@ -129,7 +135,7 @@ class Router {
     if (route.title) {
       document.title = `${route.title} | InsurUp SDK Demo`;
     } else {
-      document.title = "InsurUp SDK Demo";
+      document.title = 'InsurUp SDK Demo';
     }
 
     // Notify navigation
@@ -147,12 +153,12 @@ class Router {
       const component = await route.component();
       await component.render(this.container, params, query);
     } catch (error) {
-      console.error("Failed to load page:", error);
+      console.error('Failed to load page:', error);
       this.container.innerHTML = `
         <article>
           <header><h2>Error</h2></header>
           <p>Failed to load the page. Please try again.</p>
-          <pre>${error instanceof Error ? error.message : "Unknown error"}</pre>
+          <pre>${error instanceof Error ? error.message : 'Unknown error'}</pre>
           <a href="#/" role="button">Go Home</a>
         </article>
       `;
@@ -177,8 +183,8 @@ class Router {
    * Supports :param syntax for dynamic segments.
    */
   private matchPath(pattern: string, path: string): RouteParams | null {
-    const patternParts = pattern.split("/").filter(Boolean);
-    const pathParts = path.split("/").filter(Boolean);
+    const patternParts = pattern.split('/').filter(Boolean);
+    const pathParts = path.split('/').filter(Boolean);
 
     if (patternParts.length !== pathParts.length) {
       return null;
@@ -194,7 +200,7 @@ class Router {
         return null;
       }
 
-      if (patternPart.startsWith(":")) {
+      if (patternPart.startsWith(':')) {
         // Dynamic parameter
         params[patternPart.slice(1)] = pathPart;
       } else if (patternPart !== pathPart) {
@@ -229,7 +235,7 @@ export function initRouter(options: RouterOptions): Router {
  */
 export function getRouter(): Router {
   if (!routerInstance) {
-    throw new Error("Router not initialized. Call initRouter first.");
+    throw new Error('Router not initialized. Call initRouter first.');
   }
   return routerInstance;
 }

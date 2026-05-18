@@ -16,9 +16,9 @@ export interface Config {
 }
 
 const defaults: Config = {
-  authServer: "https://auth.insurup.com",
-  clientId: "demo",
-  scopes: ["openid", "profile", "offline_access", "core-api"],
+  authServer: 'https://auth.insurup.com',
+  clientId: 'demo',
+  scopes: ['openid', 'profile', 'offline_access', 'core-api'],
   redirectUri: `${window.location.origin}/callback`,
 };
 
@@ -29,7 +29,7 @@ export function loadConfig(): Config {
     return cachedConfig;
   }
 
-  const storedConfig = localStorage.getItem("insurup_config");
+  const storedConfig = localStorage.getItem('insurup_config');
   const overrides = storedConfig ? JSON.parse(storedConfig) : {};
 
   const config: Config = {

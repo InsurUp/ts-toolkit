@@ -12,13 +12,13 @@ import type {
   ModelFilterInput,
   ModelSearchInput,
   GetQueryOptions,
-} from "./common.js";
-import type { DateTime, DateOnly } from "../common.date.js";
+} from './common.js';
+import type { DateTime, DateOnly } from '../common.date.js';
 
-import type { ProductBranch, Channel, CustomerType } from "../common.js";
-import type { VehicleFuelType, VehicleUtilizationStyle } from "../common.vehicle.js";
-import type { ProposalState } from "../proposals.js";
-import type { UserType } from "./policies.js";
+import type { ProductBranch, Channel, CustomerType } from '../common.js';
+import type { VehicleFuelType, VehicleUtilizationStyle } from '../common.vehicle.js';
+import type { ProposalState } from '../proposals.js';
+import type { UserType } from './policies.js';
 
 // === Output Types ===
 
@@ -86,15 +86,13 @@ export interface QueryProposalsResult {
  * Filter input for QueryProposalsResult.
  * Auto-generated from model fields using ModelFilterInput.
  */
-export type QueryProposalsResultFilterInput =
-  ModelFilterInput<QueryProposalsResult>;
+export type QueryProposalsResultFilterInput = ModelFilterInput<QueryProposalsResult>;
 
 /**
  * Search input for QueryProposalsResult.
  * Auto-generated from model fields using ModelSearchInput.
  */
-export type QueryProposalsResultSearchInput =
-  ModelSearchInput<QueryProposalsResult>;
+export type QueryProposalsResultSearchInput = ModelSearchInput<QueryProposalsResult>;
 
 /**
  * Sort input for QueryProposalsResult.
@@ -124,71 +122,74 @@ export type ProposalFieldKey = DeepFieldKeys<QueryProposalsResult>;
  */
 export const ALL_PROPOSAL_FIELDS = [
   // Primitive fields
-  "agentBranchId",
-  "id",
-  "productBranch",
-  "state",
-  "insurerCustomerId",
-  "insuredCustomerId",
-  "productsCount",
-  "succeedProductsCount",
-  "createdAt",
-  "successRate",
-  "insuredCustomerName",
-  "insuredCustomerIdentityNumber",
-  "insuredCustomerTaxNumber",
-  "insuredCustomerType",
-  "lowestPremium",
-  "highestPremium",
-  "channel",
-  "insuredCustomerCityText",
-  "insuredCustomerCityValue",
-  "insuredCustomerDistrictText",
-  "insuredCustomerDistrictValue",
-  "insuredCustomerPhoneNumber",
-  "insuredCustomerPhoneNumberCountryCode",
-  "insuredCustomerEmail",
-  "vehiclePlateCode",
-  "vehiclePlateCity",
-  "vehicleDocumentSerialCode",
-  "vehicleDocumentSerialNumber",
-  "vehicleModelBrandText",
-  "vehicleModelBrandValue",
-  "vehicleModelTypeText",
-  "vehicleModelTypeValue",
-  "vehicleModelYear",
-  "vehicleFuelType",
-  "utilizationStyle",
-  "insuredCustomerBirthDate",
-  "vehicleId",
-  "propertyId",
+  'agentBranchId',
+  'id',
+  'productBranch',
+  'state',
+  'insurerCustomerId',
+  'insuredCustomerId',
+  'productsCount',
+  'succeedProductsCount',
+  'createdAt',
+  'successRate',
+  'insuredCustomerName',
+  'insuredCustomerIdentityNumber',
+  'insuredCustomerTaxNumber',
+  'insuredCustomerType',
+  'lowestPremium',
+  'highestPremium',
+  'channel',
+  'insuredCustomerCityText',
+  'insuredCustomerCityValue',
+  'insuredCustomerDistrictText',
+  'insuredCustomerDistrictValue',
+  'insuredCustomerPhoneNumber',
+  'insuredCustomerPhoneNumberCountryCode',
+  'insuredCustomerEmail',
+  'vehiclePlateCode',
+  'vehiclePlateCity',
+  'vehicleDocumentSerialCode',
+  'vehicleDocumentSerialNumber',
+  'vehicleModelBrandText',
+  'vehicleModelBrandValue',
+  'vehicleModelTypeText',
+  'vehicleModelTypeValue',
+  'vehicleModelYear',
+  'vehicleFuelType',
+  'utilizationStyle',
+  'insuredCustomerBirthDate',
+  'vehicleId',
+  'propertyId',
   // Nested agentBranch fields
-  "agentBranch.id",
-  "agentBranch.name",
-  "agentBranch.parentId",
-  "agentBranch.parentName",
+  'agentBranch.id',
+  'agentBranch.name',
+  'agentBranch.parentId',
+  'agentBranch.parentName',
   // Nested agentUserCreatedBy fields
-  "agentUserCreatedBy.id",
-  "agentUserCreatedBy.name",
-  "agentUserCreatedBy.email",
-  "agentUserCreatedBy.userType",
+  'agentUserCreatedBy.id',
+  'agentUserCreatedBy.name',
+  'agentUserCreatedBy.email',
+  'agentUserCreatedBy.userType',
 ] as const satisfies readonly ProposalFieldKey[];
 
 /**
  * Helper type to pick selected fields from QueryProposalsResult.
  */
-export type PickProposalFields<T extends readonly ProposalFieldKey[]> =
-  PickFields<QueryProposalsResult, T>;
+export type PickProposalFields<T extends readonly ProposalFieldKey[]> = PickFields<
+  QueryProposalsResult,
+  T
+>;
 
 /**
  * Type-safe connection result based on selected fields
  */
-export interface SelectedProposalsConnection<
-  TFields extends ProposalFieldKey[],
-> extends Omit<ProposalsConnection, "nodes" | "edges"> {
+export interface SelectedProposalsConnection<TFields extends ProposalFieldKey[]> extends Omit<
+  ProposalsConnection,
+  'nodes' | 'edges'
+> {
   nodes?: (PickProposalFields<TFields> | null)[] | null;
   edges?:
-    | (Omit<ProposalsEdge, "node"> & {
+    | (Omit<ProposalsEdge, 'node'> & {
         node?: PickProposalFields<TFields> | null;
       })[]
     | null;

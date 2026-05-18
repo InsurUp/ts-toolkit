@@ -15,8 +15,8 @@ export interface PKCEData {
   state: string;
 }
 
-const STORAGE_KEY = "table_adapter_svelte_tokens";
-const PKCE_KEY = "table_adapter_svelte_pkce";
+const STORAGE_KEY = 'table_adapter_svelte_tokens';
+const PKCE_KEY = 'table_adapter_svelte_pkce';
 
 export function saveTokens(tokens: TokenData): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(tokens));

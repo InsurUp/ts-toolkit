@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Skeleton, Card, CardHeader, CardContent } from "@/components/ui";
+import { Skeleton, Card, CardHeader, CardContent } from '@/components/ui';
 
 interface Props {
   title?: boolean;

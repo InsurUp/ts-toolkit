@@ -2,14 +2,14 @@
  * Formatting utilities for dates, numbers, and strings.
  */
 
-import { Currency, PolicyState } from "@insurup/contracts";
+import { Currency, PolicyState } from '@insurup/contracts';
 
 // Map SDK Currency enum values to ISO 4217 currency codes
 const CURRENCY_TO_ISO: Record<string, string> = {
-  [Currency.Unknown]: "TRY",           // Default fallback
-  [Currency.TurkishLira]: "TRY",
-  [Currency.UnitedStatesDollar]: "USD",
-  [Currency.Euro]: "EUR",
+  [Currency.Unknown]: 'TRY', // Default fallback
+  [Currency.TurkishLira]: 'TRY',
+  [Currency.UnitedStatesDollar]: 'USD',
+  [Currency.Euro]: 'EUR',
 };
 
 /**
@@ -23,15 +23,15 @@ function toIsoCurrencyCode(currency: Currency | string): string {
  * Format a date for display.
  */
 export function formatDate(date: Date | string | number | undefined | null): string {
-  if (!date) return "-";
+  if (!date) return '-';
 
   const d = date instanceof Date ? date : new Date(date);
-  if (isNaN(d.getTime())) return "-";
+  if (isNaN(d.getTime())) return '-';
 
-  return d.toLocaleDateString("tr-TR", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
+  return d.toLocaleDateString('tr-TR', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
   });
 }
 
@@ -39,17 +39,17 @@ export function formatDate(date: Date | string | number | undefined | null): str
  * Format a date with time.
  */
 export function formatDateTime(date: Date | string | number | undefined | null): string {
-  if (!date) return "-";
+  if (!date) return '-';
 
   const d = date instanceof Date ? date : new Date(date);
-  if (isNaN(d.getTime())) return "-";
+  if (isNaN(d.getTime())) return '-';
 
-  return d.toLocaleString("tr-TR", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+  return d.toLocaleString('tr-TR', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   });
 }
 
@@ -61,12 +61,12 @@ export function formatCurrency(
   amount: number | undefined | null,
   currency: Currency | string = Currency.TurkishLira
 ): string {
-  if (amount === undefined || amount === null) return "-";
+  if (amount === undefined || amount === null) return '-';
 
   const isoCode = toIsoCurrencyCode(currency);
 
-  return new Intl.NumberFormat("tr-TR", {
-    style: "currency",
+  return new Intl.NumberFormat('tr-TR', {
+    style: 'currency',
     currency: isoCode,
   }).format(amount);
 }
@@ -75,19 +75,19 @@ export function formatCurrency(
  * Format a number with thousands separator.
  */
 export function formatNumber(num: number | undefined | null): string {
-  if (num === undefined || num === null) return "-";
+  if (num === undefined || num === null) return '-';
 
-  return new Intl.NumberFormat("tr-TR").format(num);
+  return new Intl.NumberFormat('tr-TR').format(num);
 }
 
 /**
  * Format relative time (e.g., "2 hours ago").
  */
 export function formatRelativeTime(date: Date | string | number | undefined | null): string {
-  if (!date) return "-";
+  if (!date) return '-';
 
   const d = date instanceof Date ? date : new Date(date);
-  if (isNaN(d.getTime())) return "-";
+  if (isNaN(d.getTime())) return '-';
 
   const now = new Date();
   const diffMs = now.getTime() - d.getTime();
@@ -97,13 +97,13 @@ export function formatRelativeTime(date: Date | string | number | undefined | nu
   const diffDays = Math.floor(diffHours / 24);
 
   if (diffSeconds < 60) {
-    return "just now";
+    return 'just now';
   } else if (diffMinutes < 60) {
-    return `${diffMinutes} minute${diffMinutes === 1 ? "" : "s"} ago`;
+    return `${diffMinutes} minute${diffMinutes === 1 ? '' : 's'} ago`;
   } else if (diffHours < 24) {
-    return `${diffHours} hour${diffHours === 1 ? "" : "s"} ago`;
+    return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
   } else if (diffDays < 7) {
-    return `${diffDays} day${diffDays === 1 ? "" : "s"} ago`;
+    return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
   } else {
     return formatDate(d);
   }
@@ -113,21 +113,21 @@ export function formatRelativeTime(date: Date | string | number | undefined | nu
  * Truncate a string to a maximum length.
  */
 export function truncate(str: string | undefined | null, maxLength: number): string {
-  if (!str) return "-";
+  if (!str) return '-';
   if (str.length <= maxLength) return str;
-  return str.slice(0, maxLength - 1) + "…";
+  return str.slice(0, maxLength - 1) + '…';
 }
 
 /**
  * Format customer type for display.
  */
 export function formatCustomerType(type: string | undefined | null): string {
-  if (!type) return "-";
+  if (!type) return '-';
 
   const types: Record<string, string> = {
-    Individual: "Individual",
-    Company: "Company",
-    Foreign: "Foreign",
+    Individual: 'Individual',
+    Company: 'Company',
+    Foreign: 'Foreign',
   };
 
   return types[type] || type;
@@ -138,16 +138,16 @@ export function formatCustomerType(type: string | undefined | null): string {
  * Accepts SDK PolicyState enum values.
  */
 export function formatPolicyState(state: PolicyState | string | undefined | null): string {
-  if (!state) return "-";
+  if (!state) return '-';
 
   const states: Record<string, string> = {
-    [PolicyState.Active]: "Active",
-    [PolicyState.EndOfLife]: "Expired",
-    [PolicyState.Cancelled]: "Cancelled",
+    [PolicyState.Active]: 'Active',
+    [PolicyState.EndOfLife]: 'Expired',
+    [PolicyState.Cancelled]: 'Cancelled',
     // Fallback for string values
-    "Active": "Active",
-    "Expired": "Expired",
-    "Cancelled": "Cancelled",
+    Active: 'Active',
+    Expired: 'Expired',
+    Cancelled: 'Cancelled',
   };
 
   return states[state] || state;
@@ -158,17 +158,17 @@ export function formatPolicyState(state: PolicyState | string | undefined | null
  * Accepts SDK PolicyState enum values.
  */
 export function getPolicyStateBadgeClass(state: PolicyState | string | undefined | null): string {
-  if (!state) return "";
+  if (!state) return '';
 
   const classes: Record<string, string> = {
-    [PolicyState.Active]: "success",
-    [PolicyState.EndOfLife]: "warning",
-    [PolicyState.Cancelled]: "danger",
+    [PolicyState.Active]: 'success',
+    [PolicyState.EndOfLife]: 'warning',
+    [PolicyState.Cancelled]: 'danger',
     // Fallback for string values
-    "Active": "success",
-    "Expired": "warning",
-    "Cancelled": "danger",
+    Active: 'success',
+    Expired: 'warning',
+    Cancelled: 'danger',
   };
 
-  return classes[state] || "";
+  return classes[state] || '';
 }

@@ -259,9 +259,7 @@ export function isRetryable(cause: GraphQLErrors | ClientError | ServerError): b
  * @param cause - The SDK error (GraphQL, Client, or Server error)
  * @returns A TableError with the original cause and retryable flag
  */
-export function createTableError(
-  cause: GraphQLErrors | ClientError | ServerError
-): TableError {
+export function createTableError(cause: GraphQLErrors | ClientError | ServerError): TableError {
   const error = new Error(cause.message) as TableError;
   error.name = 'TableError';
   error.cause = cause;

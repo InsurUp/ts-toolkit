@@ -1,11 +1,11 @@
-import type { TAuthConfig } from "react-oauth2-code-pkce";
+import type { TAuthConfig } from 'react-oauth2-code-pkce';
 
 // OAuth2 configuration - uses discovery-style auth server URL
-const authServer = "https://auth.insurup.com";
-const scopes = "openid profile offline_access core-api";
+const authServer = 'https://auth.insurup.com';
+const scopes = 'openid profile offline_access core-api';
 
 export const authConfig: TAuthConfig = {
-  clientId: "demo",
+  clientId: 'demo',
   authorizationEndpoint: `${authServer}/connect/authorize`,
   tokenEndpoint: `${authServer}/connect/token`,
   redirectUri: `${window.location.origin}/callback`,
@@ -15,5 +15,5 @@ export const authConfig: TAuthConfig = {
 };
 
 export const apiConfig = {
-  baseUrl: "https://api.insurup.com",
+  baseUrl: 'https://api.insurup.com',
 };

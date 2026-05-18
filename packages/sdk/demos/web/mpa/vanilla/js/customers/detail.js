@@ -3,11 +3,18 @@
  * @module pages/customers/detail
  */
 
-import { loadConfig } from "../js/shared/config.js";
-import { renderHeader, initTheme, renderLoading, renderError, escapeHtml, getQueryParam } from "../js/shared/components.js";
-import { requireAuth } from "../js/shared/auth.js";
-import { getClient } from "../js/shared/client.js";
-import { formatDateTime, formatCustomerType } from "../js/shared/format.js";
+import { loadConfig } from '../js/shared/config.js';
+import {
+  renderHeader,
+  initTheme,
+  renderLoading,
+  renderError,
+  escapeHtml,
+  getQueryParam,
+} from '../js/shared/components.js';
+import { requireAuth } from '../js/shared/auth.js';
+import { getClient } from '../js/shared/client.js';
+import { formatDateTime, formatCustomerType } from '../js/shared/format.js';
 
 /**
  * Initializes the customer detail page.
@@ -17,14 +24,14 @@ async function init() {
   initTheme();
   await requireAuth();
 
-  const nav = document.getElementById("main-nav");
+  const nav = document.getElementById('main-nav');
   if (nav) renderHeader(nav);
 
-  const main = document.getElementById("main-content");
-  const customerId = getQueryParam("id");
+  const main = document.getElementById('main-content');
+  const customerId = getQueryParam('id');
 
   if (!customerId) {
-    if (main) renderError(main, "Error", "No customer ID provided");
+    if (main) renderError(main, 'Error', 'No customer ID provided');
     return;
   }
 
@@ -37,23 +44,23 @@ async function init() {
  * @param {string} customerId - The customer ID
  */
 async function loadCustomer(container, customerId) {
-  renderLoading(container, "Loading customer...");
+  renderLoading(container, 'Loading customer...');
 
   try {
     const client = getClient();
     const res = await client.customers.getCustomer(customerId);
 
     if (!res.isSuccess || !res.data) {
-      throw new Error(res.message || "Failed to load customer");
+      throw new Error(res.message || 'Failed to load customer');
     }
 
     renderCustomer(container, res.data);
   } catch (error) {
-    console.error("Failed to load customer:", error);
+    console.error('Failed to load customer:', error);
     renderError(
       container,
-      "Error Loading Customer",
-      error instanceof Error ? error.message : "Unknown error",
+      'Error Loading Customer',
+      error instanceof Error ? error.message : 'Unknown error',
       () => loadCustomer(container, customerId)
     );
   }
@@ -68,7 +75,7 @@ function renderCustomer(container, customer) {
   container.innerHTML = `
     <div class="detail-header">
       <div>
-        <h1>${escapeHtml(customer.name || "Customer")}</h1>
+        <h1>${escapeHtml(customer.name || 'Customer')}</h1>
         <span class="badge">${formatCustomerType(customer.type)}</span>
       </div>
       <a href="/customers/" role="button" class="secondary outline">Back to List</a>
@@ -82,13 +89,13 @@ function renderCustomer(container, customer) {
           <dd><code>${escapeHtml(customer.id)}</code></dd>
           
           <dt>Name</dt>
-          <dd>${escapeHtml(customer.name || "-")}</dd>
+          <dd>${escapeHtml(customer.name || '-')}</dd>
           
           <dt>Type</dt>
           <dd>${formatCustomerType(customer.type)}</dd>
           
           <dt>Identity Number</dt>
-          <dd>${escapeHtml(customer.identityNumber || "-")}</dd>
+          <dd>${escapeHtml(customer.identityNumber || '-')}</dd>
         </dl>
       </article>
 
@@ -96,13 +103,13 @@ function renderCustomer(container, customer) {
         <header><strong>Contact Information</strong></header>
         <dl>
           <dt>Email</dt>
-          <dd>${escapeHtml(customer.primaryEmail || "-")}</dd>
+          <dd>${escapeHtml(customer.primaryEmail || '-')}</dd>
           
           <dt>Phone</dt>
-          <dd>${escapeHtml(customer.primaryPhone || "-")}</dd>
+          <dd>${escapeHtml(customer.primaryPhone || '-')}</dd>
           
           <dt>Address</dt>
-          <dd>${escapeHtml(customer.primaryAddress || "-")}</dd>
+          <dd>${escapeHtml(customer.primaryAddress || '-')}</dd>
         </dl>
       </article>
 

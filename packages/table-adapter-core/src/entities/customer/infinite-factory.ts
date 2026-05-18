@@ -23,13 +23,15 @@ import type {
 import type { QueryOptionsBuilderArgs, FetchFn } from '../../lib/types.js';
 import type { TableApi, TableApiConfig } from '../../lib/factory/types.js';
 import type { AdapterState } from '../../lib/adapter/types.js';
-import {
-  getFetchFn,
-  createColumnBuilder,
-} from '../../lib/factory/index.js';
+import { getFetchFn, createColumnBuilder } from '../../lib/factory/index.js';
 import { createSortingConverters } from '../../lib/sorting/index.js';
 import { InfiniteTableAdapter } from '../../lib/adapter/infinite-adapter/index.js';
-import type { CursorPaginationManager, CursorPaginationOptions, PaginationOptions, PaginationManagerFromOptions } from '../../lib/pagination/index.js';
+import type {
+  CursorPaginationManager,
+  CursorPaginationOptions,
+  PaginationOptions,
+  PaginationManagerFromOptions,
+} from '../../lib/pagination/index.js';
 
 // ============================================================================
 // Sorting Converters (shared with regular factory)
@@ -66,8 +68,9 @@ function buildCustomerQueryOptions<TFields extends CustomerFieldKey[]>(
 function getCustomerFetchFn<TColumns extends CustomerColumnDef[]>(
   options: CustomerTableOptions<TColumns>
 ): FetchFn<CustomerRowType<TColumns>, GetCustomersOptions<CustomerExtractFields<TColumns>[]>> {
-  return getFetchFn(options, (client) => (vars, requestOptions) =>
-    client.customers.getCustomers(vars, requestOptions)
+  return getFetchFn(
+    options,
+    (client) => (vars, requestOptions) => client.customers.getCustomers(vars, requestOptions)
   );
 }
 
@@ -90,7 +93,15 @@ function createInfiniteTableApi<
   TSearchInput,
   TPaginationOptions extends PaginationOptions,
 >(
-  config: TableApiConfig<TEntity, TRow, TQueryOptions, TSortInput, TFilterInput, TSearchInput, TPaginationOptions>
+  config: TableApiConfig<
+    TEntity,
+    TRow,
+    TQueryOptions,
+    TSortInput,
+    TFilterInput,
+    TSearchInput,
+    TPaginationOptions
+  >
 ): TableApi<TRow, TFilterInput, TSearchInput, PaginationManagerFromOptions<TPaginationOptions>> {
   const adapter = new InfiniteTableAdapter<
     TEntity,
@@ -251,4 +262,9 @@ export function createInfiniteCustomerTable<const TColumns extends CustomerColum
  * Uses ITableAdapter for consistent API across pagination and infinite scroll modes
  */
 export type InfiniteCustomerTable<TColumns extends CustomerColumnDef[] = CustomerColumnDef[]> =
-  TableApi<CustomerRowType<TColumns>, CustomerFilterInput, CustomerSearchInput, CursorPaginationManager>;
+  TableApi<
+    CustomerRowType<TColumns>,
+    CustomerFilterInput,
+    CustomerSearchInput,
+    CursorPaginationManager
+  >;

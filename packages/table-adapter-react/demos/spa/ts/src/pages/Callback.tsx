@@ -1,6 +1,6 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router";
-import { useAuthContext } from "react-oauth2-code-pkce";
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router';
+import { useAuthContext } from 'react-oauth2-code-pkce';
 
 /**
  * OAuth callback page.
@@ -13,7 +13,7 @@ export function Callback(): React.ReactElement {
 
   useEffect(() => {
     if (!loginInProgress) {
-      navigate("/", { replace: true });
+      navigate('/', { replace: true });
     }
   }, [loginInProgress, navigate]);
 

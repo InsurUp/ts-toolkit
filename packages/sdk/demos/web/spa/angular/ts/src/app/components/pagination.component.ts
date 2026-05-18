@@ -20,37 +20,39 @@ import { MatIconModule } from '@angular/material/icon';
         }
       </div>
       <div class="pagination-buttons">
-        <button mat-stroked-button 
-                [disabled]="!hasPreviousPage || isLoading" 
-                (click)="previous.emit()">
+        <button
+          mat-stroked-button
+          [disabled]="!hasPreviousPage || isLoading"
+          (click)="previous.emit()"
+        >
           <mat-icon>chevron_left</mat-icon>
           Previous
         </button>
-        <button mat-stroked-button 
-                [disabled]="!hasNextPage || isLoading" 
-                (click)="next.emit()">
+        <button mat-stroked-button [disabled]="!hasNextPage || isLoading" (click)="next.emit()">
           Next
           <mat-icon>chevron_right</mat-icon>
         </button>
       </div>
     </div>
   `,
-  styles: [`
-    .pagination {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px 0;
-    }
-    .pagination-info {
-      font-size: 14px;
-      opacity: 0.7;
-    }
-    .pagination-buttons {
-      display: flex;
-      gap: 8px;
-    }
-  `],
+  styles: [
+    `
+      .pagination {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 0;
+      }
+      .pagination-info {
+        font-size: 14px;
+        opacity: 0.7;
+      }
+      .pagination-buttons {
+        display: flex;
+        gap: 8px;
+      }
+    `,
+  ],
 })
 export class PaginationComponent {
   @Input() hasNextPage = false;
@@ -59,7 +61,7 @@ export class PaginationComponent {
   @Input() totalCount: number | null = null;
   @Input() pageSize = 10;
   @Input() currentPage = 1;
-  
+
   @Output() next = new EventEmitter<void>();
   @Output() previous = new EventEmitter<void>();
 

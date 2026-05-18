@@ -2,13 +2,13 @@
  * Formatting utilities.
  */
 
-import { Currency, PolicyState } from "@insurup/contracts";
+import { Currency, PolicyState } from '@insurup/contracts';
 
 const CURRENCY_TO_ISO = {
-  [Currency.Unknown]: "TRY",
-  [Currency.TurkishLira]: "TRY",
-  [Currency.UnitedStatesDollar]: "USD",
-  [Currency.Euro]: "EUR",
+  [Currency.Unknown]: 'TRY',
+  [Currency.TurkishLira]: 'TRY',
+  [Currency.UnitedStatesDollar]: 'USD',
+  [Currency.Euro]: 'EUR',
 };
 
 function toIsoCurrencyCode(currency) {
@@ -20,13 +20,13 @@ function toIsoCurrencyCode(currency) {
  * @returns {string}
  */
 export function formatDate(date) {
-  if (!date) return "-";
+  if (!date) return '-';
   const d = date instanceof Date ? date : new Date(date);
-  if (isNaN(d.getTime())) return "-";
-  return d.toLocaleDateString("tr-TR", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
+  if (isNaN(d.getTime())) return '-';
+  return d.toLocaleDateString('tr-TR', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
   });
 }
 
@@ -35,15 +35,15 @@ export function formatDate(date) {
  * @returns {string}
  */
 export function formatDateTime(date) {
-  if (!date) return "-";
+  if (!date) return '-';
   const d = date instanceof Date ? date : new Date(date);
-  if (isNaN(d.getTime())) return "-";
-  return d.toLocaleString("tr-TR", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+  if (isNaN(d.getTime())) return '-';
+  return d.toLocaleString('tr-TR', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   });
 }
 
@@ -53,10 +53,10 @@ export function formatDateTime(date) {
  * @returns {string}
  */
 export function formatCurrency(amount, currency = Currency.TurkishLira) {
-  if (amount === undefined || amount === null) return "-";
+  if (amount === undefined || amount === null) return '-';
   const isoCode = toIsoCurrencyCode(currency);
-  return new Intl.NumberFormat("tr-TR", {
-    style: "currency",
+  return new Intl.NumberFormat('tr-TR', {
+    style: 'currency',
     currency: isoCode,
   }).format(amount);
 }
@@ -67,9 +67,9 @@ export function formatCurrency(amount, currency = Currency.TurkishLira) {
  * @returns {string}
  */
 export function truncate(str, maxLength) {
-  if (!str) return "-";
+  if (!str) return '-';
   if (str.length <= maxLength) return str;
-  return str.slice(0, maxLength - 1) + "…";
+  return str.slice(0, maxLength - 1) + '…';
 }
 
 /**
@@ -77,11 +77,11 @@ export function truncate(str, maxLength) {
  * @returns {string}
  */
 export function formatCustomerType(type) {
-  if (!type) return "-";
+  if (!type) return '-';
   const types = {
-    Individual: "Individual",
-    Company: "Company",
-    Foreign: "Foreign",
+    Individual: 'Individual',
+    Company: 'Company',
+    Foreign: 'Foreign',
   };
   return types[type] || type;
 }
@@ -91,11 +91,11 @@ export function formatCustomerType(type) {
  * @returns {string}
  */
 export function formatPolicyState(state) {
-  if (!state) return "-";
+  if (!state) return '-';
   const states = {
-    [PolicyState.Active]: "Active",
-    [PolicyState.EndOfLife]: "Expired",
-    [PolicyState.Cancelled]: "Cancelled",
+    [PolicyState.Active]: 'Active',
+    [PolicyState.EndOfLife]: 'Expired',
+    [PolicyState.Cancelled]: 'Cancelled',
   };
   return states[state] || state;
 }
@@ -105,11 +105,11 @@ export function formatPolicyState(state) {
  * @returns {string}
  */
 export function getPolicyStateBadgeClass(state) {
-  if (!state) return "";
+  if (!state) return '';
   const classes = {
-    [PolicyState.Active]: "success",
-    [PolicyState.EndOfLife]: "warning",
-    [PolicyState.Cancelled]: "danger",
+    [PolicyState.Active]: 'success',
+    [PolicyState.EndOfLife]: 'warning',
+    [PolicyState.Cancelled]: 'danger',
   };
-  return classes[state] || "";
+  return classes[state] || '';
 }

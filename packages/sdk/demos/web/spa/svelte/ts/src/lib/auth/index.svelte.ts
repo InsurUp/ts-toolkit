@@ -3,10 +3,17 @@
  * Provides reactive authentication state using Svelte 5 runes.
  */
 
-import { loadTokens, clearTokens, type TokenData } from "./token-store";
+import { loadTokens, clearTokens, type TokenData } from './token-store';
 
-export { startLogin, handleCallback, logout, getAccessToken, isAuthenticated, parseIdTokenClaims } from "./oauth";
-export type { TokenData } from "./token-store";
+export {
+  startLogin,
+  handleCallback,
+  logout,
+  getAccessToken,
+  isAuthenticated,
+  parseIdTokenClaims,
+} from './oauth';
+export type { TokenData } from './token-store';
 
 /**
  * Create a reactive auth state.
@@ -34,10 +41,18 @@ export function createAuthState() {
   }
 
   return {
-    get tokens() { return tokens; },
-    get token() { return tokens?.accessToken ?? null; },
-    get isAuthenticated() { return !!tokens?.accessToken; },
-    get loginInProgress() { return loginInProgress; },
+    get tokens() {
+      return tokens;
+    },
+    get token() {
+      return tokens?.accessToken ?? null;
+    },
+    get isAuthenticated() {
+      return !!tokens?.accessToken;
+    },
+    get loginInProgress() {
+      return loginInProgress;
+    },
     setTokens,
     setLoginInProgress,
     logOut,

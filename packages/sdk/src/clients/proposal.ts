@@ -4,18 +4,18 @@
  * document generation, product purchasing, and comparison tools within the insurance sales process.
  */
 
-import type { HttpTransport } from "../client/http.js";
-import type { GraphQLTransport } from "../client/graphql.js";
-import type { InsurUpResult, InsurUpGraphQLResult } from "../core/result.js";
-import type { RequestOptions } from "../core/options.js";
-import { endpoints } from "../core/endpoints.js";
+import type { HttpTransport } from '../client/http.js';
+import type { GraphQLTransport } from '../client/graphql.js';
+import type { InsurUpResult, InsurUpGraphQLResult } from '../core/result.js';
+import type { RequestOptions } from '../core/options.js';
+import { endpoints } from '../core/endpoints.js';
 import {
   ALL_PROPOSAL_FIELDS,
   type ProposalFieldKey,
   type GetProposalsOptions,
   type ProposalsConnection,
-} from "@insurup/contracts";
-import { buildFieldSelection } from "@insurup/contracts";
+} from '@insurup/contracts';
+import { buildFieldSelection } from '@insurup/contracts';
 import type {
   CreateProposalRequest,
   CreateProposalResult,
@@ -45,7 +45,7 @@ import type {
   SetProposalBranchRequest,
   GetProposalConversionTrendRequest,
   GetProposalConversionTrendResult,
-} from "@insurup/contracts";
+} from '@insurup/contracts';
 
 /**
  * Proposal Management Client / Teklif Yönetimi İstemcisi
@@ -67,7 +67,7 @@ import type {
 export class InsurUpProposalClient {
   constructor(
     private readonly http: HttpTransport,
-    private readonly graphql?: GraphQLTransport,
+    private readonly graphql?: GraphQLTransport
   ) {}
 
   /**
@@ -80,13 +80,9 @@ export class InsurUpProposalClient {
    */
   async createProposal(
     request: CreateProposalRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<CreateProposalResult>> {
-    return this.http.post<CreateProposalResult>(
-      endpoints.proposals.create,
-      request,
-      options,
-    );
+    return this.http.post<CreateProposalResult>(endpoints.proposals.create, request, options);
   }
 
   /**
@@ -101,19 +97,16 @@ export class InsurUpProposalClient {
   async retryFailedProposalProduct(
     proposalId: string,
     proposalProductId: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     const request: RetryFailedProposalProductRequest = {
       proposalId,
       proposalProductId,
     };
     return this.http.postNoContent(
-      endpoints.proposals.retryFailedProposalProduct.render(
-        proposalId,
-        proposalProductId,
-      ),
+      endpoints.proposals.retryFailedProposalProduct.render(proposalId, proposalProductId),
       request,
-      options,
+      options
     );
   }
 
@@ -127,11 +120,11 @@ export class InsurUpProposalClient {
    */
   async getProposalDetail(
     proposalId: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetProposalByIdResult>> {
     return this.http.get<GetProposalByIdResult>(
       endpoints.proposals.getProposalById.render(proposalId),
-      options,
+      options
     );
   }
 
@@ -149,15 +142,15 @@ export class InsurUpProposalClient {
     proposalId: string,
     proposalProductId: string,
     installmentNumber: number,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetProposalProductPremiumDetailResult>> {
     return this.http.get<GetProposalProductPremiumDetailResult>(
       endpoints.proposals.getProposalProductPremiumDetail.render(
         proposalId,
         proposalProductId,
-        installmentNumber,
+        installmentNumber
       ),
-      options,
+      options
     );
   }
 
@@ -171,15 +164,15 @@ export class InsurUpProposalClient {
    */
   async purchaseProposalProductSync(
     request: PurchaseProposalProductSyncRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<PurchaseProposalProductSyncResult>> {
     return this.http.post<PurchaseProposalProductSyncResult>(
       endpoints.proposals.purchaseProposalProductSync.render(
         request.proposalId,
-        request.proposalProductId,
+        request.proposalProductId
       ),
       request,
-      options,
+      options
     );
   }
 
@@ -193,15 +186,15 @@ export class InsurUpProposalClient {
    */
   async purchaseProposalProductAsync(
     request: PurchaseProposalProductAsyncRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<PurchaseProposalProductAsyncResult>> {
     return this.http.post<PurchaseProposalProductAsyncResult>(
       endpoints.proposals.purchaseProposalProductAsync.render(
         request.proposalId,
-        request.proposalProductId,
+        request.proposalProductId
       ),
       request,
-      options,
+      options
     );
   }
 
@@ -217,14 +210,11 @@ export class InsurUpProposalClient {
   async getProposalProductCoverage(
     proposalId: string,
     proposalProductId: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetProposalProductCoverageResult>> {
     return this.http.get<GetProposalProductCoverageResult>(
-      endpoints.proposals.getProposalProductCoverage.render(
-        proposalId,
-        proposalProductId,
-      ),
-      options,
+      endpoints.proposals.getProposalProductCoverage.render(proposalId, proposalProductId),
+      options
     );
   }
 
@@ -238,12 +228,12 @@ export class InsurUpProposalClient {
    */
   async reviseProposal(
     request: ReviseProposalRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<ReviseProposalResult>> {
     return this.http.post<ReviseProposalResult>(
       endpoints.proposals.reviseProposal.render(request.proposalId),
       request,
-      options,
+      options
     );
   }
 
@@ -257,15 +247,15 @@ export class InsurUpProposalClient {
    */
   async reviseProposalProduct(
     request: ReviseProposalProductRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.postNoContent(
       endpoints.proposals.reviseProposalProduct.render(
         request.proposalId,
-        request.proposalProductId,
+        request.proposalProductId
       ),
       request,
-      options,
+      options
     );
   }
 
@@ -279,14 +269,14 @@ export class InsurUpProposalClient {
    */
   async fetchProposalProductDocument(
     request: FetchProposalProductDocumentRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<FetchProposalProductDocumentResult>> {
     return this.http.get<FetchProposalProductDocumentResult>(
       endpoints.proposals.fetchProposalProductDocument.render(
         request.proposalId,
-        request.proposalProductId,
+        request.proposalProductId
       ),
-      options,
+      options
     );
   }
 
@@ -300,14 +290,14 @@ export class InsurUpProposalClient {
    */
   async fetchProposalInformationFormDocument(
     request: FetchProposalInformationFormDocumentRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<FetchProposalInformationFormDocumentResult>> {
     return this.http.get<FetchProposalInformationFormDocumentResult>(
       endpoints.proposals.fetchProposalInformationFormDocument.render(
         request.proposalId,
-        request.proposalProductId,
+        request.proposalProductId
       ),
-      options,
+      options
     );
   }
 
@@ -321,15 +311,15 @@ export class InsurUpProposalClient {
    */
   async sendProposalProductDocument(
     request: SendProposalProductDocumentRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.postNoContent(
       endpoints.proposals.sendProposalProductDocument.render(
         request.proposalId,
-        request.proposalProductId,
+        request.proposalProductId
       ),
       request,
-      options,
+      options
     );
   }
 
@@ -343,15 +333,15 @@ export class InsurUpProposalClient {
    */
   async sendProposalInformationFormDocument(
     request: SendProposalInformationFormDocumentRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.postNoContent(
       endpoints.proposals.sendProposalInformationFormDocument.render(
         request.proposalId,
-        request.proposalProductId,
+        request.proposalProductId
       ),
       request,
-      options,
+      options
     );
   }
 
@@ -365,14 +355,12 @@ export class InsurUpProposalClient {
    */
   async generateCompareProposalProductsPdf(
     request: GenerateCompareProposalProductsPdfRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GenerateCompareProposalProductsPdfResult>> {
     return this.http.post<GenerateCompareProposalProductsPdfResult>(
-      endpoints.proposals.generateCompareProposalProductsPdf.render(
-        request.proposalId,
-      ),
+      endpoints.proposals.generateCompareProposalProductsPdf.render(request.proposalId),
       request,
-      options,
+      options
     );
   }
 
@@ -386,14 +374,12 @@ export class InsurUpProposalClient {
    */
   async sendCompareProposalProductsPdf(
     request: SendCompareProposalProductsPdfRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.postNoContent(
-      endpoints.proposals.sendCompareProposalProductsPdf.render(
-        request.proposalId,
-      ),
+      endpoints.proposals.sendCompareProposalProductsPdf.render(request.proposalId),
       request,
-      options,
+      options
     );
   }
 
@@ -407,14 +393,12 @@ export class InsurUpProposalClient {
    */
   async generateCustomerProposalDocumentPdf(
     request: GenerateCustomerProposalDocumentPdfRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GenerateCustomerProposalDocumentPdfResult>> {
     return this.http.post<GenerateCustomerProposalDocumentPdfResult>(
-      endpoints.proposals.generateCustomerProposalDocumentPdf.render(
-        request.proposalId,
-      ),
+      endpoints.proposals.generateCustomerProposalDocumentPdf.render(request.proposalId),
       request,
-      options,
+      options
     );
   }
 
@@ -428,12 +412,12 @@ export class InsurUpProposalClient {
    */
   async setProposalBranch(
     request: SetProposalBranchRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.postNoContent(
       endpoints.proposals.setProposalBranch.render(request.proposalId),
       request,
-      options,
+      options
     );
   }
 
@@ -447,12 +431,12 @@ export class InsurUpProposalClient {
    */
   async getProposalConversionTrend(
     request: GetProposalConversionTrendRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetProposalConversionTrendResult>> {
     return this.http.post<GetProposalConversionTrendResult>(
       endpoints.proposals.getProposalConversionTrend.definition,
       request,
-      options,
+      options
     );
   }
 
@@ -466,12 +450,12 @@ export class InsurUpProposalClient {
    */
   async setProposalRepresentative(
     request: SetProposalRepresentativeRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.postNoContent(
       endpoints.proposals.setProposalRepresentative.render(request.proposalId),
       request,
-      options,
+      options
     );
   }
 
@@ -503,16 +487,15 @@ export class InsurUpProposalClient {
    */
   async getProposals<const TFields extends ProposalFieldKey[]>(
     requestOptions?: GetProposalsOptions<TFields>,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpGraphQLResult<ProposalsConnection<TFields>>> {
     if (!this.graphql) {
       throw new Error(
-        "GraphQL transport is not available. Ensure the client is properly initialized.",
+        'GraphQL transport is not available. Ensure the client is properly initialized.'
       );
     }
 
-    const fields = (requestOptions?.select ??
-      ALL_PROPOSAL_FIELDS) as ProposalFieldKey[];
+    const fields = (requestOptions?.select ?? ALL_PROPOSAL_FIELDS) as ProposalFieldKey[];
     const fieldSelection = buildFieldSelection(fields);
     const hasFieldSelection = fieldSelection.length > 0;
 
@@ -542,12 +525,16 @@ export class InsurUpProposalClient {
             endCursor
           }
           totalCount
-          ${hasFieldSelection ? `edges {
+          ${
+            hasFieldSelection
+              ? `edges {
             cursor
             node {
               ${fieldSelection}
             }
-          }` : ""}
+          }`
+              : ''
+          }
         }
       }
     `;
@@ -563,7 +550,7 @@ export class InsurUpProposalClient {
     };
 
     const result = await this.graphql.query<{
-      proposalsNew: Omit<ProposalsConnection, "nodes">;
+      proposalsNew: Omit<ProposalsConnection, 'nodes'>;
     }>(query, variables, options);
 
     if (!result.isSuccess) {

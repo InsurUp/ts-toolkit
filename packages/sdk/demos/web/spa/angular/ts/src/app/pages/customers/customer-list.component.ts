@@ -55,7 +55,7 @@ interface Customer {
       <mat-form-field appearance="outline" class="search-field">
         <mat-label>Search customers</mat-label>
         <mat-icon matPrefix>search</mat-icon>
-        <input matInput [(ngModel)]="search" (ngModelChange)="onSearch($event)">
+        <input matInput [(ngModel)]="search" (ngModelChange)="onSearch($event)" />
       </mat-form-field>
 
       <app-data-table
@@ -65,7 +65,8 @@ interface Customer {
         [sortField]="sortField()"
         [sortDirection]="sortDirection()"
         (sort)="onSort($event)"
-        (rowClick)="onRowClick($event)">
+        (rowClick)="onRowClick($event)"
+      >
         <ng-template #cellTemplate let-item let-column="column">
           @if (column.key === 'type') {
             <mat-chip>{{ item.type }}</mat-chip>
@@ -85,31 +86,34 @@ interface Customer {
         [currentPage]="currentPage()"
         [pageSize]="10"
         (next)="onNextPage()"
-        (previous)="onPreviousPage()">
+        (previous)="onPreviousPage()"
+      >
       </app-pagination>
     </div>
   `,
-  styles: [`
-    .customer-list h1 {
-      font-size: 30px;
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
-    .subtitle {
-      opacity: 0.7;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 24px;
-    }
-    .search-field {
-      width: 100%;
-      max-width: 400px;
-      margin-bottom: 16px;
-    }
-  `],
+  styles: [
+    `
+      .customer-list h1 {
+        font-size: 30px;
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
+      .subtitle {
+        opacity: 0.7;
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 24px;
+      }
+      .search-field {
+        width: 100%;
+        max-width: 400px;
+        margin-bottom: 16px;
+      }
+    `,
+  ],
 })
 export class CustomerListComponent {
   private router = inject(Router);
@@ -139,7 +143,12 @@ export class CustomerListComponent {
     { key: 'type', header: 'Type' },
     { key: 'primaryEmail', header: 'Email', render: (c) => c.primaryEmail || '-' },
     { key: 'primaryPhoneNumber', header: 'Phone', render: (c) => c.primaryPhoneNumber || '-' },
-    { key: 'createdAt', header: 'Created', sortable: true, render: (c) => new Date(c.createdAt).toLocaleDateString() },
+    {
+      key: 'createdAt',
+      header: 'Created',
+      sortable: true,
+      render: (c) => new Date(c.createdAt).toLocaleDateString(),
+    },
   ];
 
   constructor() {
@@ -169,20 +178,25 @@ export class CustomerListComponent {
         after: this.direction() === 'forward' ? this.cursor() : undefined,
         before: this.direction() === 'backward' ? this.cursor() : undefined,
         search: searchOptions,
-        order: this.sortField() ? [{ [this.sortField()]: this.sortDirection() === 'asc' ? 'ASC' : 'DESC' }] : undefined,
+        order: this.sortField()
+          ? [{ [this.sortField()]: this.sortDirection() === 'asc' ? 'ASC' : 'DESC' }]
+          : undefined,
         includeTotalCount: false,
       });
 
       if (result.isSuccess) {
-        const nodes = result.data.nodes?.filter((n): n is NonNullable<typeof n> => n !== null) ?? [];
-        this.customers.set(nodes.map(n => ({
-          id: n.id,
-          name: n.name ?? null,
-          type: String(n.type),
-          primaryEmail: n.primaryEmail ?? null,
-          primaryPhoneNumber: n.primaryPhoneNumber ?? null,
-          createdAt: String(n.createdAt),
-        })));
+        const nodes =
+          result.data.nodes?.filter((n): n is NonNullable<typeof n> => n !== null) ?? [];
+        this.customers.set(
+          nodes.map((n) => ({
+            id: n.id,
+            name: n.name ?? null,
+            type: String(n.type),
+            primaryEmail: n.primaryEmail ?? null,
+            primaryPhoneNumber: n.primaryPhoneNumber ?? null,
+            createdAt: String(n.createdAt),
+          }))
+        );
         this.pageInfo.set({
           hasNextPage: result.data.pageInfo.hasNextPage,
           hasPreviousPage: result.data.pageInfo.hasPreviousPage,
@@ -228,7 +242,7 @@ export class CustomerListComponent {
     if (pi.endCursor) {
       this.cursor.set(pi.endCursor);
       this.direction.set('forward');
-      this.currentPage.update(p => p + 1);
+      this.currentPage.update((p) => p + 1);
       this.fetchCustomers();
     }
   }
@@ -238,7 +252,7 @@ export class CustomerListComponent {
     if (pi.startCursor) {
       this.cursor.set(pi.startCursor);
       this.direction.set('backward');
-      this.currentPage.update(p => Math.max(1, p - 1));
+      this.currentPage.update((p) => Math.max(1, p - 1));
       this.fetchCustomers();
     }
   }

@@ -2,11 +2,11 @@
  * Auth store for Svelte using writable store.
  */
 
-import { writable, derived, get } from "svelte/store";
-import { loadTokens, clearTokens, type TokenData } from "./token-store";
+import { writable, derived, get } from 'svelte/store';
+import { loadTokens, clearTokens, type TokenData } from './token-store';
 
-export { startLogin, handleCallback, logout, getAccessToken, isAuthenticated } from "./oauth";
-export type { TokenData } from "./token-store";
+export { startLogin, handleCallback, logout, getAccessToken, isAuthenticated } from './oauth';
+export type { TokenData } from './token-store';
 
 const tokens = writable<TokenData | null>(loadTokens());
 const loginInProgress = writable(false);

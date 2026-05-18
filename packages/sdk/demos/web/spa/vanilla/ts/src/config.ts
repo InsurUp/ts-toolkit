@@ -20,9 +20,9 @@ export interface Config {
  * Default configuration values.
  */
 const defaults: Config = {
-  authServer: "https://auth.insurup.com",
-  clientId: "demo",
-  scopes: ["openid", "profile", "offline_access", "core-api"],
+  authServer: 'https://auth.insurup.com',
+  clientId: 'demo',
+  scopes: ['openid', 'profile', 'offline_access', 'core-api'],
   redirectUri: `${window.location.origin}/callback`,
 };
 
@@ -37,7 +37,7 @@ export function loadConfig(): Config {
   }
 
   // Check for stored config overrides in localStorage
-  const storedConfig = localStorage.getItem("insurup_config");
+  const storedConfig = localStorage.getItem('insurup_config');
   const overrides = storedConfig ? JSON.parse(storedConfig) : {};
 
   const config: Config = {
@@ -67,7 +67,7 @@ export function getConfig(): Config {
 export function updateConfig(updates: Partial<Config>): void {
   const current = getConfig();
   const newConfig = { ...current, ...updates };
-  localStorage.setItem("insurup_config", JSON.stringify(newConfig));
+  localStorage.setItem('insurup_config', JSON.stringify(newConfig));
   cachedConfig = newConfig;
 }
 
@@ -75,6 +75,6 @@ export function updateConfig(updates: Partial<Config>): void {
  * Reset configuration to defaults.
  */
 export function resetConfig(): void {
-  localStorage.removeItem("insurup_config");
+  localStorage.removeItem('insurup_config');
   cachedConfig = null;
 }

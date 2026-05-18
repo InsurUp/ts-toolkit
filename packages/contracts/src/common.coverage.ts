@@ -3,7 +3,7 @@
  * @description Coverage types, values, and choices used throughout the InsurUp platform for insurance coverage configuration
  */
 
-import type { ProductBranch } from "./common.base.js";
+import type { ProductBranch } from './common.base.js';
 
 /**
  * Represents different types of coverage values in insurance policies.
@@ -13,14 +13,14 @@ import type { ProductBranch } from "./common.base.js";
  * Teminat limitlerinin ve faydalarının nasıl hesaplandığını veya uygulandığını tanımlar.
  */
 export type CoverageValue =
-  | { $type: "UNDEFINED" }
-  | { $type: "INCLUDED" }
-  | { $type: "NOT_INCLUDED" }
-  | { $type: "MARKET_VALUE" }
-  | { $type: "DECIMAL"; value: number }
-  | { $type: "PERCENT"; value: number }
-  | { $type: "LIMITLESS" }
-  | { $type: "HIGHEST_LIMIT" };
+  | { $type: 'UNDEFINED' }
+  | { $type: 'INCLUDED' }
+  | { $type: 'NOT_INCLUDED' }
+  | { $type: 'MARKET_VALUE' }
+  | { $type: 'DECIMAL'; value: number }
+  | { $type: 'PERCENT'; value: number }
+  | { $type: 'LIMITLESS' }
+  | { $type: 'HIGHEST_LIMIT' };
 
 /**
  * Generic class representing a collection of coverage options with a default selection.
@@ -64,12 +64,7 @@ export interface CoverageChoices<T> {
  * Tüm sigorta teminat türleri için birleşim türü.
  * Sistemde mevcut farklı sigorta teminat türlerini temsil eder.
  */
-export type Coverage =
-  | KaskoCoverage
-  | KonutCoverage
-  | ImmCoverage
-  | TssCoverage
-  | EmptyCoverage;
+export type Coverage = KaskoCoverage | KonutCoverage | ImmCoverage | TssCoverage | EmptyCoverage;
 
 /**
  * Represents comprehensive auto insurance coverage (Kasko) in Turkish insurance system.
@@ -184,37 +179,37 @@ export enum OnarimServisTuru {
    * Unspecified/undefined repair service type
    * Belirsiz/tanımsız onarım servis türü
    */
-  Belirsiz = "BELIRSIZ",
+  Belirsiz = 'BELIRSIZ',
 
   /**
    * Contracted private service - Private repair shops with insurance company contracts
    * Anlaşmalı özel servis - Sigorta şirketi ile anlaşmalı özel onarım atölyeleri
    */
-  AnlasmaliOzelServis = "ANLASMALI_OZEL_SERVIS",
+  AnlasmaliOzelServis = 'ANLASMALI_OZEL_SERVIS',
 
   /**
    * Contracted authorized service - Brand authorized services with insurance contracts
    * Anlaşmalı yetkili servis - Sigorta şirketi ile anlaşmalı marka yetkili servisleri
    */
-  AnlasmaliYetkiliServis = "ANLASMALI_YETKILI_SERVIS",
+  AnlasmaliYetkiliServis = 'ANLASMALI_YETKILI_SERVIS',
 
   /**
    * Authorized service - Official brand authorized service centers
    * Yetkili servis - Resmi marka yetkili servis merkezleri
    */
-  YetkiliServis = "YETKILI_SERVIS",
+  YetkiliServis = 'YETKILI_SERVIS',
 
   /**
    * Private service - Independent repair shops
    * Özel servis - Bağımsız onarım atölyeleri
    */
-  OzelServis = "OZEL_SERVIS",
+  OzelServis = 'OZEL_SERVIS',
 
   /**
    * Insured determines - Policy holder chooses the repair service
    * Sigortalı belirler - Poliçe sahibi onarım servisini kendisi seçer
    */
-  SigortaliBelirler = "SIGORTALI_BELIRLER",
+  SigortaliBelirler = 'SIGORTALI_BELIRLER',
 }
 
 /**
@@ -229,19 +224,19 @@ export enum YedekParcaTuru {
    * Unspecified/undefined spare part type
    * Belirsiz/tanımsız yedek parça türü
    */
-  Belirsiz = "BELIRSIZ",
+  Belirsiz = 'BELIRSIZ',
 
   /**
    * Original parts - Genuine manufacturer parts (OEM)
    * Orijinal parçalar - Gerçek üretici parçaları (OEM)
    */
-  OrijinalParca = "ORIJINAL_PARCA",
+  OrijinalParca = 'ORIJINAL_PARCA',
 
   /**
    * Equivalent parts - Compatible aftermarket parts with equivalent quality
    * Eşdeğer parçalar - Eşdeğer kalitede uyumlu yan sanayi parçaları
    */
-  EsdegerParca = "ESDEGER_PARCA",
+  EsdegerParca = 'ESDEGER_PARCA',
 }
 
 /**
@@ -252,10 +247,10 @@ export enum YedekParcaTuru {
  * "Kiralık Araç" Türk motorlu taşıt sigortasında özel bir kavramdır.
  */
 export type KiralikArac =
-  | { $type: "NONE" }
-  | { $type: "UNDEFINED" }
+  | { $type: 'NONE' }
+  | { $type: 'UNDEFINED' }
   | {
-      $type: "DEFINED";
+      $type: 'DEFINED';
       yillikKullanimSayisi?: number;
       tekSeferlikGunSayisi?: number;
       aracSegment?: AracSegment;
@@ -273,43 +268,43 @@ export enum AracSegment {
    * A Segment - Mini and city cars (e.g., Fiat 500, Renault Twingo, Volkswagen Up)
    * A Segmenti - Mini ve şehir arabaları
    */
-  A = "A",
+  A = 'A',
 
   /**
    * B Segment - Small class cars (e.g., Ford Fiesta, Volkswagen Polo, Renault Clio)
    * B Segmenti - Küçük sınıf arabalar
    */
-  B = "B",
+  B = 'B',
 
   /**
    * C Segment - Mid-size cars (e.g., Volkswagen Golf, Ford Focus, Toyota Corolla)
    * C Segmenti - Orta sınıf arabalar
    */
-  C = "C",
+  C = 'C',
 
   /**
    * D Segment - Upper mid-size cars (e.g., Volkswagen Passat, Ford Mondeo, BMW 3 Series)
    * D Segmenti - Üst orta sınıf arabalar
    */
-  D = "D",
+  D = 'D',
 
   /**
    * E Segment - Upper class cars (e.g., BMW 5 Series, Mercedes E Series, Audi A6)
    * E Segmenti - Üst sınıf arabalar
    */
-  E = "E",
+  E = 'E',
 
   /**
    * F Segment - Luxury class cars (e.g., BMW 7 Series, Mercedes S Series, Audi A8)
    * F Segmenti - Lüks sınıf arabalar
    */
-  F = "F",
+  F = 'F',
 
   /**
    * The replacement vehicle must be in the same segment as the insured vehicle
    * Sigortalı aracın segmenti ne ise, ikame aracın da aynı segmentte olması gerekir
    */
-  SegmenteSegment = "SEGMENTE_SEGMENT",
+  SegmenteSegment = 'SEGMENTE_SEGMENT',
 }
 
 /**
@@ -324,25 +319,25 @@ export enum HastaneAgi {
    * Unknown or undefined hospital network coverage.
    * Bilinmeyen veya tanımlanmamış hastane ağı kapsamı.
    */
-  Bilinmiyor = "BILINMIYOR",
+  Bilinmiyor = 'BILINMIYOR',
 
   /**
    * Narrow coverage hospital network with basic health services.
    * Temel sağlık hizmeti sunan dar kapsam hastane ağı.
    */
-  DarKapsam = "DAR_KAPSAM",
+  DarKapsam = 'DAR_KAPSAM',
 
   /**
    * Standard coverage hospital network with moderate service variety.
    * Orta düzeyde hizmet çeşitliliği sunan standart kapsam hastane ağı.
    */
-  StandartKapsam = "STANDART_KAPSAM",
+  StandartKapsam = 'STANDART_KAPSAM',
 
   /**
    * Wide coverage hospital network with comprehensive healthcare services.
    * Kapsamlı sağlık hizmetleri sunan geniş kapsam hastane ağı.
    */
-  GenisKapsam = "GENIS_KAPSAM",
+  GenisKapsam = 'GENIS_KAPSAM',
 }
 
 /**
@@ -357,19 +352,19 @@ export enum SaglikPaketiTedaviSekli {
    * Unknown or undefined treatment type.
    * Bilinmeyen veya tanımlanmamış tedavi türü.
    */
-  Bilinmiyor = "BILINMIYOR",
+  Bilinmiyor = 'BILINMIYOR',
 
   /**
    * Inpatient treatment coverage only.
    * Sadece yatarak tedavi kapsamı.
    */
-  Yatarak = "YATARAK",
+  Yatarak = 'YATARAK',
 
   /**
    * Combined inpatient and outpatient treatment coverage.
    * Yatarak ve ayakta tedavi kapsamının birleşimi.
    */
-  YatarakAyakta = "YATARAK_AYAKTA",
+  YatarakAyakta = 'YATARAK_AYAKTA',
 }
 
 /**
@@ -403,169 +398,169 @@ export enum TasinanYuk {
    * Undefined cargo type.
    * Belirsiz yük türü.
    */
-  Belirsiz = "BELIRSIZ",
+  Belirsiz = 'BELIRSIZ',
 
   /**
    * No specific cargo type.
    * Belirli bir yük türü yok.
    */
-  Yok = "YOK",
+  Yok = 'YOK',
 
   /**
    * Wood logs and lumber.
    * Ağaç kütükleri ve kereste.
    */
-  AgacKutukleriveKereste = "AGAC_KUTUKLERIVE_KERESTE",
+  AgacKutukleriveKereste = 'AGAC_KUTUKLERIVE_KERESTE',
 
   /**
    * Fuel and petroleum products.
    * Akaryakıt ve petrol ürünleri.
    */
-  Akaryakit = "AKARYAKIT",
+  Akaryakit = 'AKARYAKIT',
 
   /**
    * Shoes and leather goods.
    * Ayakkabı ve saraciye ürünleri.
    */
-  AyakkabiSaraciye = "AYAKKABI_SARACIYE",
+  AyakkabiSaraciye = 'AYAKKABI_SARACIYE',
 
   /**
    * Grocery and delicatessen products.
    * Bakkaliye ve şarküteri ürünleri.
    */
-  BakkaliyeveSharkuteriUrunleri = "BAKKALIYE_VE_SHARKUTERI_URUNLERI",
+  BakkaliyeveSharkuteriUrunleri = 'BAKKALIYE_VE_SHARKUTERI_URUNLERI',
 
   /**
    * All kinds of stationery materials.
    * Bilumum kırtasiye malzemeleri.
    */
-  BilumumKirtasiyeMalzemeleri = "BILUMUM_KIRTASIYE_MALZEMELERI",
+  BilumumKirtasiyeMalzemeleri = 'BILUMUM_KIRTASIYE_MALZEMELERI',
 
   /**
    * Bulk water and milk.
    * Dökme su ve süt.
    */
-  DokmeSuveSut = "DOKME_SU_VE_SUT",
+  DokmeSuveSut = 'DOKME_SU_VE_SUT',
 
   /**
    * Carpet and rugs.
    * Halı ve kilim.
    */
-  HaliveKilim = "HALI_VE_KILIM",
+  HaliveKilim = 'HALI_VE_KILIM',
 
   /**
    * Raw, semi-finished and finished paper products.
    * Ham, yarı mamül ve mamül kağıt ürünleri.
    */
-  HamYariMamulveMamulKagit = "HAM_YARI_MAMUL_VE_MAMUL_KAGIT",
+  HamYariMamulveMamulKagit = 'HAM_YARI_MAMUL_VE_MAMUL_KAGIT',
 
   /**
    * Ready-mix concrete.
    * Hazır beton.
    */
-  HazirBeton = "HAZIR_BETON",
+  HazirBeton = 'HAZIR_BETON',
 
   /**
    * All kinds of household appliances.
    * Her nevi ev aletleri.
    */
-  HerNeviEvAletleri = "HER_NEVI_EV_ALETLERI",
+  HerNeviEvAletleri = 'HER_NEVI_EV_ALETLERI',
 
   /**
    * All kinds of bulk coal and wood.
    * Her türlü dökme kömür ve odun.
    */
-  HerTurluDokmeKomurvOdun = "HER_TURLU_DOKME_KOMUR_V_ODUN",
+  HerTurluDokmeKomurvOdun = 'HER_TURLU_DOKME_KOMUR_V_ODUN',
 
   /**
    * Cereals and legumes.
    * Hububat ve bakliyat.
    */
-  HububatveBakliyat = "HUBUBAT_VE_BAKLIYAT",
+  HububatveBakliyat = 'HUBUBAT_VE_BAKLIYAT',
 
   /**
    * Rough construction materials.
    * Kaba inşaat malzemeleri.
    */
-  KabaInsaatMalzemeleri = "KABA_INSAAT_MALZEMELERI",
+  KabaInsaatMalzemeleri = 'KABA_INSAAT_MALZEMELERI',
 
   /**
    * Tire and rubber products.
    * Lastik ve kauçuk ürünleri.
    */
-  LastikKaucukUrunleri = "LASTIK_KAUCUK_URUNLERI",
+  LastikKaucukUrunleri = 'LASTIK_KAUCUK_URUNLERI',
 
   /**
    * Liquid chemical substances.
    * Likid kimyevi maddeler.
    */
-  LikidKimyeviMadde = "LIKID_KIMYEVI_MADDE",
+  LikidKimyeviMadde = 'LIKID_KIMYEVI_MADDE',
 
   /**
    * LPG gas cylinders.
    * LPG gaz tüpleri.
    */
-  LpgGazTupu = "LPG_GAZ_TUPU",
+  LpgGazTupu = 'LPG_GAZ_TUPU',
 
   /**
    * Machine parts and spare parts.
    * Makine aksam ve yedekleri.
    */
-  MakineAksamveYedekleri = "MAKINE_AKSAM_VE_YEDEKLERI",
+  MakineAksamveYedekleri = 'MAKINE_AKSAM_VE_YEDEKLERI',
 
   /**
    * Furniture materials.
    * Mobilya malzemesi.
    */
-  MobilyaMalzemesi = "MOBILYA_MALZEMESI",
+  MobilyaMalzemesi = 'MOBILYA_MALZEMESI',
 
   /**
    * Various household items.
    * Muhtelif ev eşyası.
    */
-  MuhtelifEvEsyasi = "MUHTELIF_EV_ESYASI",
+  MuhtelifEvEsyasi = 'MUHTELIF_EV_ESYASI',
 
   /**
    * Auto spare parts.
    * Oto yedek parçaları.
    */
-  OtoYedekParcalari = "OTO_YEDEK_PARCALARI",
+  OtoYedekParcalari = 'OTO_YEDEK_PARCALARI',
 
   /**
    * Plastic products.
    * Plastik mamülleri.
    */
-  PlastikMamulleri = "PLASTIK_MAMULLERI",
+  PlastikMamulleri = 'PLASTIK_MAMULLERI',
 
   /**
    * Synthetic fiber products.
    * Sentetik elyaf ürünleri.
    */
-  SentetikElyafUrunleri = "SENTETIK_ELYAF_URUNLERI",
+  SentetikElyafUrunleri = 'SENTETIK_ELYAF_URUNLERI',
 
   /**
    * Synthetic plastic paint products.
    * Sentetik plastik boya ürünleri.
    */
-  SentetikPlastikBoyaUrunleri = "SENTETIK_PLASTIK_BOYA_URUNLERI",
+  SentetikPlastikBoyaUrunleri = 'SENTETIK_PLASTIK_BOYA_URUNLERI',
 
   /**
    * Textile products.
    * Tekstil ürünleri.
    */
-  TekstilUrunleri = "TEKSTIL_URUNLERI",
+  TekstilUrunleri = 'TEKSTIL_URUNLERI',
 
   /**
    * Cleaning materials.
    * Temizlik maddeleri.
    */
-  TemizlikMaddeleri = "TEMIZLIK_MADDELERI",
+  TemizlikMaddeleri = 'TEMIZLIK_MADDELERI',
 
   /**
    * Fresh fruits and vegetables.
    * Yaş meyve ve sebze.
    */
-  YasMeyveveSebze = "YAS_MEYVE_VE_SEBZE",
+  YasMeyveveSebze = 'YAS_MEYVE_VE_SEBZE',
 }
 
 /**
@@ -573,10 +568,10 @@ export enum TasinanYuk {
  */
 function isCoverageValue(value: unknown): value is CoverageValue {
   return (
-    typeof value === "object" &&
+    typeof value === 'object' &&
     value !== null &&
-    "$type" in value &&
-    typeof (value as { $type: unknown }).$type === "string"
+    '$type' in value &&
+    typeof (value as { $type: unknown }).$type === 'string'
   );
 }
 
@@ -587,16 +582,14 @@ function isCoverageValue(value: unknown): value is CoverageValue {
  */
 export function mergeCoverage(...coverages: Coverage[]): Coverage {
   if (coverages.length === 0) {
-    throw new Error("Cannot merge empty coverage array");
+    throw new Error('Cannot merge empty coverage array');
   }
 
   // Filter out any null/undefined coverages
-  const validCoverages = coverages.filter(
-    (coverage): coverage is Coverage => coverage != null,
-  );
+  const validCoverages = coverages.filter((coverage): coverage is Coverage => coverage != null);
 
   if (validCoverages.length === 0) {
-    throw new Error("No valid coverages to merge");
+    throw new Error('No valid coverages to merge');
   }
 
   // Get the product branch from the first coverage
@@ -607,18 +600,14 @@ export function mergeCoverage(...coverages: Coverage[]): Coverage {
   for (const coverage of validCoverages) {
     if (coverage.productBranch !== productBranch) {
       throw new Error(
-        `All coverages must have the same productBranch. Expected: ${productBranch}, but found: ${coverage.productBranch}`,
+        `All coverages must have the same productBranch. Expected: ${productBranch}, but found: ${coverage.productBranch}`
       );
     }
   }
 
   // Helper function to merge coverage values with precedence rules
-  const mergeCoverageValue = (
-    values: (CoverageValue | undefined)[],
-  ): CoverageValue | undefined => {
-    const definedValues = values.filter(
-      (value): value is CoverageValue => value != null,
-    );
+  const mergeCoverageValue = (values: (CoverageValue | undefined)[]): CoverageValue | undefined => {
+    const definedValues = values.filter((value): value is CoverageValue => value != null);
 
     if (definedValues.length === 0) {
       return undefined;
@@ -626,9 +615,7 @@ export function mergeCoverage(...coverages: Coverage[]): Coverage {
 
     // Priority order: non-UNDEFINED values take precedence over UNDEFINED
     // If multiple non-UNDEFINED values exist, use the last one (later coverages override earlier ones)
-    const nonUndefinedValues = definedValues.filter(
-      (value) => value.$type !== "UNDEFINED",
-    );
+    const nonUndefinedValues = definedValues.filter((value) => value.$type !== 'UNDEFINED');
 
     if (nonUndefinedValues.length > 0) {
       // Return the last non-UNDEFINED value
@@ -636,22 +623,20 @@ export function mergeCoverage(...coverages: Coverage[]): Coverage {
     }
 
     // If all values are UNDEFINED, return UNDEFINED
-    return { $type: "UNDEFINED" };
+    return { $type: 'UNDEFINED' };
   };
 
   // Helper function to merge non-CoverageValue properties (use last defined value)
   const mergeProperty = <T>(values: (T | undefined)[]): T | undefined => {
     const definedValues = values.filter((value): value is T => value != null);
-    return definedValues.length > 0
-      ? definedValues[definedValues.length - 1]
-      : undefined;
+    return definedValues.length > 0 ? definedValues[definedValues.length - 1] : undefined;
   };
 
   // Get all unique property keys from all coverages (excluding productBranch)
   const allKeys = new Set<string>();
   for (const coverage of validCoverages) {
     Object.keys(coverage).forEach((key) => {
-      if (key !== "productBranch") {
+      if (key !== 'productBranch') {
         allKeys.add(key);
       }
     });
@@ -665,7 +650,7 @@ export function mergeCoverage(...coverages: Coverage[]): Coverage {
   // Merge each property dynamically
   for (const key of allKeys) {
     const values = validCoverages.map(
-      (coverage) => (coverage as unknown as Record<string, unknown>)[key],
+      (coverage) => (coverage as unknown as Record<string, unknown>)[key]
     );
 
     // Check if this property contains CoverageValue objects

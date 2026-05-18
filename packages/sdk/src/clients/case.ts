@@ -3,18 +3,18 @@
  * @description TypeScript client for case management operations
  */
 
-import { cases } from "../core/endpoints.js";
-import type { InsurUpResult, InsurUpGraphQLResult } from "../core/result.js";
-import type { HttpTransport } from "../client/http.js";
-import type { GraphQLTransport } from "../client/graphql.js";
-import type { RequestOptions } from "../core/options.js";
+import { cases } from '../core/endpoints.js';
+import type { InsurUpResult, InsurUpGraphQLResult } from '../core/result.js';
+import type { HttpTransport } from '../client/http.js';
+import type { GraphQLTransport } from '../client/graphql.js';
+import type { RequestOptions } from '../core/options.js';
 import {
   ALL_CASE_FIELDS,
   type CaseFieldKey,
   type GetCasesOptions,
   type CasesConnection,
-} from "@insurup/contracts";
-import { buildFieldSelection } from "@insurup/contracts";
+} from '@insurup/contracts';
+import { buildFieldSelection } from '@insurup/contracts';
 import type {
   // Request types
   AssignCaseRepresentativeRequest,
@@ -41,7 +41,7 @@ import type {
   GetFailedCasesReasonDistributionResult,
   CaseCommunicationAutomationResult,
   GetCasePriorityTemplatesResult,
-} from "@insurup/contracts";
+} from '@insurup/contracts';
 
 /**
  * Case Management Client
@@ -61,7 +61,7 @@ import type {
 export class InsurUpCaseClient {
   constructor(
     private readonly http: HttpTransport,
-    private readonly graphql?: GraphQLTransport,
+    private readonly graphql?: GraphQLTransport
   ) {}
 
   /**
@@ -74,7 +74,7 @@ export class InsurUpCaseClient {
    */
   async assignCaseRepresentative(
     request: AssignCaseRepresentativeRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     const endpoint = cases.assignRepresentative.render(request.ref);
     return await this.http.putNoContent(endpoint, request, options);
@@ -90,7 +90,7 @@ export class InsurUpCaseClient {
    */
   async changeCaseChannel(
     request: ChangeCaseChannelRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     const endpoint = cases.changeChannel.render(request.ref);
     return await this.http.putNoContent(endpoint, request, options);
@@ -106,7 +106,7 @@ export class InsurUpCaseClient {
    */
   async changeCaseState(
     request: ChangeCaseStateRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     const endpoint = cases.changeState.render(request.ref);
     return await this.http.putNoContent(endpoint, request, options);
@@ -122,7 +122,7 @@ export class InsurUpCaseClient {
    */
   async createCancelCase(
     request: CreateCancelCaseRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<string>> {
     return await this.http.post<string>(cases.createCancel, request, options);
   }
@@ -137,13 +137,9 @@ export class InsurUpCaseClient {
    */
   async createComplaintCase(
     request: CreateComplaintCaseRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<string>> {
-    return await this.http.post<string>(
-      cases.createComplaint,
-      request,
-      options,
-    );
+    return await this.http.post<string>(cases.createComplaint, request, options);
   }
 
   /**
@@ -156,13 +152,9 @@ export class InsurUpCaseClient {
    */
   async createCrossSaleOpportunityCase(
     request: CreateCrossSaleOpportunityCaseRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<string>> {
-    return await this.http.post<string>(
-      cases.createCrossSaleOpportunity,
-      request,
-      options,
-    );
+    return await this.http.post<string>(cases.createCrossSaleOpportunity, request, options);
   }
 
   /**
@@ -175,13 +167,9 @@ export class InsurUpCaseClient {
    */
   async createEndorsementCase(
     request: CreateEndorsementCaseRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<string>> {
-    return await this.http.post<string>(
-      cases.createEndorsement,
-      request,
-      options,
-    );
+    return await this.http.post<string>(cases.createEndorsement, request, options);
   }
 
   /**
@@ -194,13 +182,9 @@ export class InsurUpCaseClient {
    */
   async createNewSaleOpportunityCase(
     request: CreateNewSaleOpportunityCaseRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<string>> {
-    return await this.http.post<string>(
-      cases.createNewSaleOpportunity,
-      request,
-      options,
-    );
+    return await this.http.post<string>(cases.createNewSaleOpportunity, request, options);
   }
 
   /**
@@ -213,7 +197,7 @@ export class InsurUpCaseClient {
    */
   async getCasePolicies(
     ref: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<CasePolicyResult[]>> {
     const endpoint = cases.getPolicies.render(ref);
     return await this.http.get<CasePolicyResult[]>(endpoint, options);
@@ -229,7 +213,7 @@ export class InsurUpCaseClient {
    */
   async getCaseActivities(
     ref: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<CaseActivityResult[]>> {
     const endpoint = cases.getActivities.render(ref);
     return await this.http.get<CaseActivityResult[]>(endpoint, options);
@@ -245,7 +229,7 @@ export class InsurUpCaseClient {
    */
   async getCaseByRef(
     ref: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetCaseByRefResult>> {
     const endpoint = cases.getCaseByRef.render(ref);
     return await this.http.get<GetCaseByRefResult>(endpoint, options);
@@ -261,7 +245,7 @@ export class InsurUpCaseClient {
    */
   async getCaseProposals(
     ref: string,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<CaseProposalResult[]>> {
     const endpoint = cases.getProposals.render(ref);
     return await this.http.get<CaseProposalResult[]>(endpoint, options);
@@ -277,7 +261,7 @@ export class InsurUpCaseClient {
    */
   async addNoteToCase(
     request: AddNoteToCaseRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     const endpoint = cases.addNoteToCase.render(request.ref);
     return await this.http.putNoContent(endpoint, request, options);
@@ -293,7 +277,7 @@ export class InsurUpCaseClient {
    */
   async setCaseAsset(
     request: SetCaseAssetRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     const endpoint = cases.setAsset.render(request.ref);
     return await this.http.putNoContent(endpoint, request, options);
@@ -309,7 +293,7 @@ export class InsurUpCaseClient {
    */
   async setCaseBranch(
     request: SetCaseBranchRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult> {
     const endpoint = cases.setBranch.render(request.ref);
     return await this.http.putNoContent(endpoint, request, options);
@@ -325,12 +309,12 @@ export class InsurUpCaseClient {
    */
   async getSalesOpportunityFunnelAnalytics(
     request: GetSalesOpportunityFunnelAnalyticsRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetSalesOpportunityFunnelAnalyticsResult>> {
     return await this.http.post<GetSalesOpportunityFunnelAnalyticsResult>(
       cases.getSalesOpportunityFunnelAnalytics.definition,
       request,
-      options,
+      options
     );
   }
 
@@ -344,12 +328,12 @@ export class InsurUpCaseClient {
    */
   async getOpenCaseBacklogPivotAnalytics(
     request: GetOpenCaseBacklogPivotAnalyticsRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetOpenCaseBacklogPivotAnalyticsResult>> {
     return await this.http.post<GetOpenCaseBacklogPivotAnalyticsResult>(
       cases.getOpenCaseBacklogPivotAnalytics.definition,
       request,
-      options,
+      options
     );
   }
 
@@ -363,12 +347,12 @@ export class InsurUpCaseClient {
    */
   async getFailedCasesReasonDistribution(
     request: GetFailedCasesReasonDistributionRequest,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetFailedCasesReasonDistributionResult>> {
     return await this.http.post<GetFailedCasesReasonDistributionResult>(
       cases.getFailedCasesReasonDistribution.definition,
       request,
-      options,
+      options
     );
   }
 
@@ -380,11 +364,11 @@ export class InsurUpCaseClient {
    * @returns Available communication automations / Mevcut iletişim otomasyonları
    */
   async getAllCaseCommunicationAutomations(
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<CaseCommunicationAutomationResult[]>> {
     return await this.http.get<CaseCommunicationAutomationResult[]>(
       cases.communicationAutomations.getAll,
-      options,
+      options
     );
   }
 
@@ -396,12 +380,9 @@ export class InsurUpCaseClient {
    * @returns Available case priority templates / Mevcut talep öncelik şablonları
    */
   async getCasePriorityTemplates(
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpResult<GetCasePriorityTemplatesResult>> {
-    return await this.http.get<GetCasePriorityTemplatesResult>(
-      cases.getPriorityTemplates,
-      options,
-    );
+    return await this.http.get<GetCasePriorityTemplatesResult>(cases.getPriorityTemplates, options);
   }
 
   // ============================================================================
@@ -432,16 +413,15 @@ export class InsurUpCaseClient {
    */
   async getCases<const TFields extends CaseFieldKey[]>(
     requestOptions?: GetCasesOptions<TFields>,
-    options?: RequestOptions,
+    options?: RequestOptions
   ): Promise<InsurUpGraphQLResult<CasesConnection<TFields>>> {
     if (!this.graphql) {
       throw new Error(
-        "GraphQL transport is not available. Ensure the client is properly initialized.",
+        'GraphQL transport is not available. Ensure the client is properly initialized.'
       );
     }
 
-    const fields = (requestOptions?.select ??
-      ALL_CASE_FIELDS) as CaseFieldKey[];
+    const fields = (requestOptions?.select ?? ALL_CASE_FIELDS) as CaseFieldKey[];
     const fieldSelection = buildFieldSelection(fields);
     const hasFieldSelection = fieldSelection.length > 0;
 
@@ -471,12 +451,16 @@ export class InsurUpCaseClient {
             endCursor
           }
           totalCount
-          ${hasFieldSelection ? `edges {
+          ${
+            hasFieldSelection
+              ? `edges {
             cursor
             node {
               ${fieldSelection}
             }
-          }` : ""}
+          }`
+              : ''
+          }
         }
       }
     `;
@@ -492,7 +476,7 @@ export class InsurUpCaseClient {
     };
 
     const result = await this.graphql.query<{
-      casesNew: Omit<CasesConnection, "nodes">;
+      casesNew: Omit<CasesConnection, 'nodes'>;
     }>(query, variables, options);
 
     if (!result.isSuccess) {

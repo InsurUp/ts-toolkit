@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed } from "vue";
-import { Button } from "@/components/ui";
-import { ChevronLeft, ChevronRight } from "lucide-vue-next";
+import { computed } from 'vue';
+import { Button } from '@/components/ui';
+import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
 
 interface Props {
   hasNextPage: boolean;
@@ -20,8 +20,8 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  (e: "next"): void;
-  (e: "previous"): void;
+  (e: 'next'): void;
+  (e: 'previous'): void;
 }>();
 
 const hasTotal = computed(() => props.totalCount != null);
@@ -41,13 +41,9 @@ const totalPages = computed(() =>
     <div class="text-sm text-muted-foreground">
       <template v-if="hasTotal">
         Showing {{ start }}-{{ end }} of {{ totalCount!.toLocaleString() }} items
-        <template v-if="totalPages">
-          (Page {{ currentPage }} of {{ totalPages }})
-        </template>
+        <template v-if="totalPages"> (Page {{ currentPage }} of {{ totalPages }}) </template>
       </template>
-      <template v-else>
-        Page {{ currentPage }}
-      </template>
+      <template v-else> Page {{ currentPage }} </template>
     </div>
     <div class="flex items-center space-x-2">
       <Button

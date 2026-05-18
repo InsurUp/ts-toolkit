@@ -99,7 +99,7 @@ export function createListState() {
      * @returns {string|null}
      */
     getPreviousCursor() {
-      return currentPage > 1 ? cursors[currentPage - 2] ?? null : null;
+      return currentPage > 1 ? (cursors[currentPage - 2] ?? null) : null;
     },
 
     /**

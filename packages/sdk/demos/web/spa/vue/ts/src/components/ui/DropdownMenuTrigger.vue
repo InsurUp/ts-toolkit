@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { DropdownMenuTrigger } from "reka-ui";
+import { DropdownMenuTrigger } from 'reka-ui';
 </script>
 
 <template>

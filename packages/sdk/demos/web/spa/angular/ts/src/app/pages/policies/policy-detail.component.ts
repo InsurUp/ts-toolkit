@@ -93,7 +93,10 @@ import type { GetPolicyDetailResult } from '@insurup/contracts';
                 <span>{{ policy()!.insurerCustomerId || '-' }}</span>
               </div>
               @if (policy()!.insurerCustomerId) {
-                <button mat-stroked-button (click)="router.navigate(['/customers', policy()!.insurerCustomerId])">
+                <button
+                  mat-stroked-button
+                  (click)="router.navigate(['/customers', policy()!.insurerCustomerId])"
+                >
                   View Customer
                 </button>
               }
@@ -145,48 +148,50 @@ import type { GetPolicyDetailResult } from '@insurup/contracts';
       </div>
     }
   `,
-  styles: [`
-    .loading-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 50vh;
-    }
-    .policy-detail .header {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-    .policy-detail h1 {
-      font-size: 30px;
-      font-weight: bold;
-      margin: 0;
-    }
-    .id {
-      font-family: monospace;
-      opacity: 0.7;
-      font-size: 14px;
-    }
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 16px;
-    }
-    .info-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-    .label {
-      font-weight: 500;
-    }
-    .premium {
-      font-weight: bold;
-    }
-  `],
+  styles: [
+    `
+      .loading-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 50vh;
+      }
+      .policy-detail .header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+      .policy-detail h1 {
+        font-size: 30px;
+        font-weight: bold;
+        margin: 0;
+      }
+      .id {
+        font-family: monospace;
+        opacity: 0.7;
+        font-size: 14px;
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 16px;
+      }
+      .info-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .label {
+        font-weight: 500;
+      }
+      .premium {
+        font-weight: bold;
+      }
+    `,
+  ],
 })
 export class PolicyDetailComponent implements OnInit {
   router = inject(Router);

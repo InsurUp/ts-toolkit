@@ -1,24 +1,23 @@
-import { defineConfig } from "tsup";
+import { defineConfig } from 'tsup';
 
 export default defineConfig([
   // Node/bundler builds (ESM + CJS)
   {
-    entry: ["src/index.ts"],
-    format: ["esm", "cjs"],
-    dts: true,
+    entry: ['src/index.ts'],
+    format: ['esm', 'cjs'],
     clean: true,
     sourcemap: true,
     splitting: false,
-    outDir: "dist",
+    outDir: 'dist',
   },
   // Browser bundle (minified, standalone)
   {
-    entry: { "index.browser": "src/index.ts" },
-    format: ["esm"],
-    outDir: "dist",
+    entry: { 'index.browser': 'src/index.ts' },
+    format: ['esm'],
+    outDir: 'dist',
     minify: true,
     sourcemap: true,
-    platform: "browser",
-    target: "es2020",
+    platform: 'browser',
+    target: 'es2020',
   },
 ]);

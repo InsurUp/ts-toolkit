@@ -17,13 +17,7 @@ export interface Column<T> {
 @Component({
   selector: 'app-data-table',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatTableModule,
-    MatSortModule,
-    MatProgressSpinnerModule,
-    MatIconModule,
-  ],
+  imports: [CommonModule, MatTableModule, MatSortModule, MatProgressSpinnerModule, MatIconModule],
   template: `
     @if (isLoading) {
       <div class="loading-container">
@@ -36,62 +30,80 @@ export interface Column<T> {
         <p class="empty-subtitle">Try adjusting your search or filters</p>
       </div>
     } @else {
-      <table mat-table [dataSource]="data" matSort (matSortChange)="onSort($event)" class="data-table">
+      <table
+        mat-table
+        [dataSource]="data"
+        matSort
+        (matSortChange)="onSort($event)"
+        class="data-table"
+      >
         @for (column of columns; track column.key) {
           <ng-container [matColumnDef]="column.key">
-            <th mat-header-cell *matHeaderCellDef [mat-sort-header]="column.sortable ? column.key : ''">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              [mat-sort-header]="column.sortable ? column.key : ''"
+            >
               {{ column.header }}
             </th>
             <td mat-cell *matCellDef="let item">
               @if (cellTemplate) {
-                <ng-container *ngTemplateOutlet="cellTemplate; context: { $implicit: item, column: column }"></ng-container>
+                <ng-container
+                  *ngTemplateOutlet="cellTemplate; context: { $implicit: item, column: column }"
+                ></ng-container>
               } @else {
                 {{ getCellValue(item, column) }}
               }
             </td>
           </ng-container>
         }
-        
+
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
-            (click)="rowClick.emit(row)" 
-            class="clickable-row"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns"
+          (click)="rowClick.emit(row)"
+          class="clickable-row"
+        ></tr>
       </table>
     }
   `,
-  styles: [`
-    .loading-container, .empty-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 48px;
-      text-align: center;
-    }
-    .empty-icon {
-      font-size: 48px;
-      width: 48px;
-      height: 48px;
-      opacity: 0.5;
-    }
-    .empty-title {
-      margin: 16px 0 8px;
-      font-weight: 500;
-    }
-    .empty-subtitle {
-      opacity: 0.7;
-      font-size: 14px;
-    }
-    .data-table {
-      width: 100%;
-    }
-    .clickable-row {
-      cursor: pointer;
-    }
-    .clickable-row:hover {
-      background: rgba(0, 0, 0, 0.04);
-    }
-  `],
+  styles: [
+    `
+      .loading-container,
+      .empty-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 48px;
+        text-align: center;
+      }
+      .empty-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        opacity: 0.5;
+      }
+      .empty-title {
+        margin: 16px 0 8px;
+        font-weight: 500;
+      }
+      .empty-subtitle {
+        opacity: 0.7;
+        font-size: 14px;
+      }
+      .data-table {
+        width: 100%;
+      }
+      .clickable-row {
+        cursor: pointer;
+      }
+      .clickable-row:hover {
+        background: rgba(0, 0, 0, 0.04);
+      }
+    `,
+  ],
 })
 export class DataTableComponent<T> {
   @Input() columns: Column<T>[] = [];
@@ -99,14 +111,14 @@ export class DataTableComponent<T> {
   @Input() isLoading = false;
   @Input() sortField: string | null = null;
   @Input() sortDirection: 'asc' | 'desc' | null = null;
-  
+
   @Output() sort = new EventEmitter<{ field: string; direction: 'asc' | 'desc' }>();
   @Output() rowClick = new EventEmitter<T>();
-  
+
   @ContentChild('cellTemplate') cellTemplate?: TemplateRef<{ $implicit: T; column: Column<T> }>;
 
   get displayedColumns(): string[] {
-    return this.columns.map(c => c.key);
+    return this.columns.map((c) => c.key);
   }
 
   getCellValue(item: T, column: Column<T>): string {

@@ -3,12 +3,12 @@
  * @description Configuration for the SDK client
  */
 
-import type { InsurUpResult } from "./result.js";
+import type { InsurUpResult } from './result.js';
 
 /**
  * Logging levels for request/response debugging
  */
-export type LogLevel = "none" | "basic" | "detailed";
+export type LogLevel = 'none' | 'basic' | 'detailed';
 
 /**
  * Custom logger interface for request/response logging
@@ -36,7 +36,7 @@ export interface Logger {
  * - linear: delay = minTimeout * attempt - grows steadily
  * - constant: delay = minTimeout - fixed delay between retries
  */
-export type BackoffStrategy = "exponential" | "linear" | "constant";
+export type BackoffStrategy = 'exponential' | 'linear' | 'constant';
 
 /**
  * Retry configuration for handling transient failures
@@ -136,9 +136,7 @@ export interface RequestConfig {
  * Request interceptor function called before each request is sent
  * Can modify the request configuration or perform side effects
  */
-export type RequestInterceptor = (
-  config: RequestConfig,
-) => RequestConfig | Promise<RequestConfig>;
+export type RequestInterceptor = (config: RequestConfig) => RequestConfig | Promise<RequestConfig>;
 
 /**
  * Response interceptor function called after each response is received
@@ -146,7 +144,7 @@ export type RequestInterceptor = (
  */
 export type ResponseInterceptor = <T>(
   result: InsurUpResult<T>,
-  config: RequestConfig,
+  config: RequestConfig
 ) => InsurUpResult<T> | Promise<InsurUpResult<T>>;
 
 /**

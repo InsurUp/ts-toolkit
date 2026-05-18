@@ -20,7 +20,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src/ test/",
     "clean": "rm -rf dist",
@@ -54,13 +54,13 @@
     "@tanstack/vue-table": "^8"
   },
   "devDependencies": {
-    "@tanstack/vue-table": "^8.21.2",
+    "@tanstack/vue-table": "^8.21.3",
     "@vitest/coverage-v8": "^4.1.6",
     "@vue/test-utils": "^2.4.10",
     "jsdom": "^29.1.1",
     "tsup": "^8.5.1",
     "vitest": "^4.1.6",
-    "vue": "^3.5.0"
+    "vue": "^3.5.34"
   },
   "dependencies": {
     "@insurup/table-adapter-core": "workspace:*"

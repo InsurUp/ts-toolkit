@@ -2,26 +2,33 @@
  * Customer detail page entry point.
  */
 
-import { loadConfig } from "../shared/config";
-import { renderHeader, initTheme, renderLoading, renderError, escapeHtml, getQueryParam } from "../shared/components";
-import { requireAuth } from "../shared/auth";
-import { getClient } from "../shared/client";
-import { formatDateTime, formatCustomerType } from "../shared/format";
-import type { GetCustomerResult } from "@insurup/contracts";
+import { loadConfig } from '../shared/config';
+import {
+  renderHeader,
+  initTheme,
+  renderLoading,
+  renderError,
+  escapeHtml,
+  getQueryParam,
+} from '../shared/components';
+import { requireAuth } from '../shared/auth';
+import { getClient } from '../shared/client';
+import { formatDateTime, formatCustomerType } from '../shared/format';
+import type { GetCustomerResult } from '@insurup/contracts';
 
 async function init(): Promise<void> {
   loadConfig();
   initTheme();
   await requireAuth();
 
-  const nav = document.getElementById("main-nav");
+  const nav = document.getElementById('main-nav');
   if (nav) renderHeader(nav);
 
-  const main = document.getElementById("main-content");
-  const customerId = getQueryParam("id");
+  const main = document.getElementById('main-content');
+  const customerId = getQueryParam('id');
 
   if (!customerId) {
-    if (main) renderError(main, "Error", "No customer ID provided");
+    if (main) renderError(main, 'Error', 'No customer ID provided');
     return;
   }
 
@@ -29,38 +36,38 @@ async function init(): Promise<void> {
 }
 
 async function loadCustomer(container: HTMLElement, customerId: string): Promise<void> {
-  renderLoading(container, "Loading customer...");
+  renderLoading(container, 'Loading customer...');
 
   try {
     const client = getClient();
     const res = await client.customers.getCustomer(customerId);
 
     if (!res.isSuccess || !res.data) {
-      throw new Error(res.message || "Failed to load customer");
+      throw new Error(res.message || 'Failed to load customer');
     }
 
     renderCustomer(container, res.data);
   } catch (error) {
-    console.error("Failed to load customer:", error);
+    console.error('Failed to load customer:', error);
     renderError(
       container,
-      "Error Loading Customer",
-      error instanceof Error ? error.message : "Unknown error",
+      'Error Loading Customer',
+      error instanceof Error ? error.message : 'Unknown error',
       () => loadCustomer(container, customerId)
     );
   }
 }
 
 function getCustomerName(customer: GetCustomerResult): string {
-  if ("fullName" in customer && customer.fullName) return customer.fullName;
-  if ("title" in customer && customer.title) return customer.title;
-  return "Customer";
+  if ('fullName' in customer && customer.fullName) return customer.fullName;
+  if ('title' in customer && customer.title) return customer.title;
+  return 'Customer';
 }
 
 function getIdentityNumber(customer: GetCustomerResult): string {
-  if ("identityNumber" in customer) return String(customer.identityNumber);
-  if ("taxNumber" in customer) return customer.taxNumber;
-  return "-";
+  if ('identityNumber' in customer) return String(customer.identityNumber);
+  if ('taxNumber' in customer) return customer.taxNumber;
+  return '-';
 }
 
 function renderCustomer(container: HTMLElement, customer: GetCustomerResult): void {
@@ -98,10 +105,10 @@ function renderCustomer(container: HTMLElement, customer: GetCustomerResult): vo
         <header><strong>Contact Information</strong></header>
         <dl>
           <dt>Email</dt>
-          <dd>${escapeHtml(customer.primaryEmail || "-")}</dd>
+          <dd>${escapeHtml(customer.primaryEmail || '-')}</dd>
           
           <dt>Phone</dt>
-          <dd>${customer.primaryPhoneNumber ? `+${customer.primaryPhoneNumber.countryCode} ${escapeHtml(customer.primaryPhoneNumber.number)}` : "-"}</dd>
+          <dd>${customer.primaryPhoneNumber ? `+${customer.primaryPhoneNumber.countryCode} ${escapeHtml(customer.primaryPhoneNumber.number)}` : '-'}</dd>
         </dl>
       </article>
 

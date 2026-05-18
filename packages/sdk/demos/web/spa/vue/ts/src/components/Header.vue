@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
-import { useAuth } from "@/composables/useAuth";
+import { ref, watch, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { useAuth } from '@/composables/useAuth';
 import {
   Button,
   DropdownMenu,
@@ -9,16 +9,16 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-} from "@/components/ui";
-import { User, LogOut, Moon, Sun } from "lucide-vue-next";
+} from '@/components/ui';
+import { User, LogOut, Moon, Sun } from 'lucide-vue-next';
 
-const THEME_KEY = "insurup-demo-theme";
+const THEME_KEY = 'insurup-demo-theme';
 
 function getInitialTheme(): boolean {
-  if (typeof window === "undefined") return false;
+  if (typeof window === 'undefined') return false;
   const stored = localStorage.getItem(THEME_KEY);
-  if (stored) return stored === "dark";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  if (stored) return stored === 'dark';
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
 const router = useRouter();
@@ -29,11 +29,11 @@ const isDark = ref(getInitialTheme());
 
 function updateTheme() {
   if (isDark.value) {
-    document.documentElement.classList.add("dark");
+    document.documentElement.classList.add('dark');
   } else {
-    document.documentElement.classList.remove("dark");
+    document.documentElement.classList.remove('dark');
   }
-  localStorage.setItem(THEME_KEY, isDark.value ? "dark" : "light");
+  localStorage.setItem(THEME_KEY, isDark.value ? 'dark' : 'light');
 }
 
 onMounted(() => {
@@ -50,11 +50,11 @@ function toggleTheme() {
 
 function handleLogout() {
   logout();
-  router.push("/");
+  router.push('/');
 }
 
 function isActive(path: string): boolean {
-  return route.path === path || route.path.startsWith(path + "/");
+  return route.path === path || route.path.startsWith(path + '/');
 }
 </script>
 
@@ -70,17 +70,21 @@ function isActive(path: string): boolean {
         <nav v-if="isAuthenticated" class="flex items-center space-x-6 text-sm font-medium">
           <router-link
             to="/customers"
-            :class="isActive('/customers')
-              ? 'text-foreground'
-              : 'text-foreground/60 transition-colors hover:text-foreground'"
+            :class="
+              isActive('/customers')
+                ? 'text-foreground'
+                : 'text-foreground/60 transition-colors hover:text-foreground'
+            "
           >
             Customers
           </router-link>
           <router-link
             to="/policies"
-            :class="isActive('/policies')
-              ? 'text-foreground'
-              : 'text-foreground/60 transition-colors hover:text-foreground'"
+            :class="
+              isActive('/policies')
+                ? 'text-foreground'
+                : 'text-foreground/60 transition-colors hover:text-foreground'
+            "
           >
             Policies
           </router-link>
@@ -99,9 +103,7 @@ function isActive(path: string): boolean {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem @select="router.push('/profile')">
-                Profile
-              </DropdownMenuItem>
+              <DropdownMenuItem @select="router.push('/profile')"> Profile </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem @select="handleLogout">
                 <LogOut class="mr-2 h-4 w-4" />
@@ -112,7 +114,7 @@ function isActive(path: string): boolean {
         </template>
         <template v-else>
           <Button @click="login" :disabled="loginInProgress">
-            {{ loginInProgress ? "Logging in..." : "Login" }}
+            {{ loginInProgress ? 'Logging in...' : 'Login' }}
           </Button>
         </template>
       </div>
