@@ -1,20 +1,19 @@
 /**
  * @fileoverview Infinite Table API Factory
- * @description Shared helper that wraps InfiniteTableAdapter in the public TableApi shape.
- * Reused by every entity's infinite-factory.ts.
+ * @description Reused by every entity's infinite-factory.ts. Instantiates an
+ * InfiniteTableAdapter and wraps it in the shared TableApi shape.
  */
 
-import type { ColumnDef } from '@tanstack/table-core';
 import type { TableApi, TableApiConfig } from './types.js';
-import type { AdapterState } from '../adapter/types.js';
 import { InfiniteTableAdapter } from '../adapter/infinite-adapter/index.js';
 import type { PaginationOptions, PaginationManagerFromOptions } from '../pagination/index.js';
+import { createTableApiFromAdapter } from './create-table-api-from-adapter.js';
 
 /**
- * Create the infinite table API that wraps InfiniteTableAdapter.
+ * Create an infinite-scroll table API.
  *
- * Produces the same TableApi shape as `createTableApi`, backed by the infinite
- * adapter that accumulates rows across page fetches.
+ * Produces the same TableApi shape as `createTableApi`, backed by the
+ * infinite adapter that accumulates rows across page fetches.
  */
 export function createInfiniteTableApi<
   TEntity,
@@ -60,55 +59,5 @@ export function createInfiniteTableApi<
     keepPreviousData: config.keepPreviousData,
   });
 
-  // Cached frozen columns for referential stability
-  let cachedFrozenColumns: readonly ColumnDef<TRow, unknown>[] | null = null;
-  let lastSourceColumns: readonly ColumnDef<TRow, unknown>[] | null = null;
-
-  return {
-    get columns() {
-      if (adapter.columns !== lastSourceColumns) {
-        lastSourceColumns = adapter.columns;
-        cachedFrozenColumns = Object.freeze(
-          [...adapter.columns].map((col) => Object.freeze({ ...col }))
-        );
-      }
-      return cachedFrozenColumns!;
-    },
-
-    getState: (): AdapterState<TRow> => adapter.getState(),
-
-    getTableOptions: () => adapter.getTableOptions(),
-
-    getTable: () => adapter.getTable(),
-
-    subscribe: adapter.subscribe,
-
-    getSnapshot: (): AdapterState<TRow> => adapter.getSnapshot(),
-
-    getServerSnapshot: (): AdapterState<TRow> => adapter.getServerSnapshot(),
-
-    fetch: () => adapter.fetch(),
-
-    invalidate: () => adapter.invalidate(),
-
-    refetch: (options?: { force?: boolean }) => adapter.refetch(options),
-
-    destroy: () => adapter.destroy(),
-
-    get pagination() {
-      return adapter.pagination;
-    },
-
-    setPageSize: (size: number) => adapter.setPageSize(size),
-
-    setFilter: (filter: TFilterInput) => adapter.setFilter(filter),
-    getFilter: () => adapter.getFilter(),
-    clearFilter: () => adapter.clearFilter(),
-
-    setSearch: (search: TSearchInput) => adapter.setSearch(search),
-    getSearch: () => adapter.getSearch(),
-    clearSearch: () => adapter.clearSearch(),
-
-    getColumnInfo: () => adapter.getColumnInfo(),
-  };
+  return createTableApiFromAdapter(adapter);
 }

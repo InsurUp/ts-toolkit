@@ -1,6 +1,6 @@
 /**
  * @fileoverview Infinite Policy Table Factory
- * @description Creates type-safe infinite scroll policy table adapters with builder API
+ * @description Thin wrapper around `createInfiniteEntityTable` bound to the policies SDK call.
  */
 
 import type {
@@ -8,8 +8,6 @@ import type {
   GetPoliciesOptions,
   QueryPoliciesResult,
   QueryPoliciesResultSortInput,
-  QueryPoliciesResultFilterInput,
-  QueryPoliciesResultSearchInput,
 } from '@insurup/sdk';
 import type {
   PolicyTableOptions,
@@ -19,102 +17,38 @@ import type {
   PolicyFilterInput,
   PolicySearchInput,
 } from './types.js';
-import type { QueryOptionsBuilderArgs, FetchFn } from '../../lib/types.js';
-import type { TableApi } from '../../lib/factory/types.js';
-import {
-  getFetchFn,
-  createColumnBuilder,
-  createInfiniteTableApi,
-} from '../../lib/factory/index.js';
-import { createSortingConverters } from '../../lib/sorting/index.js';
+import { createInfiniteEntityTable, type TableApi } from '../../lib/factory/index.js';
 import type {
   CursorPaginationManager,
   CursorPaginationOptions,
 } from '../../lib/pagination/index.js';
 
-const policySortingConverters = createSortingConverters<QueryPoliciesResultSortInput>();
-
-function buildPolicyQueryOptions<TFields extends PolicyFieldKey[]>(
-  params: QueryOptionsBuilderArgs<
-    QueryPoliciesResult,
-    QueryPoliciesResultSortInput,
-    QueryPoliciesResultFilterInput,
-    QueryPoliciesResultSearchInput
-  >
-): GetPoliciesOptions<TFields> {
-  return {
-    first: params.first,
-    after: params.after,
-    order: params.order,
-    select: params.select as TFields,
-    filter: params.filter,
-    search: params.search,
-  };
-}
-
-function getPolicyFetchFn<TColumns extends PolicyColumnDef[]>(
-  options: PolicyTableOptions<TColumns>
-): FetchFn<PolicyRowType<TColumns>, GetPoliciesOptions<PolicyExtractFields<TColumns>[]>> {
-  return getFetchFn(
-    options,
-    (client) => (vars, requestOptions) => client.policies.getPolicies(vars, requestOptions)
-  );
-}
-
 /**
- * Create an infinite scroll policy table adapter.
- *
- * @example
- * ```typescript
- * const table = createInfinitePolicyTable({
- *   columns: (col) => [col.id(), col.insuranceCompanyPolicyNumber(), col.state()],
- *   fetch: (options) => client.policies.getPolicies(options),
- *   pagination: { type: 'cursor', pageSize: 50 },
- *   autoFetch: true,
- * })
- * ```
+ * Create an infinite-scroll policy table adapter.
+ * Rows accumulate across page fetches.
  */
 export function createInfinitePolicyTable<const TColumns extends PolicyColumnDef[]>(
   options: PolicyTableOptions<TColumns>
 ): InfinitePolicyTable<TColumns> {
-  type TFields = PolicyExtractFields<TColumns>;
-  type TRow = PolicyRowType<TColumns>;
-
-  const columnBuilder = createColumnBuilder<QueryPoliciesResult, PolicyFieldKey>();
-  const columns = options.columns(columnBuilder);
-
-  const fetchFn = getPolicyFetchFn(options);
-
-  return createInfiniteTableApi<
+  return createInfiniteEntityTable<
     QueryPoliciesResult,
-    TRow,
-    GetPoliciesOptions<TFields[]>,
+    PolicyFieldKey,
+    TColumns,
+    PolicyRowType<TColumns>,
+    GetPoliciesOptions<PolicyExtractFields<TColumns>[]>,
     QueryPoliciesResultSortInput,
     PolicyFilterInput,
     PolicySearchInput,
     CursorPaginationOptions
-  >({
-    fetchFn,
-    buildQueryOptions: buildPolicyQueryOptions,
-    columns,
-    pagination: options.pagination,
-    defaultFilter: options.defaultFilter,
-    defaultSearch: options.defaultSearch,
-    sortingConverters: policySortingConverters,
-    queryKeyPrefix: 'policies-infinite',
-    staleTime: options.staleTime,
-    gcTime: options.gcTime,
-    onError: options.onError,
-    onSuccess: options.onSuccess,
-    onSettled: options.onSettled,
-    tableOptions: options.tableOptions,
-    autoFetch: options.autoFetch,
-    keepPreviousData: options.keepPreviousData,
+  >(options, {
+    queryKeyPrefix: 'policies',
+    clientMethod: (client) => (vars, requestOptions) =>
+      client.policies.getPolicies(vars, requestOptions),
   }) as InfinitePolicyTable<TColumns>;
 }
 
 /**
- * Infinite policy table type - same interface as PolicyTable.
+ * Infinite policy table type — same shape as `PolicyTable`.
  */
 export type InfinitePolicyTable<TColumns extends PolicyColumnDef[] = PolicyColumnDef[]> = TableApi<
   PolicyRowType<TColumns>,

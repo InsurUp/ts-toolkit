@@ -1,5 +1,5 @@
 /**
- * @fileoverview React hook for Infinite FilePolicyTransfer Table — thin wrapper over `useTable`.
+ * @fileoverview Vue composable for Infinite FilePolicyTransfer Table — thin wrapper over `useTable`.
  */
 
 import {
@@ -16,7 +16,7 @@ export type UseInfiniteFilePolicyTransferTableResult<
 > = UseTableResult<FilePolicyTransferRowType<TColumns>, InfiniteFilePolicyTransferTable<TColumns>>;
 
 /**
- * React hook for an infinite scroll filepolicytransfer table.
+ * Vue composable for an infinite scroll filepolicytransfer table.
  * Rows accumulate across page fetches. See `useTable` for lifecycle details.
  */
 export function useInfiniteFilePolicyTransferTable<

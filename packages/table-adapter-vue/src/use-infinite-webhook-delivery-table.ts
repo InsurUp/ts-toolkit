@@ -1,5 +1,5 @@
 /**
- * @fileoverview React hook for Infinite WebhookDelivery Table — thin wrapper over `useTable`.
+ * @fileoverview Vue composable for Infinite WebhookDelivery Table — thin wrapper over `useTable`.
  */
 
 import {
@@ -15,7 +15,7 @@ export type UseInfiniteWebhookDeliveryTableResult<TColumns extends WebhookDelive
   UseTableResult<WebhookDeliveryRowType<TColumns>, InfiniteWebhookDeliveryTable<TColumns>>;
 
 /**
- * React hook for an infinite scroll webhookdelivery table.
+ * Vue composable for an infinite scroll webhookdelivery table.
  * Rows accumulate across page fetches. See `useTable` for lifecycle details.
  */
 export function useInfiniteWebhookDeliveryTable<const TColumns extends WebhookDeliveryColumnDef[]>(

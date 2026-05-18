@@ -1,6 +1,6 @@
 /**
  * @fileoverview Infinite Proposal Table Factory
- * @description Creates type-safe infinite scroll proposal table adapters with builder API
+ * @description Thin wrapper around `createInfiniteEntityTable` bound to the proposals SDK call.
  */
 
 import type {
@@ -8,8 +8,6 @@ import type {
   GetProposalsOptions,
   QueryProposalsResult,
   QueryProposalsResultSortInput,
-  QueryProposalsResultFilterInput,
-  QueryProposalsResultSearchInput,
 } from '@insurup/sdk';
 import type {
   ProposalTableOptions,
@@ -19,102 +17,38 @@ import type {
   ProposalFilterInput,
   ProposalSearchInput,
 } from './types.js';
-import type { QueryOptionsBuilderArgs, FetchFn } from '../../lib/types.js';
-import type { TableApi } from '../../lib/factory/types.js';
-import {
-  getFetchFn,
-  createColumnBuilder,
-  createInfiniteTableApi,
-} from '../../lib/factory/index.js';
-import { createSortingConverters } from '../../lib/sorting/index.js';
+import { createInfiniteEntityTable, type TableApi } from '../../lib/factory/index.js';
 import type {
   CursorPaginationManager,
   CursorPaginationOptions,
 } from '../../lib/pagination/index.js';
 
-const proposalSortingConverters = createSortingConverters<QueryProposalsResultSortInput>();
-
-function buildProposalQueryOptions<TFields extends ProposalFieldKey[]>(
-  params: QueryOptionsBuilderArgs<
-    QueryProposalsResult,
-    QueryProposalsResultSortInput,
-    QueryProposalsResultFilterInput,
-    QueryProposalsResultSearchInput
-  >
-): GetProposalsOptions<TFields> {
-  return {
-    first: params.first,
-    after: params.after,
-    order: params.order,
-    select: params.select as TFields,
-    filter: params.filter,
-    search: params.search,
-  };
-}
-
-function getProposalFetchFn<TColumns extends ProposalColumnDef[]>(
-  options: ProposalTableOptions<TColumns>
-): FetchFn<ProposalRowType<TColumns>, GetProposalsOptions<ProposalExtractFields<TColumns>[]>> {
-  return getFetchFn(
-    options,
-    (client) => (vars, requestOptions) => client.proposals.getProposals(vars, requestOptions)
-  );
-}
-
 /**
- * Create an infinite scroll proposal table adapter.
- *
- * @example
- * ```typescript
- * const table = createInfiniteProposalTable({
- *   columns: (col) => [col.id(), col.state(), col.insuredCustomerName()],
- *   fetch: (options) => client.proposals.getProposals(options),
- *   pagination: { type: 'cursor', pageSize: 50 },
- *   autoFetch: true,
- * })
- * ```
+ * Create an infinite-scroll proposal table adapter.
+ * Rows accumulate across page fetches.
  */
 export function createInfiniteProposalTable<const TColumns extends ProposalColumnDef[]>(
   options: ProposalTableOptions<TColumns>
 ): InfiniteProposalTable<TColumns> {
-  type TFields = ProposalExtractFields<TColumns>;
-  type TRow = ProposalRowType<TColumns>;
-
-  const columnBuilder = createColumnBuilder<QueryProposalsResult, ProposalFieldKey>();
-  const columns = options.columns(columnBuilder);
-
-  const fetchFn = getProposalFetchFn(options);
-
-  return createInfiniteTableApi<
+  return createInfiniteEntityTable<
     QueryProposalsResult,
-    TRow,
-    GetProposalsOptions<TFields[]>,
+    ProposalFieldKey,
+    TColumns,
+    ProposalRowType<TColumns>,
+    GetProposalsOptions<ProposalExtractFields<TColumns>[]>,
     QueryProposalsResultSortInput,
     ProposalFilterInput,
     ProposalSearchInput,
     CursorPaginationOptions
-  >({
-    fetchFn,
-    buildQueryOptions: buildProposalQueryOptions,
-    columns,
-    pagination: options.pagination,
-    defaultFilter: options.defaultFilter,
-    defaultSearch: options.defaultSearch,
-    sortingConverters: proposalSortingConverters,
-    queryKeyPrefix: 'proposals-infinite',
-    staleTime: options.staleTime,
-    gcTime: options.gcTime,
-    onError: options.onError,
-    onSuccess: options.onSuccess,
-    onSettled: options.onSettled,
-    tableOptions: options.tableOptions,
-    autoFetch: options.autoFetch,
-    keepPreviousData: options.keepPreviousData,
+  >(options, {
+    queryKeyPrefix: 'proposals',
+    clientMethod: (client) => (vars, requestOptions) =>
+      client.proposals.getProposals(vars, requestOptions),
   }) as InfiniteProposalTable<TColumns>;
 }
 
 /**
- * Infinite proposal table type - same interface as ProposalTable.
+ * Infinite proposal table type — same shape as `ProposalTable`.
  */
 export type InfiniteProposalTable<TColumns extends ProposalColumnDef[] = ProposalColumnDef[]> =
   TableApi<

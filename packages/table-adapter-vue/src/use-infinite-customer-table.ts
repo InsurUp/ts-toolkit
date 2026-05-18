@@ -1,5 +1,5 @@
 /**
- * @fileoverview React hook for Infinite Customer Table — thin wrapper over `useTable`.
+ * @fileoverview Vue composable for Infinite Customer Table — thin wrapper over `useTable`.
  */
 
 import {
@@ -17,7 +17,7 @@ export type UseInfiniteCustomerTableResult<TColumns extends CustomerColumnDef[]>
 >;
 
 /**
- * React hook for an infinite scroll customer table.
+ * Vue composable for an infinite scroll customer table.
  * Rows accumulate across page fetches. See `useTable` for lifecycle details.
  */
 export function useInfiniteCustomerTable<const TColumns extends CustomerColumnDef[]>(

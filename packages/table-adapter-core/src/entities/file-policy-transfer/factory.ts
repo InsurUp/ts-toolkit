@@ -1,6 +1,6 @@
 /**
- * @fileoverview File Policy Transfer Table Factory
- * @description Creates type-safe file policy transfer table adapters with builder API and field inference
+ * @fileoverview FilePolicyTransfer Table Factory
+ * @description Thin wrapper around `createEntityTable` bound to the file-policy-transfers SDK call.
  */
 
 import type {
@@ -8,8 +8,6 @@ import type {
   GetFilePolicyTransfersOptions,
   QueryFilePolicyTransfersResult,
   QueryFilePolicyTransfersResultSortInput,
-  QueryFilePolicyTransfersResultFilterInput,
-  QueryFilePolicyTransfersResultSearchInput,
 } from '@insurup/sdk';
 import type {
   FilePolicyTransferTableOptions,
@@ -19,112 +17,38 @@ import type {
   FilePolicyTransferFilterInput,
   FilePolicyTransferSearchInput,
 } from './types.js';
-import type { QueryOptionsBuilderArgs, FetchFn } from '../../lib/types.js';
-import {
-  getFetchFn,
-  createColumnBuilder,
-  createTableApi,
-  type TableApi,
-} from '../../lib/factory/index.js';
-import { createSortingConverters } from '../../lib/sorting/index.js';
+import { createEntityTable, type TableApi } from '../../lib/factory/index.js';
 import type {
   CursorPaginationManager,
   CursorPaginationOptions,
 } from '../../lib/pagination/index.js';
 
-const filePolicyTransferSortingConverters =
-  createSortingConverters<QueryFilePolicyTransfersResultSortInput>();
-
-function buildFilePolicyTransferQueryOptions<TFields extends FilePolicyTransferFieldKey[]>(
-  params: QueryOptionsBuilderArgs<
-    QueryFilePolicyTransfersResult,
-    QueryFilePolicyTransfersResultSortInput,
-    QueryFilePolicyTransfersResultFilterInput,
-    QueryFilePolicyTransfersResultSearchInput
-  >
-): GetFilePolicyTransfersOptions<TFields> {
-  return {
-    first: params.first,
-    after: params.after,
-    order: params.order,
-    select: params.select as TFields,
-    filter: params.filter,
-    search: params.search,
-    includeTotalCount: params.includeTotalCount,
-  };
-}
-
-function getFilePolicyTransferFetchFn<TColumns extends FilePolicyTransferColumnDef[]>(
-  options: FilePolicyTransferTableOptions<TColumns>
-): FetchFn<
-  FilePolicyTransferRowType<TColumns>,
-  GetFilePolicyTransfersOptions<FilePolicyTransferExtractFields<TColumns>[]>
-> {
-  return getFetchFn(
-    options,
-    (client) => (vars, requestOptions) =>
-      client.policies.getFilePolicyTransfers(vars, requestOptions)
-  );
-}
-
 /**
- * Create a type-safe file policy transfer table adapter.
- *
- * @example
- * ```typescript
- * const table = createFilePolicyTransferTable({
- *   columns: (col) => [col.id(), col.fileName(), col.createdAt()],
- *   fetch: (options) => client.policies.getFilePolicyTransfers(options),
- *   pagination: { type: 'cursor', pageSize: 10 },
- * })
- * ```
+ * Create a type-safe filepolicytransfer table adapter.
+ * Row type is narrowed to the fields referenced by the columns.
  */
 export function createFilePolicyTransferTable<const TColumns extends FilePolicyTransferColumnDef[]>(
   options: FilePolicyTransferTableOptions<TColumns>
 ): FilePolicyTransferTable<TColumns> {
-  type TFields = FilePolicyTransferExtractFields<TColumns>;
-  type TRow = FilePolicyTransferRowType<TColumns>;
-
-  const columnBuilder = createColumnBuilder<
+  return createEntityTable<
     QueryFilePolicyTransfersResult,
-    FilePolicyTransferFieldKey
-  >();
-  const columns = options.columns(columnBuilder);
-
-  const fetchFn = getFilePolicyTransferFetchFn(options);
-
-  return createTableApi<
-    QueryFilePolicyTransfersResult,
-    TRow,
-    GetFilePolicyTransfersOptions<TFields[]>,
+    FilePolicyTransferFieldKey,
+    TColumns,
+    FilePolicyTransferRowType<TColumns>,
+    GetFilePolicyTransfersOptions<FilePolicyTransferExtractFields<TColumns>[]>,
     QueryFilePolicyTransfersResultSortInput,
     FilePolicyTransferFilterInput,
     FilePolicyTransferSearchInput,
     CursorPaginationOptions
-  >({
-    fetchFn,
-    buildQueryOptions: buildFilePolicyTransferQueryOptions,
-    columns,
-    pagination: options.pagination,
-    defaultFilter: options.defaultFilter,
-    defaultSearch: options.defaultSearch,
-    sortingConverters: filePolicyTransferSortingConverters,
+  >(options, {
     queryKeyPrefix: 'file-policy-transfers',
-    staleTime: options.staleTime,
-    gcTime: options.gcTime,
-    onError: options.onError,
-    onSuccess: options.onSuccess,
-    onSettled: options.onSettled,
-    tableOptions: options.tableOptions,
-    autoFetch: options.autoFetch,
-    splitTotalCount: options.splitTotalCount,
-    keepPreviousData: options.keepPreviousData,
+    clientMethod: (client) => (vars, requestOptions) =>
+      client.policies.getFilePolicyTransfers(vars, requestOptions),
   }) as FilePolicyTransferTable<TColumns>;
 }
 
 /**
- * File policy transfer table type - row type is inferred from column definitions.
- * @template TColumns - The column definitions
+ * FilePolicyTransfer table type — row narrowed to the fields referenced by the columns.
  */
 export type FilePolicyTransferTable<
   TColumns extends FilePolicyTransferColumnDef[] = FilePolicyTransferColumnDef[],

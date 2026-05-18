@@ -1,6 +1,6 @@
 /**
  * @fileoverview Proposal Table Factory
- * @description Creates type-safe proposal table adapters with builder API and field inference
+ * @description Thin wrapper around `createEntityTable` bound to the proposals SDK call.
  */
 
 import type {
@@ -8,8 +8,6 @@ import type {
   GetProposalsOptions,
   QueryProposalsResult,
   QueryProposalsResultSortInput,
-  QueryProposalsResultFilterInput,
-  QueryProposalsResultSearchInput,
 } from '@insurup/sdk';
 import type {
   ProposalTableOptions,
@@ -19,104 +17,38 @@ import type {
   ProposalFilterInput,
   ProposalSearchInput,
 } from './types.js';
-import type { QueryOptionsBuilderArgs, FetchFn } from '../../lib/types.js';
-import {
-  getFetchFn,
-  createColumnBuilder,
-  createTableApi,
-  type TableApi,
-} from '../../lib/factory/index.js';
-import { createSortingConverters } from '../../lib/sorting/index.js';
+import { createEntityTable, type TableApi } from '../../lib/factory/index.js';
 import type {
   CursorPaginationManager,
   CursorPaginationOptions,
 } from '../../lib/pagination/index.js';
 
-const proposalSortingConverters = createSortingConverters<QueryProposalsResultSortInput>();
-
-function buildProposalQueryOptions<TFields extends ProposalFieldKey[]>(
-  params: QueryOptionsBuilderArgs<
-    QueryProposalsResult,
-    QueryProposalsResultSortInput,
-    QueryProposalsResultFilterInput,
-    QueryProposalsResultSearchInput
-  >
-): GetProposalsOptions<TFields> {
-  return {
-    first: params.first,
-    after: params.after,
-    order: params.order,
-    select: params.select as TFields,
-    filter: params.filter,
-    search: params.search,
-    includeTotalCount: params.includeTotalCount,
-  };
-}
-
-function getProposalFetchFn<TColumns extends ProposalColumnDef[]>(
-  options: ProposalTableOptions<TColumns>
-): FetchFn<ProposalRowType<TColumns>, GetProposalsOptions<ProposalExtractFields<TColumns>[]>> {
-  return getFetchFn(
-    options,
-    (client) => (vars, requestOptions) => client.proposals.getProposals(vars, requestOptions)
-  );
-}
-
 /**
  * Create a type-safe proposal table adapter.
- *
- * @example
- * ```typescript
- * const table = createProposalTable({
- *   columns: (col) => [col.id(), col.state(), col.insuredCustomerName()],
- *   fetch: (options) => client.proposals.getProposals(options),
- *   pagination: { type: 'cursor', pageSize: 10 },
- * })
- * ```
+ * Row type is narrowed to the fields referenced by the columns.
  */
 export function createProposalTable<const TColumns extends ProposalColumnDef[]>(
   options: ProposalTableOptions<TColumns>
 ): ProposalTable<TColumns> {
-  type TFields = ProposalExtractFields<TColumns>;
-  type TRow = ProposalRowType<TColumns>;
-
-  const columnBuilder = createColumnBuilder<QueryProposalsResult, ProposalFieldKey>();
-  const columns = options.columns(columnBuilder);
-
-  const fetchFn = getProposalFetchFn(options);
-
-  return createTableApi<
+  return createEntityTable<
     QueryProposalsResult,
-    TRow,
-    GetProposalsOptions<TFields[]>,
+    ProposalFieldKey,
+    TColumns,
+    ProposalRowType<TColumns>,
+    GetProposalsOptions<ProposalExtractFields<TColumns>[]>,
     QueryProposalsResultSortInput,
     ProposalFilterInput,
     ProposalSearchInput,
     CursorPaginationOptions
-  >({
-    fetchFn,
-    buildQueryOptions: buildProposalQueryOptions,
-    columns,
-    pagination: options.pagination,
-    defaultFilter: options.defaultFilter,
-    defaultSearch: options.defaultSearch,
-    sortingConverters: proposalSortingConverters,
+  >(options, {
     queryKeyPrefix: 'proposals',
-    staleTime: options.staleTime,
-    gcTime: options.gcTime,
-    onError: options.onError,
-    onSuccess: options.onSuccess,
-    onSettled: options.onSettled,
-    tableOptions: options.tableOptions,
-    autoFetch: options.autoFetch,
-    splitTotalCount: options.splitTotalCount,
-    keepPreviousData: options.keepPreviousData,
+    clientMethod: (client) => (vars, requestOptions) =>
+      client.proposals.getProposals(vars, requestOptions),
   }) as ProposalTable<TColumns>;
 }
 
 /**
- * Proposal table type - row type is inferred from column definitions.
- * @template TColumns - The column definitions
+ * Proposal table type — row narrowed to the fields referenced by the columns.
  */
 export type ProposalTable<TColumns extends ProposalColumnDef[] = ProposalColumnDef[]> = TableApi<
   ProposalRowType<TColumns>,

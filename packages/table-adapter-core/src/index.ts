@@ -204,27 +204,9 @@ export type {
   WebhookDeliverySearchInput,
 } from './entities/webhook-delivery/index.js';
 
-// Re-export SDK types for convenience
-export type { GetCustomersOptions, CustomerFieldKey, QueryCustomerModel } from '@insurup/sdk';
-export type { GetPoliciesOptions, PolicyFieldKey, QueryPoliciesResult } from '@insurup/sdk';
-export type { GetProposalsOptions, ProposalFieldKey, QueryProposalsResult } from '@insurup/sdk';
-export type { GetCasesOptions, CaseFieldKey, QueryCaseModel } from '@insurup/sdk';
-export type { GetAgentUsersOptions, AgentUserFieldKey, QueryAgentUserResult } from '@insurup/sdk';
-export type {
-  GetPolicyTransfersOptions,
-  PolicyTransferFieldKey,
-  QueryPolicyTransfersResult,
-} from '@insurup/sdk';
-export type {
-  GetFilePolicyTransfersOptions,
-  FilePolicyTransferFieldKey,
-  QueryFilePolicyTransfersResult,
-} from '@insurup/sdk';
-export type {
-  GetWebhookDeliveriesOptions,
-  WebhookDeliveryFieldKey,
-  QueryWebhookDeliveryResult,
-} from '@insurup/sdk';
+// Note: SDK types (Query*, *FieldKey, Get*Options) are NOT re-exported here —
+// import them directly from `@insurup/sdk` to avoid two import paths for the
+// same symbol.
 
 // ============================================================================
 // Base Adapter (for advanced usage)

@@ -1,5 +1,5 @@
 /**
- * @fileoverview React hook for Infinite AgentUser Table — thin wrapper over `useTable`.
+ * @fileoverview Vue composable for Infinite AgentUser Table — thin wrapper over `useTable`.
  */
 
 import {
@@ -17,7 +17,7 @@ export type UseInfiniteAgentUserTableResult<TColumns extends AgentUserColumnDef[
 >;
 
 /**
- * React hook for an infinite scroll agentuser table.
+ * Vue composable for an infinite scroll agentuser table.
  * Rows accumulate across page fetches. See `useTable` for lifecycle details.
  */
 export function useInfiniteAgentUserTable<const TColumns extends AgentUserColumnDef[]>(

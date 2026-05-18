@@ -12,9 +12,7 @@ import type {
   PickFields,
 } from '@insurup/sdk';
 import { DefaultInsurUpClient, InsurUpClientErrorType } from '@insurup/sdk';
-import type { ColumnDef } from '@tanstack/table-core';
 import { BaseTableAdapter } from '../adapter/base-adapter.js';
-import type { AdapterState } from '../adapter/types.js';
 import type {
   FetchFn,
   FetchRequestOptions,
@@ -25,6 +23,7 @@ import type {
 } from '../types.js';
 import type { TableApiConfig, TableApi } from './types.js';
 import type { PaginationOptions, PaginationManagerFromOptions } from '../pagination/types.js';
+import { createTableApiFromAdapter } from './create-table-api-from-adapter.js';
 
 /**
  * Create a fetch function for client mode
@@ -375,73 +374,14 @@ export function createTableApi<
     queryKeyPrefix: config.queryKeyPrefix,
     staleTime: config.staleTime,
     gcTime: config.gcTime,
-    // Pass through error callbacks
     onError: config.onError,
     onSuccess: config.onSuccess,
     onSettled: config.onSettled,
-    // Pass through TanStack Table options (adapter handles column visibility internally)
     tableOptions: config.tableOptions,
-    // Auto-fetch on creation
     autoFetch: config.autoFetch,
-    // Split total count fetching
     splitTotalCount: config.splitTotalCount,
-    // Keep previous rows during query-key transitions to avoid empty-flash
     keepPreviousData: config.keepPreviousData,
   });
 
-  // Cached frozen columns for referential stability
-  let cachedFrozenColumns: readonly ColumnDef<TRow, unknown>[] | null = null;
-  let lastSourceColumns: ColumnDef<TRow, unknown>[] | null = null;
-
-  return {
-    get columns() {
-      // Rebuild cache if source columns changed (handles future column modifications)
-      if (adapter.columns !== lastSourceColumns) {
-        lastSourceColumns = adapter.columns;
-        cachedFrozenColumns = Object.freeze(
-          adapter.columns.map((col) => Object.freeze({ ...col }))
-        );
-      }
-      return cachedFrozenColumns!;
-    },
-
-    getState: (): AdapterState<TRow> => adapter.getState(),
-
-    getTableOptions: () => adapter.getTableOptions(),
-
-    getTable: () => adapter.getTable(),
-
-    subscribe: adapter.subscribe,
-
-    getSnapshot: (): AdapterState<TRow> => adapter.getSnapshot(),
-
-    getServerSnapshot: (): AdapterState<TRow> => adapter.getServerSnapshot(),
-
-    fetch: () => adapter.fetch(),
-
-    invalidate: () => adapter.invalidate(),
-
-    refetch: (options?: { force?: boolean }) => adapter.refetch(options),
-
-    destroy: () => adapter.destroy(),
-
-    get pagination() {
-      return adapter.pagination;
-    },
-
-    setPageSize: (size: number) => adapter.setPageSize(size),
-
-    // Filter methods
-    setFilter: (filter: TFilterInput) => adapter.setFilter(filter),
-    getFilter: () => adapter.getFilter(),
-    clearFilter: () => adapter.clearFilter(),
-
-    // Search methods
-    setSearch: (search: TSearchInput) => adapter.setSearch(search),
-    getSearch: () => adapter.getSearch(),
-    clearSearch: () => adapter.clearSearch(),
-
-    // Column info method
-    getColumnInfo: () => adapter.getColumnInfo(),
-  };
+  return createTableApiFromAdapter(adapter);
 }

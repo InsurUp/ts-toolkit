@@ -1,5 +1,5 @@
 /**
- * @fileoverview React hook for Infinite Proposal Table — thin wrapper over `useTable`.
+ * @fileoverview Vue composable for Infinite Proposal Table — thin wrapper over `useTable`.
  */
 
 import {
@@ -17,7 +17,7 @@ export type UseInfiniteProposalTableResult<TColumns extends ProposalColumnDef[]>
 >;
 
 /**
- * React hook for an infinite scroll proposal table.
+ * Vue composable for an infinite scroll proposal table.
  * Rows accumulate across page fetches. See `useTable` for lifecycle details.
  */
 export function useInfiniteProposalTable<const TColumns extends ProposalColumnDef[]>(

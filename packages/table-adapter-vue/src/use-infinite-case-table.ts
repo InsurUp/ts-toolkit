@@ -1,5 +1,5 @@
 /**
- * @fileoverview React hook for Infinite Case Table — thin wrapper over `useTable`.
+ * @fileoverview Vue composable for Infinite Case Table — thin wrapper over `useTable`.
  */
 
 import {
@@ -17,7 +17,7 @@ export type UseInfiniteCaseTableResult<TColumns extends CaseColumnDef[]> = UseTa
 >;
 
 /**
- * React hook for an infinite scroll case table.
+ * Vue composable for an infinite scroll case table.
  * Rows accumulate across page fetches. See `useTable` for lifecycle details.
  */
 export function useInfiniteCaseTable<const TColumns extends CaseColumnDef[]>(
