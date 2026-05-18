@@ -222,13 +222,14 @@
         "@tanstack/table-core": "^8.21.3",
       },
       "devDependencies": {
+        "@types/node": "^25.8.0",
         "@vitest/coverage-v8": "^4.1.6",
         "tsup": "^8.5.1",
         "vitest": "^4.1.6",
       },
       "peerDependencies": {
         "@insurup/sdk": "latest",
-        "typescript": "^6.0.3",
+        "typescript": ">=5",
       },
     },
     "packages/table-adapter-core/demos/vanilla/ts": {
@@ -264,6 +265,7 @@
       "devDependencies": {
         "@tanstack/react-table": "^8.21.3",
         "@testing-library/react": "^16.3.2",
+        "@types/node": "^25.8.0",
         "@types/react": "^19.2.14",
         "@types/react-dom": "^19.2.3",
         "@vitest/coverage-v8": "^4.1.6",
@@ -330,6 +332,7 @@
         "@sveltejs/package": "^2.5.7",
         "@sveltejs/vite-plugin-svelte": "^7.1.2",
         "@tanstack/table-core": "^8.21.3",
+        "@types/node": "^25.8.0",
         "@vitest/coverage-v8": "^4.1.6",
         "svelte": "^5.55.7",
         "svelte-check": "^4.4.8",
@@ -376,6 +379,7 @@
       },
       "devDependencies": {
         "@tanstack/vue-table": "^8.21.3",
+        "@types/node": "^25.8.0",
         "@vitest/coverage-v8": "^4.1.6",
         "@vue/test-utils": "^2.4.10",
         "jsdom": "^29.1.1",

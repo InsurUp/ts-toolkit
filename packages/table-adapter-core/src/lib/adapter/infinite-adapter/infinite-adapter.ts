@@ -60,6 +60,16 @@ export class InfiniteTableAdapter<
   /** Last page index that was successfully fetched (to avoid duplicates) */
   private lastFetchedPageIndex = -1;
 
+  /**
+   * Whether the base adapter was fetching at the last notify. Used to detect
+   * the `isFetching: true → false` transition, which is the only moment we can
+   * trust that `baseState.rows` reflects the page we just fetched. Without
+   * this, pagination changes and state-reset operations trigger synchronous
+   * notifications carrying the *previous* page's rows, which would then get
+   * appended as if they were new.
+   */
+  private wasFetching = false;
+
   /** Subscription listeners */
   private listeners = new Set<() => void>();
 
@@ -127,8 +137,14 @@ export class InfiniteTableAdapter<
       this.resetRows();
     }
 
-    // Only append rows if this is a new page we haven't fetched before
-    if (baseState.isSuccess && currentPageIndex > this.lastFetchedPageIndex) {
+    // Only append on the `isFetching: true → false` transition with a
+    // successful result. Intermediate notifications (pagination index changed,
+    // filter reset, etc.) carry the previous page's rows and must not be
+    // treated as fresh data.
+    const justSettled = this.wasFetching && !baseState.isFetching;
+    this.wasFetching = baseState.isFetching;
+
+    if (justSettled && baseState.isSuccess && currentPageIndex > this.lastFetchedPageIndex) {
       this.accumulatedRows = [...this.accumulatedRows, ...baseState.rows];
       this.lastFetchedPageIndex = currentPageIndex;
     }
@@ -157,6 +173,7 @@ export class InfiniteTableAdapter<
   private resetRows(): void {
     this.accumulatedRows = [];
     this.lastFetchedPageIndex = -1;
+    this.wasFetching = false;
     this.updateCachedState();
   }
 
