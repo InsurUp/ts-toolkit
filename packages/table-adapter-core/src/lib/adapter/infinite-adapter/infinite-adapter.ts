@@ -188,7 +188,15 @@ export class InfiniteTableAdapter<
   }
 
   /**
-   * Reset accumulated rows (called when filters/search/etc change)
+   * Reset accumulated rows.
+   *
+   * **Invariant: callers must invoke `resetRows()` *before* the base-adapter
+   * mutation that triggers the re-fetch** (see `setFilter`, `setSearch`,
+   * `setPageSize`, `refetch`, `invalidate`, `clearFilter`, `clearSearch`
+   * below). Clearing `wasFetching` while a fetch is mid-flight is what
+   * prevents the canceled query's eventual notification from being treated
+   * as a fresh settle. Swapping the order would reintroduce the
+   * stale-rows-appended bug that the `wasFetching` flag exists to prevent.
    */
   private resetRows(): void {
     this.accumulatedRows = [];

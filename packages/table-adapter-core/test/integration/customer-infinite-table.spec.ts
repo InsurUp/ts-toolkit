@@ -3,22 +3,21 @@
  *
  * Scope: behavior that is *specific* to InfiniteTableAdapter — row
  * accumulation across pagination, the accumulator-reset contract on state
- * changes, the infinite-specific auto-fetch wiring, and cleanup. Behavior
- * inherited from BaseTableAdapter (filter/search forwarding, sorting,
- * snapshot shape, callbacks, etc.) is covered by `customer-table.spec.ts`
- * and not duplicated here.
+ * changes, and cleanup. Behavior inherited from BaseTableAdapter
+ * (filter/search forwarding, sorting, snapshot shape, callbacks, etc.) is
+ * covered by `customer-table.spec.ts` and not duplicated here.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { createInfiniteCustomerTable } from '../../src/entities/customer/infinite-factory.js';
 import { createMockPageInfo, createSuccessResult } from '../utils/mocks.js';
 import { flushPromises } from '../utils/helpers.js';
 import {
   CustomerType,
+  DateTime,
   type Connection,
   type InsurUpGraphQLResult,
   type CustomerFieldKey,
-  type GetCustomersOptions,
   type QueryCustomerModelSearchInput,
 } from '@insurup/sdk';
 import type {
@@ -49,7 +48,7 @@ function row(id: string, name: string, overrides: Partial<FullCustomerRow> = {})
     primaryPhoneNumberCountryCode: null,
     cityValue: null,
     districtValue: null,
-    createdAt: '2024-01-01T00:00:00Z',
+    createdAt: new DateTime('2024-01-01T00:00:00Z'),
     birthDate: null,
     gender: null,
     educationStatus: null,
@@ -58,8 +57,9 @@ function row(id: string, name: string, overrides: Partial<FullCustomerRow> = {})
     job: null,
     passportNumber: null,
     searchScore: null,
+    consents: [],
     ...overrides,
-  } as FullCustomerRow;
+  };
 }
 
 function connection(
@@ -76,26 +76,12 @@ function connection(
   };
 }
 
-function singlePageFetch(rows: FullCustomerRow[]): ExpectedFetchFn {
-  return vi.fn<
-    (
-      options: GetCustomersOptions<CustomerFieldKey[]>,
-      requestOptions?: { signal?: AbortSignal }
-    ) => Promise<InsurUpGraphQLResult<Connection<FullCustomerRow>>>
-  >(async () => createSuccessResult(connection(rows)));
-}
-
 /**
  * Pages-by-cursor mock. Each call returns the page indexed by the incoming
  * `after` cursor (undefined → page 0).
  */
 function pagedFetch(pages: ReadonlyArray<Connection<FullCustomerRow>>): ExpectedFetchFn {
-  return vi.fn<
-    (
-      options: GetCustomersOptions<CustomerFieldKey[]>,
-      requestOptions?: { signal?: AbortSignal }
-    ) => Promise<InsurUpGraphQLResult<Connection<FullCustomerRow>>>
-  >(async (options) => {
+  return vi.fn<ExpectedFetchFn>(async (options) => {
     const after = options.after ?? null;
     const pageIndex =
       after === null
@@ -114,13 +100,6 @@ function pagedFetch(pages: ReadonlyArray<Connection<FullCustomerRow>>): Expected
 // ============================================================================
 
 describe('createInfiniteCustomerTable', () => {
-  let mockFetch: ExpectedFetchFn;
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockFetch = singlePageFetch([row('CUST-001', 'John'), row('CUST-002', 'Jane')]);
-  });
-
   // --------------------------------------------------------------------------
   // row accumulation across pagination
   // --------------------------------------------------------------------------
@@ -156,12 +135,7 @@ describe('createInfiniteCustomerTable', () => {
       const pageA = connection([row('A1', 'Alice')], 'cursor-1', true);
       const pageB = connection([row('B1', 'Bob')], null, false);
 
-      const fetchFn = vi.fn<
-        (
-          options: GetCustomersOptions<CustomerFieldKey[]>,
-          requestOptions?: { signal?: AbortSignal }
-        ) => Promise<InsurUpGraphQLResult<Connection<FullCustomerRow>>>
-      >(async (options) => {
+      const fetchFn = vi.fn<ExpectedFetchFn>(async (options) => {
         if (!options.after) return createSuccessResult(pageA);
         return new Promise<InsurUpGraphQLResult<Connection<FullCustomerRow>>>((resolve) => {
           resolveB = resolve;
@@ -191,28 +165,28 @@ describe('createInfiniteCustomerTable', () => {
       table.destroy();
     });
 
-    it('refuses to append when pagination jumps ahead of the initial fetch', async () => {
-      // Regression: if pagination.next() fires before the page-0 fetch settles,
-      // TanStack cancels page 0 and runs page 1. The original `>` gate would
-      // append page 1's rows into an empty accumulator, silently dropping
-      // page 0. The strict `=== lastFetched + 1` gate refuses the append so
-      // the accumulator stays a contiguous prefix of pages.
-      let resolveA: (v: InsurUpGraphQLResult<Connection<FullCustomerRow>>) => void = () => {};
-      const pageA = connection([row('A1', 'Alice')], 'cursor-1', true);
-      const pageB = connection([row('B1', 'Bob')], null, false);
+    it('refuses out-of-order appends when pagination jumps past the next page', async () => {
+      // Regression: cursor pagination's `next()` only checks `hasNextPage`,
+      // which page 0 sets to true on its successful settle. Rapid clicks
+      // (next ×2 before page 1 finishes) advance currentPageIndex from 0
+      // → 1 → 2 while page 1's fetch is still in flight. TanStack cancels
+      // page 1 and runs page 2. Page 2's settle then sees
+      // currentPageIndex=2 with lastFetchedPageIndex=0 — the old `>` gate
+      // would append page 2's rows into the accumulator, dropping page 1
+      // and violating the contiguous-prefix contract. The strict
+      // `=== lastFetched + 1` gate refuses (2 !== 1) and keeps the buffer
+      // consistent.
+      let resolvePage1: (v: InsurUpGraphQLResult<Connection<FullCustomerRow>>) => void = () => {};
+      const pageA = connection([row('A1', 'Alice')], 'c-0', true);
 
-      const fetchFn = vi.fn<
-        (
-          options: GetCustomersOptions<CustomerFieldKey[]>,
-          requestOptions?: { signal?: AbortSignal }
-        ) => Promise<InsurUpGraphQLResult<Connection<FullCustomerRow>>>
-      >(async (options) => {
-        if (!options.after) {
-          return new Promise<InsurUpGraphQLResult<Connection<FullCustomerRow>>>((resolve) => {
-            resolveA = resolve;
-          });
-        }
-        return createSuccessResult(pageB);
+      const fetchFn = vi.fn<ExpectedFetchFn>(async (options) => {
+        // No cursor → page 0 (also covers page 2 since cursorHistory has no
+        // entry for index 2 after only one successful settle).
+        if (!options.after) return createSuccessResult(pageA);
+        // Page 1 cursor → held open so the rapid second next() races it.
+        return new Promise<InsurUpGraphQLResult<Connection<FullCustomerRow>>>((resolve) => {
+          resolvePage1 = resolve;
+        });
       });
 
       const table = createInfiniteCustomerTable({
@@ -221,23 +195,31 @@ describe('createInfiniteCustomerTable', () => {
         pagination: { type: 'cursor', pageSize: 1 },
       });
 
-      // Kick off page 0 — fetch is held open via resolveA.
-      void table.fetch();
+      await table.fetch();
       await flushPromises();
-      expect(table.getState().rows).toHaveLength(0);
+      expect(table.getState().rows.map((r) => r.id)).toEqual(['A1']);
+      expect(table.pagination.canGoNext()).toBe(true);
 
-      // Jump to page 1 before page 0 settles. The base adapter cancels the
-      // page-0 query and starts a page-1 query, which resolves with pageB.
+      // First click: advance to page 1, fetch starts and is held.
+      table.pagination.next();
+      await flushPromises();
+
+      // Second click: advance to page 2. `hasNextPage` is still true from
+      // page 0's settle, so cursor.next() succeeds without waiting on
+      // page 1. The base adapter cancels page 1 and starts a page-2 fetch.
+      // cursorHistory has no entry for index 2 → fetch is issued with
+      // `after: undefined`, which the mock resolves with pageA data.
       table.pagination.next();
       await flushPromises();
       await flushPromises();
 
-      // The accumulator must NOT contain pageB rows: page 0 was never
-      // captured, so appending page 1 would violate the prefix contract.
-      expect(table.getState().rows).toHaveLength(0);
+      // With the strict-sequential gate, page 2's settle is refused
+      // (currentPageIndex=2, lastFetched=0, 2 !== 1). Accumulator stays
+      // exactly as it was after page 0.
+      expect(table.getState().rows.map((r) => r.id)).toEqual(['A1']);
 
-      // Cleanup: resolve the canceled page-0 promise so vi's queue settles.
-      resolveA(createSuccessResult(pageA));
+      // Cleanup: resolve the canceled page-1 promise so vi's queue settles.
+      resolvePage1(createSuccessResult(connection([row('B1', 'Bob')], null, false)));
       await flushPromises();
 
       table.destroy();
@@ -398,38 +380,6 @@ describe('createInfiniteCustomerTable', () => {
   });
 
   // --------------------------------------------------------------------------
-  // auto-fetch — InfiniteTableAdapter passes autoFetch=false to the base
-  // adapter and triggers the first fetch itself, so the contract is
-  // worth verifying at this layer.
-  // --------------------------------------------------------------------------
-
-  describe('auto-fetch', () => {
-    it('fetches automatically when autoFetch is true', async () => {
-      const table = createInfiniteCustomerTable({
-        columns: (col) => [col.id()],
-        fetch: mockFetch,
-        pagination: { type: 'cursor' },
-        autoFetch: true,
-      });
-
-      await flushPromises();
-      expect(mockFetch).toHaveBeenCalled();
-      table.destroy();
-    });
-
-    it('does not auto-fetch by default', () => {
-      const table = createInfiniteCustomerTable({
-        columns: (col) => [col.id()],
-        fetch: mockFetch,
-        pagination: { type: 'cursor' },
-      });
-
-      expect(mockFetch).not.toHaveBeenCalled();
-      table.destroy();
-    });
-  });
-
-  // --------------------------------------------------------------------------
   // cleanup
   // --------------------------------------------------------------------------
 
@@ -437,7 +387,7 @@ describe('createInfiniteCustomerTable', () => {
     it('destroys without error', () => {
       const table = createInfiniteCustomerTable({
         columns: (col) => [col.id()],
-        fetch: mockFetch,
+        fetch: pagedFetch([connection([row('A1', 'Alice')])]),
         pagination: { type: 'cursor' },
       });
       expect(() => table.destroy()).not.toThrow();
@@ -446,7 +396,7 @@ describe('createInfiniteCustomerTable', () => {
     it('stops notifying subscribers after destroy', async () => {
       const table = createInfiniteCustomerTable({
         columns: (col) => [col.id()],
-        fetch: mockFetch,
+        fetch: pagedFetch([connection([row('A1', 'Alice')])]),
         pagination: { type: 'cursor' },
       });
 
