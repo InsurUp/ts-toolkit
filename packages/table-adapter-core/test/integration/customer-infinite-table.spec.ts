@@ -9,7 +9,7 @@
  */
 
 import { describe, it, expect, vi } from 'vitest';
-import { createInfiniteCustomerTable } from '../../src/entities/customer/infinite-factory.js';
+import { createInfiniteCustomerTable } from '../../src/entities/customer/factory.js';
 import { createMockPageInfo, createSuccessResult } from '../utils/mocks.js';
 import { flushPromises } from '../utils/helpers.js';
 import {

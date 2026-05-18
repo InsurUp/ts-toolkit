@@ -2,29 +2,7 @@
  * @insurup/table-adapter-react
  *
  * React bindings for @insurup/table-adapter-core.
- * Provides useCustomerTable hook with automatic lifecycle management.
- *
- * @example
- * ```tsx
- * import { useCustomerTable } from '@insurup/table-adapter-react';
- *
- * function CustomersPage() {
- *   const { state, table, adapter } = useCustomerTable({
- *     columns: (col) => [col.id(), col.name(), col.primaryEmail()],
- *     fetch: (options) => client.customers.getCustomers(options),
- *     autoFetch: true,
- *   });
- *
- *   if (state.isLoading) return <div>Loading...</div>;
- *
- *   return (
- *     <table>
- *       {table.getHeaderGroups().map(headerGroup => ...)}
- *       {table.getRowModel().rows.map(row => ...)}
- *     </table>
- *   );
- * }
- * ```
+ * Provides per-entity hooks with automatic lifecycle management.
  *
  * @packageDocumentation
  */
@@ -33,57 +11,73 @@
 // React-specific hooks
 // ============================================================================
 
+// Customer
 export { useCustomerTable, type UseCustomerTableResult } from './use-customer-table.js';
 export {
   useInfiniteCustomerTable,
   type UseInfiniteCustomerTableResult,
 } from './use-infinite-customer-table.js';
 
-// ============================================================================
-// Re-export everything from core for convenience
-// ============================================================================
-
-// Core factory (for advanced use cases)
-export { createCustomerTable, type CustomerTable } from '@insurup/table-adapter-core';
+// Policy
+export { usePolicyTable, type UsePolicyTableResult } from './use-policy-table.js';
 export {
-  createInfiniteCustomerTable,
-  type InfiniteCustomerTable,
-} from '@insurup/table-adapter-core';
+  useInfinitePolicyTable,
+  type UseInfinitePolicyTableResult,
+} from './use-infinite-policy-table.js';
 
-// Entity types
-export type {
-  CustomerColumnDef,
-  CustomerRowType,
-  CustomerExtractFields,
-  CustomerTableOptions,
-  CustomerFetchFn,
-  CustomerFilterInput,
-  CustomerSearchInput,
-} from '@insurup/table-adapter-core';
+// Proposal
+export { useProposalTable, type UseProposalTableResult } from './use-proposal-table.js';
+export {
+  useInfiniteProposalTable,
+  type UseInfiniteProposalTableResult,
+} from './use-infinite-proposal-table.js';
 
-// Adapter types
-export type {
-  AdapterState,
-  TableOptions,
-  TableError,
-  ErrorCallbacks,
-} from '@insurup/table-adapter-core';
+// Case
+export { useCaseTable, type UseCaseTableResult } from './use-case-table.js';
+export {
+  useInfiniteCaseTable,
+  type UseInfiniteCaseTableResult,
+} from './use-infinite-case-table.js';
 
-// Column builder types
-export type {
-  ColumnBuilder,
-  ColumnDefinitionFn,
-  AnyColumnDef,
-  FieldColumnDef,
-  ComputedColumnDef,
-  ColumnDef,
-  ColumnConfig,
-  ComputedColumnConfig,
-} from '@insurup/table-adapter-core';
+// AgentUser
+export { useAgentUserTable, type UseAgentUserTableResult } from './use-agent-user-table.js';
+export {
+  useInfiniteAgentUserTable,
+  type UseInfiniteAgentUserTableResult,
+} from './use-infinite-agent-user-table.js';
 
-// SDK re-exports
-export type {
-  GetCustomersOptions,
-  CustomerFieldKey,
-  QueryCustomerModel,
-} from '@insurup/table-adapter-core';
+// PolicyTransfer
+export {
+  usePolicyTransferTable,
+  type UsePolicyTransferTableResult,
+} from './use-policy-transfer-table.js';
+export {
+  useInfinitePolicyTransferTable,
+  type UseInfinitePolicyTransferTableResult,
+} from './use-infinite-policy-transfer-table.js';
+
+// FilePolicyTransfer
+export {
+  useFilePolicyTransferTable,
+  type UseFilePolicyTransferTableResult,
+} from './use-file-policy-transfer-table.js';
+export {
+  useInfiniteFilePolicyTransferTable,
+  type UseInfiniteFilePolicyTransferTableResult,
+} from './use-infinite-file-policy-transfer-table.js';
+
+// WebhookDelivery
+export {
+  useWebhookDeliveryTable,
+  type UseWebhookDeliveryTableResult,
+} from './use-webhook-delivery-table.js';
+export {
+  useInfiniteWebhookDeliveryTable,
+  type UseInfiniteWebhookDeliveryTableResult,
+} from './use-infinite-webhook-delivery-table.js';
+
+// ============================================================================
+// Re-export public surface from core
+// ============================================================================
+
+export * from '@insurup/table-adapter-core';

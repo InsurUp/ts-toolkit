@@ -12,12 +12,8 @@
 
 import { createSubscriber } from 'svelte/reactivity';
 import type { Table, TableOptionsResolved } from '@tanstack/table-core';
-import type {
-  TableError,
-  ITableAdapter,
-  AdapterState,
-  PaginationManager,
-} from '@insurup/table-adapter-core';
+import type { TableError, AdapterState, PaginationManager } from '@insurup/table-adapter-core';
+import type { ITableAdapter } from '@insurup/table-adapter-core/internal';
 
 /**
  * Fine-grained reactive state for table adapters.

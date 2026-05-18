@@ -1,14 +1,13 @@
 /**
  * @fileoverview Entities Module Exports
- * @description Entity-specific table adapters
+ * @description Re-exports the public surface of every entity barrel.
  */
 
-// Customer entity
-export { createCustomerTable, type CustomerTable } from './customer/index.js';
-export type {
-  CustomerColumnDef,
-  CustomerRowType,
-  CustomerExtractFields,
-  CustomerTableOptions,
-  CustomerFetchFn,
-} from './customer/index.js';
+export * from './customer/index.js';
+export * from './policy/index.js';
+export * from './proposal/index.js';
+export * from './case/index.js';
+export * from './agent-user/index.js';
+export * from './policy-transfer/index.js';
+export * from './file-policy-transfer/index.js';
+export * from './webhook-delivery/index.js';
