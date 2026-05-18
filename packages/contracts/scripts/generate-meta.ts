@@ -13,9 +13,17 @@
 import { Project, type InterfaceDeclaration, type Type, SyntaxKind } from 'ts-morph';
 import { resolve, basename, dirname, join, relative } from 'node:path';
 import { writeFileSync } from 'node:fs';
+import prettier from 'prettier';
 
 const ROOT = resolve(import.meta.dirname, '..');
 const META_TYPES_PATH = resolve(ROOT, 'src/meta-types.js');
+
+const prettierConfig = await prettier.resolveConfig(ROOT);
+
+async function writeFormatted(path: string, content: string): Promise<void> {
+  const formatted = await prettier.format(content, { ...prettierConfig, parser: 'typescript' });
+  writeFileSync(path, formatted, 'utf-8');
+}
 
 // Parse CLI args: first = primary dir, rest = extra dirs
 const args = process.argv.slice(2).map((d) => resolve(ROOT, d));
@@ -237,7 +245,7 @@ for (const [filePath, metas] of fileMap) {
     lines.push('} as const satisfies ModelMeta;\n');
   }
 
-  writeFileSync(outPath, lines.join('\n'), 'utf-8');
+  await writeFormatted(outPath, lines.join('\n'));
   console.log(`  wrote ${outPath.replace(ROOT + '/', '')}`);
 }
 
@@ -281,7 +289,7 @@ registryLines.push('  return META_REGISTRY[modelName];');
 registryLines.push('}');
 registryLines.push('');
 
-writeFileSync(registryPath, registryLines.join('\n'), 'utf-8');
+await writeFormatted(registryPath, registryLines.join('\n'));
 console.log(`  wrote ${registryPath.replace(ROOT + '/', '')}`);
 
 console.log(`\nGenerated meta for ${registry.length} interfaces.`);
