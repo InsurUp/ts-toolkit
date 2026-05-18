@@ -9,7 +9,11 @@
 
 import type { ColumnDef } from '@tanstack/table-core';
 import type { ITableAdapter, AdapterState, BaseTableAdapterOptions } from '../adapter/types.js';
-import type { PaginationManager, PaginationOptions } from '../pagination/types.js';
+import type {
+  PaginationManager,
+  PaginationManagerFromOptions,
+  PaginationOptions,
+} from '../pagination/types.js';
 import type { FetchFn, QueryOptionsBuilder } from '../types.js';
 import type { TableApi, TableApiConfig } from './types.js';
 
@@ -90,7 +94,12 @@ type AdapterCtor<
     TSearchInput,
     TPaginationOptions
   >
-) => ITableAdapter<TRow, TFilterInput, TSearchInput, PaginationManager>;
+) => ITableAdapter<
+  TRow,
+  TFilterInput,
+  TSearchInput,
+  PaginationManagerFromOptions<TPaginationOptions>
+>;
 
 /**
  * Construct an adapter of the given class from a `TableApiConfig` and wrap
@@ -124,7 +133,7 @@ export function buildTableApi<
     TSearchInput,
     TPaginationOptions
   >
-): TableApi<TRow, TFilterInput, TSearchInput, PaginationManager> {
+): TableApi<TRow, TFilterInput, TSearchInput, PaginationManagerFromOptions<TPaginationOptions>> {
   const adapter = new AdapterCtor(config.fetchFn, config.buildQueryOptions, {
     columns: config.columns,
     pagination: config.pagination,

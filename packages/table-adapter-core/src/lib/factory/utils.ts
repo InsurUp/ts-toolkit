@@ -357,10 +357,5 @@ export function createTableApi<
     TPaginationOptions
   >
 ): TableApi<TRow, TFilterInput, TSearchInput, PaginationManagerFromOptions<TPaginationOptions>> {
-  return buildTableApi(BaseTableAdapter, config) as TableApi<
-    TRow,
-    TFilterInput,
-    TSearchInput,
-    PaginationManagerFromOptions<TPaginationOptions>
-  >;
+  return buildTableApi(BaseTableAdapter, config);
 }

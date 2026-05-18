@@ -32,10 +32,5 @@ export function createInfiniteTableApi<
     TPaginationOptions
   >
 ): TableApi<TRow, TFilterInput, TSearchInput, PaginationManagerFromOptions<TPaginationOptions>> {
-  return buildTableApi(InfiniteTableAdapter, config) as TableApi<
-    TRow,
-    TFilterInput,
-    TSearchInput,
-    PaginationManagerFromOptions<TPaginationOptions>
-  >;
+  return buildTableApi(InfiniteTableAdapter, config);
 }

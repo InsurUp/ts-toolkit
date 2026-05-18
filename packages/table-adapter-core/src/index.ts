@@ -4,8 +4,9 @@
  * A framework-agnostic adapter for using @insurup/sdk with TanStack Table.
  * Handles cursor pagination, sorting, caching, and state management.
  *
- * For library extensions and custom entity factories, see the `/internal`
- * subpath: `import { createEntityTable } from '@insurup/table-adapter-core/internal'`.
+ * The `@insurup/table-adapter-core/internal` subpath publishes `ITableAdapter`
+ * for framework wrappers (currently used by `@insurup/table-adapter-svelte`).
+ * Other primitives are not publicly exposed — open an issue if you need one.
  *
  * @example
  * ```typescript
