@@ -1,6 +1,27 @@
 /**
  * @fileoverview Wait helpers for e2e tests against real APIs.
+ *
+ * `waitForIdle` accepts either shape used across the adapter packages:
+ *   - the regular adapter API: `{ getState(): { isFetching, isLoading } }` (core, react, vue)
+ *   - Svelte runes: `{ isFetching, isLoading }` exposed directly
+ *
+ * Real timers only — these helpers will hang under `vi.useFakeTimers()`.
  */
+
+interface StatefulTableViaGetState {
+  getState: () => { isFetching: boolean; isLoading: boolean };
+}
+
+interface StatefulTableViaFields {
+  isFetching: boolean;
+  isLoading: boolean;
+}
+
+export type StatefulTable = StatefulTableViaGetState | StatefulTableViaFields;
+
+function readState(table: StatefulTable): { isFetching: boolean; isLoading: boolean } {
+  return 'getState' in table ? table.getState() : table;
+}
 
 export async function waitFor(
   condition: () => boolean,
@@ -16,10 +37,6 @@ export async function waitFor(
   }
 }
 
-interface StatefulTable {
-  getState: () => { isFetching: boolean; isLoading: boolean };
-}
-
 /**
  * Wait until a table is no longer loading or fetching.
  *
@@ -28,7 +45,7 @@ interface StatefulTable {
  */
 export async function waitForIdle(table: StatefulTable): Promise<void> {
   await waitFor(() => {
-    const state = table.getState();
+    const state = readState(table);
     return !state.isFetching && !state.isLoading;
   });
 }
@@ -41,16 +58,22 @@ export async function waitForIdle(table: StatefulTable): Promise<void> {
  * callback that fires after the current microtask. Without this two-phase
  * wait, polling for "idle" can return immediately on the pre-fetch state.
  *
- * If the action didn't trigger a fetch within the start window, this resolves
- * without error so callers can still assert post-conditions.
+ * Throws if no fetch starts within `startWindowMs`. Silent early-return would
+ * mask regressions where a state mutation no longer triggers a fetch — the
+ * downstream assertions would then run against stale state.
  */
 export async function waitForFetchCycle(
   table: StatefulTable,
   startWindowMs = 1_000
 ): Promise<void> {
   const start = Date.now();
-  while (!table.getState().isFetching) {
-    if (Date.now() - start > startWindowMs) return; // No fetch was triggered.
+  while (!readState(table).isFetching) {
+    if (Date.now() - start > startWindowMs) {
+      throw new Error(
+        `waitForFetchCycle: no fetch started within ${startWindowMs}ms — ` +
+          'expected the preceding action to trigger one'
+      );
+    }
     await new Promise((resolve) => setTimeout(resolve, 10));
   }
   await waitForIdle(table);

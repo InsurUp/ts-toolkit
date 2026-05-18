@@ -1,0 +1,21 @@
+{
+  "name": "@insurup/test-helpers-e2e",
+  "version": "0.0.0",
+  "description": "Internal: shared M2M auth + wait helpers for e2e suites across adapter packages.",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./client": "./src/client.ts",
+    "./describe": "./src/describe.ts",
+    "./env": "./src/env.ts",
+    "./token": "./src/token.ts",
+    "./wait": "./src/wait.ts"
+  },
+  "dependencies": {
+    "@insurup/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^25.8.0",
+    "vitest": "^4.1.6"
+  }
+}

@@ -6,9 +6,9 @@
 import { expect, it, vi } from 'vitest';
 import { DefaultInsurUpClient } from '@insurup/sdk';
 import { createCustomerTable } from '../../src/entities/customer/factory.js';
-import { e2eClientOptions } from './helpers/client.js';
-import { describeE2E } from './helpers/describe.js';
-import { waitForIdle } from './helpers/wait.js';
+import { e2eClientOptions } from '@insurup/test-helpers-e2e/client';
+import { describeE2E } from '@insurup/test-helpers-e2e/describe';
+import { waitForIdle } from '@insurup/test-helpers-e2e/wait';
 
 describeE2E('createCustomerTable error paths [e2e]', () => {
   it('surfaces a 401 when the access token is invalid', async () => {

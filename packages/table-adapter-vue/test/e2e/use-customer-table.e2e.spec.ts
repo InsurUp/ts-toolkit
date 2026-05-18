@@ -12,9 +12,9 @@ import { mount } from '@vue/test-utils';
 import { CustomerType } from '@insurup/sdk';
 import type { CustomerTableOptions, CustomerColumnDef } from '@insurup/table-adapter-core';
 import { useCustomerTable } from '../../src/use-customer-table';
-import { createE2EClient } from './helpers/client.js';
-import { describeE2E } from './helpers/describe.js';
-import { waitFor } from './helpers/wait.js';
+import { createE2EClient } from '@insurup/test-helpers-e2e/client';
+import { describeE2E } from '@insurup/test-helpers-e2e/describe';
+import { waitFor } from '@insurup/test-helpers-e2e/wait';
 
 type Options = CustomerTableOptions<CustomerColumnDef[]>;
 
@@ -62,7 +62,7 @@ describeE2E('useCustomerTable [e2e]', () => {
       await nextTick();
       await waitFor(() => wrapper.vm.state.isSuccess === true, 15_000);
 
-      const firstIds = wrapper.vm.state.rows.map((r) => (r as { id: string }).id);
+      const firstIds = wrapper.vm.state.rows.map((r) => r.id);
       if (firstIds.length < 3 || !wrapper.vm.adapter.pagination.canGoNext()) {
         return; // Tenant lacks enough data to paginate.
       }
@@ -71,13 +71,12 @@ describeE2E('useCustomerTable [e2e]', () => {
       await waitFor(
         () =>
           !wrapper.vm.state.isFetching &&
-          wrapper.vm.state.rows.map((r) => (r as { id: string }).id).join(',') !==
-            firstIds.join(','),
+          wrapper.vm.state.rows.map((r) => r.id).join(',') !== firstIds.join(','),
         15_000
       );
       await nextTick();
 
-      const secondIds = wrapper.vm.state.rows.map((r) => (r as { id: string }).id);
+      const secondIds = wrapper.vm.state.rows.map((r) => r.id);
       const overlap = secondIds.filter((id) => firstIds.includes(id));
       expect(overlap).toEqual([]);
     } finally {
@@ -102,7 +101,7 @@ describeE2E('useCustomerTable [e2e]', () => {
       await nextTick();
 
       for (const row of wrapper.vm.state.rows) {
-        expect((row as { type: string }).type).toBe(CustomerType.Individual);
+        expect(row.type).toBe(CustomerType.Individual);
       }
     } finally {
       wrapper.unmount();

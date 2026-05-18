@@ -62,6 +62,7 @@
     "@tanstack/table-core": "^8"
   },
   "devDependencies": {
+    "@insurup/test-helpers-e2e": "workspace:*",
     "@sveltejs/package": "^2.5.7",
     "@sveltejs/vite-plugin-svelte": "^7.1.2",
     "@tanstack/table-core": "^8.21.3",

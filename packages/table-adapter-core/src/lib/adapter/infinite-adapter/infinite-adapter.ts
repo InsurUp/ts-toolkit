@@ -76,8 +76,12 @@ export class InfiniteTableAdapter<
   /** Unsubscribe function for base adapter subscription */
   private unsubscribeBase: (() => void) | null = null;
 
-  /** Cached state snapshot for useSyncExternalStore compatibility */
-  private cachedState: AdapterState<TRow> | null = null;
+  /**
+   * Cached state snapshot for useSyncExternalStore compatibility.
+   * Initialized in the constructor from the base adapter's initial state so
+   * `getSnapshot` returns a real value before the first fetch.
+   */
+  private cachedState: AdapterState<TRow>;
 
   constructor(
     fetchFn: FetchFn<TRow, TQueryOptions>,
@@ -111,8 +115,9 @@ export class InfiniteTableAdapter<
       autoFetch: false,
     });
 
-    // Initialize cached state
-    this.updateCachedState();
+    // Initialize cached state from the base adapter's initial snapshot so
+    // `getSnapshot()` returns a real value before the first fetch.
+    this.cachedState = this.buildCachedState();
 
     // Subscribe to base adapter state changes
     this.unsubscribeBase = this.baseAdapter.subscribe(() => this.handleBaseUpdate());
@@ -138,13 +143,20 @@ export class InfiniteTableAdapter<
     }
 
     // Only append on the `isFetching: true → false` transition with a
-    // successful result. Intermediate notifications (pagination index changed,
-    // filter reset, etc.) carry the previous page's rows and must not be
-    // treated as fresh data.
+    // successful result for the *next sequential page*. Two scenarios this
+    // refuses:
+    //   1. Out-of-order: `pagination.next()` called before page 0's initial
+    //      fetch settles → TanStack cancels page 0 and runs page 1. With a
+    //      `>` check the page-1 settle would append into an empty buffer,
+    //      silently dropping page 0. The `=== +1` check keeps the buffer a
+    //      contiguous prefix `pages[0..lastFetchedPageIndex]`.
+    //   2. Same-page double-emit: if a canceled query somehow surfaces with
+    //      `isSuccess=true` after we've already accumulated that page, the
+    //      gate refuses (page === lastFetched, not lastFetched + 1).
     const justSettled = this.wasFetching && !baseState.isFetching;
     this.wasFetching = baseState.isFetching;
 
-    if (justSettled && baseState.isSuccess && currentPageIndex > this.lastFetchedPageIndex) {
+    if (justSettled && baseState.isSuccess && currentPageIndex === this.lastFetchedPageIndex + 1) {
       this.accumulatedRows = [...this.accumulatedRows, ...baseState.rows];
       this.lastFetchedPageIndex = currentPageIndex;
     }
@@ -155,16 +167,24 @@ export class InfiniteTableAdapter<
   }
 
   /**
-   * Update the cached state snapshot
-   * Only called when state actually changes to maintain referential stability
+   * Build a fresh cached state snapshot from the base adapter's current state
+   * plus the accumulated rows.
    */
-  private updateCachedState(): void {
+  private buildCachedState(): AdapterState<TRow> {
     const base = this.baseAdapter.getState();
-    this.cachedState = {
+    return {
       ...base,
       rows: this.accumulatedRows,
       rowCount: this.accumulatedRows.length,
     };
+  }
+
+  /**
+   * Update the cached state snapshot.
+   * Only called when state actually changes to maintain referential stability.
+   */
+  private updateCachedState(): void {
+    this.cachedState = this.buildCachedState();
   }
 
   /**
@@ -215,7 +235,7 @@ export class InfiniteTableAdapter<
   getSnapshot(): AdapterState<TRow> {
     // Return cached state - it's updated in handleBaseUpdate when state changes
     // This ensures referential stability required by useSyncExternalStore
-    return this.cachedState!;
+    return this.cachedState;
   }
 
   getServerSnapshot(): AdapterState<TRow> {

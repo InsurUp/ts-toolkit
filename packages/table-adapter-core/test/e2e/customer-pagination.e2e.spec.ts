@@ -4,9 +4,9 @@
 
 import { expect, it } from 'vitest';
 import { createCustomerTable } from '../../src/entities/customer/factory.js';
-import { createE2EClient } from './helpers/client.js';
-import { describeE2E } from './helpers/describe.js';
-import { waitForIdle } from './helpers/wait.js';
+import { createE2EClient } from '@insurup/test-helpers-e2e/client';
+import { describeE2E } from '@insurup/test-helpers-e2e/describe';
+import { waitForIdle } from '@insurup/test-helpers-e2e/wait';
 
 describeE2E('createCustomerTable pagination [e2e]', () => {
   it('advances and retreats through pages with cursor pagination', async () => {
@@ -20,7 +20,7 @@ describeE2E('createCustomerTable pagination [e2e]', () => {
       await table.fetch();
       await waitForIdle(table);
 
-      const firstPage = table.getState().rows.map((r) => (r as { id: string }).id);
+      const firstPage = table.getState().rows.map((r) => r.id);
       if (firstPage.length < 3 || !table.pagination.canGoNext()) {
         return; // Tenant lacks enough data to paginate.
       }
@@ -28,7 +28,7 @@ describeE2E('createCustomerTable pagination [e2e]', () => {
       table.pagination.next();
       await waitForIdle(table);
 
-      const secondPage = table.getState().rows.map((r) => (r as { id: string }).id);
+      const secondPage = table.getState().rows.map((r) => r.id);
       expect(secondPage).not.toEqual(firstPage);
       const overlap = secondPage.filter((id) => firstPage.includes(id));
       expect(overlap).toEqual([]);
@@ -37,7 +37,7 @@ describeE2E('createCustomerTable pagination [e2e]', () => {
       table.pagination.previous();
       await waitForIdle(table);
 
-      const backToFirst = table.getState().rows.map((r) => (r as { id: string }).id);
+      const backToFirst = table.getState().rows.map((r) => r.id);
       expect(backToFirst).toEqual(firstPage);
     } finally {
       table.destroy();

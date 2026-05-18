@@ -1,15 +1,17 @@
 /**
  * @fileoverview Integration tests for createInfiniteCustomerTable.
  *
- * Mirrors customer-table.spec.ts where behavior overlaps with the regular
- * adapter, and adds infinite-specific cases: row accumulation across pages
- * and accumulator resets on state changes (filter/search/sort/page-size/
- * invalidate/refetch).
+ * Scope: behavior that is *specific* to InfiniteTableAdapter — row
+ * accumulation across pagination, the accumulator-reset contract on state
+ * changes, the infinite-specific auto-fetch wiring, and cleanup. Behavior
+ * inherited from BaseTableAdapter (filter/search forwarding, sorting,
+ * snapshot shape, callbacks, etc.) is covered by `customer-table.spec.ts`
+ * and not duplicated here.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createInfiniteCustomerTable } from '../../src/entities/customer/infinite-factory.js';
-import { createMockPageInfo, createSuccessResult, createClientError } from '../utils/mocks.js';
+import { createMockPageInfo, createSuccessResult } from '../utils/mocks.js';
 import { flushPromises } from '../utils/helpers.js';
 import {
   CustomerType,
@@ -75,13 +77,12 @@ function connection(
 }
 
 function singlePageFetch(rows: FullCustomerRow[]): ExpectedFetchFn {
-  return vi
-    .fn<
-      (
-        options: GetCustomersOptions<CustomerFieldKey[]>
-      ) => Promise<InsurUpGraphQLResult<Connection<FullCustomerRow>>>
-    >()
-    .mockResolvedValue(createSuccessResult(connection(rows))) as ExpectedFetchFn;
+  return vi.fn<
+    (
+      options: GetCustomersOptions<CustomerFieldKey[]>,
+      requestOptions?: { signal?: AbortSignal }
+    ) => Promise<InsurUpGraphQLResult<Connection<FullCustomerRow>>>
+  >(async () => createSuccessResult(connection(rows)));
 }
 
 /**
@@ -89,22 +90,23 @@ function singlePageFetch(rows: FullCustomerRow[]): ExpectedFetchFn {
  * `after` cursor (undefined → page 0).
  */
 function pagedFetch(pages: ReadonlyArray<Connection<FullCustomerRow>>): ExpectedFetchFn {
-  return vi.fn(
-    async (
-      options: GetCustomersOptions<CustomerFieldKey[]>
-    ): Promise<InsurUpGraphQLResult<Connection<FullCustomerRow>>> => {
-      const after = options.after ?? null;
-      const pageIndex =
-        after === null
-          ? 0
-          : pages.findIndex((_p, i) => i > 0 && pages[i - 1]?.pageInfo.endCursor === after);
-      const page = pageIndex >= 0 ? pages[pageIndex] : undefined;
-      if (!page) {
-        throw new Error(`pagedFetch: unknown cursor ${String(after)}`);
-      }
-      return createSuccessResult(page);
+  return vi.fn<
+    (
+      options: GetCustomersOptions<CustomerFieldKey[]>,
+      requestOptions?: { signal?: AbortSignal }
+    ) => Promise<InsurUpGraphQLResult<Connection<FullCustomerRow>>>
+  >(async (options) => {
+    const after = options.after ?? null;
+    const pageIndex =
+      after === null
+        ? 0
+        : pages.findIndex((_p, i) => i > 0 && pages[i - 1]?.pageInfo.endCursor === after);
+    const page = pageIndex >= 0 ? pages[pageIndex] : undefined;
+    if (!page) {
+      throw new Error(`pagedFetch: unknown cursor ${String(after)}`);
     }
-  ) as ExpectedFetchFn;
+    return createSuccessResult(page);
+  });
 }
 
 // ============================================================================
@@ -117,106 +119,6 @@ describe('createInfiniteCustomerTable', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockFetch = singlePageFetch([row('CUST-001', 'John'), row('CUST-002', 'Jane')]);
-  });
-
-  // --------------------------------------------------------------------------
-  // table creation
-  // --------------------------------------------------------------------------
-
-  describe('table creation', () => {
-    it('builds a table with column definitions', () => {
-      const table = createInfiniteCustomerTable({
-        columns: (col) => [col.id(), col.name('Name')],
-        fetch: mockFetch,
-        pagination: { type: 'cursor', pageSize: 5 },
-      });
-
-      expect(table).toBeDefined();
-      expect(table.columns).toHaveLength(2);
-
-      table.destroy();
-    });
-
-    it('extracts fields from column definitions', async () => {
-      const table = createInfiniteCustomerTable({
-        columns: (col) => [col.id(), col.name('Name'), col.primaryEmail('Email')],
-        fetch: mockFetch,
-        pagination: { type: 'cursor' },
-      });
-
-      await table.fetch();
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.objectContaining({
-          select: expect.arrayContaining(['id', 'name', 'primaryEmail']),
-        }),
-        expect.any(Object)
-      );
-      table.destroy();
-    });
-
-    it('extracts fields from computed columns', async () => {
-      const table = createInfiniteCustomerTable({
-        columns: (col) => [
-          col.id(),
-          col.computed({
-            uses: ['cityText', 'districtText'] as const,
-            header: 'Location',
-            render: (row) => `${row.cityText}, ${row.districtText}`,
-          }),
-        ],
-        fetch: mockFetch,
-        pagination: { type: 'cursor' },
-      });
-
-      await table.fetch();
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.objectContaining({
-          select: expect.arrayContaining(['id', 'cityText', 'districtText']),
-        }),
-        expect.any(Object)
-      );
-      table.destroy();
-    });
-  });
-
-  // --------------------------------------------------------------------------
-  // data fetching
-  // --------------------------------------------------------------------------
-
-  describe('data fetching', () => {
-    it('fetches and populates rows', async () => {
-      const table = createInfiniteCustomerTable({
-        columns: (col) => [col.id()],
-        fetch: mockFetch,
-        pagination: { type: 'cursor' },
-      });
-
-      await table.fetch();
-      await flushPromises();
-
-      const state = table.getState();
-      expect(state.rows).toHaveLength(2);
-      expect(state.isSuccess).toBe(true);
-      table.destroy();
-    });
-
-    it('uses the configured page size', async () => {
-      const table = createInfiniteCustomerTable({
-        columns: (col) => [col.id()],
-        fetch: mockFetch,
-        pagination: { type: 'cursor', pageSize: 50 },
-      });
-
-      await table.fetch();
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.objectContaining({ first: 50 }),
-        expect.any(Object)
-      );
-      table.destroy();
-    });
   });
 
   // --------------------------------------------------------------------------
@@ -236,14 +138,14 @@ describe('createInfiniteCustomerTable', () => {
 
       await table.fetch();
       await flushPromises();
-      expect(table.getState().rows.map((r) => (r as { id: string }).id)).toEqual(['A1', 'A2']);
+      expect(table.getState().rows.map((r) => r.id)).toEqual(['A1', 'A2']);
       expect(table.pagination.canGoNext()).toBe(true);
 
       table.pagination.next();
       await flushPromises();
       await flushPromises();
 
-      const ids = table.getState().rows.map((r) => (r as { id: string }).id);
+      const ids = table.getState().rows.map((r) => r.id);
       expect(ids).toEqual(['A1', 'A2', 'B1', 'B2']);
       expect(new Set(ids).size).toBe(ids.length);
       table.destroy();
@@ -254,16 +156,17 @@ describe('createInfiniteCustomerTable', () => {
       const pageA = connection([row('A1', 'Alice')], 'cursor-1', true);
       const pageB = connection([row('B1', 'Bob')], null, false);
 
-      const fetchFn = vi.fn(
-        async (
-          options: GetCustomersOptions<CustomerFieldKey[]>
-        ): Promise<InsurUpGraphQLResult<Connection<FullCustomerRow>>> => {
-          if (!options.after) return createSuccessResult(pageA);
-          return new Promise<InsurUpGraphQLResult<Connection<FullCustomerRow>>>((resolve) => {
-            resolveB = resolve;
-          });
-        }
-      ) as ExpectedFetchFn;
+      const fetchFn = vi.fn<
+        (
+          options: GetCustomersOptions<CustomerFieldKey[]>,
+          requestOptions?: { signal?: AbortSignal }
+        ) => Promise<InsurUpGraphQLResult<Connection<FullCustomerRow>>>
+      >(async (options) => {
+        if (!options.after) return createSuccessResult(pageA);
+        return new Promise<InsurUpGraphQLResult<Connection<FullCustomerRow>>>((resolve) => {
+          resolveB = resolve;
+        });
+      });
 
       const table = createInfiniteCustomerTable({
         columns: (col) => [col.id(), col.name('Name')],
@@ -277,14 +180,66 @@ describe('createInfiniteCustomerTable', () => {
 
       table.pagination.next();
       await flushPromises();
-      const idsWhileLoading = table.getState().rows.map((r) => (r as { id: string }).id);
+      const idsWhileLoading = table.getState().rows.map((r) => r.id);
       expect(idsWhileLoading.filter((id) => id === 'A1').length).toBeLessThanOrEqual(1);
 
       resolveB(createSuccessResult(pageB));
       await flushPromises();
       await flushPromises();
 
-      expect(table.getState().rows.map((r) => (r as { id: string }).id)).toEqual(['A1', 'B1']);
+      expect(table.getState().rows.map((r) => r.id)).toEqual(['A1', 'B1']);
+      table.destroy();
+    });
+
+    it('refuses to append when pagination jumps ahead of the initial fetch', async () => {
+      // Regression: if pagination.next() fires before the page-0 fetch settles,
+      // TanStack cancels page 0 and runs page 1. The original `>` gate would
+      // append page 1's rows into an empty accumulator, silently dropping
+      // page 0. The strict `=== lastFetched + 1` gate refuses the append so
+      // the accumulator stays a contiguous prefix of pages.
+      let resolveA: (v: InsurUpGraphQLResult<Connection<FullCustomerRow>>) => void = () => {};
+      const pageA = connection([row('A1', 'Alice')], 'cursor-1', true);
+      const pageB = connection([row('B1', 'Bob')], null, false);
+
+      const fetchFn = vi.fn<
+        (
+          options: GetCustomersOptions<CustomerFieldKey[]>,
+          requestOptions?: { signal?: AbortSignal }
+        ) => Promise<InsurUpGraphQLResult<Connection<FullCustomerRow>>>
+      >(async (options) => {
+        if (!options.after) {
+          return new Promise<InsurUpGraphQLResult<Connection<FullCustomerRow>>>((resolve) => {
+            resolveA = resolve;
+          });
+        }
+        return createSuccessResult(pageB);
+      });
+
+      const table = createInfiniteCustomerTable({
+        columns: (col) => [col.id(), col.name('Name')],
+        fetch: fetchFn,
+        pagination: { type: 'cursor', pageSize: 1 },
+      });
+
+      // Kick off page 0 — fetch is held open via resolveA.
+      void table.fetch();
+      await flushPromises();
+      expect(table.getState().rows).toHaveLength(0);
+
+      // Jump to page 1 before page 0 settles. The base adapter cancels the
+      // page-0 query and starts a page-1 query, which resolves with pageB.
+      table.pagination.next();
+      await flushPromises();
+      await flushPromises();
+
+      // The accumulator must NOT contain pageB rows: page 0 was never
+      // captured, so appending page 1 would violate the prefix contract.
+      expect(table.getState().rows).toHaveLength(0);
+
+      // Cleanup: resolve the canceled page-0 promise so vi's queue settles.
+      resolveA(createSuccessResult(pageA));
+      await flushPromises();
+
       table.destroy();
     });
   });
@@ -312,14 +267,7 @@ describe('createInfiniteCustomerTable', () => {
 
       table.setFilter({ name: { contains: 'Bob' } });
       // setFilter resets pagination → re-fetches page 0 → accumulator is reset first.
-      // Right after setFilter the buffer is empty until the fetch settles.
       expect(table.getState().rows).toHaveLength(0);
-
-      await flushPromises();
-      await flushPromises();
-      // After settle, we get page A again (filter doesn't change our mock, but
-      // the reset behavior is what we're verifying).
-      expect(table.getState().rows.length).toBeLessThanOrEqual(2);
       table.destroy();
     });
 
@@ -450,251 +398,9 @@ describe('createInfiniteCustomerTable', () => {
   });
 
   // --------------------------------------------------------------------------
-  // filter / search getters
-  // --------------------------------------------------------------------------
-
-  describe('filter and search', () => {
-    it('forwards defaultFilter to the fetch', async () => {
-      const table = createInfiniteCustomerTable({
-        columns: (col) => [col.id()],
-        fetch: mockFetch,
-        pagination: { type: 'cursor' },
-        defaultFilter: { name: { contains: 'Acme' } },
-      });
-
-      await table.fetch();
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.objectContaining({ filter: { name: { contains: 'Acme' } } }),
-        expect.any(Object)
-      );
-      expect(table.getFilter()).toEqual({ name: { contains: 'Acme' } });
-      table.destroy();
-    });
-
-    it('forwards defaultSearch to the fetch', async () => {
-      const search: QueryCustomerModelSearchInput = {
-        name: { textSearch: { value: 'Acme' } },
-      };
-      const table = createInfiniteCustomerTable({
-        columns: (col) => [col.id()],
-        fetch: mockFetch,
-        pagination: { type: 'cursor' },
-        defaultSearch: search,
-      });
-
-      await table.fetch();
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.objectContaining({ search }),
-        expect.any(Object)
-      );
-      expect(table.getSearch()).toEqual(search);
-      table.destroy();
-    });
-  });
-
-  // --------------------------------------------------------------------------
-  // sorting
-  // --------------------------------------------------------------------------
-
-  describe('sorting', () => {
-    it('forwards initialState.sorting to the fetch', async () => {
-      const table = createInfiniteCustomerTable({
-        columns: (col) => [col.id(), col.name('Name')],
-        fetch: mockFetch,
-        pagination: { type: 'cursor' },
-        tableOptions: {
-          initialState: { sorting: [{ id: 'name', desc: true }] },
-        },
-      });
-
-      await table.fetch();
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.objectContaining({ order: [{ name: 'DESC' }] }),
-        expect.any(Object)
-      );
-      table.destroy();
-    });
-  });
-
-  // --------------------------------------------------------------------------
-  // table options
-  // --------------------------------------------------------------------------
-
-  describe('table options', () => {
-    it('returns valid TanStack table options', async () => {
-      const table = createInfiniteCustomerTable({
-        columns: (col) => [col.id()],
-        fetch: mockFetch,
-        pagination: { type: 'cursor' },
-      });
-
-      await table.fetch();
-      await flushPromises();
-      const options = table.getTableOptions();
-      expect(options).toHaveProperty('data');
-      expect(options).toHaveProperty('columns');
-      expect(options).toHaveProperty('manualPagination', true);
-      expect(options).toHaveProperty('manualSorting', true);
-      table.destroy();
-    });
-
-    it('exposes the TanStack table instance', () => {
-      const table = createInfiniteCustomerTable({
-        columns: (col) => [col.id()],
-        fetch: mockFetch,
-        pagination: { type: 'cursor' },
-      });
-
-      expect(table.getTable()).toBeDefined();
-      table.destroy();
-    });
-
-    it('exposes column info', () => {
-      const table = createInfiniteCustomerTable({
-        columns: (col) => [col.id(), col.name('Name')],
-        fetch: mockFetch,
-        pagination: { type: 'cursor' },
-      });
-
-      const info = table.getColumnInfo();
-      expect(info).toHaveLength(2);
-      expect(info[0]).toHaveProperty('key', 'id');
-      table.destroy();
-    });
-  });
-
-  // --------------------------------------------------------------------------
-  // state management
-  // --------------------------------------------------------------------------
-
-  describe('state management', () => {
-    it('returns adapter state with the expected shape', () => {
-      const table = createInfiniteCustomerTable({
-        columns: (col) => [col.id()],
-        fetch: mockFetch,
-        pagination: { type: 'cursor' },
-      });
-
-      const state = table.getState();
-      expect(state).toHaveProperty('rows');
-      expect(state).toHaveProperty('rowCount');
-      expect(state).toHaveProperty('isLoading');
-      expect(state).toHaveProperty('isFetching');
-      expect(state).toHaveProperty('error');
-      expect(state).toHaveProperty('isSuccess');
-      table.destroy();
-    });
-
-    it('notifies subscribers on state changes', async () => {
-      const table = createInfiniteCustomerTable({
-        columns: (col) => [col.id()],
-        fetch: mockFetch,
-        pagination: { type: 'cursor' },
-      });
-
-      const listener = vi.fn();
-      const unsubscribe = table.subscribe(listener);
-
-      await table.fetch();
-      await flushPromises();
-
-      expect(listener).toHaveBeenCalled();
-      unsubscribe();
-      table.destroy();
-    });
-
-    it('returns a stable snapshot reference between unrelated calls', async () => {
-      const table = createInfiniteCustomerTable({
-        columns: (col) => [col.id()],
-        fetch: mockFetch,
-        pagination: { type: 'cursor' },
-      });
-
-      await table.fetch();
-      await flushPromises();
-      const snap1 = table.getSnapshot();
-      const snap2 = table.getSnapshot();
-      expect(snap1).toBe(snap2);
-      table.destroy();
-    });
-
-    it('provides a server snapshot for SSR', () => {
-      const table = createInfiniteCustomerTable({
-        columns: (col) => [col.id()],
-        fetch: mockFetch,
-        pagination: { type: 'cursor' },
-      });
-
-      const snap = table.getServerSnapshot();
-      expect(snap.rows).toEqual([]);
-      expect(snap.isLoading).toBe(true);
-      table.destroy();
-    });
-  });
-
-  // --------------------------------------------------------------------------
-  // callbacks
-  // --------------------------------------------------------------------------
-
-  describe('error callbacks', () => {
-    it('calls onSuccess on successful fetch', async () => {
-      const onSuccess = vi.fn();
-      const table = createInfiniteCustomerTable({
-        columns: (col) => [col.id()],
-        fetch: mockFetch,
-        pagination: { type: 'cursor' },
-        onSuccess,
-      });
-
-      await table.fetch();
-      await flushPromises();
-      expect(onSuccess).toHaveBeenCalled();
-      table.destroy();
-    });
-
-    it('calls onError when the SDK returns an error', async () => {
-      const onError = vi.fn();
-      const errorFetch = vi
-        .fn<
-          (
-            options: GetCustomersOptions<CustomerFieldKey[]>
-          ) => Promise<InsurUpGraphQLResult<Connection<FullCustomerRow>>>
-        >()
-        .mockResolvedValue(createClientError()) as ExpectedFetchFn;
-
-      const table = createInfiniteCustomerTable({
-        columns: (col) => [col.id()],
-        fetch: errorFetch,
-        pagination: { type: 'cursor' },
-        onError,
-      });
-
-      await table.fetch();
-      await flushPromises();
-      expect(onError).toHaveBeenCalled();
-      expect(table.getState().error).not.toBeNull();
-      expect(table.getState().isError).toBe(true);
-      table.destroy();
-    });
-
-    it('calls onSettled in both success and error paths', async () => {
-      const onSettled = vi.fn();
-      const table = createInfiniteCustomerTable({
-        columns: (col) => [col.id()],
-        fetch: mockFetch,
-        pagination: { type: 'cursor' },
-        onSettled,
-      });
-
-      await table.fetch();
-      await flushPromises();
-      expect(onSettled).toHaveBeenCalled();
-      table.destroy();
-    });
-  });
-
-  // --------------------------------------------------------------------------
-  // auto-fetch
+  // auto-fetch — InfiniteTableAdapter passes autoFetch=false to the base
+  // adapter and triggers the first fetch itself, so the contract is
+  // worth verifying at this layer.
   // --------------------------------------------------------------------------
 
   describe('auto-fetch', () => {

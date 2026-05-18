@@ -4,9 +4,9 @@
 
 import { expect, it } from 'vitest';
 import { createCustomerTable } from '../../src/entities/customer/factory.js';
-import { createE2EClient } from './helpers/client.js';
-import { describeE2E } from './helpers/describe.js';
-import { waitForIdle } from './helpers/wait.js';
+import { createE2EClient } from '@insurup/test-helpers-e2e/client';
+import { describeE2E } from '@insurup/test-helpers-e2e/describe';
+import { waitForIdle } from '@insurup/test-helpers-e2e/wait';
 
 interface HasValueOf {
   valueOf(): number;

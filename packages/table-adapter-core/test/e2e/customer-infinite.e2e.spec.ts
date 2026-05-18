@@ -4,9 +4,9 @@
 
 import { expect, it } from 'vitest';
 import { createInfiniteCustomerTable } from '../../src/entities/customer/infinite-factory.js';
-import { createE2EClient } from './helpers/client.js';
-import { describeE2E } from './helpers/describe.js';
-import { waitForFetchCycle, waitForIdle } from './helpers/wait.js';
+import { createE2EClient } from '@insurup/test-helpers-e2e/client';
+import { describeE2E } from '@insurup/test-helpers-e2e/describe';
+import { waitForFetchCycle, waitForIdle } from '@insurup/test-helpers-e2e/wait';
 
 describeE2E('createInfiniteCustomerTable [e2e]', () => {
   it('accumulates unique rows across page fetches', async () => {
@@ -27,7 +27,7 @@ describeE2E('createInfiniteCustomerTable [e2e]', () => {
       table.pagination.next();
       await waitForFetchCycle(table);
 
-      const allRows = table.getState().rows as ReadonlyArray<{ id: string }>;
+      const allRows = table.getState().rows;
       // The server can occasionally advertise hasNextPage but return an empty
       // next page — accept that as "tenant ran out of data" rather than fail.
       if (allRows.length === firstCount) return;

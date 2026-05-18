@@ -11,8 +11,8 @@ import { expect, it } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { CustomerType } from '@insurup/sdk';
 import { useCustomerTable } from '../../src/use-customer-table';
-import { createE2EClient } from './helpers/client.js';
-import { describeE2E } from './helpers/describe.js';
+import { createE2EClient } from '@insurup/test-helpers-e2e/client';
+import { describeE2E } from '@insurup/test-helpers-e2e/describe';
 
 describeE2E('useCustomerTable [e2e]', () => {
   it('autoFetch propagates real rows through useSyncExternalStore', async () => {
@@ -59,7 +59,7 @@ describeE2E('useCustomerTable [e2e]', () => {
         expect(result.current.state.isSuccess).toBe(true);
       });
 
-      const firstIds = result.current.state.rows.map((r) => (r as { id: string }).id);
+      const firstIds = result.current.state.rows.map((r) => r.id);
       if (firstIds.length < 3 || !result.current.adapter.pagination.canGoNext()) {
         return; // Tenant lacks enough data to paginate.
       }
@@ -70,14 +70,12 @@ describeE2E('useCustomerTable [e2e]', () => {
       await waitFor(
         () => {
           expect(result.current.state.isFetching).toBe(false);
-          expect(result.current.state.rows.map((r) => (r as { id: string }).id)).not.toEqual(
-            firstIds
-          );
+          expect(result.current.state.rows.map((r) => r.id)).not.toEqual(firstIds);
         },
         { timeout: 15_000 }
       );
 
-      const secondIds = result.current.state.rows.map((r) => (r as { id: string }).id);
+      const secondIds = result.current.state.rows.map((r) => r.id);
       const overlap = secondIds.filter((id) => firstIds.includes(id));
       expect(overlap).toEqual([]);
     } finally {
@@ -108,7 +106,7 @@ describeE2E('useCustomerTable [e2e]', () => {
       );
 
       for (const row of result.current.state.rows) {
-        expect((row as { type: string }).type).toBe(CustomerType.Individual);
+        expect(row.type).toBe(CustomerType.Individual);
       }
     } finally {
       unmount();

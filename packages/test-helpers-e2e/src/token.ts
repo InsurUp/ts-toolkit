@@ -1,5 +1,8 @@
 /**
  * @fileoverview Shared M2M token acquisition for e2e tests.
+ *
+ * Performs one OAuth2 client_credentials grant per test run and caches the
+ * resulting access token in a module-scoped promise so every worker shares it.
  */
 
 import { readEnv } from './env.js';
@@ -34,8 +37,16 @@ async function fetchToken(): Promise<string> {
   });
 
   if (!response.ok) {
-    const text = await response.text().catch(() => '<unreadable body>');
-    throw new Error(`Token endpoint returned ${response.status} ${response.statusText}: ${text}`);
+    // Truncate the response body before interpolating: some IdPs reflect the
+    // submitted request parameters on `invalid_request`, which could include
+    // the client secret. Truncated + tagged so the failure is still
+    // diagnosable in CI logs without risking credential leakage.
+    const raw = await response.text().catch(() => '<unreadable body>');
+    const safeSummary =
+      raw.length > 200 ? `${raw.slice(0, 200)}…(${raw.length - 200} bytes truncated)` : raw;
+    throw new Error(
+      `Token endpoint returned ${response.status} ${response.statusText}: ${safeSummary}`
+    );
   }
 
   const data = (await response.json()) as Partial<TokenResponse>;
@@ -50,6 +61,7 @@ export function getAccessToken(): Promise<string> {
   return cached;
 }
 
+/** Test-only: clear the cached token (useful if a test wants to retry on 401). */
 export function resetCachedToken(): void {
   cached = null;
 }

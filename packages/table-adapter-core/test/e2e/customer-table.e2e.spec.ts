@@ -4,9 +4,9 @@
 
 import { expect, it } from 'vitest';
 import { createCustomerTable } from '../../src/entities/customer/factory.js';
-import { createE2EClient, e2eClientOptions } from './helpers/client.js';
-import { describeE2E } from './helpers/describe.js';
-import { waitForIdle } from './helpers/wait.js';
+import { createE2EClient, e2eClientOptions } from '@insurup/test-helpers-e2e/client';
+import { describeE2E } from '@insurup/test-helpers-e2e/describe';
+import { waitForIdle } from '@insurup/test-helpers-e2e/wait';
 
 describeE2E('createCustomerTable [e2e]', () => {
   it('fetches a page of real customers', async () => {
@@ -41,9 +41,9 @@ describeE2E('createCustomerTable [e2e]', () => {
       await waitForIdle(table);
 
       const rows = table.getState().rows;
-      if (rows.length === 0) return; // Empty tenant — invariant vacuous.
+      const sample = rows[0];
+      if (!sample) return; // Empty tenant — invariant vacuous.
 
-      const sample = rows[0] as Record<string, unknown>;
       expect(Object.keys(sample).sort()).toEqual(['id', 'name'].sort());
     } finally {
       table.destroy();
