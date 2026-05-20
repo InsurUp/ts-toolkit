@@ -14,6 +14,9 @@ import type {
   UserReference,
   CustomerPhoneNumber,
   PropertyAddress,
+  PropertyNumber,
+  VehiclePlate,
+  VehicleModel,
 } from './common.js';
 import type { DateTime, DateOnly } from './common.date.js';
 
@@ -1023,3 +1026,105 @@ export interface GetCustomerConsentsResult {
   readonly activeConsents: readonly ActiveConsent[];
   readonly consentHistory: readonly ConsentHistoryItem[];
 }
+
+// ============================================================================
+// PRIMARY EMAIL / PHONE NUMBER TYPES
+// ============================================================================
+
+/**
+ * Response containing a customer's primary email address.
+ *
+ * Müşterinin birincil e-posta adresini içeren yanıt.
+ */
+export interface GetPrimaryCustomerEmailResult {
+  readonly email: string;
+}
+
+/**
+ * Request to set the primary email address for a customer (upsert — adds to the customer's
+ * email collection if missing, then marks it as primary).
+ *
+ * Müşterinin birincil e-posta adresini ayarlama talebi (mevcut değilse koleksiyona ekler
+ * ve birincil olarak işaretler).
+ */
+export interface SetPrimaryCustomerEmailRequest {
+  readonly customerId: string;
+  readonly email: string;
+}
+
+/**
+ * Response containing a customer's primary phone number.
+ *
+ * Müşterinin birincil telefon numarasını içeren yanıt.
+ */
+export interface GetPrimaryCustomerPhoneNumberResult {
+  readonly phoneNumber: CustomerPhoneNumber;
+}
+
+/**
+ * Request to set the primary phone number for a customer (upsert — adds to the customer's
+ * phone number collection if missing, then marks it as primary).
+ *
+ * Müşterinin birincil telefon numarasını ayarlama talebi (mevcut değilse koleksiyona ekler
+ * ve birincil olarak işaretler).
+ */
+export interface SetPrimaryCustomerPhoneNumberRequest {
+  readonly customerId: string;
+  readonly phoneNumber: CustomerPhoneNumber;
+}
+
+// ============================================================================
+// CUSTOMER ASSETS TYPES
+// ============================================================================
+
+/**
+ * Discriminator value for vehicle assets in the polymorphic customer assets response.
+ *
+ * Polimorfik müşteri varlık yanıtında araç varlıkları için ayrım değeri.
+ */
+export type GetCustomerAssetsResultItemType = 'vehicle' | 'property';
+
+/**
+ * Common fields shared by every item in a customer's asset list.
+ *
+ * Müşteri varlık listesindeki her öğenin paylaştığı ortak alanlar.
+ */
+interface GetCustomerAssetsResultItemBase {
+  readonly $type: GetCustomerAssetsResultItemType;
+  readonly id: string;
+  readonly customerId: string;
+  readonly createdAt: DateTime;
+}
+
+/**
+ * Vehicle entry within a customer's asset list.
+ *
+ * Müşterinin varlık listesindeki araç girdisi.
+ */
+export interface GetCustomerAssetsResultItemVehicle extends GetCustomerAssetsResultItemBase {
+  readonly $type: 'vehicle';
+  readonly plate: VehiclePlate;
+  readonly model?: VehicleModel | null;
+}
+
+/**
+ * Property entry within a customer's asset list.
+ *
+ * Müşterinin varlık listesindeki mülk girdisi.
+ */
+export interface GetCustomerAssetsResultItemProperty extends GetCustomerAssetsResultItemBase {
+  readonly $type: 'property';
+  readonly number: PropertyNumber;
+  readonly address: PropertyAddress;
+}
+
+/**
+ * Polymorphic asset item returned by `GET /customers/{id}/assets`. The `$type` discriminator
+ * narrows between vehicles and properties.
+ *
+ * `GET /customers/{id}/assets` tarafından döndürülen polimorfik varlık öğesi. `$type` ayraçları
+ * araçlar ve mülkler arasında daraltma yapar.
+ */
+export type GetCustomerAssetsResultItem =
+  | GetCustomerAssetsResultItemVehicle
+  | GetCustomerAssetsResultItemProperty;
