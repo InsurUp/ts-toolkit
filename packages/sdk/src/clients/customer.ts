@@ -47,8 +47,7 @@ import {
   type CustomersConnection,
 } from '@insurup/contracts';
 import { buildFieldSelection } from '@insurup/contracts';
-import { normalizeSearchInput } from './_internal/normalize-search.js';
-import { splitUnifiedFilter } from './_internal/split-unified-filter.js';
+import { buildFilterSearchVariables } from './_internal/with-unified-filter.js';
 
 /**
  * Customer management client providing comprehensive customer lifecycle management.
@@ -643,9 +642,7 @@ export class InsurUpCustomerClient {
 
     if (requestOptions?.after !== undefined) variables.after = requestOptions.after;
     if (requestOptions?.before !== undefined) variables.before = requestOptions.before;
-    const { filter, search } = splitUnifiedFilter(requestOptions?.filter);
-    if (filter !== undefined) variables.filter = filter;
-    if (search !== undefined) variables.search = normalizeSearchInput(search);
+    Object.assign(variables, buildFilterSearchVariables(requestOptions?.filter));
     if (requestOptions?.order !== undefined) variables.order = requestOptions.order;
 
     const result = await this.graphql.query<{

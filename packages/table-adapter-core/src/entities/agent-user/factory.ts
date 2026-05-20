@@ -34,10 +34,6 @@ const agentUserConfig: EntityFactoryConfig<GetAgentUsersOptions<AgentUserFieldKe
     client.agentUsers.getAgentUsers(vars, requestOptions),
 };
 
-/**
- * Create a type-safe agent user table adapter.
- * Row type is narrowed to the fields referenced by the columns.
- */
 export function createAgentUserTable<const TColumns extends AgentUserColumnDef[]>(
   options: AgentUserTableOptions<TColumns>
 ): AgentUserTable<TColumns> {
@@ -53,10 +49,6 @@ export function createAgentUserTable<const TColumns extends AgentUserColumnDef[]
   >(options, agentUserConfig);
 }
 
-/**
- * Create an infinite-scroll agent user table adapter.
- * Rows accumulate across page fetches.
- */
 export function createInfiniteAgentUserTable<const TColumns extends AgentUserColumnDef[]>(
   options: AgentUserTableOptions<TColumns>
 ): InfiniteAgentUserTable<TColumns> {

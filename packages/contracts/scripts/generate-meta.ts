@@ -18,23 +18,19 @@ import type { FilterOperator, SearchOperator } from '../src/meta-types.js';
 
 // ---------------------------------------------------------------------------
 // Operator-type-name → kind, and kind → operator-list lookups.
+// Shared across filter and search sides: every server operator type
+// (`StringOperationFilterInput`, `SearchStringOperationFilterInput`, etc.)
+// resolves to a single kind, and each kind maps to one operator list. The
+// search side accepts a superset of operators, so the lists are typed as
+// `SearchOperator[]` — `FilterOperator` is assignable to that.
 // These are private to the codegen — at runtime each meta entry already
 // carries the resolved operator array, so consumers don't need the maps.
 // ---------------------------------------------------------------------------
 
-type FilterFieldKind =
+type Kind =
   | 'string'
-  | 'stringList'
-  | 'int'
-  | 'float'
-  | 'boolean'
-  | 'uuid'
-  | 'dateTime'
-  | 'dateOnly'
-  | 'enum';
-
-type SearchFieldKind =
   | 'searchString'
+  | 'stringList'
   | 'int'
   | 'float'
   | 'boolean'
@@ -78,23 +74,20 @@ const STRING_LIST_OPS = ['in', 'nin', 'eq'] as const satisfies readonly FilterOp
 const BOOLEAN_OPS = ['eq', 'neq'] as const satisfies readonly FilterOperator[];
 
 const SEARCH_STRING_OPS = [
-  'eq',
-  'neq',
-  'in',
-  'nin',
+  ...STRING_OPS,
   'textSearch',
   'wildcard',
   'autocomplete',
-  'contains',
-  'notContains',
-  'startsWith',
-  'notStartsWith',
-  'endsWith',
-  'notEndsWith',
 ] as const satisfies readonly SearchOperator[];
 
-const FILTER_OPERATORS_BY_KIND: Readonly<Record<FilterFieldKind, readonly FilterOperator[]>> = {
+/**
+ * Per-kind filter operators. Filter inputs only ever reference kinds whose
+ * operator lists are pure `FilterOperator`s (no text-search ops), so the
+ * value type stays narrow.
+ */
+const FILTER_OPERATORS_BY_KIND = {
   string: STRING_OPS,
+  searchString: STRING_OPS, // unreachable on the filter side; included for total-record completeness
   stringList: STRING_LIST_OPS,
   int: COMPARABLE_OPS,
   float: COMPARABLE_OPS,
@@ -103,35 +96,19 @@ const FILTER_OPERATORS_BY_KIND: Readonly<Record<FilterFieldKind, readonly Filter
   dateTime: COMPARABLE_OPS,
   dateOnly: COMPARABLE_OPS,
   enum: ENUM_OPS,
-};
+} as const satisfies Readonly<Record<Kind, readonly FilterOperator[]>>;
 
-const SEARCH_OPERATORS_BY_KIND: Readonly<Record<SearchFieldKind, readonly SearchOperator[]>> = {
+/** Per-kind search operators. `searchString` is the only kind that differs. */
+const SEARCH_OPERATORS_BY_KIND = {
+  ...FILTER_OPERATORS_BY_KIND,
   searchString: SEARCH_STRING_OPS,
-  int: COMPARABLE_OPS,
-  float: COMPARABLE_OPS,
-  boolean: BOOLEAN_OPS,
-  uuid: COMPARABLE_OPS,
-  dateTime: COMPARABLE_OPS,
-  dateOnly: COMPARABLE_OPS,
-  enum: ENUM_OPS,
-};
+} as const satisfies Readonly<Record<Kind, readonly SearchOperator[]>>;
 
-/** Map an operator type's name to its filter kind, or null if not a filterable scalar. */
-const FILTER_OPERATOR_TYPE_TO_KIND: Readonly<Record<string, FilterFieldKind>> = {
+/** Map any operator type's symbol name to its kind. Unknown names skip meta. */
+const OPERATOR_TYPE_TO_KIND: Readonly<Record<string, Kind>> = {
   StringOperationFilterInput: 'string',
-  StringListOperationFilterInput: 'stringList',
-  IntOperationFilterInput: 'int',
-  FloatOperationFilterInput: 'float',
-  BooleanOperationFilterInput: 'boolean',
-  UuidOperationFilterInput: 'uuid',
-  DateTimeOperationFilterInput: 'dateTime',
-  LocalDateOperationFilterInput: 'dateOnly',
-  EnumOperationFilterInput: 'enum',
-};
-
-/** Map an operator type's name to its search kind, or null if not a searchable scalar. */
-const SEARCH_OPERATOR_TYPE_TO_KIND: Readonly<Record<string, SearchFieldKind>> = {
   SearchStringOperationFilterInput: 'searchString',
+  StringListOperationFilterInput: 'stringList',
   IntOperationFilterInput: 'int',
   FloatOperationFilterInput: 'float',
   BooleanOperationFilterInput: 'boolean',
@@ -201,12 +178,9 @@ interface MetaInterface {
  * don't appear in meta as filterable/searchable, which matches the
  * "introspectable scalars only" convention we already used.
  */
-function fieldsFromInputInterface<K extends string>(
-  iface: InterfaceDeclaration | undefined,
-  operatorTypeToKind: Readonly<Record<string, K>>
-): Record<string, K> {
+function fieldsFromInputInterface(iface: InterfaceDeclaration | undefined): Record<string, Kind> {
   if (!iface) return {};
-  const out: Record<string, K> = {};
+  const out: Record<string, Kind> = {};
 
   for (const prop of iface.getProperties()) {
     const name = prop.getName();
@@ -218,7 +192,7 @@ function fieldsFromInputInterface<K extends string>(
     const typeName =
       type.getAliasSymbol()?.getName() ?? type.getSymbol()?.getName() ?? type.getText();
 
-    const kind = operatorTypeToKind[typeName];
+    const kind = OPERATOR_TYPE_TO_KIND[typeName];
     if (kind !== undefined) out[name] = kind;
   }
 
@@ -248,8 +222,8 @@ for (const scanDir of scanDirs) {
       // `<ModelName>FilterInput` / `<ModelName>SearchInput` in the same file.
       const filterInput = sourceFile.getInterface(`${interfaceName}FilterInput`);
       const searchInput = sourceFile.getInterface(`${interfaceName}SearchInput`);
-      const filterMap = fieldsFromInputInterface(filterInput, FILTER_OPERATOR_TYPE_TO_KIND);
-      const searchMap = fieldsFromInputInterface(searchInput, SEARCH_OPERATOR_TYPE_TO_KIND);
+      const filterMap = fieldsFromInputInterface(filterInput);
+      const searchMap = fieldsFromInputInterface(searchInput);
       const fields = processInterface(iface, filterMap, searchMap);
       metas.push({ interfaceName, fields });
     }
@@ -269,8 +243,8 @@ function hasMetaTag(iface: InterfaceDeclaration): boolean {
 
 function processInterface(
   iface: InterfaceDeclaration,
-  filterSpec: Record<string, FilterFieldKind>,
-  searchSpec: Record<string, SearchFieldKind>
+  filterSpec: Record<string, Kind>,
+  searchSpec: Record<string, Kind>
 ): FieldEntry[] {
   const fields: FieldEntry[] = [];
 

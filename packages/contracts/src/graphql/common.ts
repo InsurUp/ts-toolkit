@@ -395,11 +395,7 @@ export type UnifiedFilterInput<TFilter, TSearch> = {
  * the SDK at request time; plain entries go to the `filter:` slot. Consumers
  * never construct the two-slot wire shape directly.
  */
-export interface GetQueryOptions<
-  TFieldKey extends string = string,
-  TUnifiedFilter = unknown,
-  TSort = unknown,
-> {
+export interface GetQueryOptions<TFieldKey extends string, TUnifiedFilter, TSort> {
   /** Fields to select from the query */
   select?: TFieldKey[];
   /** Returns the first _n_ elements from the list */

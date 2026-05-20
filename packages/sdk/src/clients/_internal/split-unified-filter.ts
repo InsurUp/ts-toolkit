@@ -13,8 +13,8 @@
 import type { SearchMarked, UnifiedFilterInput } from '@insurup/contracts';
 
 export interface SplitResult<TFilter, TSearch> {
-  readonly filter: TFilter | undefined;
-  readonly search: TSearch | undefined;
+  filter: TFilter | undefined;
+  search: TSearch | undefined;
 }
 
 type Dict = Readonly<Record<string, unknown>>;
@@ -50,9 +50,21 @@ function splitNode(node: Dict): { filter: Dict | undefined; search: Dict | undef
 
   for (const [key, value] of Object.entries(node)) {
     if ((key === 'and' || key === 'or') && Array.isArray(value)) {
-      const splits = value.filter(isObject).map(splitNode);
-      const filterItems = splits.flatMap((s) => (s.filter ? [s.filter] : []));
-      const searchItems = splits.flatMap((s) => (s.search ? [s.search] : []));
+      const filterItems: unknown[] = [];
+      const searchItems: Dict[] = [];
+      for (const item of value) {
+        if (!isObject(item)) {
+          // Non-object items can't carry a $search marker; preserve them on
+          // the filter side instead of silently dropping. The type system
+          // forbids this in normal usage, but a bad runtime input here would
+          // otherwise vanish without trace.
+          filterItems.push(item);
+          continue;
+        }
+        const split = splitNode(item);
+        if (split.filter) filterItems.push(split.filter);
+        if (split.search) searchItems.push(split.search);
+      }
       if (filterItems.length > 0) filter[key] = filterItems;
       if (searchItems.length > 0) search[key] = searchItems;
     } else if (isSearchMarked(value)) {

@@ -1,6 +1,7 @@
 import { useState, useEffect, useDeferredValue, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { useQueryState, parseAsString, parseAsInteger, parseAsStringLiteral } from 'nuqs';
+import type { QueryPoliciesResultUnifiedFilterInput } from '@insurup/sdk';
 import { useClient } from '@/client';
 import { DataTable, type Column } from '@/components/DataTable';
 import { Pagination } from '@/components/Pagination';
@@ -59,10 +60,10 @@ export function PolicyList() {
   const fetchPolicies = useCallback(async () => {
     setIsLoading(true);
     try {
-      const filterOptions = deferredSearch
+      const filterOptions: QueryPoliciesResultUnifiedFilterInput | undefined = deferredSearch
         ? {
             insuranceCompanyPolicyNumber: {
-              $search: true as const,
+              $search: true,
               textSearch: deferredSearch,
             },
           }

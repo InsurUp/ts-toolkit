@@ -202,14 +202,11 @@ describe('createCaseTable', () => {
   });
 
   it('forwards a $search-marked default filter through to the SDK call', async () => {
-    const defaultFilter = {
-      ref: { $search: true as const, textSearch: { value: 'REF-001' } },
-    };
     const table = createCaseTable({
       columns: (col) => [col.id(), col.ref()],
       fetch: mockFetch,
       pagination: { type: 'cursor' },
-      defaultFilter,
+      defaultFilter: { ref: { $search: true, textSearch: { value: 'REF-001' } } },
     });
 
     await table.fetch();
@@ -217,7 +214,9 @@ describe('createCaseTable', () => {
     // The adapter forwards the unified shape to the SDK; the SDK performs
     // the wire-level split internally.
     expect(mockFetch).toHaveBeenCalledWith(
-      expect.objectContaining({ filter: defaultFilter }),
+      expect.objectContaining({
+        filter: { ref: { $search: true, textSearch: { value: 'REF-001' } } },
+      }),
       expect.any(Object)
     );
 

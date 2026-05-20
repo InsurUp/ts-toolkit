@@ -33,10 +33,14 @@ export interface QueryPolicyTransfersResult {
 
 // === Filter/Search/Sort Inputs ===
 // Hand-declared from server schema: filtering_QueryPolicyTransfersResultFilterInput,
-// searching_QueryPolicyTransfersResultFilterInput. Note that the server filter input
-// references fields (succeededPolicyCount / failedPolicyCount / skippedPolicyCount,
-// LocalDate-typed startDate/endDate) that are not part of the output model — they
-// are filter-only.
+// searching_QueryPolicyTransfersResultFilterInput. Two server quirks worth knowing:
+//   1. The filter input references fields (succeededPolicyCount / failedPolicyCount /
+//      skippedPolicyCount, LocalDate-typed startDate/endDate) that are not part of the
+//      output model — they are filter-only.
+//   2. The search input exposes the same non-string fields with `searching_*` versions
+//      of `LocalDate`/`DateTime`/`Int` operators. This is asymmetric across entities —
+//      every other entity's search input contains only `SearchStringOperationFilterInput`
+//      fields — but verified server-faithful for PolicyTransfers. Do not "fix" it.
 
 export interface QueryPolicyTransfersResultFilterInput {
   and?: QueryPolicyTransfersResultFilterInput[] | null;

@@ -1,6 +1,7 @@
 import { useState, useEffect, useDeferredValue, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { useQueryState, parseAsString, parseAsInteger, parseAsStringLiteral } from 'nuqs';
+import type { QueryCustomerModelUnifiedFilterInput } from '@insurup/sdk';
 import { useClient } from '@/client';
 import { DataTable, type Column } from '@/components/DataTable';
 import { Pagination } from '@/components/Pagination';
@@ -54,8 +55,8 @@ export function CustomerList() {
   const fetchCustomers = useCallback(async () => {
     setIsLoading(true);
     try {
-      const filterOptions = deferredSearch
-        ? { name: { $search: true as const, textSearch: deferredSearch } }
+      const filterOptions: QueryCustomerModelUnifiedFilterInput | undefined = deferredSearch
+        ? { name: { $search: true, textSearch: deferredSearch } }
         : undefined;
 
       // Fire count query in parallel (non-blocking)

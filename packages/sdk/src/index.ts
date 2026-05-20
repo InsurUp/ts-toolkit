@@ -13,12 +13,6 @@ export { DefaultInsurUpClient } from './client/client.js';
 export type { GraphQLRequest, GraphQLResponse } from './client/graphql.js';
 export { GraphQLTransport } from './client/graphql.js';
 
-// Unified filter splitter (resource clients call this internally; also
-// exposed for advanced/test usage that needs to split a unified filter
-// without going through a `get<Entities>` call).
-export { splitUnifiedFilter } from './clients/_internal/split-unified-filter.js';
-export type { SplitResult } from './clients/_internal/split-unified-filter.js';
-
 // Specialized client exports
 export { InsurUpAgentClient } from './clients/agent.js';
 export { InsurUpAgentBranchClient } from './clients/agentBranch.js';

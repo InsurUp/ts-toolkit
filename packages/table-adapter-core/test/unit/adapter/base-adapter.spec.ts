@@ -645,11 +645,15 @@ describe('BaseTableAdapter', () => {
     it('forwards a `$search: true` field as part of the unified filter to the SDK call', async () => {
       const adapter = new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions());
 
-      const filter = { name: { $search: true as const, query: 'test search' } };
-      adapter.setFilter(filter);
+      adapter.setFilter({ name: { $search: true, query: 'test search' } });
       await flushPromises();
 
-      expect(fetchFn).toHaveBeenCalledWith(expect.objectContaining({ filter }), expect.any(Object));
+      expect(fetchFn).toHaveBeenCalledWith(
+        expect.objectContaining({
+          filter: { name: { $search: true, query: 'test search' } },
+        }),
+        expect.any(Object)
+      );
 
       adapter.destroy();
     });

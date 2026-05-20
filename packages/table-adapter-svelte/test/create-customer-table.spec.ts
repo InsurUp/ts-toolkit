@@ -234,16 +234,17 @@ describe('createCustomerTable', () => {
       const mockFetch = createMockFetchFn();
       const result = createCustomerTable(createTestOptionsGetter({ fetch: mockFetch }));
 
-      const filter = {
-        name: { $search: true as const, textSearch: { value: 'test query' } },
-      };
-      result.adapter.setFilter(filter);
+      result.adapter.setFilter({
+        name: { $search: true, textSearch: { value: 'test query' } },
+      });
       await flushPromises();
 
       // The adapter forwards the unified shape verbatim; the SDK splits at
       // request time (covered in `@insurup/sdk`'s split-unified-filter tests).
       expect(mockFetch).toHaveBeenCalledWith(
-        expect.objectContaining({ filter }),
+        expect.objectContaining({
+          filter: { name: { $search: true, textSearch: { value: 'test query' } } },
+        }),
         expect.any(Object)
       );
 

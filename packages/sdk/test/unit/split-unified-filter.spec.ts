@@ -120,4 +120,15 @@ describe('splitUnifiedFilter', () => {
       search: { name: {} },
     });
   });
+
+  it('preserves non-object items inside `and`/`or` on the filter side instead of dropping them', () => {
+    // Type system normally prevents this, but a runtime input with stray
+    // primitives/nulls inside a combinator array should land in `filter`
+    // (so the server complains loudly) rather than vanishing.
+    const input = { and: [null, { status: { eq: 'OPEN' } }, 42] } as unknown as U;
+    expect(splitUnifiedFilter<F, S>(input)).toEqual({
+      filter: { and: [null, { status: { eq: 'OPEN' } }, 42] },
+      search: undefined,
+    });
+  });
 });

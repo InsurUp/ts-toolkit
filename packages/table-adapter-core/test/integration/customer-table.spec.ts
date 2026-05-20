@@ -11,6 +11,7 @@ import {
   type InsurUpGraphQLResult,
   type CustomerFieldKey,
   type GetCustomersOptions,
+  type QueryCustomerModelUnifiedFilterInput,
 } from '@insurup/sdk';
 import { flushPromises } from '../utils/helpers.js';
 import { createMockPageInfo, createSuccessResult, createClientError } from '../utils/mocks.js';
@@ -332,11 +333,11 @@ describe('createCustomerTable', () => {
 
   describe('searching (via unified filter with $search marker)', () => {
     const acmeSearch = {
-      name: { $search: true as const, textSearch: { value: 'Acme' } },
-    };
+      name: { $search: true, textSearch: { value: 'Acme' } },
+    } satisfies QueryCustomerModelUnifiedFilterInput;
     const johnDoeSearch = {
-      name: { $search: true as const, textSearch: { value: 'john doe' } },
-    };
+      name: { $search: true, textSearch: { value: 'john doe' } },
+    } satisfies QueryCustomerModelUnifiedFilterInput;
 
     it('forwards a $search-marked default filter through to the SDK call', async () => {
       const table = createCustomerTable({

@@ -15,8 +15,7 @@ import {
   type CasesConnection,
 } from '@insurup/contracts';
 import { buildFieldSelection } from '@insurup/contracts';
-import { normalizeSearchInput } from './_internal/normalize-search.js';
-import { splitUnifiedFilter } from './_internal/split-unified-filter.js';
+import { buildFilterSearchVariables } from './_internal/with-unified-filter.js';
 import type {
   // Request types
   AssignCaseRepresentativeRequest,
@@ -467,14 +466,12 @@ export class InsurUpCaseClient {
       }
     `;
 
-    const { filter, search } = splitUnifiedFilter(requestOptions?.filter);
     const variables = {
       first: requestOptions?.first,
       after: requestOptions?.after,
       last: requestOptions?.last,
       before: requestOptions?.before,
-      search: normalizeSearchInput(search),
-      filter,
+      ...buildFilterSearchVariables(requestOptions?.filter),
       order: requestOptions?.order,
     };
 

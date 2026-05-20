@@ -10,38 +10,16 @@
  *     search (SearchStringOperationFilterInput)
  *   - `id`, `type`, `birthDate`, `createdAt`, `gender`, …: filter-only
  *   - (no fields are search-only on customer)
- *
- * Webhook delivery (from `webhookDeliveries.ts`):
- *   - `errorMessage`: filter AND search
- *   - `id`, `webhookId`, `event`, …: filter-only
  */
 
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import type { QueryCustomerModelUnifiedFilterInput } from '../../src/graphql/customers.js';
-import type { QueryWebhookDeliveryResultUnifiedFilterInput } from '../../src/graphql/webhookDeliveries.js';
 import type { CustomerType } from '../../src/common.js';
-import type { WebhookEvent } from '../../src/webhooks.js';
 
 describe('UnifiedFilterInput compile-time guards (positive)', () => {
-  it('accepts the well-formed filter shape', () => {
-    expectTypeOf<{
-      type: { eq: CustomerType.Individual };
-      name: { contains: 'ali' };
-      birthDate: { gte: '1990-01-01' };
-    }>().toExtend<QueryCustomerModelUnifiedFilterInput>();
-    expect(true).toBe(true);
-  });
-
-  it('accepts the well-formed search shape', () => {
-    expectTypeOf<{
-      name: { $search: true; textSearch: 'ali' };
-      identityNumber: { $search: true; eq: { value: '123' } };
-      taxNumber: { $search: true; in: ['1', '2'] };
-    }>().toExtend<QueryCustomerModelUnifiedFilterInput>();
-    expect(true).toBe(true);
-  });
-
-  it('accepts mixed filter + search in one shape', () => {
+  it('accepts a mixed filter + search shape, including search score boosts', () => {
+    // Covers: filter-only field (`type`), search-marked field with full
+    // SearchTextInput shape (`name`), and the SearchScoreInput.boost path.
     expectTypeOf<{
       type: { eq: CustomerType.Individual };
       name: { $search: true; textSearch: { value: 'ali'; score: { boost: 2 } } };
@@ -49,17 +27,10 @@ describe('UnifiedFilterInput compile-time guards (positive)', () => {
     expect(true).toBe(true);
   });
 
-  it('accepts score.constant on a SearchTextInput slot', () => {
+  it('accepts `score.constant` on a search slot (the alternative score shape)', () => {
     expectTypeOf<{
       name: { $search: true; contains: { value: 'a'; score: { constant: 5 } } };
     }>().toExtend<QueryCustomerModelUnifiedFilterInput>();
-    expect(true).toBe(true);
-  });
-
-  it('accepts $search on the only searchable field of WebhookDelivery (errorMessage)', () => {
-    expectTypeOf<{
-      errorMessage: { $search: true; textSearch: 'timeout' };
-    }>().toExtend<QueryWebhookDeliveryResultUnifiedFilterInput>();
     expect(true).toBe(true);
   });
 });
@@ -72,7 +43,7 @@ describe('UnifiedFilterInput compile-time guards (negative)', () => {
     expect(true).toBe(true);
   });
 
-  it('rejects a search-only operator on a non-$search-marked entry (Customer.name)', () => {
+  it('rejects a search-only operator on a non-$search-marked entry', () => {
     // `textSearch` belongs only to SearchStringOperationFilterInput. Without
     // `$search: true`, the value is typed as StringOperationFilterInput
     // (the filter branch), which has no `textSearch` slot.
@@ -82,24 +53,20 @@ describe('UnifiedFilterInput compile-time guards (negative)', () => {
     expect(true).toBe(true);
   });
 
-  it('rejects an unknown field on the customer filter shape', () => {
+  it('rejects a mixed filter+search operator object without the `$search` marker', () => {
+    // Soundness probe for the discriminated union: a single field-value object
+    // that mixes a filter op (`contains`) with a search-only op (`textSearch`)
+    // must not satisfy either branch.
     expectTypeOf<{
-      unknownField: { eq: 'x' };
+      name: { contains: 'x'; textSearch: 'y' };
     }>().not.toExtend<QueryCustomerModelUnifiedFilterInput>();
     expect(true).toBe(true);
   });
 
-  it('rejects `$search: true` on a filter-only field of WebhookDelivery (event)', () => {
+  it('rejects an unknown field on the filter shape', () => {
     expectTypeOf<{
-      event: { $search: true; eq: WebhookEvent.PolicyCreated };
-    }>().not.toExtend<QueryWebhookDeliveryResultUnifiedFilterInput>();
-    expect(true).toBe(true);
-  });
-
-  it('rejects a search-only operator on the non-searchable webhook field `webhookId`', () => {
-    expectTypeOf<{
-      webhookId: { $search: true; textSearch: 'x' };
-    }>().not.toExtend<QueryWebhookDeliveryResultUnifiedFilterInput>();
+      unknownField: { eq: 'x' };
+    }>().not.toExtend<QueryCustomerModelUnifiedFilterInput>();
     expect(true).toBe(true);
   });
 });

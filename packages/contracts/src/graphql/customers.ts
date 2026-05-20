@@ -131,11 +131,6 @@ export interface QueryCustomerModelSearchInput {
   passportNumber?: SearchStringOperationFilterInput | null;
 }
 
-/**
- * Unified filter+search input used by the table adapter. Each field accepts
- * either its filter-ops shape or its search-ops shape tagged with
- * `$search: true`.
- */
 export type QueryCustomerModelUnifiedFilterInput = UnifiedFilterInput<
   QueryCustomerModelFilterInput,
   QueryCustomerModelSearchInput

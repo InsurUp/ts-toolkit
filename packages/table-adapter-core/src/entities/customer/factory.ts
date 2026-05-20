@@ -34,10 +34,6 @@ const customerConfig: EntityFactoryConfig<GetCustomersOptions<CustomerFieldKey[]
     client.customers.getCustomers(vars, requestOptions),
 };
 
-/**
- * Create a type-safe customer table adapter.
- * Row type is narrowed to the fields referenced by the columns.
- */
 export function createCustomerTable<const TColumns extends CustomerColumnDef[]>(
   options: CustomerTableOptions<TColumns>
 ): CustomerTable<TColumns> {
@@ -53,10 +49,6 @@ export function createCustomerTable<const TColumns extends CustomerColumnDef[]>(
   >(options, customerConfig);
 }
 
-/**
- * Create an infinite-scroll customer table adapter.
- * Rows accumulate across page fetches.
- */
 export function createInfiniteCustomerTable<const TColumns extends CustomerColumnDef[]>(
   options: CustomerTableOptions<TColumns>
 ): InfiniteCustomerTable<TColumns> {
