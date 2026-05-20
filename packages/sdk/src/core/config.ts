@@ -57,7 +57,10 @@ export const DEFAULT_LOGGER = {
  * Required client options type (tokenProvider, onRequest, onResponse, retry remain optional)
  */
 export type RequiredClientOptions = Required<
-  Omit<InsurUpClientOptions, 'tokenProvider' | 'onRequest' | 'onResponse' | 'retry'>
+  Omit<
+    InsurUpClientOptions,
+    'tokenProvider' | 'onRequest' | 'onResponse' | 'retry' | 'hubsBaseUrl' | 'signalRLogLevel'
+  >
 > & {
   tokenProvider?: TokenProvider;
   onRequest?: RequestInterceptor;

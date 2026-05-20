@@ -3,6 +3,8 @@
  * @description Configuration for the SDK client
  */
 
+import type { LogLevel as SignalRLogLevel } from '@microsoft/signalr';
+
 import type { InsurUpResult } from './result.js';
 
 /**
@@ -254,4 +256,18 @@ export interface InsurUpClientOptions {
    * Allows transforming the result or performing side effects
    */
   readonly onResponse?: ResponseInterceptor;
+
+  /**
+   * Base URL (origin, no path) for SignalR hub connections.
+   * Defaults to the origin of {@link InsurUpClientOptions.baseUrl} — e.g.
+   * `https://api.insurup.com` when `baseUrl` is `https://api.insurup.com/api/`.
+   * Override only if hubs are served from a different host.
+   */
+  readonly hubsBaseUrl?: string;
+
+  /**
+   * Log level for the underlying `@microsoft/signalr` client. Defaults to
+   * `LogLevel.Warning`. Re-exported from `@microsoft/signalr` for convenience.
+   */
+  readonly signalRLogLevel?: SignalRLogLevel;
 }

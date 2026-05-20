@@ -13,6 +13,11 @@ export { DefaultInsurUpClient } from './client/client.js';
 export type { GraphQLRequest, GraphQLResponse } from './client/graphql.js';
 export { GraphQLTransport } from './client/graphql.js';
 
+// SignalR transport (real-time proposal updates)
+export { SignalRTransport } from './client/signalr.js';
+export type { ProposalDetailHandlers, SignalRTransportOptions } from './client/signalr.js';
+export { LogLevel as SignalRLogLevel } from '@microsoft/signalr';
+
 // Specialized client exports
 export { InsurUpAgentClient } from './clients/agent.js';
 export { InsurUpAgentBranchClient } from './clients/agentBranch.js';
