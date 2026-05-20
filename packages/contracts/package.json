@@ -1,6 +1,6 @@
 {
   "name": "@insurup/contracts",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "description": "Type-safe TypeScript contracts and type definitions for the InsurUp insurance platform. Use standalone or with @insurup/sdk.",
   "keywords": [
     "insurup",
