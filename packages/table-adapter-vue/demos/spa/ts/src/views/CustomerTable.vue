@@ -37,11 +37,11 @@ const { state, table, adapter } = useCustomerTable({
 function handleSearch(value: string): void {
   searchInput.value = value;
   if (value.trim()) {
-    adapter.setSearch({
-      name: { textSearch: { value: value.trim() } },
+    adapter.setFilter({
+      name: { $search: true, textSearch: value.trim() },
     });
   } else {
-    adapter.clearSearch();
+    adapter.clearFilter();
   }
 }
 

@@ -15,6 +15,7 @@ import {
   type CasesConnection,
 } from '@insurup/contracts';
 import { buildFieldSelection } from '@insurup/contracts';
+import { buildFilterSearchVariables } from './_internal/build-filter-search-variables.js';
 import type {
   // Request types
   AssignCaseRepresentativeRequest,
@@ -470,8 +471,7 @@ export class InsurUpCaseClient {
       after: requestOptions?.after,
       last: requestOptions?.last,
       before: requestOptions?.before,
-      search: requestOptions?.search,
-      filter: requestOptions?.filter,
+      ...buildFilterSearchVariables(requestOptions?.filter),
       order: requestOptions?.order,
     };
 

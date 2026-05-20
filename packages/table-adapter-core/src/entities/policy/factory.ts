@@ -1,7 +1,5 @@
 /**
  * @fileoverview Policy Table Factories
- * @description Thin wrappers around the generic entity-table helpers bound to
- * the policies SDK call. Both paginated and infinite variants live here.
  */
 
 import type {
@@ -15,8 +13,7 @@ import type {
   PolicyColumnDef,
   PolicyRowType,
   PolicyExtractFields,
-  PolicyFilterInput,
-  PolicySearchInput,
+  PolicyUnifiedFilterInput,
 } from './types.js';
 import {
   createEntityTable,
@@ -35,10 +32,6 @@ const policyConfig: EntityFactoryConfig<GetPoliciesOptions<PolicyFieldKey[]>> = 
     client.policies.getPolicies(vars, requestOptions),
 };
 
-/**
- * Create a type-safe policy table adapter.
- * Row type is narrowed to the fields referenced by the columns.
- */
 export function createPolicyTable<const TColumns extends PolicyColumnDef[]>(
   options: PolicyTableOptions<TColumns>
 ): PolicyTable<TColumns> {
@@ -48,17 +41,12 @@ export function createPolicyTable<const TColumns extends PolicyColumnDef[]>(
     TColumns,
     PolicyRowType<TColumns>,
     QueryPoliciesResultSortInput,
-    PolicyFilterInput,
-    PolicySearchInput,
+    PolicyUnifiedFilterInput,
     GetPoliciesOptions<PolicyExtractFields<TColumns>[]>,
     CursorPaginationOptions
   >(options, policyConfig);
 }
 
-/**
- * Create an infinite-scroll policy table adapter.
- * Rows accumulate across page fetches.
- */
 export function createInfinitePolicyTable<const TColumns extends PolicyColumnDef[]>(
   options: PolicyTableOptions<TColumns>
 ): InfinitePolicyTable<TColumns> {
@@ -68,25 +56,20 @@ export function createInfinitePolicyTable<const TColumns extends PolicyColumnDef
     TColumns,
     PolicyRowType<TColumns>,
     QueryPoliciesResultSortInput,
-    PolicyFilterInput,
-    PolicySearchInput,
+    PolicyUnifiedFilterInput,
     GetPoliciesOptions<PolicyExtractFields<TColumns>[]>,
     CursorPaginationOptions
   >(options, policyConfig);
 }
 
-/** Policy table type — row narrowed to the fields referenced by the columns. */
 export type PolicyTable<TColumns extends PolicyColumnDef[] = PolicyColumnDef[]> = TableApi<
   PolicyRowType<TColumns>,
-  PolicyFilterInput,
-  PolicySearchInput,
+  PolicyUnifiedFilterInput,
   CursorPaginationManager
 >;
 
-/** Infinite policy table type — same shape as `PolicyTable`. */
 export type InfinitePolicyTable<TColumns extends PolicyColumnDef[] = PolicyColumnDef[]> = TableApi<
   PolicyRowType<TColumns>,
-  PolicyFilterInput,
-  PolicySearchInput,
+  PolicyUnifiedFilterInput,
   CursorPaginationManager
 >;

@@ -347,18 +347,16 @@ export type FetchFn<TRow, TQueryOptions> = (
 ) => Promise<InsurUpGraphQLResult<Connection<TRow>>>;
 
 /**
- * Parameters passed to the query options builder
+ * Parameters passed to the query options builder.
+ *
+ * `filter` carries the unified per-field shape; the SDK splits it into the
+ * server's `filter:` and `search:` slots at request time.
+ *
  * @template TEntity - The entity type
  * @template TSortInput - The SDK sort input type (e.g., QueryCustomerModelSortInput)
- * @template TFilterInput - The SDK filter input type (e.g., QueryCustomerModelFilterInput)
- * @template TSearchInput - The SDK search input type (e.g., QueryCustomerModelSearchInput)
+ * @template TUnifiedFilterInput - The unified filter input type
  */
-export interface QueryOptionsBuilderArgs<
-  TEntity,
-  TSortInput,
-  TFilterInput = unknown,
-  TSearchInput = unknown,
-> {
+export interface QueryOptionsBuilderArgs<TEntity, TSortInput, TUnifiedFilterInput = unknown> {
   /** Number of items to fetch */
   first: number;
   /** Cursor for pagination */
@@ -367,31 +365,26 @@ export interface QueryOptionsBuilderArgs<
   order: TSortInput[] | undefined;
   /** Fields to select */
   select: DeepFieldKeys<TEntity>[];
-  /** Filter criteria using SDK's filter input type */
-  filter: TFilterInput | undefined;
-  /** Search criteria using SDK's search input type */
-  search: TSearchInput | undefined;
+  /** Unified filter+search input (SDK splits into wire slots). */
+  filter: TUnifiedFilterInput | undefined;
   /** Whether to include total count in the query (default: true) */
   includeTotalCount: boolean;
 }
 
 /**
- * Function that builds query options from params
+ * Function that builds query options from params.
+ *
  * @template TEntity - The entity type
  * @template TQueryOptions - The query options type for the SDK method
  * @template TSortInput - The SDK sort input type (e.g., QueryCustomerModelSortInput)
- * @template TFilterInput - The SDK filter input type (e.g., QueryCustomerModelFilterInput)
- * @template TSearchInput - The SDK search input type (e.g., QueryCustomerModelSearchInput)
+ * @template TUnifiedFilterInput - The unified filter input type
  */
 export type QueryOptionsBuilder<
   TEntity,
   TQueryOptions,
   TSortInput,
-  TFilterInput = unknown,
-  TSearchInput = unknown,
-> = (
-  params: QueryOptionsBuilderArgs<TEntity, TSortInput, TFilterInput, TSearchInput>
-) => TQueryOptions;
+  TUnifiedFilterInput = unknown,
+> = (params: QueryOptionsBuilderArgs<TEntity, TSortInput, TUnifiedFilterInput>) => TQueryOptions;
 
 // ============================================================================
 // Table Adapter Options (Builder-Based)
@@ -403,8 +396,7 @@ export type QueryOptionsBuilder<
  * @template TFieldKey - The field key type
  * @template TColumns - The column definitions (for field extraction)
  * @template TRow - The row type (inferred from columns)
- * @template TFilterInput - The SDK filter input type
- * @template TSearchInput - The SDK search input type
+ * @template TUnifiedFilterInput - The unified filter+search input type
  * @template TPaginationOptions - The pagination options type
  */
 export interface TableAdapterOptionsBase<
@@ -412,18 +404,18 @@ export interface TableAdapterOptionsBase<
   TFieldKey extends DeepFieldKeys<TEntity>,
   TColumns extends AnyColumnDef<TFieldKey & string>[],
   TRow,
-  TFilterInput,
-  TSearchInput,
+  TUnifiedFilterInput,
   TPaginationOptions extends PaginationOptions,
 > extends ErrorCallbacks<TRow> {
   /** Column definitions using builder function */
   columns: (col: ColumnBuilder<TEntity, TFieldKey>) => TColumns;
   /** Pagination strategy configuration */
   pagination: TPaginationOptions;
-  /** Default filter criteria */
-  defaultFilter?: TFilterInput;
-  /** Default search criteria */
-  defaultSearch?: TSearchInput;
+  /**
+   * Default filter criteria (unified shape). Use `$search: true` on a field's
+   * operator object to route that field to the server's search slot.
+   */
+  defaultFilter?: TUnifiedFilterInput;
   /** Time until data is considered stale (ms, default: 30000) */
   staleTime?: number;
   /** Time until inactive data is garbage collected (ms, default: 300000) */
@@ -478,16 +470,14 @@ export interface TableAdapterClientModeOptions<
   TFieldKey extends DeepFieldKeys<TEntity>,
   TColumns extends AnyColumnDef<TFieldKey & string>[],
   TRow,
-  TFilterInput,
-  TSearchInput,
+  TUnifiedFilterInput,
   TPaginationOptions extends PaginationOptions,
 > extends TableAdapterOptionsBase<
   TEntity,
   TFieldKey,
   TColumns,
   TRow,
-  TFilterInput,
-  TSearchInput,
+  TUnifiedFilterInput,
   TPaginationOptions
 > {
   /** InsurUp client configuration */
@@ -504,16 +494,14 @@ export interface TableAdapterFetchModeOptions<
   TColumns extends AnyColumnDef<TFieldKey & string>[],
   TRow,
   TFetchFn,
-  TFilterInput,
-  TSearchInput,
+  TUnifiedFilterInput,
   TPaginationOptions extends PaginationOptions,
 > extends TableAdapterOptionsBase<
   TEntity,
   TFieldKey,
   TColumns,
   TRow,
-  TFilterInput,
-  TSearchInput,
+  TUnifiedFilterInput,
   TPaginationOptions
 > {
   /** Custom fetch function */
@@ -530,8 +518,7 @@ export type TableAdapterOptions<
   TColumns extends AnyColumnDef<TFieldKey & string>[],
   TRow,
   TFetchFn,
-  TFilterInput,
-  TSearchInput,
+  TUnifiedFilterInput,
   TPaginationOptions extends PaginationOptions,
 > =
   | TableAdapterClientModeOptions<
@@ -539,8 +526,7 @@ export type TableAdapterOptions<
       TFieldKey,
       TColumns,
       TRow,
-      TFilterInput,
-      TSearchInput,
+      TUnifiedFilterInput,
       TPaginationOptions
     >
   | TableAdapterFetchModeOptions<
@@ -549,8 +535,7 @@ export type TableAdapterOptions<
       TColumns,
       TRow,
       TFetchFn,
-      TFilterInput,
-      TSearchInput,
+      TUnifiedFilterInput,
       TPaginationOptions
     >;
 
@@ -597,8 +582,7 @@ export type EntityTableOptions<
   TColumns extends AnyColumnDef<TFieldKey & string>[],
   TRow,
   TFetchFn,
-  TFilterInput,
-  TSearchInput,
+  TUnifiedFilterInput,
   TPaginationOptions extends PaginationOptions,
 > = TableAdapterOptions<
   TEntity,
@@ -606,7 +590,6 @@ export type EntityTableOptions<
   TColumns,
   TRow,
   TFetchFn,
-  TFilterInput,
-  TSearchInput,
+  TUnifiedFilterInput,
   TPaginationOptions
 >;

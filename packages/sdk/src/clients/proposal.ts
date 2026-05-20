@@ -16,6 +16,7 @@ import {
   type ProposalsConnection,
 } from '@insurup/contracts';
 import { buildFieldSelection } from '@insurup/contracts';
+import { buildFilterSearchVariables } from './_internal/build-filter-search-variables.js';
 import type {
   CreateProposalRequest,
   CreateProposalResult,
@@ -544,8 +545,7 @@ export class InsurUpProposalClient {
       after: requestOptions?.after,
       last: requestOptions?.last,
       before: requestOptions?.before,
-      search: requestOptions?.search,
-      filter: requestOptions?.filter,
+      ...buildFilterSearchVariables(requestOptions?.filter),
       order: requestOptions?.order,
     };
 

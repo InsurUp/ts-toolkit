@@ -76,22 +76,47 @@ function isPolicyActive(state: PolicyState): boolean {
 
 ### GraphQL Query Types
 
+Every entity exposes three input types and one sort type per resource:
+
+- `Query<Entity>FilterInput` — the wire shape of the `filtering_*` GraphQL input (server-side only; consumers rarely construct this directly).
+- `Query<Entity>SearchInput` — the wire shape of `searching_*` (same).
+- `Query<Entity>UnifiedFilterInput` — the **consumer-facing** unified shape; per-field map where entries with `$search: true` route to the search slot. This is what you build.
+- `Query<Entity>SortInput` — sort field map.
+
+Plus `SortEnumType` and `PageInfo` from common.
+
 ```typescript
-import type {
-  CustomerFilterInput,
-  CustomerSortInput,
+import {
+  CustomerType,
   SortEnumType,
-  GraphQLPageInfo,
+  type QueryCustomerModelUnifiedFilterInput,
+  type QueryCustomerModelSortInput,
+  type PageInfo,
 } from '@insurup/contracts';
 
-const filter: CustomerFilterInput = {
-  customerType: { eq: CustomerType.Individual },
+// Unified filter — `$search: true` promotes a per-field entry to the
+// server's search slot when used through @insurup/sdk or the table adapter.
+const filter: QueryCustomerModelUnifiedFilterInput = {
+  type: { eq: CustomerType.Individual },
   createdAt: { gte: '2024-01-01' },
+  name: { $search: true, textSearch: 'ali' },
 };
 
-const sort: CustomerSortInput = {
-  createdAt: SortEnumType.Desc,
-};
+const order: QueryCustomerModelSortInput[] = [{ createdAt: SortEnumType.DESC }];
+```
+
+### Runtime introspection
+
+Every entity also ships a generated `Query<Entity>Meta` const (per-field type, nullability, filter/search operator lists). Useful for dynamic filter UIs:
+
+```typescript
+import { QueryCustomerModelMeta } from '@insurup/contracts';
+
+QueryCustomerModelMeta.name.filterable; // true
+QueryCustomerModelMeta.name.filterOperators;
+// ['eq','neq','in','nin','contains','notContains','startsWith','notStartsWith','endsWith','notEndsWith']
+QueryCustomerModelMeta.name.searchable; // true
+QueryCustomerModelMeta.type.values; // ['INDIVIDUAL','COMPANY','FOREIGN']
 ```
 
 ---

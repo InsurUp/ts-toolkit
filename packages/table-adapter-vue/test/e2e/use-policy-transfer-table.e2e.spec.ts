@@ -105,7 +105,9 @@ describeE2E('usePolicyTransferTable [e2e]', () => {
 
       const seed = wrapper.vm.state.rows[0];
       if (!seed?.startDate) return; // Empty tenant or no startDate — vacuous.
-      const targetStartDate = seed.startDate;
+      // Server filter accepts LocalDate (YYYY-MM-DD). The SDK doesn't deserialize
+      // date fields, so seed.startDate is a raw ISO string regardless of the TS type.
+      const targetStartDate = String(seed.startDate).slice(0, 10);
 
       wrapper.vm.adapter.setFilter({ startDate: { eq: targetStartDate } });
       await waitFor(
@@ -115,7 +117,7 @@ describeE2E('usePolicyTransferTable [e2e]', () => {
       await nextTick();
 
       for (const row of wrapper.vm.state.rows) {
-        expect(row.startDate).toBe(targetStartDate);
+        expect(String(row.startDate).slice(0, 10)).toBe(targetStartDate);
       }
     } finally {
       wrapper.unmount();

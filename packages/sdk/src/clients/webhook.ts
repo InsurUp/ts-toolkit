@@ -10,6 +10,7 @@ import {
   type WebhookDeliveriesConnection,
 } from '@insurup/contracts';
 import { buildFieldSelection } from '@insurup/contracts';
+import { buildFilterSearchVariables } from './_internal/build-filter-search-variables.js';
 import type {
   CreateWebhookRequest,
   CreateWebhookResult,
@@ -225,8 +226,7 @@ export class InsurUpWebhookClient {
       after: requestOptions?.after,
       last: requestOptions?.last,
       before: requestOptions?.before,
-      search: requestOptions?.search,
-      filter: requestOptions?.filter,
+      ...buildFilterSearchVariables(requestOptions?.filter),
       order: requestOptions?.order,
     };
 

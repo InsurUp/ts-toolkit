@@ -13,8 +13,7 @@ import {
   mockSortingConverters,
   type MockEntity,
   type MockSortInput,
-  type MockFilterInput,
-  type MockSearchInput,
+  type MockUnifiedFilterInput,
 } from './mocks.js';
 
 // ============================================================================
@@ -30,8 +29,7 @@ export function createMockAdapterOptions(
       MockEntity,
       MockEntity,
       MockSortInput,
-      MockFilterInput,
-      MockSearchInput,
+      MockUnifiedFilterInput,
       CursorPaginationOptions
     >
   > = {}
@@ -39,8 +37,7 @@ export function createMockAdapterOptions(
   MockEntity,
   MockEntity,
   MockSortInput,
-  MockFilterInput,
-  MockSearchInput,
+  MockUnifiedFilterInput,
   CursorPaginationOptions
 > {
   return {

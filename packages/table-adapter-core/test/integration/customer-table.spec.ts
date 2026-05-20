@@ -5,12 +5,13 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createCustomerTable } from '../../src/entities/customer/factory.js';
-import type {
-  Connection,
-  QueryCustomerModelSearchInput,
-  InsurUpGraphQLResult,
-  CustomerFieldKey,
-  GetCustomersOptions,
+import {
+  CustomerType,
+  type Connection,
+  type InsurUpGraphQLResult,
+  type CustomerFieldKey,
+  type GetCustomersOptions,
+  type QueryCustomerModelUnifiedFilterInput,
 } from '@insurup/sdk';
 import { flushPromises } from '../utils/helpers.js';
 import { createMockPageInfo, createSuccessResult, createClientError } from '../utils/mocks.js';
@@ -277,12 +278,12 @@ describe('createCustomerTable', () => {
       await table.fetch();
       (mockFetch as ReturnType<typeof vi.fn>).mockClear();
 
-      table.setFilter({ type: { eq: 'Corporate' } });
+      table.setFilter({ type: { eq: CustomerType.Company } });
       await flushPromises();
 
       expect(mockFetch).toHaveBeenCalledWith(
         expect.objectContaining({
-          filter: { type: { eq: 'Corporate' } },
+          filter: { type: { eq: CustomerType.Company } },
         }),
         expect.any(Object)
       );
@@ -330,36 +331,37 @@ describe('createCustomerTable', () => {
     });
   });
 
-  describe('searching', () => {
-    const searchInput: QueryCustomerModelSearchInput = {
-      name: { textSearch: { value: 'Acme' } },
-    };
+  describe('searching (via unified filter with $search marker)', () => {
+    const acmeSearch = {
+      name: { $search: true, textSearch: { value: 'Acme' } },
+    } satisfies QueryCustomerModelUnifiedFilterInput;
+    const johnDoeSearch = {
+      name: { $search: true, textSearch: { value: 'john doe' } },
+    } satisfies QueryCustomerModelUnifiedFilterInput;
 
-    const johnDoeSearch: QueryCustomerModelSearchInput = {
-      name: { textSearch: { value: 'john doe' } },
-    };
-
-    it('should apply default search', async () => {
+    it('forwards a $search-marked default filter through to the SDK call', async () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
         pagination: { type: 'cursor' },
-        defaultSearch: searchInput,
+        defaultFilter: acmeSearch,
       });
 
       await table.fetch();
 
+      // The adapter forwards the unified shape as-is to the SDK; the SDK
+      // performs the wire-level split internally. Integration check:
+      // the fetch (which stands in for the SDK call) receives the unified
+      // shape on `filter:`.
       expect(mockFetch).toHaveBeenCalledWith(
-        expect.objectContaining({
-          search: searchInput,
-        }),
+        expect.objectContaining({ filter: acmeSearch }),
         expect.any(Object)
       );
 
       table.destroy();
     });
 
-    it('should set search and refetch', async () => {
+    it('setFilter with a $search-marked field refetches with the unified shape', async () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
@@ -369,52 +371,47 @@ describe('createCustomerTable', () => {
       await table.fetch();
       (mockFetch as ReturnType<typeof vi.fn>).mockClear();
 
-      table.setSearch(johnDoeSearch);
+      table.setFilter(johnDoeSearch);
       await flushPromises();
 
       expect(mockFetch).toHaveBeenCalledWith(
-        expect.objectContaining({
-          search: johnDoeSearch,
-        }),
+        expect.objectContaining({ filter: johnDoeSearch }),
         expect.any(Object)
       );
 
       table.destroy();
     });
 
-    it('should get current search', () => {
+    it('getFilter returns the unified shape including the $search marker', () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
         pagination: { type: 'cursor' },
-        defaultSearch: searchInput,
+        defaultFilter: acmeSearch,
       });
 
-      const search = table.getSearch();
-      expect(search).toEqual(searchInput);
+      expect(table.getFilter()).toEqual(acmeSearch);
 
       table.destroy();
     });
 
-    it('should clear search', async () => {
+    it('clearFilter clears search-marked entries', async () => {
       const table = createCustomerTable({
         columns: (col) => [col.id()],
         fetch: mockFetch,
         pagination: { type: 'cursor' },
-        defaultSearch: searchInput,
+        defaultFilter: acmeSearch,
       });
 
       await table.fetch();
       (mockFetch as ReturnType<typeof vi.fn>).mockClear();
 
-      table.clearSearch();
+      table.clearFilter();
       await flushPromises();
 
-      expect(table.getSearch()).toBeUndefined();
+      expect(table.getFilter()).toBeUndefined();
       expect(mockFetch).toHaveBeenCalledWith(
-        expect.objectContaining({
-          search: undefined,
-        }),
+        expect.objectContaining({ filter: undefined }),
         expect.any(Object)
       );
 

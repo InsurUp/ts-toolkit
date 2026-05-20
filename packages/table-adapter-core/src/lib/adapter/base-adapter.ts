@@ -40,8 +40,7 @@ import { columnsToTanStackColumnDefs, createTableError } from './utils.js';
  * @template TRow - The row type with only selected fields (use SDK's PickFields<TEntity, TFields>)
  * @template TQueryOptions - The query options type (e.g., GetCustomersOptions)
  * @template TSortInput - The SDK sort input type (e.g., QueryCustomerModelSortInput)
- * @template TFilterInput - The SDK filter input type (e.g., QueryCustomerModelFilterInput)
- * @template TSearchInput - The SDK search input type (e.g., QueryCustomerModelSearchInput)
+ * @template TUnifiedFilterInput - The unified filter input type (`setFilter` consumers see this; the SDK splits it into the server's `filter:` and `search:` slots at request time)
  *
  * The fetchFn must return Connection<TRow> (not Connection<TEntity>) for type safety.
  * Use SDK's PickFields or PickCustomerFields to compute TRow from selected fields.
@@ -50,7 +49,7 @@ import { columnsToTanStackColumnDefs, createTableError } from './utils.js';
  * - Column conversion (schema → ColumnDef[])
  * - GraphQL select extraction from schema fields
  * - Sorting transformation (TanStack → SDK format)
- * - Filter and search state management
+ * - Filter state management (unified shape; SDK splits into `filter`/`search` slots)
  * - Cursor pagination management
  * - State management via @tanstack/query-core
  */
@@ -59,13 +58,11 @@ export class BaseTableAdapter<
   TRow,
   TQueryOptions,
   TSortInput,
-  TFilterInput,
-  TSearchInput,
+  TUnifiedFilterInput,
   TPaginationOptions extends PaginationOptions,
 > implements ITableAdapter<
   TRow,
-  TFilterInput,
-  TSearchInput,
+  TUnifiedFilterInput,
   PaginationManagerFromOptions<TPaginationOptions>
 > {
   /** Static server snapshot for SSR - frozen for referential stability */
@@ -85,10 +82,8 @@ export class BaseTableAdapter<
   /** Original column definitions (for field mapping, visibility) */
   private readonly internalColumns: AnyColumnDef<DeepFieldKeys<TEntity> & string>[];
   private _pagination: PaginationManagerFromOptions<TPaginationOptions>;
-  /** Filter stored in SDK format */
-  private filter: TFilterInput | undefined;
-  /** Search stored in SDK format */
-  private search: TSearchInput | undefined;
+  /** Unified filter (per-field; entries tagged with `$search: true` route to the server's search slot) */
+  private filter: TUnifiedFilterInput | undefined;
   private sortingConverters: SortingConverters<TSortInput>;
   private queryKeyPrefix: string;
   private queryManager: QueryManager<InsurUpGraphQLResult<Connection<TRow>>, TQueryOptions>;
@@ -166,15 +161,13 @@ export class BaseTableAdapter<
       TEntity,
       TQueryOptions,
       TSortInput,
-      TFilterInput,
-      TSearchInput
+      TUnifiedFilterInput
     >,
     options: BaseTableAdapterOptions<
       TEntity,
       TRow,
       TSortInput,
-      TFilterInput,
-      TSearchInput,
+      TUnifiedFilterInput,
       TPaginationOptions
     >
   ) {
@@ -204,9 +197,8 @@ export class BaseTableAdapter<
     this.userOnStateChange = userOnStateChange;
     this.initialTableOptions = restTableOptions;
 
-    // Store filter and search in SDK format directly
+    // Store unified filter (split into server filter/search slots at fetch time)
     this.filter = options.defaultFilter;
-    this.search = options.defaultSearch;
     this._pagination = createPaginationManager(options.pagination);
 
     // Store error callbacks
@@ -404,7 +396,7 @@ export class BaseTableAdapter<
   /**
    * Get unique query key for caching
    * Uses queryKeyPrefix to prevent cache collisions between different entity types
-   * Includes sorting (from tableState), select (derived from visibility), filter and search for proper cache isolation
+   * Includes sorting (from tableState), select (derived from visibility), and the unified filter for proper cache isolation
    */
   private getQueryKey(): unknown[] {
     // Read sorting from tableState (internal state managed via onStateChange)
@@ -420,7 +412,6 @@ export class BaseTableAdapter<
       fields,
       sorting,
       this.filter,
-      this.search,
       this._pagination.getState().pageIndex,
     ];
   }
@@ -447,8 +438,9 @@ export class BaseTableAdapter<
       after: this._pagination.getState().cursor,
       order: sdkSorting,
       select,
+      // The SDK splits the unified filter into the server's filter/search
+      // slots at request time; the adapter just forwards as-is.
       filter: this.filter,
-      search: this.search,
       // When splitTotalCount is enabled, don't include total count in main query
       includeTotalCount: !this.splitTotalCount,
     });
@@ -466,7 +458,6 @@ export class BaseTableAdapter<
       order: undefined,
       select: [],
       filter: this.filter,
-      search: this.search,
       includeTotalCount: true,
     });
   }
@@ -476,7 +467,7 @@ export class BaseTableAdapter<
    * Excludes pagination and sorting since count doesn't change with page or sort order.
    */
   private getCountQueryKey(): unknown[] {
-    return [this.queryKeyPrefix, 'count', this.filter, this.search];
+    return [this.queryKeyPrefix, 'count', this.filter];
   }
 
   /**
@@ -874,63 +865,30 @@ export class BaseTableAdapter<
   // ============================================================================
 
   /**
-   * Set filter criteria and refetch
-   * Resets pagination to first page when filter changes
-   * @param filter - The filter criteria using SDK's filter input type
+   * Set filter criteria and refetch.
+   * Resets pagination to first page when filter changes.
+   *
+   * The input is a unified per-field shape: filter ops by default, with
+   * `$search: true` on a field to route it to the server's search slot.
    */
-  setFilter(filter: TFilterInput): void {
+  setFilter(filter: TUnifiedFilterInput): void {
     this.filter = filter;
     this._pagination.reset();
     void this.fetch();
   }
 
   /**
-   * Get current filter criteria
-   * @returns The current filter or undefined if not set
+   * Get current filter criteria (unified shape).
    */
-  getFilter(): TFilterInput | undefined {
+  getFilter(): TUnifiedFilterInput | undefined {
     return this.filter;
   }
 
   /**
-   * Clear filter criteria and refetch
-   * Resets pagination to first page
+   * Clear filter criteria and refetch (resets pagination).
    */
   clearFilter(): void {
     this.filter = undefined;
-    this._pagination.reset();
-    void this.fetch();
-  }
-
-  // ============================================================================
-  // Search Methods
-  // ============================================================================
-
-  /**
-   * Set search criteria and refetch
-   * Resets pagination to first page when search changes
-   * @param search - The search criteria using SDK's search input type
-   */
-  setSearch(search: TSearchInput): void {
-    this.search = search;
-    this._pagination.reset();
-    void this.fetch();
-  }
-
-  /**
-   * Get current search criteria
-   * @returns The current search or undefined if not set
-   */
-  getSearch(): TSearchInput | undefined {
-    return this.search;
-  }
-
-  /**
-   * Clear search criteria and refetch
-   * Resets pagination to first page
-   */
-  clearSearch(): void {
-    this.search = undefined;
     this._pagination.reset();
     void this.fetch();
   }
@@ -967,3 +925,8 @@ export class BaseTableAdapter<
     this.listeners.clear();
   }
 }
+
+// The unified-filter splitter lives in the SDK (`splitUnifiedFilter` in
+// `@insurup/sdk/internal/split-unified-filter`). The adapter forwards the
+// unified shape directly to the SDK; routing to the server's filter/search
+// slots happens at request time.

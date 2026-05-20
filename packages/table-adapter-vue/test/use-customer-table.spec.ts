@@ -124,14 +124,18 @@ describe('useCustomerTable', () => {
     expect(destroySpy).toHaveBeenCalled();
   });
 
-  it('forwards setFilter / setSearch through the adapter API', async () => {
+  it('forwards setFilter (filter + search-marked entries) through the adapter API', async () => {
     const wrapper = mountWith(makeOptions());
 
     wrapper.vm.adapter.setFilter({ name: { eq: 'X' } });
-    wrapper.vm.adapter.setSearch({ name: { eq: 'Doe' } });
-
     expect(wrapper.vm.adapter.getFilter()).toEqual({ name: { eq: 'X' } });
-    expect(wrapper.vm.adapter.getSearch()).toEqual({ name: { eq: 'Doe' } });
+
+    wrapper.vm.adapter.setFilter({
+      name: { $search: true, textSearch: { value: 'Doe' } },
+    });
+    expect(wrapper.vm.adapter.getFilter()).toEqual({
+      name: { $search: true, textSearch: { value: 'Doe' } },
+    });
 
     wrapper.unmount();
   });

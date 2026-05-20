@@ -22,7 +22,7 @@ export interface CreateTableCoreOptions<TRow, TOptions> {
   /** Getter function for options (enables reactive tableOptions) */
   getOptions: () => TOptions;
   /** Factory function to create the core adapter */
-  createAdapter: (options: TOptions) => ITableAdapter<TRow, unknown, unknown, PaginationManager>;
+  createAdapter: (options: TOptions) => ITableAdapter<TRow, unknown, PaginationManager>;
   /** Extract tableOptions.state from options for reactive syncing */
   getTableOptionsState: (options: TOptions) => Record<string, unknown> | undefined;
 }
@@ -36,7 +36,7 @@ export interface CreateTableCoreOptions<TRow, TOptions> {
  */
 export interface TableCoreResult<
   TRow,
-  TAdapter extends ITableAdapter<TRow, unknown, unknown, PaginationManager>,
+  TAdapter extends ITableAdapter<TRow, unknown, PaginationManager>,
 > {
   // ============================================================================
   // Fine-grained state signals (from TableState)
@@ -132,7 +132,7 @@ export interface TableCoreResult<
 export function createTableCore<
   TRow,
   TOptions,
-  TAdapter extends ITableAdapter<TRow, unknown, unknown, PaginationManager>,
+  TAdapter extends ITableAdapter<TRow, unknown, PaginationManager>,
 >(options: CreateTableCoreOptions<TRow, TOptions>): TableCoreResult<TRow, TAdapter> {
   const { getOptions, createAdapter, getTableOptionsState } = options;
 

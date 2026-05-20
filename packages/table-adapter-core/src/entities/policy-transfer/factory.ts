@@ -1,7 +1,5 @@
 /**
  * @fileoverview PolicyTransfer Table Factories
- * @description Thin wrappers around the generic entity-table helpers bound to
- * the policy-transfers SDK call. Both paginated and infinite variants live here.
  */
 
 import type {
@@ -15,8 +13,7 @@ import type {
   PolicyTransferColumnDef,
   PolicyTransferRowType,
   PolicyTransferExtractFields,
-  PolicyTransferFilterInput,
-  PolicyTransferSearchInput,
+  PolicyTransferUnifiedFilterInput,
 } from './types.js';
 import {
   createEntityTable,
@@ -37,10 +34,6 @@ const policyTransferConfig: EntityFactoryConfig<
     client.policies.getPolicyTransfers(vars, requestOptions),
 };
 
-/**
- * Create a type-safe policy transfer table adapter.
- * Row type is narrowed to the fields referenced by the columns.
- */
 export function createPolicyTransferTable<const TColumns extends PolicyTransferColumnDef[]>(
   options: PolicyTransferTableOptions<TColumns>
 ): PolicyTransferTable<TColumns> {
@@ -50,17 +43,12 @@ export function createPolicyTransferTable<const TColumns extends PolicyTransferC
     TColumns,
     PolicyTransferRowType<TColumns>,
     QueryPolicyTransfersResultSortInput,
-    PolicyTransferFilterInput,
-    PolicyTransferSearchInput,
+    PolicyTransferUnifiedFilterInput,
     GetPolicyTransfersOptions<PolicyTransferExtractFields<TColumns>[]>,
     CursorPaginationOptions
   >(options, policyTransferConfig);
 }
 
-/**
- * Create an infinite-scroll policy transfer table adapter.
- * Rows accumulate across page fetches.
- */
 export function createInfinitePolicyTransferTable<const TColumns extends PolicyTransferColumnDef[]>(
   options: PolicyTransferTableOptions<TColumns>
 ): InfinitePolicyTransferTable<TColumns> {
@@ -70,29 +58,24 @@ export function createInfinitePolicyTransferTable<const TColumns extends PolicyT
     TColumns,
     PolicyTransferRowType<TColumns>,
     QueryPolicyTransfersResultSortInput,
-    PolicyTransferFilterInput,
-    PolicyTransferSearchInput,
+    PolicyTransferUnifiedFilterInput,
     GetPolicyTransfersOptions<PolicyTransferExtractFields<TColumns>[]>,
     CursorPaginationOptions
   >(options, policyTransferConfig);
 }
 
-/** PolicyTransfer table type — row narrowed to the fields referenced by the columns. */
 export type PolicyTransferTable<
   TColumns extends PolicyTransferColumnDef[] = PolicyTransferColumnDef[],
 > = TableApi<
   PolicyTransferRowType<TColumns>,
-  PolicyTransferFilterInput,
-  PolicyTransferSearchInput,
+  PolicyTransferUnifiedFilterInput,
   CursorPaginationManager
 >;
 
-/** Infinite policy transfer table type — same shape as `PolicyTransferTable`. */
 export type InfinitePolicyTransferTable<
   TColumns extends PolicyTransferColumnDef[] = PolicyTransferColumnDef[],
 > = TableApi<
   PolicyTransferRowType<TColumns>,
-  PolicyTransferFilterInput,
-  PolicyTransferSearchInput,
+  PolicyTransferUnifiedFilterInput,
   CursorPaginationManager
 >;

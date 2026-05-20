@@ -31,6 +31,8 @@ export type {
   DateTimeFieldMeta,
   DateOnlyFieldMeta,
   EnumFieldMeta,
+  FilterOperator,
+  SearchOperator,
 } from './meta-types.js';
 
 // GraphQL types

@@ -59,6 +59,7 @@ import {
   type FilePolicyTransfersConnection,
 } from '@insurup/contracts';
 import { buildFieldSelection } from '@insurup/contracts';
+import { buildFilterSearchVariables } from './_internal/build-filter-search-variables.js';
 
 /**
  * Policy Management Client / Poliçe Yönetimi İstemcisi
@@ -499,8 +500,7 @@ export class InsurUpPolicyClient {
       after: requestOptions?.after,
       last: requestOptions?.last,
       before: requestOptions?.before,
-      search: requestOptions?.search,
-      filter: requestOptions?.filter,
+      ...buildFilterSearchVariables(requestOptions?.filter),
       order: requestOptions?.order,
     };
 
@@ -599,8 +599,7 @@ export class InsurUpPolicyClient {
       after: requestOptions?.after,
       last: requestOptions?.last,
       before: requestOptions?.before,
-      search: requestOptions?.search,
-      filter: requestOptions?.filter,
+      ...buildFilterSearchVariables(requestOptions?.filter),
       order: requestOptions?.order,
     };
 
@@ -699,8 +698,7 @@ export class InsurUpPolicyClient {
       after: requestOptions?.after,
       last: requestOptions?.last,
       before: requestOptions?.before,
-      search: requestOptions?.search,
-      filter: requestOptions?.filter,
+      ...buildFilterSearchVariables(requestOptions?.filter),
       order: requestOptions?.order,
     };
 

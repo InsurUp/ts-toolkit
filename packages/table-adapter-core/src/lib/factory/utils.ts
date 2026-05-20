@@ -302,19 +302,13 @@ export function createColumnBuilder<
 // ============================================================================
 
 /**
- * Create the standard table API that wraps BaseTableAdapter
- *
- * This factory creates a consistent public API for all entity table factories.
- * It wraps the internal BaseTableAdapter with a clean, documented interface.
+ * Create the standard table API that wraps BaseTableAdapter.
  *
  * @template TEntity - The full entity type
  * @template TRow - The row type with selected fields
  * @template TQueryOptions - The SDK query options type
  * @template TSortInput - The SDK sort input type
- * @template TFilterInput - The SDK filter input type
- * @template TSearchInput - The SDK search input type
- * @param config - Configuration including fetchFn, columns, etc.
- * @returns Standard table API object
+ * @template TUnifiedFilterInput - The unified filter input type
  *
  * @example
  * ```typescript
@@ -323,8 +317,7 @@ export function createColumnBuilder<
  *   CustomerSchemaRowType<TSchema>,
  *   GetCustomersOptions<TFields>,
  *   QueryCustomerModelSortInput,
- *   QueryCustomerModelFilterInput,
- *   QueryCustomerModelSearchInput,
+ *   QueryCustomerModelUnifiedFilterInput,
  *   CursorPaginationOptions
  * >({
  *   fetchFn,
@@ -332,7 +325,6 @@ export function createColumnBuilder<
  *   columns: internalColumns,
  *   pagination: { type: 'cursor', pageSize: options.pageSize ?? 20 },
  *   defaultFilter: options.defaultFilter,
- *   defaultSearch: options.defaultSearch,
  *   sortingConverters,
  *   queryKeyPrefix: 'customers',
  * })
@@ -343,8 +335,7 @@ export function createTableApi<
   TRow,
   TQueryOptions,
   TSortInput,
-  TFilterInput,
-  TSearchInput,
+  TUnifiedFilterInput,
   TPaginationOptions extends PaginationOptions,
 >(
   config: TableApiConfig<
@@ -352,10 +343,9 @@ export function createTableApi<
     TRow,
     TQueryOptions,
     TSortInput,
-    TFilterInput,
-    TSearchInput,
+    TUnifiedFilterInput,
     TPaginationOptions
   >
-): TableApi<TRow, TFilterInput, TSearchInput, PaginationManagerFromOptions<TPaginationOptions>> {
+): TableApi<TRow, TUnifiedFilterInput, PaginationManagerFromOptions<TPaginationOptions>> {
   return buildTableApi(BaseTableAdapter, config);
 }

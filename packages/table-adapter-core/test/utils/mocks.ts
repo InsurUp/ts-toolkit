@@ -53,6 +53,18 @@ export interface MockSearchInput {
   fields?: string[];
 }
 
+/**
+ * Mock unified filter input — what consumers pass to `setFilter`.
+ * Per-field; fields tagged with `$search: true` are routed to the server's
+ * search slot in real adapter usage. For mocks, the adapter strips the marker
+ * and forwards both buckets to the fetch function.
+ */
+export type MockUnifiedFilterInput = {
+  name?: MockFilterInput['name'] | { $search: true; query?: string };
+  type?: MockFilterInput['type'];
+  status?: MockFilterInput['status'];
+};
+
 // ============================================================================
 // Mock Data Factories
 // ============================================================================

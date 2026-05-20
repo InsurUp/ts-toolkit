@@ -49,29 +49,29 @@ export interface EntityFactoryConfig<TQueryOptions> {
 /**
  * Build the standard query-options object passed to every SDK list method.
  *
- * Every per-entity `Get*Options<TFields>` in `@insurup/contracts/graphql/*`
- * extends `GetQueryOptions<TFieldKey, TFilter, TSearch, TSort>` from the same
+ * Each per-entity `Get*Options<TFields>` in `@insurup/contracts/graphql/*`
+ * extends `GetQueryOptions<TFieldKey, TUnifiedFilter, TSort>` from the same
  * file, so we constrain `TQueryOptions` on that upstream interface. The
- * single `as TQueryOptions` cast at the end covers the per-entity branding
- * of `select` (`TFields` rather than wide `string[]`).
+ * single `as TQueryOptions` cast covers the per-entity branding of `select`.
+ *
+ * The unified filter is forwarded as-is — the SDK splits it into the
+ * server's `filter:` and `search:` slots at request time.
  */
 function buildEntityQueryOptions<
   TEntity,
   TSortInput,
-  TFilterInput,
-  TSearchInput,
-  TQueryOptions extends GetQueryOptions<string, TFilterInput, TSearchInput, TSortInput>,
+  TUnifiedFilterInput,
+  TQueryOptions extends GetQueryOptions<string, TUnifiedFilterInput, TSortInput>,
 >(
-  params: QueryOptionsBuilderArgs<TEntity, TSortInput, TFilterInput, TSearchInput>,
+  params: QueryOptionsBuilderArgs<TEntity, TSortInput, TUnifiedFilterInput>,
   includeTotalCount: boolean
 ): TQueryOptions {
-  const base: GetQueryOptions<string, TFilterInput, TSearchInput, TSortInput> = {
+  const base: GetQueryOptions<string, TUnifiedFilterInput, TSortInput> = {
     first: params.first,
     after: params.after,
     order: params.order,
     select: params.select,
     filter: params.filter,
-    search: params.search,
   };
   if (includeTotalCount) {
     base.includeTotalCount = params.includeTotalCount;
@@ -90,9 +90,8 @@ function buildEntityTable<
   TColumns extends AnyColumnDef<TFieldKey & string>[],
   TRow,
   TSortInput,
-  TFilterInput,
-  TSearchInput,
-  TQueryOptions extends GetQueryOptions<string, TFilterInput, TSearchInput, TSortInput>,
+  TUnifiedFilterInput,
+  TQueryOptions extends GetQueryOptions<string, TUnifiedFilterInput, TSortInput>,
   TPaginationOptions extends PaginationOptions,
 >(
   options: EntityTableOptions<
@@ -101,8 +100,7 @@ function buildEntityTable<
     TColumns,
     TRow,
     EntityFetchFn<TRow, TQueryOptions>,
-    TFilterInput,
-    TSearchInput,
+    TUnifiedFilterInput,
     TPaginationOptions
   >,
   config: EntityFactoryConfig<TQueryOptions>,
@@ -112,14 +110,13 @@ function buildEntityTable<
       TRow,
       TQueryOptions,
       TSortInput,
-      TFilterInput,
-      TSearchInput,
+      TUnifiedFilterInput,
       TPaginationOptions
     >
-  ) => TableApi<TRow, TFilterInput, TSearchInput, PaginationManagerFromOptions<TPaginationOptions>>,
+  ) => TableApi<TRow, TUnifiedFilterInput, PaginationManagerFromOptions<TPaginationOptions>>,
   queryKeyPrefix: string,
   includeTotalCount: boolean
-): TableApi<TRow, TFilterInput, TSearchInput, PaginationManagerFromOptions<TPaginationOptions>> {
+): TableApi<TRow, TUnifiedFilterInput, PaginationManagerFromOptions<TPaginationOptions>> {
   const columnBuilder = createColumnBuilder<TEntity, TFieldKey>();
   const columns = options.columns(columnBuilder);
   const fetchFn = getFetchFn<TRow, TQueryOptions>(options, config.clientMethod);
@@ -127,14 +124,13 @@ function buildEntityTable<
   return apiFactory({
     fetchFn,
     buildQueryOptions: (params) =>
-      buildEntityQueryOptions<TEntity, TSortInput, TFilterInput, TSearchInput, TQueryOptions>(
+      buildEntityQueryOptions<TEntity, TSortInput, TUnifiedFilterInput, TQueryOptions>(
         params,
         includeTotalCount
       ),
     columns,
     pagination: options.pagination,
     defaultFilter: options.defaultFilter,
-    defaultSearch: options.defaultSearch,
     sortingConverters: createSortingConverters<TSortInput>(),
     queryKeyPrefix,
     staleTime: options.staleTime,
@@ -153,18 +149,6 @@ function buildEntityTable<
  * Create a paginated entity table.
  *
  * Used as the body of every per-entity `create*Table` factory.
- *
- * @example
- * ```ts
- * export function createPolicyTable<const TC extends PolicyColumnDef[]>(
- *   options: PolicyTableOptions<TC>
- * ): PolicyTable<TC> {
- *   return createEntityTable<...>(options, {
- *     queryKeyPrefix: 'policies',
- *     clientMethod: (c) => (v, o) => c.policies.getPolicies(v, o),
- *   });
- * }
- * ```
  */
 export function createEntityTable<
   TEntity,
@@ -172,9 +156,8 @@ export function createEntityTable<
   TColumns extends AnyColumnDef<TFieldKey & string>[],
   TRow,
   TSortInput,
-  TFilterInput,
-  TSearchInput,
-  TQueryOptions extends GetQueryOptions<string, TFilterInput, TSearchInput, TSortInput>,
+  TUnifiedFilterInput,
+  TQueryOptions extends GetQueryOptions<string, TUnifiedFilterInput, TSortInput>,
   TPaginationOptions extends PaginationOptions,
 >(
   options: EntityTableOptions<
@@ -183,12 +166,11 @@ export function createEntityTable<
     TColumns,
     TRow,
     EntityFetchFn<TRow, TQueryOptions>,
-    TFilterInput,
-    TSearchInput,
+    TUnifiedFilterInput,
     TPaginationOptions
   >,
   config: EntityFactoryConfig<TQueryOptions>
-): TableApi<TRow, TFilterInput, TSearchInput, PaginationManagerFromOptions<TPaginationOptions>> {
+): TableApi<TRow, TUnifiedFilterInput, PaginationManagerFromOptions<TPaginationOptions>> {
   return buildEntityTable(options, config, createTableApi, config.queryKeyPrefix, true);
 }
 
@@ -204,9 +186,8 @@ export function createInfiniteEntityTable<
   TColumns extends AnyColumnDef<TFieldKey & string>[],
   TRow,
   TSortInput,
-  TFilterInput,
-  TSearchInput,
-  TQueryOptions extends GetQueryOptions<string, TFilterInput, TSearchInput, TSortInput>,
+  TUnifiedFilterInput,
+  TQueryOptions extends GetQueryOptions<string, TUnifiedFilterInput, TSortInput>,
   TPaginationOptions extends PaginationOptions,
 >(
   options: EntityTableOptions<
@@ -215,12 +196,11 @@ export function createInfiniteEntityTable<
     TColumns,
     TRow,
     EntityFetchFn<TRow, TQueryOptions>,
-    TFilterInput,
-    TSearchInput,
+    TUnifiedFilterInput,
     TPaginationOptions
   >,
   config: EntityFactoryConfig<TQueryOptions>
-): TableApi<TRow, TFilterInput, TSearchInput, PaginationManagerFromOptions<TPaginationOptions>> {
+): TableApi<TRow, TUnifiedFilterInput, PaginationManagerFromOptions<TPaginationOptions>> {
   return buildEntityTable(
     options,
     config,

@@ -14,6 +14,128 @@ import { Project, type InterfaceDeclaration, type Type, SyntaxKind } from 'ts-mo
 import { resolve, basename, dirname, join, relative } from 'node:path';
 import { writeFileSync } from 'node:fs';
 import prettier from 'prettier';
+import type { FilterOperator, SearchOperator } from '../src/meta-types.js';
+
+// ---------------------------------------------------------------------------
+// Operator-type-name → kind, and kind → operator-list lookups.
+// Shared across filter and search sides: every server operator type
+// (`StringOperationFilterInput`, `SearchStringOperationFilterInput`, etc.)
+// resolves to a single kind, and each kind maps to one operator list. The
+// search side accepts a superset of operators, so the lists are typed as
+// `SearchOperator[]` — `FilterOperator` is assignable to that.
+// These are private to the codegen — at runtime each meta entry already
+// carries the resolved operator array, so consumers don't need the maps.
+// ---------------------------------------------------------------------------
+
+type Kind =
+  | 'string'
+  | 'searchString'
+  | 'stringList'
+  | 'int'
+  | 'float'
+  | 'boolean'
+  | 'uuid'
+  | 'dateTime'
+  | 'dateOnly'
+  | 'enum';
+
+const COMPARABLE_OPS = [
+  'eq',
+  'neq',
+  'in',
+  'nin',
+  'gt',
+  'ngt',
+  'gte',
+  'ngte',
+  'lt',
+  'nlt',
+  'lte',
+  'nlte',
+] as const satisfies readonly FilterOperator[];
+
+const ENUM_OPS = ['eq', 'neq', 'in', 'nin'] as const satisfies readonly FilterOperator[];
+
+const STRING_OPS = [
+  'eq',
+  'neq',
+  'in',
+  'nin',
+  'contains',
+  'notContains',
+  'startsWith',
+  'notStartsWith',
+  'endsWith',
+  'notEndsWith',
+] as const satisfies readonly FilterOperator[];
+
+const STRING_LIST_OPS = ['in', 'nin', 'eq'] as const satisfies readonly FilterOperator[];
+
+const BOOLEAN_OPS = ['eq', 'neq'] as const satisfies readonly FilterOperator[];
+
+const SEARCH_STRING_OPS = [
+  ...STRING_OPS,
+  'textSearch',
+  'wildcard',
+  'autocomplete',
+] as const satisfies readonly SearchOperator[];
+
+/**
+ * Per-kind filter operators. Filter inputs only ever reference kinds whose
+ * operator lists are pure `FilterOperator`s (no text-search ops), so the
+ * value type stays narrow. The `searchString` entry is required by the
+ * total-record satisfies-check but must never appear on the filter side —
+ * see `assertFilterKind` below.
+ */
+const FILTER_OPERATORS_BY_KIND = {
+  string: STRING_OPS,
+  searchString: STRING_OPS,
+  stringList: STRING_LIST_OPS,
+  int: COMPARABLE_OPS,
+  float: COMPARABLE_OPS,
+  boolean: BOOLEAN_OPS,
+  uuid: COMPARABLE_OPS,
+  dateTime: COMPARABLE_OPS,
+  dateOnly: COMPARABLE_OPS,
+  enum: ENUM_OPS,
+} as const satisfies Readonly<Record<Kind, readonly FilterOperator[]>>;
+
+/**
+ * Guard against schema drift: if a `Query<X>FilterInput` ever references
+ * `SearchStringOperationFilterInput` (search-side type), the meta would
+ * silently emit a narrower op set instead of `SEARCH_STRING_OPS`. Fail
+ * loudly so the contributor knows to investigate.
+ */
+function assertFilterKind(fieldName: string, ifaceName: string, kind: Kind): void {
+  if (kind === 'searchString') {
+    throw new Error(
+      `generate-meta: field "${fieldName}" on filter input "${ifaceName}" maps to kind ` +
+        `"searchString" — that kind is reserved for the search side. The server schema ` +
+        `must have drifted (a "searching_*" type leaked into a "filtering_*" input). ` +
+        `Investigate before regenerating.`
+    );
+  }
+}
+
+/** Per-kind search operators. `searchString` is the only kind that differs. */
+const SEARCH_OPERATORS_BY_KIND = {
+  ...FILTER_OPERATORS_BY_KIND,
+  searchString: SEARCH_STRING_OPS,
+} as const satisfies Readonly<Record<Kind, readonly SearchOperator[]>>;
+
+/** Map any operator type's symbol name to its kind. Unknown names skip meta. */
+const OPERATOR_TYPE_TO_KIND: Readonly<Record<string, Kind>> = {
+  StringOperationFilterInput: 'string',
+  SearchStringOperationFilterInput: 'searchString',
+  StringListOperationFilterInput: 'stringList',
+  IntOperationFilterInput: 'int',
+  FloatOperationFilterInput: 'float',
+  BooleanOperationFilterInput: 'boolean',
+  UuidOperationFilterInput: 'uuid',
+  DateTimeOperationFilterInput: 'dateTime',
+  LocalDateOperationFilterInput: 'dateOnly',
+  EnumOperationFilterInput: 'enum',
+};
 
 const ROOT = resolve(import.meta.dirname, '..');
 const META_TYPES_PATH = resolve(ROOT, 'src/meta-types.js');
@@ -55,11 +177,45 @@ interface FieldEntry {
   type: 'string' | 'number' | 'boolean' | 'DateTime' | 'DateOnly' | 'enum';
   nullable: boolean;
   values?: string[]; // only for enum
+  filterable: boolean;
+  searchable: boolean;
+  filterOperators?: readonly FilterOperator[];
+  searchOperators?: readonly SearchOperator[];
 }
 
 interface MetaInterface {
   interfaceName: string;
   fields: FieldEntry[];
+}
+
+/**
+ * Walk a `Query<Model>FilterInput` / `Query<Model>SearchInput` interface and
+ * map each field to its operator kind by reading the operator type's name.
+ *
+ * Returns `{ fieldName: kind }`. Fields whose operator type isn't a known
+ * scalar (nested filter inputs, list filters, etc.) are skipped — they
+ * don't appear in meta as filterable/searchable, which matches the
+ * "introspectable scalars only" convention we already used.
+ */
+function fieldsFromInputInterface(iface: InterfaceDeclaration | undefined): Record<string, Kind> {
+  if (!iface) return {};
+  const out: Record<string, Kind> = {};
+
+  for (const prop of iface.getProperties()) {
+    const name = prop.getName();
+    if (name === 'and' || name === 'or') continue;
+
+    // Property type is `<OperatorType> | null` (or unioned with undefined).
+    // Strip nullables and try to identify the operator type by symbol name.
+    const { type } = unwrapNullable(prop.getType());
+    const typeName =
+      type.getAliasSymbol()?.getName() ?? type.getSymbol()?.getName() ?? type.getText();
+
+    const kind = OPERATOR_TYPE_TO_KIND[typeName];
+    if (kind !== undefined) out[name] = kind;
+  }
+
+  return out;
 }
 
 /** Map from source file path -> list of meta interfaces in that file */
@@ -80,8 +236,20 @@ for (const scanDir of scanDirs) {
     const metas: MetaInterface[] = [];
 
     for (const iface of interfaces) {
-      const fields = processInterface(iface);
-      metas.push({ interfaceName: iface.getName(), fields });
+      const interfaceName = iface.getName();
+      // Sibling input interfaces follow the naming convention
+      // `<ModelName>FilterInput` / `<ModelName>SearchInput` in the same file.
+      const filterInput = sourceFile.getInterface(`${interfaceName}FilterInput`);
+      const searchInput = sourceFile.getInterface(`${interfaceName}SearchInput`);
+      const filterMap = fieldsFromInputInterface(filterInput);
+      const searchMap = fieldsFromInputInterface(searchInput);
+      if (filterInput) {
+        for (const [field, kind] of Object.entries(filterMap)) {
+          assertFilterKind(field, filterInput.getName(), kind);
+        }
+      }
+      const fields = processInterface(iface, filterMap, searchMap);
+      metas.push({ interfaceName, fields });
     }
 
     fileMap.set(filePath, metas);
@@ -97,7 +265,11 @@ function hasMetaTag(iface: InterfaceDeclaration): boolean {
   return jsDocs.some((doc) => doc.getFullText().includes('@meta'));
 }
 
-function processInterface(iface: InterfaceDeclaration): FieldEntry[] {
+function processInterface(
+  iface: InterfaceDeclaration,
+  filterSpec: Record<string, Kind>,
+  searchSpec: Record<string, Kind>
+): FieldEntry[] {
   const fields: FieldEntry[] = [];
 
   for (const prop of iface.getProperties()) {
@@ -113,10 +285,17 @@ function processInterface(iface: InterfaceDeclaration): FieldEntry[] {
     const classified = classifyType(propType);
     if (!classified) continue; // skip objects, arrays, unknown
 
+    const filterKind = filterSpec[name];
+    const searchKind = searchSpec[name];
+
     fields.push({
       name,
       ...classified,
       nullable,
+      filterable: filterKind !== undefined,
+      searchable: searchKind !== undefined,
+      filterOperators: filterKind ? FILTER_OPERATORS_BY_KIND[filterKind] : undefined,
+      searchOperators: searchKind ? SEARCH_OPERATORS_BY_KIND[searchKind] : undefined,
     });
   }
 
@@ -239,6 +418,14 @@ for (const [filePath, metas] of fileMap) {
         parts.push(`values: [${field.values.map((v) => `"${v}"`).join(', ')}]`);
       }
       parts.push(`nullable: ${field.nullable}`);
+      parts.push(`filterable: ${field.filterable}`);
+      parts.push(`searchable: ${field.searchable}`);
+      if (field.filterOperators) {
+        parts.push(`filterOperators: [${field.filterOperators.map((o) => `"${o}"`).join(', ')}]`);
+      }
+      if (field.searchOperators) {
+        parts.push(`searchOperators: [${field.searchOperators.map((o) => `"${o}"`).join(', ')}]`);
+      }
       lines.push(`  ${field.name}: { ${parts.join(', ')} },`);
     }
 

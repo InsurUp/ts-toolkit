@@ -1,7 +1,5 @@
 /**
  * @fileoverview WebhookDelivery Table Factories
- * @description Thin wrappers around the generic entity-table helpers bound to
- * the webhook-deliveries SDK call. Both paginated and infinite variants live here.
  */
 
 import type {
@@ -15,8 +13,7 @@ import type {
   WebhookDeliveryColumnDef,
   WebhookDeliveryRowType,
   WebhookDeliveryExtractFields,
-  WebhookDeliveryFilterInput,
-  WebhookDeliverySearchInput,
+  WebhookDeliveryUnifiedFilterInput,
 } from './types.js';
 import {
   createEntityTable,
@@ -37,10 +34,6 @@ const webhookDeliveryConfig: EntityFactoryConfig<
     client.webhooks.getWebhookDeliveries(vars, requestOptions),
 };
 
-/**
- * Create a type-safe webhook delivery table adapter.
- * Row type is narrowed to the fields referenced by the columns.
- */
 export function createWebhookDeliveryTable<const TColumns extends WebhookDeliveryColumnDef[]>(
   options: WebhookDeliveryTableOptions<TColumns>
 ): WebhookDeliveryTable<TColumns> {
@@ -50,17 +43,12 @@ export function createWebhookDeliveryTable<const TColumns extends WebhookDeliver
     TColumns,
     WebhookDeliveryRowType<TColumns>,
     QueryWebhookDeliveryResultSortInput,
-    WebhookDeliveryFilterInput,
-    WebhookDeliverySearchInput,
+    WebhookDeliveryUnifiedFilterInput,
     GetWebhookDeliveriesOptions<WebhookDeliveryExtractFields<TColumns>[]>,
     CursorPaginationOptions
   >(options, webhookDeliveryConfig);
 }
 
-/**
- * Create an infinite-scroll webhook delivery table adapter.
- * Rows accumulate across page fetches.
- */
 export function createInfiniteWebhookDeliveryTable<
   const TColumns extends WebhookDeliveryColumnDef[],
 >(options: WebhookDeliveryTableOptions<TColumns>): InfiniteWebhookDeliveryTable<TColumns> {
@@ -70,29 +58,24 @@ export function createInfiniteWebhookDeliveryTable<
     TColumns,
     WebhookDeliveryRowType<TColumns>,
     QueryWebhookDeliveryResultSortInput,
-    WebhookDeliveryFilterInput,
-    WebhookDeliverySearchInput,
+    WebhookDeliveryUnifiedFilterInput,
     GetWebhookDeliveriesOptions<WebhookDeliveryExtractFields<TColumns>[]>,
     CursorPaginationOptions
   >(options, webhookDeliveryConfig);
 }
 
-/** WebhookDelivery table type — row narrowed to the fields referenced by the columns. */
 export type WebhookDeliveryTable<
   TColumns extends WebhookDeliveryColumnDef[] = WebhookDeliveryColumnDef[],
 > = TableApi<
   WebhookDeliveryRowType<TColumns>,
-  WebhookDeliveryFilterInput,
-  WebhookDeliverySearchInput,
+  WebhookDeliveryUnifiedFilterInput,
   CursorPaginationManager
 >;
 
-/** Infinite webhook delivery table type — same shape as `WebhookDeliveryTable`. */
 export type InfiniteWebhookDeliveryTable<
   TColumns extends WebhookDeliveryColumnDef[] = WebhookDeliveryColumnDef[],
 > = TableApi<
   WebhookDeliveryRowType<TColumns>,
-  WebhookDeliveryFilterInput,
-  WebhookDeliverySearchInput,
+  WebhookDeliveryUnifiedFilterInput,
   CursorPaginationManager
 >;

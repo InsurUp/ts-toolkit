@@ -65,7 +65,7 @@ function MyComponent() {
 const result = await client.customers.getCustomers({
   select: ['id', 'name', 'type', 'primaryEmail'] as const,
   first: 10,
-  search: { name: { textSearch: { query: 'John' } } },
+  filter: { name: { $search: true, textSearch: 'John' } },
   order: [{ createdAt: 'DESC' }],
 });
 ```

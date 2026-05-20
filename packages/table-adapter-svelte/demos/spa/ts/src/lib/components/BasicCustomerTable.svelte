@@ -61,11 +61,11 @@
     const value = searchInput;
     const timeout = setTimeout(() => {
       if (value.trim()) {
-        ct.adapter.setSearch({
-          name: { textSearch: { value: value.trim() } },
+        ct.adapter.setFilter({
+          name: { $search: true, textSearch: value.trim() },
         });
       } else {
-        ct.adapter.clearSearch();
+        ct.adapter.clearFilter();
       }
     }, SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(timeout);

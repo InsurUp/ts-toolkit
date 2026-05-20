@@ -18,8 +18,7 @@ export function createInfiniteTableApi<
   TRow,
   TQueryOptions,
   TSortInput,
-  TFilterInput,
-  TSearchInput,
+  TUnifiedFilterInput,
   TPaginationOptions extends PaginationOptions,
 >(
   config: TableApiConfig<
@@ -27,10 +26,9 @@ export function createInfiniteTableApi<
     TRow,
     TQueryOptions,
     TSortInput,
-    TFilterInput,
-    TSearchInput,
+    TUnifiedFilterInput,
     TPaginationOptions
   >
-): TableApi<TRow, TFilterInput, TSearchInput, PaginationManagerFromOptions<TPaginationOptions>> {
+): TableApi<TRow, TUnifiedFilterInput, PaginationManagerFromOptions<TPaginationOptions>> {
   return buildTableApi(InfiniteTableAdapter, config);
 }

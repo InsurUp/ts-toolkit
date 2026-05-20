@@ -188,7 +188,7 @@ export class TableState<TRow> {
   // Adapter (with createSubscriber reactivity)
   // ============================================================================
 
-  readonly #adapter: ITableAdapter<TRow, unknown, unknown, PaginationManager>;
+  readonly #adapter: ITableAdapter<TRow, unknown, PaginationManager>;
 
   /** Subscriber function for adapter reactivity */
   #subscribeToAdapter: () => void = () => {};
@@ -197,12 +197,12 @@ export class TableState<TRow> {
   #triggerAdapterUpdate: () => void = () => {};
 
   /**
-   * Raw adapter for advanced use (setFilter, setSearch, invalidate, etc.)
+   * Raw adapter for advanced use (setFilter, invalidate, etc.)
    * Reactive via createSubscriber pattern - re-renders when adapter state changes.
    *
    * Use this for accessing adapter.pagination when you need reactivity.
    */
-  get adapter(): ITableAdapter<TRow, unknown, unknown, PaginationManager> {
+  get adapter(): ITableAdapter<TRow, unknown, PaginationManager> {
     this.#subscribeToAdapter();
     return this.#adapter;
   }
@@ -217,7 +217,7 @@ export class TableState<TRow> {
   // Constructor
   // ============================================================================
 
-  constructor(adapter: ITableAdapter<TRow, unknown, unknown, PaginationManager>) {
+  constructor(adapter: ITableAdapter<TRow, unknown, PaginationManager>) {
     this.#adapter = adapter;
     this.#table = adapter.getTable();
 

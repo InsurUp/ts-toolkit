@@ -460,10 +460,8 @@ describe('InsurUpCustomerClient.getCustomers', () => {
 
       await customerClient.getCustomers({
         first: 10,
-        search: {
-          name: {
-            textSearch: { value: 'John' },
-          },
+        filter: {
+          name: { $search: true, textSearch: { value: 'John' } },
         },
       });
 
@@ -471,6 +469,8 @@ describe('InsurUpCustomerClient.getCustomers', () => {
       if (!firstCall) throw new Error('expected fetch to be called');
       const [, options] = firstCall;
       const body = JSON.parse(options.body);
+      // Wire shape unchanged — the SDK splits the unified input into the
+      // server's `search:` slot for $search-marked fields.
       expect(body.variables.search.name.textSearch.value).toBe('John');
     });
 
@@ -486,10 +486,8 @@ describe('InsurUpCustomerClient.getCustomers', () => {
 
       await customerClient.getCustomers({
         first: 10,
-        search: {
-          primaryEmail: {
-            wildcard: { value: '*@example.com' },
-          },
+        filter: {
+          primaryEmail: { $search: true, wildcard: { value: '*@example.com' } },
         },
       });
 
@@ -642,9 +640,7 @@ describe('InsurUpCustomerClient.getCustomers', () => {
         after: 'cursor-abc',
         filter: {
           type: { eq: CustomerType.Individual },
-        },
-        search: {
-          name: { textSearch: { value: 'John' } },
+          name: { $search: true, textSearch: { value: 'John' } },
         },
         order: [{ createdAt: SortEnumType.DESC }],
       });

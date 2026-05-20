@@ -15,8 +15,7 @@ import type {
   AgentUserColumnDef,
   AgentUserRowType,
   AgentUserExtractFields,
-  AgentUserFilterInput,
-  AgentUserSearchInput,
+  AgentUserUnifiedFilterInput,
 } from './types.js';
 import {
   createEntityTable,
@@ -35,10 +34,6 @@ const agentUserConfig: EntityFactoryConfig<GetAgentUsersOptions<AgentUserFieldKe
     client.agentUsers.getAgentUsers(vars, requestOptions),
 };
 
-/**
- * Create a type-safe agent user table adapter.
- * Row type is narrowed to the fields referenced by the columns.
- */
 export function createAgentUserTable<const TColumns extends AgentUserColumnDef[]>(
   options: AgentUserTableOptions<TColumns>
 ): AgentUserTable<TColumns> {
@@ -48,17 +43,12 @@ export function createAgentUserTable<const TColumns extends AgentUserColumnDef[]
     TColumns,
     AgentUserRowType<TColumns>,
     QueryAgentUserResultSortInput,
-    AgentUserFilterInput,
-    AgentUserSearchInput,
+    AgentUserUnifiedFilterInput,
     GetAgentUsersOptions<AgentUserExtractFields<TColumns>[]>,
     CursorPaginationOptions
   >(options, agentUserConfig);
 }
 
-/**
- * Create an infinite-scroll agent user table adapter.
- * Rows accumulate across page fetches.
- */
 export function createInfiniteAgentUserTable<const TColumns extends AgentUserColumnDef[]>(
   options: AgentUserTableOptions<TColumns>
 ): InfiniteAgentUserTable<TColumns> {
@@ -68,8 +58,7 @@ export function createInfiniteAgentUserTable<const TColumns extends AgentUserCol
     TColumns,
     AgentUserRowType<TColumns>,
     QueryAgentUserResultSortInput,
-    AgentUserFilterInput,
-    AgentUserSearchInput,
+    AgentUserUnifiedFilterInput,
     GetAgentUsersOptions<AgentUserExtractFields<TColumns>[]>,
     CursorPaginationOptions
   >(options, agentUserConfig);
@@ -78,16 +67,10 @@ export function createInfiniteAgentUserTable<const TColumns extends AgentUserCol
 /** AgentUser table type — row narrowed to the fields referenced by the columns. */
 export type AgentUserTable<TColumns extends AgentUserColumnDef[] = AgentUserColumnDef[]> = TableApi<
   AgentUserRowType<TColumns>,
-  AgentUserFilterInput,
-  AgentUserSearchInput,
+  AgentUserUnifiedFilterInput,
   CursorPaginationManager
 >;
 
 /** Infinite agent user table type — same shape as `AgentUserTable`. */
 export type InfiniteAgentUserTable<TColumns extends AgentUserColumnDef[] = AgentUserColumnDef[]> =
-  TableApi<
-    AgentUserRowType<TColumns>,
-    AgentUserFilterInput,
-    AgentUserSearchInput,
-    CursorPaginationManager
-  >;
+  TableApi<AgentUserRowType<TColumns>, AgentUserUnifiedFilterInput, CursorPaginationManager>;

@@ -1,7 +1,5 @@
 /**
  * @fileoverview Proposal Table Factories
- * @description Thin wrappers around the generic entity-table helpers bound to
- * the proposals SDK call. Both paginated and infinite variants live here.
  */
 
 import type {
@@ -15,8 +13,7 @@ import type {
   ProposalColumnDef,
   ProposalRowType,
   ProposalExtractFields,
-  ProposalFilterInput,
-  ProposalSearchInput,
+  ProposalUnifiedFilterInput,
 } from './types.js';
 import {
   createEntityTable,
@@ -35,10 +32,6 @@ const proposalConfig: EntityFactoryConfig<GetProposalsOptions<ProposalFieldKey[]
     client.proposals.getProposals(vars, requestOptions),
 };
 
-/**
- * Create a type-safe proposal table adapter.
- * Row type is narrowed to the fields referenced by the columns.
- */
 export function createProposalTable<const TColumns extends ProposalColumnDef[]>(
   options: ProposalTableOptions<TColumns>
 ): ProposalTable<TColumns> {
@@ -48,17 +41,12 @@ export function createProposalTable<const TColumns extends ProposalColumnDef[]>(
     TColumns,
     ProposalRowType<TColumns>,
     QueryProposalsResultSortInput,
-    ProposalFilterInput,
-    ProposalSearchInput,
+    ProposalUnifiedFilterInput,
     GetProposalsOptions<ProposalExtractFields<TColumns>[]>,
     CursorPaginationOptions
   >(options, proposalConfig);
 }
 
-/**
- * Create an infinite-scroll proposal table adapter.
- * Rows accumulate across page fetches.
- */
 export function createInfiniteProposalTable<const TColumns extends ProposalColumnDef[]>(
   options: ProposalTableOptions<TColumns>
 ): InfiniteProposalTable<TColumns> {
@@ -68,26 +56,17 @@ export function createInfiniteProposalTable<const TColumns extends ProposalColum
     TColumns,
     ProposalRowType<TColumns>,
     QueryProposalsResultSortInput,
-    ProposalFilterInput,
-    ProposalSearchInput,
+    ProposalUnifiedFilterInput,
     GetProposalsOptions<ProposalExtractFields<TColumns>[]>,
     CursorPaginationOptions
   >(options, proposalConfig);
 }
 
-/** Proposal table type — row narrowed to the fields referenced by the columns. */
 export type ProposalTable<TColumns extends ProposalColumnDef[] = ProposalColumnDef[]> = TableApi<
   ProposalRowType<TColumns>,
-  ProposalFilterInput,
-  ProposalSearchInput,
+  ProposalUnifiedFilterInput,
   CursorPaginationManager
 >;
 
-/** Infinite proposal table type — same shape as `ProposalTable`. */
 export type InfiniteProposalTable<TColumns extends ProposalColumnDef[] = ProposalColumnDef[]> =
-  TableApi<
-    ProposalRowType<TColumns>,
-    ProposalFilterInput,
-    ProposalSearchInput,
-    CursorPaginationManager
-  >;
+  TableApi<ProposalRowType<TColumns>, ProposalUnifiedFilterInput, CursorPaginationManager>;

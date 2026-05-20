@@ -1,6 +1,7 @@
 import { useState, useEffect, useDeferredValue, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { useQueryState, parseAsString, parseAsInteger, parseAsStringLiteral } from 'nuqs';
+import type { QueryPoliciesResultUnifiedFilterInput } from '@insurup/sdk';
 import { useClient } from '@/client';
 import { DataTable, type Column } from '@/components/DataTable';
 import { Pagination } from '@/components/Pagination';
@@ -59,8 +60,13 @@ export function PolicyList() {
   const fetchPolicies = useCallback(async () => {
     setIsLoading(true);
     try {
-      const searchOptions = deferredSearch
-        ? { insuranceCompanyPolicyNumber: { textSearch: { value: deferredSearch } } }
+      const filterOptions: QueryPoliciesResultUnifiedFilterInput | undefined = deferredSearch
+        ? {
+            insuranceCompanyPolicyNumber: {
+              $search: true,
+              textSearch: deferredSearch,
+            },
+          }
         : undefined;
 
       // Map UI sort field to API field name
@@ -69,7 +75,7 @@ export function PolicyList() {
       // Fire count query in parallel (non-blocking)
       const countPromise = client.policies.getPolicies({
         first: 1,
-        search: searchOptions,
+        filter: filterOptions,
         select: ['id'] as const,
         includeTotalCount: true,
       });
@@ -91,7 +97,7 @@ export function PolicyList() {
         last: direction === 'backward' ? 10 : undefined,
         after: direction === 'forward' ? cursor : undefined,
         before: direction === 'backward' ? cursor : undefined,
-        search: searchOptions,
+        filter: filterOptions,
         order: apiSortField
           ? [{ [apiSortField]: sortDirection === 'asc' ? 'ASC' : 'DESC' }]
           : undefined,

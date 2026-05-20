@@ -84,7 +84,6 @@ describe('createCustomerTable', () => {
       expect(result.adapter).toBeDefined();
       expect(typeof result.adapter.fetch).toBe('function');
       expect(typeof result.adapter.setFilter).toBe('function');
-      expect(typeof result.adapter.setSearch).toBe('function');
       expect(typeof result.adapter.invalidate).toBe('function');
       expect(typeof result.adapter.destroy).toBe('function');
 
@@ -231,16 +230,20 @@ describe('createCustomerTable', () => {
       result.destroy();
     });
 
-    it('should expose setSearch method', async () => {
+    it('forwards a $search-marked unified filter through to the SDK call', async () => {
       const mockFetch = createMockFetchFn();
       const result = createCustomerTable(createTestOptionsGetter({ fetch: mockFetch }));
 
-      result.adapter.setSearch({ name: { textSearch: { value: 'test query' } } });
+      result.adapter.setFilter({
+        name: { $search: true, textSearch: { value: 'test query' } },
+      });
       await flushPromises();
 
+      // The adapter forwards the unified shape verbatim; the SDK splits at
+      // request time (covered in `@insurup/sdk`'s split-unified-filter tests).
       expect(mockFetch).toHaveBeenCalledWith(
         expect.objectContaining({
-          search: { name: { textSearch: { value: 'test query' } } },
+          filter: { name: { $search: true, textSearch: { value: 'test query' } } },
         }),
         expect.any(Object)
       );

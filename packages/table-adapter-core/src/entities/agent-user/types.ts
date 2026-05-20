@@ -9,6 +9,7 @@ import type {
   QueryAgentUserResult,
   QueryAgentUserResultFilterInput,
   QueryAgentUserResultSearchInput,
+  QueryAgentUserResultUnifiedFilterInput,
   PickFields,
 } from '@insurup/sdk';
 import type {
@@ -23,6 +24,7 @@ import type { CursorPaginationOptions } from '../../lib/pagination/types.js';
 export type {
   QueryAgentUserResultFilterInput,
   QueryAgentUserResultSearchInput,
+  QueryAgentUserResultUnifiedFilterInput,
 } from '@insurup/sdk';
 
 /**
@@ -67,6 +69,11 @@ export type AgentUserFilterInput = QueryAgentUserResultFilterInput;
 export type AgentUserSearchInput = QueryAgentUserResultSearchInput;
 
 /**
+ * Unified filter input for the table adapter's `setFilter` / `defaultFilter`.
+ */
+export type AgentUserUnifiedFilterInput = QueryAgentUserResultUnifiedFilterInput;
+
+/**
  * Options for createAgentUserTable (client mode or fetch mode)
  * @template TColumns - The column definitions (inferred from callback)
  */
@@ -76,7 +83,6 @@ export type AgentUserTableOptions<TColumns extends AgentUserColumnDef[]> = Entit
   TColumns,
   AgentUserRowType<TColumns>,
   AgentUserFetchFn<AgentUserRowType<TColumns>, AgentUserExtractFields<TColumns>[]>,
-  AgentUserFilterInput,
-  AgentUserSearchInput,
+  AgentUserUnifiedFilterInput,
   CursorPaginationOptions
 >;

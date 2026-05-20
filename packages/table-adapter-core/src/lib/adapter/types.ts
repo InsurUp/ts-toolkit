@@ -120,26 +120,22 @@ export interface ColumnInfo {
  * @template TEntity - The full entity type (for field key derivation)
  * @template TRow - The row type (for callback typing)
  * @template TSortInput - The SDK sort input type
- * @template TFilterInput - The SDK filter input type
- * @template TSearchInput - The SDK search input type
+ * @template TUnifiedFilterInput - The unified filter+search input type
  * @template TPaginationOptions - The pagination options type
  */
 export interface BaseTableAdapterOptions<
   TEntity,
   TRow,
   TSortInput,
-  TFilterInput,
-  TSearchInput,
+  TUnifiedFilterInput,
   TPaginationOptions extends PaginationOptions,
 > extends ErrorCallbacks<TRow> {
   /** Column definitions from the builder */
   columns: AnyColumnDef<DeepFieldKeys<TEntity> & string>[];
   /** Pagination strategy configuration */
   pagination: TPaginationOptions;
-  /** Default filter criteria */
-  defaultFilter?: TFilterInput;
-  /** Default search criteria */
-  defaultSearch?: TSearchInput;
+  /** Default filter criteria (unified: per-field, with `$search: true` marker on fields that should route to the server's search slot) */
+  defaultFilter?: TUnifiedFilterInput;
   /** Converters for sorting between TanStack and SDK formats */
   sortingConverters: SortingConverters<TSortInput>;
   /** Query key prefix for cache isolation (e.g., 'customers', 'policies') */
@@ -187,16 +183,10 @@ export interface BaseTableAdapterOptions<
  * Both adapters implement this interface for consistent API
  *
  * @template TRow - The row type with selected fields
- * @template TFilterInput - The SDK filter input type
- * @template TSearchInput - The SDK search input type
+ * @template TUnifiedFilterInput - The unified filter+search input type
  * @template TPagination - The pagination manager type (CursorPaginationManager, etc.)
  */
-export interface ITableAdapter<
-  TRow,
-  TFilterInput,
-  TSearchInput,
-  TPagination extends PaginationManager,
-> {
+export interface ITableAdapter<TRow, TUnifiedFilterInput, TPagination extends PaginationManager> {
   // ============================================================================
   // TanStack Table Integration
   // ============================================================================
@@ -274,26 +264,24 @@ export interface ITableAdapter<
   setPageSize(size: number): void;
 
   // ============================================================================
-  // Filtering & Search
+  // Filtering
   // ============================================================================
 
-  /** Set filter criteria and refetch (resets pagination) */
-  setFilter(filter: TFilterInput): void;
+  /**
+   * Set filter criteria and refetch (resets pagination).
+   *
+   * The input is a unified per-field shape: filter ops by default, with
+   * `$search: true` on a field to route that field to the server's search
+   * slot (and unlock search-specific ops like `textSearch`, `wildcard`,
+   * `autocomplete`).
+   */
+  setFilter(filter: TUnifiedFilterInput): void;
 
-  /** Get current filter criteria */
-  getFilter(): TFilterInput | undefined;
+  /** Get current filter criteria (unified shape) */
+  getFilter(): TUnifiedFilterInput | undefined;
 
   /** Clear filter criteria and refetch (resets pagination) */
   clearFilter(): void;
-
-  /** Set search criteria and refetch (resets pagination) */
-  setSearch(search: TSearchInput): void;
-
-  /** Get current search criteria */
-  getSearch(): TSearchInput | undefined;
-
-  /** Clear search criteria and refetch (resets pagination) */
-  clearSearch(): void;
 
   // ============================================================================
   // Column Info
