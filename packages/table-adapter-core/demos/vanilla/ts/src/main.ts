@@ -378,9 +378,11 @@ function attachEventListeners(): void {
     if (state.searchDebounceTimer) clearTimeout(state.searchDebounceTimer);
     state.searchDebounceTimer = setTimeout(() => {
       if (value.trim()) {
-        state.customerTable?.setSearch({ name: { textSearch: { value: value.trim() } } });
+        state.customerTable?.setFilter({
+          name: { $search: true, textSearch: value.trim() },
+        });
       } else {
-        state.customerTable?.clearSearch();
+        state.customerTable?.clearFilter();
       }
     }, 300);
   });

@@ -9,6 +9,7 @@ import type {
   QueryCustomerModel,
   QueryCustomerModelFilterInput,
   QueryCustomerModelSearchInput,
+  QueryCustomerModelUnifiedFilterInput,
   PickFields,
 } from '@insurup/sdk';
 import type {
@@ -20,7 +21,11 @@ import type {
 import type { CursorPaginationOptions } from '../../lib/pagination/types.js';
 
 // Re-export filter and search types for convenience
-export type { QueryCustomerModelFilterInput, QueryCustomerModelSearchInput } from '@insurup/sdk';
+export type {
+  QueryCustomerModelFilterInput,
+  QueryCustomerModelSearchInput,
+  QueryCustomerModelUnifiedFilterInput,
+} from '@insurup/sdk';
 
 /**
  * Column definition for customer tables
@@ -54,14 +59,21 @@ export type CustomerFetchFn<
 > = EntityFetchFn<TRow, GetCustomersOptions<TFields>>;
 
 /**
- * Filter input type for customer queries
+ * Filter input type for customer queries (SDK-level, server `filter:` slot)
  */
 export type CustomerFilterInput = QueryCustomerModelFilterInput;
 
 /**
- * Search input type for customer queries
+ * Search input type for customer queries (SDK-level, server `search:` slot)
  */
 export type CustomerSearchInput = QueryCustomerModelSearchInput;
+
+/**
+ * Unified filter input for the table adapter's `setFilter` / `defaultFilter`.
+ * Per-field; fields tagged with `$search: true` are routed to the server's
+ * search slot.
+ */
+export type CustomerUnifiedFilterInput = QueryCustomerModelUnifiedFilterInput;
 
 /**
  * Options for createCustomerTable (client mode or fetch mode)
@@ -73,7 +85,6 @@ export type CustomerTableOptions<TColumns extends CustomerColumnDef[]> = EntityT
   TColumns,
   CustomerRowType<TColumns>,
   CustomerFetchFn<CustomerRowType<TColumns>, CustomerExtractFields<TColumns>[]>,
-  CustomerFilterInput,
-  CustomerSearchInput,
+  CustomerUnifiedFilterInput,
   CursorPaginationOptions
 >;

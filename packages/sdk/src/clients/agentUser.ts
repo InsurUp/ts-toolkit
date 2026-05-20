@@ -10,6 +10,8 @@ import {
   type AgentUsersConnection,
 } from '@insurup/contracts';
 import { buildFieldSelection } from '@insurup/contracts';
+import { normalizeSearchInput } from './_internal/normalize-search.js';
+import { splitUnifiedFilter } from './_internal/split-unified-filter.js';
 import type {
   GetAgentUserResult,
   UpdateMyAgentUserRequest,
@@ -328,13 +330,14 @@ export class InsurUpAgentUserClient {
       }
     `;
 
+    const { filter, search } = splitUnifiedFilter(requestOptions?.filter);
     const variables = {
       first: requestOptions?.first,
       after: requestOptions?.after,
       last: requestOptions?.last,
       before: requestOptions?.before,
-      search: requestOptions?.search,
-      filter: requestOptions?.filter,
+      search: normalizeSearchInput(search),
+      filter,
       order: requestOptions?.order,
     };
 

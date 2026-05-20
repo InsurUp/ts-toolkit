@@ -39,6 +39,11 @@ interface MockSearchInput {
   query?: string;
 }
 
+/** Unified per-field shape: filter ops or search-marked ops per field. */
+type MockUnifiedFilterInput = {
+  name?: { contains?: string } | { $search: true; query?: string };
+};
+
 interface MockQueryOptions {
   first: number;
   after?: string;
@@ -119,16 +124,17 @@ function createMockBuildQueryOptions(): QueryOptionsBuilder<
   MockEntity,
   MockQueryOptions,
   MockSortInput,
-  MockFilterInput,
-  MockSearchInput
+  MockUnifiedFilterInput
 > {
   return (params) => ({
     first: params.first,
     after: params.after,
     order: params.order,
     select: params.select as string[],
-    filter: params.filter,
-    search: params.search,
+    // The mock fetch sees the unified filter pre-split. Tests that care
+    // about post-split routing assert against the unified value here.
+    filter: params.filter as unknown as MockFilterInput,
+    search: undefined,
     includeTotalCount: params.includeTotalCount,
   });
 }
@@ -139,8 +145,7 @@ function createAdapterOptions(
       MockEntity,
       MockEntity,
       MockSortInput,
-      MockFilterInput,
-      MockSearchInput,
+      MockUnifiedFilterInput,
       CursorPaginationOptions
     >
   > = {}
@@ -148,8 +153,7 @@ function createAdapterOptions(
   MockEntity,
   MockEntity,
   MockSortInput,
-  MockFilterInput,
-  MockSearchInput,
+  MockUnifiedFilterInput,
   CursorPaginationOptions
 > {
   return {
@@ -484,7 +488,7 @@ describe('BaseTableAdapter', () => {
         createAdapterOptions({
           tableOptions: {
             enableRowSelection: true,
-            getRowId: (row) => row.id,
+            getRowId: (row: MockEntity) => row.id,
           },
         })
       );
@@ -634,56 +638,69 @@ describe('BaseTableAdapter', () => {
     });
   });
 
-  describe('search methods', () => {
-    it('setSearch should update search and refetch', async () => {
+  describe('unified filter: search-marked items', () => {
+    // The adapter forwards the unified shape verbatim to the SDK call. The
+    // wire-level split into the server's filter/search slots happens inside
+    // the SDK (covered in `packages/sdk/test/unit/split-unified-filter.spec.ts`).
+    it('forwards a `$search: true` field as part of the unified filter to the SDK call', async () => {
       const adapter = new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions());
 
-      adapter.setSearch({ query: 'test search' });
-
+      const filter = { name: { $search: true as const, query: 'test search' } };
+      adapter.setFilter(filter);
       await flushPromises();
 
-      expect(fetchFn).toHaveBeenCalledWith(
-        expect.objectContaining({
-          search: { query: 'test search' },
-        }),
-        expect.any(Object)
-      );
+      expect(fetchFn).toHaveBeenCalledWith(expect.objectContaining({ filter }), expect.any(Object));
 
       adapter.destroy();
     });
 
-    it('getSearch should return current search', () => {
+    it('returns the search-marked entry via getFilter (no separate getSearch)', () => {
       const adapter = new BaseTableAdapter(
         fetchFn,
         buildQueryOptions,
-        createAdapterOptions({ defaultSearch: { query: 'initial' } })
+        createAdapterOptions({
+          defaultFilter: { name: { $search: true, query: 'initial' } },
+        })
       );
 
-      const search = adapter.getSearch();
-
-      expect(search).toEqual({ query: 'initial' });
+      expect(adapter.getFilter()).toEqual({ name: { $search: true, query: 'initial' } });
 
       adapter.destroy();
     });
 
-    it('clearSearch should remove search and refetch', async () => {
+    it('clearFilter forwards undefined as the filter to the SDK call', async () => {
       const adapter = new BaseTableAdapter(
         fetchFn,
         buildQueryOptions,
-        createAdapterOptions({ defaultSearch: { query: 'test' } })
+        createAdapterOptions({
+          defaultFilter: { name: { $search: true, query: 'test' } },
+        })
       );
 
-      adapter.clearSearch();
-
+      adapter.clearFilter();
       await flushPromises();
 
       expect(fetchFn).toHaveBeenCalledWith(
-        expect.objectContaining({
-          search: undefined,
-        }),
+        expect.objectContaining({ filter: undefined }),
         expect.any(Object)
       );
-      expect(adapter.getSearch()).toBeUndefined();
+      expect(adapter.getFilter()).toBeUndefined();
+
+      adapter.destroy();
+    });
+
+    it('preserves the most-recent unified filter across mutations', async () => {
+      const adapter = new BaseTableAdapter(fetchFn, buildQueryOptions, createAdapterOptions());
+
+      adapter.setFilter({ name: { $search: true, query: 'foo' } });
+      await flushPromises();
+
+      const second = { name: { contains: 'bar' } };
+      adapter.setFilter(second);
+      await flushPromises();
+
+      const lastCall = (fetchFn as unknown as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[0];
+      expect(lastCall).toMatchObject({ filter: second });
 
       adapter.destroy();
     });

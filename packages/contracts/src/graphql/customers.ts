@@ -9,13 +9,21 @@ import type {
   SortEnumType,
   DeepFieldKeys,
   PickFields,
-  ModelFilterInput,
-  ModelSearchInput,
   GetQueryOptions,
+  StringOperationFilterInput,
+  IntOperationFilterInput,
+  BooleanOperationFilterInput,
+  UuidOperationFilterInput,
+  DateTimeOperationFilterInput,
+  LocalDateOperationFilterInput,
+  EnumOperationFilterInput,
+  ListFilterInputType,
+  SearchStringOperationFilterInput,
+  UnifiedFilterInput,
 } from './common.js';
 import type { DateTime, DateOnly } from '../common.date.js';
 
-import type { CustomerType } from '../common.js';
+import type { Channel, CustomerType } from '../common.js';
 import type {
   ConsentType,
   EducationStatus,
@@ -68,19 +76,70 @@ export interface QueryCustomerModel {
   consents: QueryCustomerConsentModel[];
 }
 
-// === Filter/Search/Sort Inputs (auto-generated from model) ===
+// === Filter/Search/Sort Inputs ===
+// Hand-declared from server schema: filtering_QueryCustomerModelFilterInput,
+// searching_QueryCustomerModelFilterInput. Includes only fields the server
+// supports for filtering/searching.
+
+export interface QueryCustomerConsentModelFilterInput {
+  and?: QueryCustomerConsentModelFilterInput[] | null;
+  or?: QueryCustomerConsentModelFilterInput[] | null;
+  consentType?: EnumOperationFilterInput<ConsentType> | null;
+  isActive?: BooleanOperationFilterInput | null;
+}
+
+export interface QueryCustomerModelFilterInput {
+  and?: QueryCustomerModelFilterInput[] | null;
+  or?: QueryCustomerModelFilterInput[] | null;
+  id?: UuidOperationFilterInput | null;
+  name?: StringOperationFilterInput | null;
+  identityNumber?: StringOperationFilterInput | null;
+  taxNumber?: StringOperationFilterInput | null;
+  type?: EnumOperationFilterInput<CustomerType> | null;
+  primaryEmail?: StringOperationFilterInput | null;
+  primaryPhoneNumber?: StringOperationFilterInput | null;
+  primaryPhoneNumberCountryCode?: IntOperationFilterInput | null;
+  cityText?: StringOperationFilterInput | null;
+  cityValue?: StringOperationFilterInput | null;
+  districtText?: StringOperationFilterInput | null;
+  districtValue?: StringOperationFilterInput | null;
+  createdAt?: DateTimeOperationFilterInput | null;
+  creationChannel?: EnumOperationFilterInput<Channel> | null;
+  birthDate?: LocalDateOperationFilterInput | null;
+  gender?: EnumOperationFilterInput<Gender> | null;
+  educationStatus?: EnumOperationFilterInput<EducationStatus> | null;
+  nationality?: EnumOperationFilterInput<Nationality> | null;
+  maritalStatus?: EnumOperationFilterInput<MaritalStatus> | null;
+  job?: EnumOperationFilterInput<Job> | null;
+  passportNumber?: StringOperationFilterInput | null;
+  agentBranchId?: StringOperationFilterInput | null;
+  consents?: ListFilterInputType<QueryCustomerConsentModelFilterInput> | null;
+  emailCount?: IntOperationFilterInput | null;
+  phoneCount?: IntOperationFilterInput | null;
+}
+
+export interface QueryCustomerModelSearchInput {
+  and?: QueryCustomerModelSearchInput[] | null;
+  or?: QueryCustomerModelSearchInput[] | null;
+  name?: SearchStringOperationFilterInput | null;
+  identityNumber?: SearchStringOperationFilterInput | null;
+  taxNumber?: SearchStringOperationFilterInput | null;
+  primaryEmail?: SearchStringOperationFilterInput | null;
+  primaryPhoneNumber?: SearchStringOperationFilterInput | null;
+  cityText?: SearchStringOperationFilterInput | null;
+  districtText?: SearchStringOperationFilterInput | null;
+  passportNumber?: SearchStringOperationFilterInput | null;
+}
 
 /**
- * Filter input for QueryCustomerModel.
- * Auto-generated from model fields using ModelFilterInput.
+ * Unified filter+search input used by the table adapter. Each field accepts
+ * either its filter-ops shape or its search-ops shape tagged with
+ * `$search: true`.
  */
-export type QueryCustomerModelFilterInput = ModelFilterInput<QueryCustomerModel>;
-
-/**
- * Search input for QueryCustomerModel.
- * Auto-generated from model fields using ModelSearchInput.
- */
-export type QueryCustomerModelSearchInput = ModelSearchInput<QueryCustomerModel>;
+export type QueryCustomerModelUnifiedFilterInput = UnifiedFilterInput<
+  QueryCustomerModelFilterInput,
+  QueryCustomerModelSearchInput
+>;
 
 /**
  * Sort input for QueryCustomerModel.
@@ -179,8 +238,7 @@ export interface GetCustomersOptions<
   TFields extends CustomerFieldKey[] = CustomerFieldKey[],
 > extends GetQueryOptions<
   CustomerFieldKey,
-  QueryCustomerModelFilterInput,
-  QueryCustomerModelSearchInput,
+  QueryCustomerModelUnifiedFilterInput,
   QueryCustomerModelSortInput
 > {
   /** Fields to select from the query. If not provided, all fields are returned. */

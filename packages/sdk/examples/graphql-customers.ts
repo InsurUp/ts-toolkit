@@ -9,7 +9,6 @@ import { DefaultInsurUpClient, CustomerType, Gender, SortEnumType } from '@insur
 import type {
   GetCustomersOptions,
   QueryCustomerModelFilterInput,
-  QueryCustomerModelSearchInput,
   QueryCustomerModelSortInput,
 } from '@insurup/sdk';
 
@@ -195,16 +194,17 @@ async function filterByDateRange() {
 // ============================================================================
 
 async function searchCustomers() {
-  const search: QueryCustomerModelSearchInput = {
-    or: [
-      { name: { textSearch: { value: 'John' } } },
-      { primaryEmail: { textSearch: { value: 'john' } } },
-    ],
-  };
-
+  // Unified filter: `$search: true` promotes a field to the server's search
+  // slot and unlocks the search-only operators (textSearch, wildcard, …).
+  // Shorthand strings are normalized to `{ value: 'John' }` by the SDK.
   const result = await client.customers.getCustomers({
     first: 10,
-    search,
+    filter: {
+      or: [
+        { name: { $search: true, textSearch: 'John' } },
+        { primaryEmail: { $search: true, textSearch: 'john' } },
+      ],
+    },
     select: ['id', 'name', 'primaryEmail', 'searchScore'],
   });
 
@@ -249,17 +249,13 @@ async function sortCustomers() {
 
 // Sort by search relevance when searching
 async function sortBySearchRelevance() {
-  const search: QueryCustomerModelSearchInput = {
-    name: { textSearch: { value: 'Smith' } },
-  };
-
   const order: QueryCustomerModelSortInput[] = [
     { searchScore: SortEnumType.DESC }, // Most relevant first
   ];
 
   const result = await client.customers.getCustomers({
     first: 10,
-    search,
+    filter: { name: { $search: true, textSearch: 'Smith' } },
     order,
     select: ['id', 'name', 'searchScore'],
   });

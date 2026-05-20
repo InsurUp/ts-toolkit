@@ -9,9 +9,13 @@ import type {
   SortEnumType,
   DeepFieldKeys,
   PickFields,
-  ModelFilterInput,
-  ModelSearchInput,
   GetQueryOptions,
+  StringOperationFilterInput,
+  IntOperationFilterInput,
+  DateTimeOperationFilterInput,
+  LocalDateOperationFilterInput,
+  SearchStringOperationFilterInput,
+  UnifiedFilterInput,
 } from './common.js';
 import type { DateTime } from '../common.date.js';
 
@@ -27,19 +31,41 @@ export interface QueryPolicyTransfersResult {
   policyCount: number;
 }
 
-// === Filter/Search/Sort Inputs (auto-generated from model) ===
+// === Filter/Search/Sort Inputs ===
+// Hand-declared from server schema: filtering_QueryPolicyTransfersResultFilterInput,
+// searching_QueryPolicyTransfersResultFilterInput. Note that the server filter input
+// references fields (succeededPolicyCount / failedPolicyCount / skippedPolicyCount,
+// LocalDate-typed startDate/endDate) that are not part of the output model — they
+// are filter-only.
 
-/**
- * Filter input for QueryPolicyTransfersResult.
- * Auto-generated from model fields using ModelFilterInput.
- */
-export type QueryPolicyTransfersResultFilterInput = ModelFilterInput<QueryPolicyTransfersResult>;
+export interface QueryPolicyTransfersResultFilterInput {
+  and?: QueryPolicyTransfersResultFilterInput[] | null;
+  or?: QueryPolicyTransfersResultFilterInput[] | null;
+  id?: StringOperationFilterInput | null;
+  startDate?: LocalDateOperationFilterInput | null;
+  endDate?: LocalDateOperationFilterInput | null;
+  createdAt?: DateTimeOperationFilterInput | null;
+  succeededPolicyCount?: IntOperationFilterInput | null;
+  failedPolicyCount?: IntOperationFilterInput | null;
+  skippedPolicyCount?: IntOperationFilterInput | null;
+}
 
-/**
- * Search input for QueryPolicyTransfersResult.
- * Auto-generated from model fields using ModelSearchInput.
- */
-export type QueryPolicyTransfersResultSearchInput = ModelSearchInput<QueryPolicyTransfersResult>;
+export interface QueryPolicyTransfersResultSearchInput {
+  and?: QueryPolicyTransfersResultSearchInput[] | null;
+  or?: QueryPolicyTransfersResultSearchInput[] | null;
+  id?: SearchStringOperationFilterInput | null;
+  startDate?: LocalDateOperationFilterInput | null;
+  endDate?: LocalDateOperationFilterInput | null;
+  createdAt?: DateTimeOperationFilterInput | null;
+  succeededPolicyCount?: IntOperationFilterInput | null;
+  failedPolicyCount?: IntOperationFilterInput | null;
+  skippedPolicyCount?: IntOperationFilterInput | null;
+}
+
+export type QueryPolicyTransfersResultUnifiedFilterInput = UnifiedFilterInput<
+  QueryPolicyTransfersResultFilterInput,
+  QueryPolicyTransfersResultSearchInput
+>;
 
 /**
  * Sort input for QueryPolicyTransfersResult.
@@ -109,8 +135,7 @@ export interface GetPolicyTransfersOptions<
   TFields extends PolicyTransferFieldKey[] = PolicyTransferFieldKey[],
 > extends GetQueryOptions<
   PolicyTransferFieldKey,
-  QueryPolicyTransfersResultFilterInput,
-  QueryPolicyTransfersResultSearchInput,
+  QueryPolicyTransfersResultUnifiedFilterInput,
   QueryPolicyTransfersResultSortInput
 > {
   /** Fields to select from the query. If not provided, all fields are returned. */

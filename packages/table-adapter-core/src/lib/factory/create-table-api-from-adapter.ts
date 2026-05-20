@@ -22,12 +22,11 @@ import type { TableApi, TableApiConfig } from './types.js';
  */
 export function createTableApiFromAdapter<
   TRow,
-  TFilterInput,
-  TSearchInput,
+  TUnifiedFilterInput,
   TPagination extends PaginationManager,
 >(
-  adapter: ITableAdapter<TRow, TFilterInput, TSearchInput, TPagination>
-): TableApi<TRow, TFilterInput, TSearchInput, TPagination> {
+  adapter: ITableAdapter<TRow, TUnifiedFilterInput, TPagination>
+): TableApi<TRow, TUnifiedFilterInput, TPagination> {
   let cachedFrozenColumns: readonly ColumnDef<TRow, unknown>[] | null = null;
   let lastSourceColumns: readonly ColumnDef<TRow, unknown>[] | null = null;
 
@@ -55,12 +54,9 @@ export function createTableApiFromAdapter<
       return adapter.pagination;
     },
     setPageSize: (size: number) => adapter.setPageSize(size),
-    setFilter: (filter: TFilterInput) => adapter.setFilter(filter),
+    setFilter: (filter: TUnifiedFilterInput) => adapter.setFilter(filter),
     getFilter: () => adapter.getFilter(),
     clearFilter: () => adapter.clearFilter(),
-    setSearch: (search: TSearchInput) => adapter.setSearch(search),
-    getSearch: () => adapter.getSearch(),
-    clearSearch: () => adapter.clearSearch(),
     getColumnInfo: () => adapter.getColumnInfo(),
   };
 }
@@ -74,32 +70,19 @@ type AdapterCtor<
   TRow,
   TQueryOptions,
   TSortInput,
-  TFilterInput,
-  TSearchInput,
+  TUnifiedFilterInput,
   TPaginationOptions extends PaginationOptions,
 > = new (
   fetchFn: FetchFn<TRow, TQueryOptions>,
-  buildQueryOptions: QueryOptionsBuilder<
-    TEntity,
-    TQueryOptions,
-    TSortInput,
-    TFilterInput,
-    TSearchInput
-  >,
+  buildQueryOptions: QueryOptionsBuilder<TEntity, TQueryOptions, TSortInput, TUnifiedFilterInput>,
   options: BaseTableAdapterOptions<
     TEntity,
     TRow,
     TSortInput,
-    TFilterInput,
-    TSearchInput,
+    TUnifiedFilterInput,
     TPaginationOptions
   >
-) => ITableAdapter<
-  TRow,
-  TFilterInput,
-  TSearchInput,
-  PaginationManagerFromOptions<TPaginationOptions>
->;
+) => ITableAdapter<TRow, TUnifiedFilterInput, PaginationManagerFromOptions<TPaginationOptions>>;
 
 /**
  * Construct an adapter of the given class from a `TableApiConfig` and wrap
@@ -111,8 +94,7 @@ export function buildTableApi<
   TRow,
   TQueryOptions,
   TSortInput,
-  TFilterInput,
-  TSearchInput,
+  TUnifiedFilterInput,
   TPaginationOptions extends PaginationOptions,
 >(
   AdapterCtor: AdapterCtor<
@@ -120,8 +102,7 @@ export function buildTableApi<
     TRow,
     TQueryOptions,
     TSortInput,
-    TFilterInput,
-    TSearchInput,
+    TUnifiedFilterInput,
     TPaginationOptions
   >,
   config: TableApiConfig<
@@ -129,16 +110,14 @@ export function buildTableApi<
     TRow,
     TQueryOptions,
     TSortInput,
-    TFilterInput,
-    TSearchInput,
+    TUnifiedFilterInput,
     TPaginationOptions
   >
-): TableApi<TRow, TFilterInput, TSearchInput, PaginationManagerFromOptions<TPaginationOptions>> {
+): TableApi<TRow, TUnifiedFilterInput, PaginationManagerFromOptions<TPaginationOptions>> {
   const adapter = new AdapterCtor(config.fetchFn, config.buildQueryOptions, {
     columns: config.columns,
     pagination: config.pagination,
     defaultFilter: config.defaultFilter,
-    defaultSearch: config.defaultSearch,
     sortingConverters: config.sortingConverters,
     queryKeyPrefix: config.queryKeyPrefix,
     staleTime: config.staleTime,

@@ -9,9 +9,17 @@ import type {
   SortEnumType,
   DeepFieldKeys,
   PickFields,
-  ModelFilterInput,
-  ModelSearchInput,
   GetQueryOptions,
+  StringOperationFilterInput,
+  IntOperationFilterInput,
+  FloatOperationFilterInput,
+  BooleanOperationFilterInput,
+  UuidOperationFilterInput,
+  DateTimeOperationFilterInput,
+  LocalDateOperationFilterInput,
+  EnumOperationFilterInput,
+  SearchStringOperationFilterInput,
+  UnifiedFilterInput,
 } from './common.js';
 import type { DateTime, DateOnly } from '../common.date.js';
 
@@ -112,19 +120,135 @@ export interface QueryPoliciesResult {
   campaign?: string | null;
 }
 
-// === Filter/Search/Sort Inputs (auto-generated from model) ===
+// === Filter/Search/Sort Inputs ===
+// Hand-declared from server schema: filtering_QueryPoliciesResultFilterInput,
+// searching_QueryPoliciesResultFilterInput.
+
+export interface UserReferenceFilterInput {
+  and?: UserReferenceFilterInput[] | null;
+  or?: UserReferenceFilterInput[] | null;
+  id?: UuidOperationFilterInput | null;
+  name?: StringOperationFilterInput | null;
+  email?: StringOperationFilterInput | null;
+  isServiceAccount?: BooleanOperationFilterInput | null;
+  userType?: EnumOperationFilterInput<UserType> | null;
+}
 
 /**
- * Filter input for QueryPoliciesResult.
- * Auto-generated from model fields using ModelFilterInput.
+ * Server policy version type. Filter-only — not exposed on the QueryPoliciesResult
+ * output model, but the server allows filtering on it.
  */
-export type QueryPoliciesResultFilterInput = ModelFilterInput<QueryPoliciesResult>;
+export enum PolicyVersionType {
+  Initial = 'INITIAL',
+  Cancellation = 'CANCELLATION',
+  Update = 'UPDATE',
+}
 
-/**
- * Search input for QueryPoliciesResult.
- * Auto-generated from model fields using ModelSearchInput.
- */
-export type QueryPoliciesResultSearchInput = ModelSearchInput<QueryPoliciesResult>;
+export interface QueryPoliciesResultFilterInput {
+  and?: QueryPoliciesResultFilterInput[] | null;
+  or?: QueryPoliciesResultFilterInput[] | null;
+  id?: StringOperationFilterInput | null;
+  insurerCustomerId?: UuidOperationFilterInput | null;
+  insuredCustomerId?: UuidOperationFilterInput | null;
+  installmentNumber?: IntOperationFilterInput | null;
+  productBranch?: EnumOperationFilterInput<ProductBranch> | null;
+  netPremium?: FloatOperationFilterInput | null;
+  grossPremium?: FloatOperationFilterInput | null;
+  commission?: FloatOperationFilterInput | null;
+  netPremiumChange?: FloatOperationFilterInput | null;
+  grossPremiumChange?: FloatOperationFilterInput | null;
+  commissionChange?: FloatOperationFilterInput | null;
+  paymentType?: EnumOperationFilterInput<PaymentOption> | null;
+  currency?: EnumOperationFilterInput<Currency> | null;
+  exchangeRate?: FloatOperationFilterInput | null;
+  netPremiumTL?: FloatOperationFilterInput | null;
+  grossPremiumTL?: FloatOperationFilterInput | null;
+  commissionTL?: FloatOperationFilterInput | null;
+  insuranceCompanyProposalNumber?: StringOperationFilterInput | null;
+  insuranceCompanyPolicyNumber?: StringOperationFilterInput | null;
+  renewalNumber?: IntOperationFilterInput | null;
+  endorsementNumber?: IntOperationFilterInput | null;
+  endorsementType?: EnumOperationFilterInput<PolicyVersionType> | null;
+  updateReasonText?: StringOperationFilterInput | null;
+  endorsementTimestamp?: LocalDateOperationFilterInput | null;
+  createdAt?: DateTimeOperationFilterInput | null;
+  startDate?: LocalDateOperationFilterInput | null;
+  endDate?: LocalDateOperationFilterInput | null;
+  arrangementDate?: LocalDateOperationFilterInput | null;
+  insuredCustomerName?: StringOperationFilterInput | null;
+  insuredCustomerIdentityNumber?: StringOperationFilterInput | null;
+  insuredCustomerTaxNumber?: StringOperationFilterInput | null;
+  insuredCustomerType?: EnumOperationFilterInput<CustomerType> | null;
+  insuredCustomerCityText?: StringOperationFilterInput | null;
+  insuredCustomerCityValue?: StringOperationFilterInput | null;
+  insuredCustomerDistrictText?: StringOperationFilterInput | null;
+  insuredCustomerDistrictValue?: StringOperationFilterInput | null;
+  insuredCustomerBirthDate?: LocalDateOperationFilterInput | null;
+  insurerCustomerName?: StringOperationFilterInput | null;
+  insurerCustomerIdentityNumber?: StringOperationFilterInput | null;
+  insurerCustomerTaxNumber?: StringOperationFilterInput | null;
+  insurerCustomerCityText?: StringOperationFilterInput | null;
+  insurerCustomerCityValue?: StringOperationFilterInput | null;
+  insurerCustomerDistrictText?: StringOperationFilterInput | null;
+  insurerCustomerDistrictValue?: StringOperationFilterInput | null;
+  insurerCustomerBirthDate?: LocalDateOperationFilterInput | null;
+  vehiclePlateCode?: StringOperationFilterInput | null;
+  vehiclePlateCity?: IntOperationFilterInput | null;
+  vehicleDocumentSerialCode?: StringOperationFilterInput | null;
+  vehicleDocumentSerialNumber?: StringOperationFilterInput | null;
+  vehicleModelBrandText?: StringOperationFilterInput | null;
+  vehicleModelBrandValue?: StringOperationFilterInput | null;
+  vehicleModelTypeText?: StringOperationFilterInput | null;
+  vehicleModelTypeValue?: StringOperationFilterInput | null;
+  vehicleModelYear?: IntOperationFilterInput | null;
+  vehicleFuelType?: EnumOperationFilterInput<VehicleFuelType> | null;
+  productId?: IntOperationFilterInput | null;
+  productName?: StringOperationFilterInput | null;
+  insuranceCompanyName?: StringOperationFilterInput | null;
+  insuranceCompanyLogo?: StringOperationFilterInput | null;
+  state?: EnumOperationFilterInput<PolicyState> | null;
+  createdBy?: UserReferenceFilterInput | null;
+  representedBy?: UserReferenceFilterInput | null;
+  propertyNumber?: IntOperationFilterInput | null;
+  daskOldPolicyNumber?: IntOperationFilterInput | null;
+  daskPolicyNumber?: StringOperationFilterInput | null;
+  vehicleId?: UuidOperationFilterInput | null;
+  propertyId?: UuidOperationFilterInput | null;
+  channel?: EnumOperationFilterInput<Channel> | null;
+  advertisingSource?: StringOperationFilterInput | null;
+  advertisingCampaign?: StringOperationFilterInput | null;
+  campaign?: StringOperationFilterInput | null;
+  agentBranchId?: StringOperationFilterInput | null;
+}
+
+export interface QueryPoliciesResultSearchInput {
+  and?: QueryPoliciesResultSearchInput[] | null;
+  or?: QueryPoliciesResultSearchInput[] | null;
+  insuranceCompanyProposalNumber?: SearchStringOperationFilterInput | null;
+  insuranceCompanyPolicyNumber?: SearchStringOperationFilterInput | null;
+  updateReasonText?: SearchStringOperationFilterInput | null;
+  insuredCustomerName?: SearchStringOperationFilterInput | null;
+  insuredCustomerIdentityNumber?: SearchStringOperationFilterInput | null;
+  insuredCustomerCityText?: SearchStringOperationFilterInput | null;
+  insuredCustomerDistrictText?: SearchStringOperationFilterInput | null;
+  insurerCustomerName?: SearchStringOperationFilterInput | null;
+  insurerCustomerIdentityNumber?: SearchStringOperationFilterInput | null;
+  insurerCustomerCityText?: SearchStringOperationFilterInput | null;
+  insurerCustomerDistrictText?: SearchStringOperationFilterInput | null;
+  vehiclePlateCode?: SearchStringOperationFilterInput | null;
+  vehicleDocumentSerialCode?: SearchStringOperationFilterInput | null;
+  vehicleDocumentSerialNumber?: SearchStringOperationFilterInput | null;
+  vehicleModelBrandText?: SearchStringOperationFilterInput | null;
+  vehicleModelTypeText?: SearchStringOperationFilterInput | null;
+  daskPolicyNumber?: SearchStringOperationFilterInput | null;
+  advertisingSource?: SearchStringOperationFilterInput | null;
+  advertisingCampaign?: SearchStringOperationFilterInput | null;
+}
+
+export type QueryPoliciesResultUnifiedFilterInput = UnifiedFilterInput<
+  QueryPoliciesResultFilterInput,
+  QueryPoliciesResultSearchInput
+>;
 
 /**
  * Sort input for QueryPoliciesResult.
@@ -264,8 +388,7 @@ export interface GetPoliciesOptions<
   TFields extends PolicyFieldKey[] = PolicyFieldKey[],
 > extends GetQueryOptions<
   PolicyFieldKey,
-  QueryPoliciesResultFilterInput,
-  QueryPoliciesResultSearchInput,
+  QueryPoliciesResultUnifiedFilterInput,
   QueryPoliciesResultSortInput
 > {
   /** Fields to select from the query. If not provided, all fields are returned. */

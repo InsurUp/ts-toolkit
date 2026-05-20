@@ -9,16 +9,23 @@ import type {
   SortEnumType,
   DeepFieldKeys,
   PickFields,
-  ModelFilterInput,
-  ModelSearchInput,
   GetQueryOptions,
+  StringOperationFilterInput,
+  IntOperationFilterInput,
+  FloatOperationFilterInput,
+  UuidOperationFilterInput,
+  DateTimeOperationFilterInput,
+  LocalDateOperationFilterInput,
+  EnumOperationFilterInput,
+  SearchStringOperationFilterInput,
+  UnifiedFilterInput,
 } from './common.js';
 import type { DateTime, DateOnly } from '../common.date.js';
 
 import type { ProductBranch, Channel, CustomerType } from '../common.js';
 import type { VehicleFuelType, VehicleUtilizationStyle } from '../common.vehicle.js';
 import type { ProposalState } from '../proposals.js';
-import type { UserType } from './policies.js';
+import type { UserReferenceFilterInput, UserType } from './policies.js';
 
 // === Output Types ===
 
@@ -80,19 +87,75 @@ export interface QueryProposalsResult {
   propertyId?: string | null;
 }
 
-// === Filter/Search/Sort Inputs (auto-generated from model) ===
+// === Filter/Search/Sort Inputs ===
+// Hand-declared from server schema: filtering_QueryProposalsResultFilterInput,
+// searching_QueryProposalsResultFilterInput.
 
-/**
- * Filter input for QueryProposalsResult.
- * Auto-generated from model fields using ModelFilterInput.
- */
-export type QueryProposalsResultFilterInput = ModelFilterInput<QueryProposalsResult>;
+export interface QueryProposalsResultFilterInput {
+  and?: QueryProposalsResultFilterInput[] | null;
+  or?: QueryProposalsResultFilterInput[] | null;
+  id?: StringOperationFilterInput | null;
+  productBranch?: EnumOperationFilterInput<ProductBranch> | null;
+  state?: EnumOperationFilterInput<ProposalState> | null;
+  insurerCustomerId?: UuidOperationFilterInput | null;
+  insuredCustomerId?: UuidOperationFilterInput | null;
+  productsCount?: IntOperationFilterInput | null;
+  succeedProductsCount?: IntOperationFilterInput | null;
+  createdAt?: DateTimeOperationFilterInput | null;
+  agentUserCreatedBy?: UserReferenceFilterInput | null;
+  successRate?: FloatOperationFilterInput | null;
+  insuredCustomerName?: StringOperationFilterInput | null;
+  insuredCustomerIdentityNumber?: StringOperationFilterInput | null;
+  insuredCustomerTaxNumber?: StringOperationFilterInput | null;
+  insuredCustomerType?: EnumOperationFilterInput<CustomerType> | null;
+  lowestPremium?: FloatOperationFilterInput | null;
+  highestPremium?: FloatOperationFilterInput | null;
+  channel?: EnumOperationFilterInput<Channel> | null;
+  insuredCustomerCityText?: StringOperationFilterInput | null;
+  insuredCustomerCityValue?: StringOperationFilterInput | null;
+  insuredCustomerDistrictText?: StringOperationFilterInput | null;
+  insuredCustomerDistrictValue?: StringOperationFilterInput | null;
+  insuredCustomerPhoneNumber?: StringOperationFilterInput | null;
+  insuredCustomerPhoneNumberCountryCode?: IntOperationFilterInput | null;
+  insuredCustomerEmail?: StringOperationFilterInput | null;
+  vehiclePlateCode?: StringOperationFilterInput | null;
+  vehiclePlateCity?: IntOperationFilterInput | null;
+  vehicleDocumentSerialCode?: StringOperationFilterInput | null;
+  vehicleDocumentSerialNumber?: StringOperationFilterInput | null;
+  vehicleModelBrandText?: StringOperationFilterInput | null;
+  vehicleModelBrandValue?: StringOperationFilterInput | null;
+  vehicleModelTypeText?: StringOperationFilterInput | null;
+  vehicleModelTypeValue?: StringOperationFilterInput | null;
+  vehicleModelYear?: IntOperationFilterInput | null;
+  vehicleFuelType?: EnumOperationFilterInput<VehicleFuelType> | null;
+  utilizationStyle?: EnumOperationFilterInput<VehicleUtilizationStyle> | null;
+  insuredCustomerBirthDate?: LocalDateOperationFilterInput | null;
+  vehicleId?: UuidOperationFilterInput | null;
+  propertyId?: UuidOperationFilterInput | null;
+  agentBranchId?: StringOperationFilterInput | null;
+}
 
-/**
- * Search input for QueryProposalsResult.
- * Auto-generated from model fields using ModelSearchInput.
- */
-export type QueryProposalsResultSearchInput = ModelSearchInput<QueryProposalsResult>;
+export interface QueryProposalsResultSearchInput {
+  and?: QueryProposalsResultSearchInput[] | null;
+  or?: QueryProposalsResultSearchInput[] | null;
+  insuredCustomerName?: SearchStringOperationFilterInput | null;
+  insuredCustomerIdentityNumber?: SearchStringOperationFilterInput | null;
+  insuredCustomerTaxNumber?: SearchStringOperationFilterInput | null;
+  insuredCustomerCityText?: SearchStringOperationFilterInput | null;
+  insuredCustomerDistrictText?: SearchStringOperationFilterInput | null;
+  insuredCustomerPhoneNumber?: SearchStringOperationFilterInput | null;
+  insuredCustomerEmail?: SearchStringOperationFilterInput | null;
+  vehiclePlateCode?: SearchStringOperationFilterInput | null;
+  vehicleDocumentSerialCode?: SearchStringOperationFilterInput | null;
+  vehicleDocumentSerialNumber?: SearchStringOperationFilterInput | null;
+  vehicleModelBrandText?: SearchStringOperationFilterInput | null;
+  vehicleModelTypeText?: SearchStringOperationFilterInput | null;
+}
+
+export type QueryProposalsResultUnifiedFilterInput = UnifiedFilterInput<
+  QueryProposalsResultFilterInput,
+  QueryProposalsResultSearchInput
+>;
 
 /**
  * Sort input for QueryProposalsResult.
@@ -203,8 +266,7 @@ export interface GetProposalsOptions<
   TFields extends ProposalFieldKey[] = ProposalFieldKey[],
 > extends GetQueryOptions<
   ProposalFieldKey,
-  QueryProposalsResultFilterInput,
-  QueryProposalsResultSearchInput,
+  QueryProposalsResultUnifiedFilterInput,
   QueryProposalsResultSortInput
 > {
   /** Fields to select from the query. If not provided, all fields are returned. */

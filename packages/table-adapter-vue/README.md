@@ -91,14 +91,29 @@ const { state, table, adapter } = useCustomerTable(options);
 
 **`adapter` methods:**
 
-- `setFilter(filter)` - Set filter and refetch
-- `clearFilter()` - Clear filter
-- `setSearch(search)` - Set search and refetch
-- `clearSearch()` - Clear search
-- `invalidate()` - Invalidate cache and refetch
-- `refetch({ force })` - Refetch with optional cache bypass
+- `setFilter(filter)` — set the **unified** filter (filter ops + `$search`-marked entries) and refetch
+- `getFilter()` — get the current unified filter
+- `clearFilter()` — clear the filter and refetch
+- `invalidate()` — invalidate cache and refetch
+- `refetch({ force })` — refetch with optional cache bypass
 
-This package re-exports everything from `@insurup/table-adapter-core`. See the [core package documentation](https://www.npmjs.com/package/@insurup/table-adapter-core) for full API details.
+The adapter exposes **one** filter API. There is no `setSearch` — fields are promoted to server-side search by adding `$search: true` to the per-field value. The adapter splits the unified value into the server's `filter:` and `search:` slots at fetch time.
+
+```ts
+// Plain filter
+adapter.setFilter({ type: { eq: CustomerType.Individual } });
+
+// Search — `$search: true` routes to `search:` and unlocks text-search ops
+adapter.setFilter({ name: { $search: true, textSearch: 'ali' } });
+
+// Mixed in one call — splits into both slots
+adapter.setFilter({
+  type: { eq: CustomerType.Individual },
+  name: { $search: true, textSearch: { value: 'ali', score: { boost: 2 } } },
+});
+```
+
+See the [`@insurup/table-adapter-core` README](https://www.npmjs.com/package/@insurup/table-adapter-core) for the full unified-filter shape (combinators, score boost/constant, runtime meta introspection).
 
 ## License
 

@@ -9,9 +9,15 @@ import type {
   SortEnumType,
   DeepFieldKeys,
   PickFields,
-  ModelFilterInput,
-  ModelSearchInput,
   GetQueryOptions,
+  StringOperationFilterInput,
+  BooleanOperationFilterInput,
+  UuidOperationFilterInput,
+  DateTimeOperationFilterInput,
+  EnumOperationFilterInput,
+  StringListOperationFilterInput,
+  SearchStringOperationFilterInput,
+  UnifiedFilterInput,
 } from './common.js';
 import type { DateTime } from '../common.date.js';
 import type { AgentUserState } from '../agents.js';
@@ -49,19 +55,40 @@ export interface QueryAgentUserResult {
   branches?: AgentUserBranchInfo[] | null;
 }
 
-// === Filter/Search/Sort Inputs (auto-generated from model) ===
+// === Filter/Search/Sort Inputs ===
+// Hand-declared from server schema: filtering_QueryAgentUserResultFilterInput,
+// searching_QueryAgentUserResultFilterInput.
 
-/**
- * Filter input for QueryAgentUserResult.
- * Auto-generated from model fields using ModelFilterInput.
- */
-export type QueryAgentUserResultFilterInput = ModelFilterInput<QueryAgentUserResult>;
+export interface QueryAgentUserResultFilterInput {
+  and?: QueryAgentUserResultFilterInput[] | null;
+  or?: QueryAgentUserResultFilterInput[] | null;
+  id?: UuidOperationFilterInput | null;
+  authUserId?: UuidOperationFilterInput | null;
+  firstName?: StringOperationFilterInput | null;
+  lastName?: StringOperationFilterInput | null;
+  email?: StringOperationFilterInput | null;
+  state?: EnumOperationFilterInput<AgentUserState> | null;
+  createdAt?: DateTimeOperationFilterInput | null;
+  updatedAt?: DateTimeOperationFilterInput | null;
+  createdById?: UuidOperationFilterInput | null;
+  updatedById?: UuidOperationFilterInput | null;
+  agentBranchIds?: StringListOperationFilterInput | null;
+  isServiceAccount?: BooleanOperationFilterInput | null;
+  serviceAccountName?: StringOperationFilterInput | null;
+}
 
-/**
- * Search input for QueryAgentUserResult.
- * Auto-generated from model fields using ModelSearchInput.
- */
-export type QueryAgentUserResultSearchInput = ModelSearchInput<QueryAgentUserResult>;
+export interface QueryAgentUserResultSearchInput {
+  and?: QueryAgentUserResultSearchInput[] | null;
+  or?: QueryAgentUserResultSearchInput[] | null;
+  firstName?: SearchStringOperationFilterInput | null;
+  lastName?: SearchStringOperationFilterInput | null;
+  email?: SearchStringOperationFilterInput | null;
+}
+
+export type QueryAgentUserResultUnifiedFilterInput = UnifiedFilterInput<
+  QueryAgentUserResultFilterInput,
+  QueryAgentUserResultSearchInput
+>;
 
 /**
  * Sort input for QueryAgentUserResult.
@@ -150,8 +177,7 @@ export interface GetAgentUsersOptions<
   TFields extends AgentUserFieldKey[] = AgentUserFieldKey[],
 > extends GetQueryOptions<
   AgentUserFieldKey,
-  QueryAgentUserResultFilterInput,
-  QueryAgentUserResultSearchInput,
+  QueryAgentUserResultUnifiedFilterInput,
   QueryAgentUserResultSortInput
 > {
   /** Fields to select from the query. If not provided, all fields are returned. */

@@ -9,9 +9,14 @@ import type {
   SortEnumType,
   DeepFieldKeys,
   PickFields,
-  ModelFilterInput,
-  ModelSearchInput,
   GetQueryOptions,
+  StringOperationFilterInput,
+  IntOperationFilterInput,
+  BooleanOperationFilterInput,
+  DateTimeOperationFilterInput,
+  EnumOperationFilterInput,
+  SearchStringOperationFilterInput,
+  UnifiedFilterInput,
 } from './common.js';
 import type { DateTime } from '../common.date.js';
 import type { WebhookEvent } from '../webhooks.js';
@@ -43,19 +48,35 @@ export interface QueryWebhookDeliveryResult {
   retryCount: number;
 }
 
-// === Filter/Search/Sort Inputs (auto-generated from model) ===
+// === Filter/Search/Sort Inputs ===
+// Hand-declared from server schema: filtering_QueryWebhookDeliveryResultFilterInput,
+// searching_QueryWebhookDeliveryResultFilterInput.
 
-/**
- * Filter input for QueryWebhookDeliveryResult.
- * Auto-generated from model fields using ModelFilterInput.
- */
-export type QueryWebhookDeliveryResultFilterInput = ModelFilterInput<QueryWebhookDeliveryResult>;
+export interface QueryWebhookDeliveryResultFilterInput {
+  and?: QueryWebhookDeliveryResultFilterInput[] | null;
+  or?: QueryWebhookDeliveryResultFilterInput[] | null;
+  id?: StringOperationFilterInput | null;
+  webhookId?: StringOperationFilterInput | null;
+  event?: EnumOperationFilterInput<WebhookEvent> | null;
+  sentAt?: DateTimeOperationFilterInput | null;
+  statusCode?: IntOperationFilterInput | null;
+  response?: StringOperationFilterInput | null;
+  errorMessage?: StringOperationFilterInput | null;
+  payload?: StringOperationFilterInput | null;
+  durationMs?: IntOperationFilterInput | null;
+  isSuccess?: BooleanOperationFilterInput | null;
+}
 
-/**
- * Search input for QueryWebhookDeliveryResult.
- * Auto-generated from model fields using ModelSearchInput.
- */
-export type QueryWebhookDeliveryResultSearchInput = ModelSearchInput<QueryWebhookDeliveryResult>;
+export interface QueryWebhookDeliveryResultSearchInput {
+  and?: QueryWebhookDeliveryResultSearchInput[] | null;
+  or?: QueryWebhookDeliveryResultSearchInput[] | null;
+  errorMessage?: SearchStringOperationFilterInput | null;
+}
+
+export type QueryWebhookDeliveryResultUnifiedFilterInput = UnifiedFilterInput<
+  QueryWebhookDeliveryResultFilterInput,
+  QueryWebhookDeliveryResultSearchInput
+>;
 
 /**
  * Sort input for QueryWebhookDeliveryResult.
@@ -129,8 +150,7 @@ export interface GetWebhookDeliveriesOptions<
   TFields extends WebhookDeliveryFieldKey[] = WebhookDeliveryFieldKey[],
 > extends GetQueryOptions<
   WebhookDeliveryFieldKey,
-  QueryWebhookDeliveryResultFilterInput,
-  QueryWebhookDeliveryResultSearchInput,
+  QueryWebhookDeliveryResultUnifiedFilterInput,
   QueryWebhookDeliveryResultSortInput
 > {
   /** Fields to select from the query. If not provided, all fields are returned. */

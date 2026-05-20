@@ -59,8 +59,13 @@ export function PolicyList() {
   const fetchPolicies = useCallback(async () => {
     setIsLoading(true);
     try {
-      const searchOptions = deferredSearch
-        ? { insuranceCompanyPolicyNumber: { textSearch: { value: deferredSearch } } }
+      const filterOptions = deferredSearch
+        ? {
+            insuranceCompanyPolicyNumber: {
+              $search: true as const,
+              textSearch: deferredSearch,
+            },
+          }
         : undefined;
 
       // Map UI sort field to API field name
@@ -69,7 +74,7 @@ export function PolicyList() {
       // Fire count query in parallel (non-blocking)
       const countPromise = client.policies.getPolicies({
         first: 1,
-        search: searchOptions,
+        filter: filterOptions,
         select: ['id'] as const,
         includeTotalCount: true,
       });
@@ -91,7 +96,7 @@ export function PolicyList() {
         last: direction === 'backward' ? 10 : undefined,
         after: direction === 'forward' ? cursor : undefined,
         before: direction === 'backward' ? cursor : undefined,
-        search: searchOptions,
+        filter: filterOptions,
         order: apiSortField
           ? [{ [apiSortField]: sortDirection === 'asc' ? 'ASC' : 'DESC' }]
           : undefined,

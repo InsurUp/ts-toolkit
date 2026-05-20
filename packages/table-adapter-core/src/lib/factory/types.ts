@@ -15,8 +15,7 @@ import type { PaginationManager, PaginationOptions } from '../pagination/types.j
  * @template TRow - The row type with selected fields
  * @template TQueryOptions - The SDK query options type
  * @template TSortInput - The SDK sort input type
- * @template TFilterInput - The SDK filter input type
- * @template TSearchInput - The SDK search input type
+ * @template TUnifiedFilterInput - The unified filter input type (SDK splits it at request time)
  * @template TPaginationOptions - The pagination options type
  */
 export interface TableApiConfig<
@@ -24,28 +23,19 @@ export interface TableApiConfig<
   TRow,
   TQueryOptions,
   TSortInput,
-  TFilterInput,
-  TSearchInput,
+  TUnifiedFilterInput,
   TPaginationOptions extends PaginationOptions,
 > extends ErrorCallbacks<TRow> {
   /** The fetch function to use */
   fetchFn: FetchFn<TRow, TQueryOptions>;
   /** Function that builds query options from params */
-  buildQueryOptions: QueryOptionsBuilder<
-    TEntity,
-    TQueryOptions,
-    TSortInput,
-    TFilterInput,
-    TSearchInput
-  >;
+  buildQueryOptions: QueryOptionsBuilder<TEntity, TQueryOptions, TSortInput, TUnifiedFilterInput>;
   /** Column definitions from the builder */
   columns: AnyColumnDef<DeepFieldKeys<TEntity> & string>[];
   /** Pagination strategy configuration */
   pagination: TPaginationOptions;
-  /** Default filter criteria */
-  defaultFilter?: TFilterInput;
-  /** Default search criteria */
-  defaultSearch?: TSearchInput;
+  /** Default filter criteria (unified shape) */
+  defaultFilter?: TUnifiedFilterInput;
   /** Sorting converters for this entity type */
   sortingConverters: SortingConverters<TSortInput>;
   /** Query key prefix for cache isolation */
@@ -84,11 +74,10 @@ export interface TableApiConfig<
 /**
  * Standard table API returned by entity table factories
  * @template TRow - The row type with selected fields
- * @template TFilterInput - The SDK filter input type
- * @template TSearchInput - The SDK search input type
+ * @template TUnifiedFilterInput - The unified filter+search input type
  * @template TPagination - The pagination manager type (CursorPaginationManager, etc.)
  */
-export interface TableApi<TRow, TFilterInput, TSearchInput, TPagination extends PaginationManager> {
+export interface TableApi<TRow, TUnifiedFilterInput, TPagination extends PaginationManager> {
   /** TanStack ColumnDef[] - converted from entity columns (frozen, immutable) */
   readonly columns: readonly ColumnDef<TRow, unknown>[];
   /** Get current adapter state */
@@ -158,23 +147,16 @@ export interface TableApi<TRow, TFilterInput, TSearchInput, TPagination extends 
   // Filter Methods
   // ============================================================================
 
-  /** Set filter criteria and refetch (resets pagination) */
-  setFilter: (filter: TFilterInput) => void;
-  /** Get current filter criteria */
-  getFilter: () => TFilterInput | undefined;
+  /**
+   * Set filter criteria and refetch (resets pagination).
+   * Unified shape: per-field operator inputs, with `$search: true` on a
+   * field to route it to the server's search slot.
+   */
+  setFilter: (filter: TUnifiedFilterInput) => void;
+  /** Get current filter criteria (unified shape) */
+  getFilter: () => TUnifiedFilterInput | undefined;
   /** Clear filter criteria and refetch (resets pagination) */
   clearFilter: () => void;
-
-  // ============================================================================
-  // Search Methods
-  // ============================================================================
-
-  /** Set search criteria and refetch (resets pagination) */
-  setSearch: (search: TSearchInput) => void;
-  /** Get current search criteria */
-  getSearch: () => TSearchInput | undefined;
-  /** Clear search criteria and refetch (resets pagination) */
-  clearSearch: () => void;
 
   // ============================================================================
   // Column Info Methods

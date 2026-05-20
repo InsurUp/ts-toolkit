@@ -59,6 +59,8 @@ import {
   type FilePolicyTransfersConnection,
 } from '@insurup/contracts';
 import { buildFieldSelection } from '@insurup/contracts';
+import { normalizeSearchInput } from './_internal/normalize-search.js';
+import { splitUnifiedFilter } from './_internal/split-unified-filter.js';
 
 /**
  * Policy Management Client / Poliçe Yönetimi İstemcisi
@@ -494,13 +496,14 @@ export class InsurUpPolicyClient {
       }
     `;
 
+    const { filter, search } = splitUnifiedFilter(requestOptions?.filter);
     const variables = {
       first: requestOptions?.first,
       after: requestOptions?.after,
       last: requestOptions?.last,
       before: requestOptions?.before,
-      search: requestOptions?.search,
-      filter: requestOptions?.filter,
+      search: normalizeSearchInput(search),
+      filter,
       order: requestOptions?.order,
     };
 
@@ -594,13 +597,14 @@ export class InsurUpPolicyClient {
       }
     `;
 
+    const { filter, search } = splitUnifiedFilter(requestOptions?.filter);
     const variables = {
       first: requestOptions?.first,
       after: requestOptions?.after,
       last: requestOptions?.last,
       before: requestOptions?.before,
-      search: requestOptions?.search,
-      filter: requestOptions?.filter,
+      search: normalizeSearchInput(search),
+      filter,
       order: requestOptions?.order,
     };
 
@@ -694,13 +698,14 @@ export class InsurUpPolicyClient {
       }
     `;
 
+    const { filter, search } = splitUnifiedFilter(requestOptions?.filter);
     const variables = {
       first: requestOptions?.first,
       after: requestOptions?.after,
       last: requestOptions?.last,
       before: requestOptions?.before,
-      search: requestOptions?.search,
-      filter: requestOptions?.filter,
+      search: normalizeSearchInput(search),
+      filter,
       order: requestOptions?.order,
     };
 

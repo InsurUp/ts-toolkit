@@ -185,36 +185,68 @@ const result = await client.policies.getPolicies({
 // { id: string; productBranch: ProductBranch; grossPremium: number | null; state: PolicyState }
 ```
 
-### Filtering
+### Filtering and Searching (unified)
+
+Every list query takes a single `filter:` field carrying the **unified** input shape. Each per-field entry is either a plain filter operator or, with a `$search: true` marker, a search clause. The SDK splits the unified input into the server's `filter:` and `search:` slots at request time.
+
+Operator names match the wire (`notContains`, `notStartsWith`, `notEndsWith`). Search-side text ops (`textSearch`, `wildcard`, `autocomplete`, etc.) take both `string` shorthand and `{ value, score? }` long form; `in`/`nin` take `string[]` shorthand or `{ values, score? }`.
 
 ```typescript
-import { ProductBranch, PolicyState } from '@insurup/sdk';
+import { CustomerType, ProductBranch } from '@insurup/sdk';
 
-const result = await client.policies.getPolicies({
+// 1. Pure filter — every entry without `$search: true` routes to the wire filter slot
+const filtered = await client.policies.getPolicies({
   first: 20,
   filter: {
     productBranch: { eq: ProductBranch.Traffic },
-    state: { eq: PolicyState.Active },
     grossPremium: { gte: 1000 },
+    insuredCustomerName: { notContains: 'TEST' },
   },
 });
-```
 
-### Searching
-
-Full-text search with score boosting:
-
-```typescript
-const result = await client.customers.getCustomers({
+// 2. Pure search — `$search: true` promotes a field, unlocking search-only operators
+const searched = await client.customers.getCustomers({
   first: 10,
-  search: {
-    name: {
-      text: { value: 'John' },
-      score: { boost: 2 },
-    },
+  filter: {
+    // Shorthand string — SDK normalizes to { value: 'John' }
+    name: { $search: true, textSearch: 'John' },
+  },
+});
+
+// 3. Mixed — splits across both wire slots in one call
+const both = await client.customers.getCustomers({
+  first: 20,
+  filter: {
+    type: { eq: CustomerType.Individual }, // → wire `filter:`
+    name: { $search: true, textSearch: 'John' }, // → wire `search:`
+    identityNumber: { $search: true, in: ['123', '456'] }, // → wire `search:` (string[] shorthand)
+  },
+});
+
+// 4. Relevance score boost / constant — long-form SearchTextInput
+const boosted = await client.customers.getCustomers({
+  first: 10,
+  filter: {
+    name: { $search: true, textSearch: { value: 'John', score: { boost: 2 } } },
+    primaryEmail: { $search: true, contains: { value: '@acme.com', score: { constant: 5 } } },
+  },
+});
+
+// 5. Combinators — and/or recursively
+const compound = await client.customers.getCustomers({
+  first: 20,
+  filter: {
+    and: [
+      { type: { eq: CustomerType.Individual } },
+      { name: { $search: true, textSearch: 'John' } },
+    ],
   },
 });
 ```
+
+The `$search` marker is type-checked: it's only allowed on fields the server actually exposes as searchable. Marking a filter-only field is a compile error, as is using a search-only operator (like `textSearch`) without the marker.
+
+> If you're consuming the **table adapter** (`@insurup/table-adapter-core`), `setFilter` takes the exact same unified shape. The adapter forwards it to the SDK as-is; the SDK does the split.
 
 ### Sorting
 

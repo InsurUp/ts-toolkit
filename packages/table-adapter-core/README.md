@@ -80,22 +80,58 @@ Creates a customer table adapter with built-in caching and state management.
 ```typescript
 const customerTable = createCustomerTable({
   // Required
-  columns: (col) => [...],          // Builder function for columns
-  fetch: (options) => Promise,      // SDK fetch function
+  columns: (col) => [...],            // Builder function for columns
+  fetch: (options) => Promise,        // SDK fetch function
 
   // Optional
-  pageSize?: number,                // Items per page (default: 20)
-  defaultFilter?: FilterInput,      // Initial filter
-  defaultSearch?: SearchInput,      // Initial search
-  staleTime?: number,               // Cache stale time in ms (default: 30000)
-  gcTime?: number,                  // Garbage collection time in ms (default: 300000)
-  autoFetch?: boolean,              // Fetch on creation (default: false)
+  pageSize?: number,                  // Items per page (default: 20)
+  defaultFilter?: UnifiedFilterInput, // Initial filter (see "Filter and search" below)
+  staleTime?: number,                 // Cache stale time in ms (default: 30000)
+  gcTime?: number,                    // Garbage collection time in ms (default: 300000)
+  autoFetch?: boolean,                // Fetch on creation (default: false)
 
   // Callbacks
-  onError?: (error) => void,        // Called on fetch error
-  onSuccess?: (data) => void,       // Called on fetch success
-  onSettled?: (data, error) => void // Called after fetch completes
+  onError?: (error) => void,          // Called on fetch error
+  onSuccess?: (data) => void,         // Called on fetch success
+  onSettled?: (data, error) => void   // Called after fetch completes
 });
+```
+
+### Filter and search
+
+The adapter exposes a **single unified filter API**. There is no separate `setSearch` — every field in `setFilter` is either a regular filter or, when carrying the `$search: true` marker, a server-side search clause.
+
+```typescript
+table.setFilter({
+  // Regular filter — routed to the server's `filter:` slot
+  type: { eq: CustomerType.Individual },
+  birthDate: { gte: '1990-01-01' },
+
+  // Search — `$search: true` promotes the field to the server's `search:` slot
+  // and unlocks the search-only operators (`textSearch`, `wildcard`, `autocomplete`)
+  name: { $search: true, textSearch: 'ali' },
+
+  // Long form with relevance score
+  identityNumber: {
+    $search: true,
+    textSearch: { value: '123', score: { boost: 2 } },
+  },
+});
+```
+
+String shorthand is normalized by the SDK: `textSearch: 'ali'` is equivalent to `textSearch: { value: 'ali' }`. Likewise `in: ['a','b']` becomes `{ values: ['a','b'] }`.
+
+`and` / `or` combinators are supported recursively. Each combinator item is split per-bucket — `and` semantics are preserved; an `or` whose items mix filter and search keys becomes an implicit AND at the wire (server combines its `filter:` and `search:` slots with AND). Keep each `or` item homogeneous if intent matters.
+
+To introspect what's filterable / searchable on an entity at runtime, read the generated meta:
+
+```typescript
+import { QueryCustomerModelMeta } from '@insurup/sdk';
+
+QueryCustomerModelMeta.name.filterable; // true
+QueryCustomerModelMeta.name.searchable; // true
+QueryCustomerModelMeta.name.filterOperators; // ['eq','neq','contains','notContains', ...]
+QueryCustomerModelMeta.name.searchOperators; // ['eq','neq','textSearch','wildcard', ...]
 ```
 
 ### Column Builder
@@ -140,10 +176,9 @@ columns: (col) => [
 | `invalidate()`        | Invalidate cache and refetch                                              |
 | `refetch({ force })`  | Refetch with optional cache bypass                                        |
 | `destroy()`           | Clean up resources (call on unmount)                                      |
-| `setFilter(filter)`   | Set filter and refetch                                                    |
+| `setFilter(filter)`   | Set unified filter (filter + `$search`-marked entries) and refetch        |
+| `getFilter()`         | Return the current unified filter                                         |
 | `clearFilter()`       | Clear filter and refetch                                                  |
-| `setSearch(search)`   | Set search and refetch                                                    |
-| `clearSearch()`       | Clear search and refetch                                                  |
 | `setPageSize(size)`   | Change page size                                                          |
 
 ### AdapterState

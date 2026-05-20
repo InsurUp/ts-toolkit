@@ -5,12 +5,13 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createCaseTable } from '../../src/entities/case/factory.js';
-import type {
-  Connection,
-  QueryCaseModelSearchInput,
-  InsurUpGraphQLResult,
-  CaseFieldKey,
-  GetCasesOptions,
+import {
+  CaseStatus,
+  CaseType,
+  type Connection,
+  type InsurUpGraphQLResult,
+  type CaseFieldKey,
+  type GetCasesOptions,
 } from '@insurup/sdk';
 import { flushPromises } from '../utils/helpers.js';
 import { createMockPageInfo, createSuccessResult } from '../utils/mocks.js';
@@ -148,26 +149,26 @@ describe('createCaseTable', () => {
       columns: (col) => [col.id()],
       fetch: mockFetch,
       pagination: { type: 'cursor' },
-      defaultFilter: { type: { eq: 'SALE_OPPORTUNITY' } },
+      defaultFilter: { type: { eq: CaseType.SaleOpportunity } },
     });
 
     await table.fetch();
 
     expect(mockFetch).toHaveBeenCalledWith(
       expect.objectContaining({
-        filter: { type: { eq: 'SALE_OPPORTUNITY' } },
+        filter: { type: { eq: CaseType.SaleOpportunity } },
       }),
       expect.any(Object)
     );
 
     (mockFetch as ReturnType<typeof vi.fn>).mockClear();
 
-    table.setFilter({ status: { eq: 'OPEN' } });
+    table.setFilter({ status: { eq: CaseStatus.Open } });
     await flushPromises();
 
     expect(mockFetch).toHaveBeenCalledWith(
       expect.objectContaining({
-        filter: { status: { eq: 'OPEN' } },
+        filter: { status: { eq: CaseStatus.Open } },
       }),
       expect.any(Object)
     );
@@ -180,7 +181,7 @@ describe('createCaseTable', () => {
       columns: (col) => [col.id()],
       fetch: mockFetch,
       pagination: { type: 'cursor' },
-      defaultFilter: { type: { eq: 'SALE_OPPORTUNITY' } },
+      defaultFilter: { type: { eq: CaseType.SaleOpportunity } },
     });
 
     await table.fetch();
@@ -200,24 +201,23 @@ describe('createCaseTable', () => {
     table.destroy();
   });
 
-  it('applies search input', async () => {
-    const searchInput: QueryCaseModelSearchInput = {
-      ref: { textSearch: { value: 'REF-001' } },
+  it('forwards a $search-marked default filter through to the SDK call', async () => {
+    const defaultFilter = {
+      ref: { $search: true as const, textSearch: { value: 'REF-001' } },
     };
-
     const table = createCaseTable({
       columns: (col) => [col.id(), col.ref()],
       fetch: mockFetch,
       pagination: { type: 'cursor' },
-      defaultSearch: searchInput,
+      defaultFilter,
     });
 
     await table.fetch();
 
+    // The adapter forwards the unified shape to the SDK; the SDK performs
+    // the wire-level split internally.
     expect(mockFetch).toHaveBeenCalledWith(
-      expect.objectContaining({
-        search: searchInput,
-      }),
+      expect.objectContaining({ filter: defaultFilter }),
       expect.any(Object)
     );
 

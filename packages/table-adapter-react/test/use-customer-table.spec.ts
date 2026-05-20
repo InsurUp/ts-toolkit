@@ -125,20 +125,23 @@ describe('useCustomerTable', () => {
     expect(() => unmount()).not.toThrow();
   });
 
-  it('forwards setFilter / setSearch through the adapter API', async () => {
+  it('forwards setFilter (filter + search-marked entries) through the adapter API', async () => {
     const fetchFn = createMockFetchFn();
     const { result } = renderHook(() => useCustomerTable(options({ fetch: fetchFn })));
 
     await act(async () => {
       result.current.adapter.setFilter({ name: { eq: 'X' } });
     });
-    await act(async () => {
-      result.current.adapter.setSearch({ name: { eq: 'Doe' } });
-    });
-
-    // Both mutations should be observable via the adapter's getters
     expect(result.current.adapter.getFilter()).toEqual({ name: { eq: 'X' } });
-    expect(result.current.adapter.getSearch()).toEqual({ name: { eq: 'Doe' } });
+
+    await act(async () => {
+      result.current.adapter.setFilter({
+        name: { $search: true, textSearch: { value: 'Doe' } },
+      });
+    });
+    expect(result.current.adapter.getFilter()).toEqual({
+      name: { $search: true, textSearch: { value: 'Doe' } },
+    });
   });
 
   it('maps a thrown fetch error into state.error / isError', async () => {

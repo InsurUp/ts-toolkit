@@ -133,6 +133,22 @@ export interface SearchTextInput {
   score?: SearchScoreInput | null;
 }
 
+/**
+ * Input for `in` / `nin` search operations with optional score modification
+ * applied to the whole clause.
+ */
+export interface SearchTextListInput {
+  /**
+   * The list of values to match against
+   */
+  values: string[];
+
+  /**
+   * Optional score modification options applied to the whole clause
+   */
+  score?: SearchScoreInput | null;
+}
+
 // === Filter Operation Inputs ===
 
 export interface BooleanOperationFilterInput {
@@ -145,14 +161,26 @@ export interface StringOperationFilterInput {
   or?: StringOperationFilterInput[] | null;
   eq?: string | null;
   neq?: string | null;
-  contains?: string | null;
-  ncontains?: string | null;
   in?: (string | null)[] | null;
   nin?: (string | null)[] | null;
+  contains?: string | null;
+  notContains?: string | null;
   startsWith?: string | null;
-  nstartsWith?: string | null;
+  notStartsWith?: string | null;
   endsWith?: string | null;
-  nendsWith?: string | null;
+  notEndsWith?: string | null;
+}
+
+/**
+ * Filter input for scalar string arrays (e.g. `agentBranchIds`).
+ * Mirrors `filtering_FilterScalarListOperationFilterInputTypeOfStringTypeFilterInput`.
+ */
+export interface StringListOperationFilterInput {
+  and?: StringListOperationFilterInput[] | null;
+  or?: StringListOperationFilterInput[] | null;
+  in?: (string | null)[] | null;
+  nin?: (string | null)[] | null;
+  eq?: (string | null)[] | null;
 }
 
 export interface IntOperationFilterInput {
@@ -238,16 +266,35 @@ export interface UuidOperationFilterInput {
 
 // === Search Operation Inputs ===
 
+/**
+ * Permissive `SearchTextInput` slot: callers may pass a bare string as
+ * shorthand for `{ value: '...' }`. The SDK normalizes to the wire shape
+ * before serialization (see `normalizeSearchInput` in `@insurup/sdk`).
+ */
+export type SearchTextInputValue = string | SearchTextInput;
+
+/**
+ * Permissive `SearchTextListInput` slot: `['a','b']` is shorthand for
+ * `{ values: ['a','b'] }`. Normalized by the SDK.
+ */
+export type SearchTextListInputValue = string[] | SearchTextListInput;
+
 export interface SearchStringOperationFilterInput {
   and?: SearchStringOperationFilterInput[] | null;
   or?: SearchStringOperationFilterInput[] | null;
-  eq?: string | null;
-  neq?: string | null;
-  in?: (string | null)[] | null;
-  nin?: (string | null)[] | null;
-  textSearch?: SearchTextInput | null;
-  wildcard?: SearchTextInput | null;
-  autocomplete?: SearchTextInput | null;
+  eq?: SearchTextInputValue | null;
+  neq?: SearchTextInputValue | null;
+  in?: SearchTextListInputValue | null;
+  nin?: SearchTextListInputValue | null;
+  textSearch?: SearchTextInputValue | null;
+  wildcard?: SearchTextInputValue | null;
+  autocomplete?: SearchTextInputValue | null;
+  contains?: SearchTextInputValue | null;
+  notContains?: SearchTextInputValue | null;
+  startsWith?: SearchTextInputValue | null;
+  notStartsWith?: SearchTextInputValue | null;
+  endsWith?: SearchTextInputValue | null;
+  notEndsWith?: SearchTextInputValue | null;
 }
 
 // === Generic Filter/Search Input Types ===
@@ -272,96 +319,85 @@ export interface ListFilterInputType<T> {
   any?: boolean | null;
 }
 
-/**
- * Maps TypeScript types to their corresponding GraphQL filter input types.
- * - DateTime → DateTimeOperationFilterInput
- * - DateOnly → LocalDateOperationFilterInput
- * - Date → DateTimeOperationFilterInput
- * - string → StringOperationFilterInput
- * - number → IntOperationFilterInput
- * - boolean → BooleanOperationFilterInput
- * - arrays → ListFilterInputType with recursive ModelFilterInput
- * - objects → recursive ModelFilterInput
- * - enums → EnumOperationFilterInput
- */
-export type FilterInputForType<T> = T extends DateTime
-  ? DateTimeOperationFilterInput
-  : T extends DateOnly
-    ? LocalDateOperationFilterInput
-    : T extends Date
-      ? DateTimeOperationFilterInput
-      : T extends string
-        ? StringOperationFilterInput
-        : T extends number
-          ? IntOperationFilterInput
-          : T extends boolean
-            ? BooleanOperationFilterInput
-            : T extends unknown[]
-              ? ListFilterInputType<ModelFilterInput<UnwrapArray<T>>>
-              : T extends Record<string, unknown>
-                ? ModelFilterInput<T>
-                : EnumOperationFilterInput<NonNullable<T>>;
+// === Unified filter/search input ===
 
 /**
- * Auto-generates a filter input type from any model.
- * Includes and/or combinators and maps each field to its appropriate filter type.
+ * Marker added to a per-field value to promote it to a server-side search
+ * (routed to the GraphQL `search:` slot) instead of a filter.
+ */
+export const SEARCH_MARKER = '$search' as const;
+
+/**
+ * Add the `$search: true` marker to a value type. Carries `$search: true` as a
+ * literal discriminant; pairs with `FilterMarked<T>` (which has `$search?: never`)
+ * to give the unified union a real discriminated-union shape so TypeScript can
+ * narrow on `$search` without literal-widening hazards.
+ */
+export type SearchMarked<T> = T & { $search: true };
+
+/**
+ * Add a `$search?: never` "anti-marker" to a filter value type. With this on
+ * the filter branch and `$search: true` on the search branch, the per-field
+ * union is a discriminated union of two disjoint object types.
+ */
+export type FilterMarked<T> = T & { $search?: never };
+
+/**
+ * Unified per-field filter/search input.
  *
- * @example
- * type CustomerFilter = ModelFilterInput<QueryCustomerModel>;
- * // Generates: { and?, or?, id?, name?, type?, agentBranch?, consents?, ... }
- */
-export type ModelFilterInput<T> = {
-  and?: ModelFilterInput<T>[] | null;
-  or?: ModelFilterInput<T>[] | null;
-} & {
-  [K in keyof T]?: FilterInputForType<NonNullable<T[K]>> | null;
-};
-
-/**
- * Maps TypeScript types to their corresponding GraphQL search input types.
- * Similar to FilterInputForType but uses SearchStringOperationFilterInput for strings.
- * Dates use the same filter inputs as in FilterInputForType.
- */
-export type SearchInputForType<T> = T extends DateTime
-  ? DateTimeOperationFilterInput
-  : T extends DateOnly
-    ? LocalDateOperationFilterInput
-    : T extends Date
-      ? DateTimeOperationFilterInput
-      : T extends string
-        ? SearchStringOperationFilterInput
-        : T extends number
-          ? IntOperationFilterInput
-          : T extends boolean
-            ? BooleanOperationFilterInput
-            : T extends unknown[]
-              ? ListFilterInputType<ModelSearchInput<UnwrapArray<T>>>
-              : T extends Record<string, unknown>
-                ? ModelSearchInput<T>
-                : EnumOperationFilterInput<NonNullable<T>>;
-
-/**
- * Auto-generates a search input type from any model.
- * Similar to ModelFilterInput but uses search-specific string operations.
+ * Consumers express both filter and search criteria through a single object
+ * shape. Each field's value is either:
+ *  - its filter-ops shape (routed to the server `filter:` slot), or
+ *  - its search-ops shape carrying `$search: true` (routed to the server
+ *    `search:` slot).
  *
- * @example
- * type CustomerSearch = ModelSearchInput<QueryCustomerModel>;
+ * The table adapter splits the unified value into the two server slots at
+ * fetch time and strips the marker.
+ *
+ * Combinators (`and` / `or`) are supported recursively. The splitter routes
+ * each combinator's items into the matching server-side combinator slot:
+ *   - `and: [...]` is split into `server.filter.and` and `server.search.and`
+ *     per item; this preserves semantics because the server already AND's
+ *     the two slots together.
+ *   - `or: [...]` likewise routes per item, but **OR semantics across filter
+ *     and search are not preserved by splitting** — the server AND's the two
+ *     slots, so an OR clause that mixes filter and search keys becomes an
+ *     implicit AND between buckets at the wire level. Keep each OR item
+ *     homogeneous (all filter, or all search) if intent matters.
  */
-export type ModelSearchInput<T> = {
-  and?: ModelSearchInput<T>[] | null;
-  or?: ModelSearchInput<T>[] | null;
+export type UnifiedFilterInput<TFilter, TSearch> = {
+  // Fields filterable only
+  [K in Exclude<keyof TFilter, keyof TSearch | 'and' | 'or'>]?: FilterMarked<
+    NonNullable<TFilter[K]>
+  > | null;
 } & {
-  [K in keyof T]?: SearchInputForType<NonNullable<T[K]>> | null;
+  // Fields searchable only
+  [K in Exclude<keyof TSearch, keyof TFilter | 'and' | 'or'>]?: SearchMarked<
+    NonNullable<TSearch[K]>
+  > | null;
+} & {
+  // Fields both filterable and searchable
+  [K in Exclude<keyof TFilter & keyof TSearch, 'and' | 'or'>]?:
+    | FilterMarked<NonNullable<TFilter[K]>>
+    | SearchMarked<NonNullable<TSearch[K]>>
+    | null;
+} & {
+  // Logical combinators — recursive
+  and?: UnifiedFilterInput<TFilter, TSearch>[] | null;
+  or?: UnifiedFilterInput<TFilter, TSearch>[] | null;
 };
 
 /**
  * Generic query options for GraphQL connection queries.
- * Includes pagination, filtering, searching, and sorting.
+ *
+ * The `filter` field carries the **unified** filter+search shape — per-field
+ * entries with `$search: true` are routed to the GraphQL `search:` slot by
+ * the SDK at request time; plain entries go to the `filter:` slot. Consumers
+ * never construct the two-slot wire shape directly.
  */
 export interface GetQueryOptions<
   TFieldKey extends string = string,
-  TFilter = unknown,
-  TSearch = unknown,
+  TUnifiedFilter = unknown,
   TSort = unknown,
 > {
   /** Fields to select from the query */
@@ -374,10 +410,11 @@ export interface GetQueryOptions<
   last?: number | null;
   /** Returns the elements in the list that come before the specified cursor */
   before?: string | null;
-  /** Search criteria */
-  search?: TSearch | null;
-  /** Filter criteria */
-  filter?: TFilter | null;
+  /**
+   * Unified filter + search criteria. Per-field map; entries with
+   * `$search: true` are routed to the server's search slot at request time.
+   */
+  filter?: TUnifiedFilter | null;
   /** Sort order */
   order?: TSort[] | null;
   /**

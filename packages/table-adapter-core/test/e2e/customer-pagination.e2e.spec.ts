@@ -44,6 +44,39 @@ describeE2E('createCustomerTable pagination [e2e]', () => {
     }
   });
 
+  it('paginates correctly while a $search-marked filter is active', async () => {
+    const client = createE2EClient();
+    const table = createCustomerTable({
+      columns: (col) => [col.id(), col.name('Name')],
+      fetch: (vars, opts) => client.customers.getCustomers(vars, opts),
+      pagination: { type: 'cursor', pageSize: 3 },
+      defaultFilter: { name: { $search: true, textSearch: 'a' } },
+    });
+    try {
+      await table.fetch();
+      await waitForIdle(table);
+
+      const firstPage = table.getState().rows.map((r) => r.id);
+      if (firstPage.length < 3 || !table.pagination.canGoNext()) {
+        return; // Filtered result set isn't large enough to paginate.
+      }
+
+      table.pagination.next();
+      await waitForIdle(table);
+
+      const secondPage = table.getState().rows.map((r) => r.id);
+      expect(secondPage).not.toEqual(firstPage);
+      const overlap = secondPage.filter((id) => firstPage.includes(id));
+      expect(overlap).toEqual([]);
+
+      table.pagination.previous();
+      await waitForIdle(table);
+      expect(table.getState().rows.map((r) => r.id)).toEqual(firstPage);
+    } finally {
+      table.destroy();
+    }
+  });
+
   it('refetches with the new page size', async () => {
     const client = createE2EClient();
     const table = createCustomerTable({

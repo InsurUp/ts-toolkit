@@ -25,8 +25,7 @@ import type { PaginationOptions, PaginationManagerFromOptions } from '../../pagi
  * @template TRow - The row type with only selected fields
  * @template TQueryOptions - The query options type (e.g., GetCustomersOptions)
  * @template TSortInput - The SDK sort input type
- * @template TFilterInput - The SDK filter input type
- * @template TSearchInput - The SDK search input type
+ * @template TUnifiedFilterInput - The unified filter input type (SDK splits into wire slots)
  * @template TPaginationOptions - The pagination options type
  */
 export class InfiniteTableAdapter<
@@ -34,13 +33,11 @@ export class InfiniteTableAdapter<
   TRow,
   TQueryOptions,
   TSortInput,
-  TFilterInput,
-  TSearchInput,
+  TUnifiedFilterInput,
   TPaginationOptions extends PaginationOptions,
 > implements ITableAdapter<
   TRow,
-  TFilterInput,
-  TSearchInput,
+  TUnifiedFilterInput,
   PaginationManagerFromOptions<TPaginationOptions>
 > {
   /** Wrapped base adapter - handles all core functionality */
@@ -49,8 +46,7 @@ export class InfiniteTableAdapter<
     TRow,
     TQueryOptions,
     TSortInput,
-    TFilterInput,
-    TSearchInput,
+    TUnifiedFilterInput,
     TPaginationOptions
   >;
 
@@ -85,19 +81,12 @@ export class InfiniteTableAdapter<
 
   constructor(
     fetchFn: FetchFn<TRow, TQueryOptions>,
-    buildQueryOptions: QueryOptionsBuilder<
-      TEntity,
-      TQueryOptions,
-      TSortInput,
-      TFilterInput,
-      TSearchInput
-    >,
+    buildQueryOptions: QueryOptionsBuilder<TEntity, TQueryOptions, TSortInput, TUnifiedFilterInput>,
     options: BaseTableAdapterOptions<
       TEntity,
       TRow,
       TSortInput,
-      TFilterInput,
-      TSearchInput,
+      TUnifiedFilterInput,
       TPaginationOptions
     >
   ) {
@@ -107,8 +96,7 @@ export class InfiniteTableAdapter<
       TRow,
       TQueryOptions,
       TSortInput,
-      TFilterInput,
-      TSearchInput,
+      TUnifiedFilterInput,
       TPaginationOptions
     >(fetchFn, buildQueryOptions, {
       ...options,
@@ -191,8 +179,8 @@ export class InfiniteTableAdapter<
    * Reset accumulated rows.
    *
    * **Invariant: callers must invoke `resetRows()` *before* the base-adapter
-   * mutation that triggers the re-fetch** (see `setFilter`, `setSearch`,
-   * `setPageSize`, `refetch`, `invalidate`, `clearFilter`, `clearSearch`
+   * mutation that triggers the re-fetch** (see `setFilter`, `setPageSize`,
+   * `refetch`, `invalidate`, `clearFilter`
    * below). Clearing `wasFetching` while a fetch is mid-flight is what
    * prevents the canceled query's eventual notification from being treated
    * as a fresh settle. Swapping the order would reintroduce the
@@ -289,35 +277,21 @@ export class InfiniteTableAdapter<
   }
 
   // ============================================================================
-  // ITableAdapter Implementation - Filtering & Search
+  // ITableAdapter Implementation - Filtering
   // ============================================================================
 
-  setFilter(filter: TFilterInput): void {
+  setFilter(filter: TUnifiedFilterInput): void {
     this.resetRows();
     this.baseAdapter.setFilter(filter);
   }
 
-  getFilter(): TFilterInput | undefined {
+  getFilter(): TUnifiedFilterInput | undefined {
     return this.baseAdapter.getFilter();
   }
 
   clearFilter(): void {
     this.resetRows();
     this.baseAdapter.clearFilter();
-  }
-
-  setSearch(search: TSearchInput): void {
-    this.resetRows();
-    this.baseAdapter.setSearch(search);
-  }
-
-  getSearch(): TSearchInput | undefined {
-    return this.baseAdapter.getSearch();
-  }
-
-  clearSearch(): void {
-    this.resetRows();
-    this.baseAdapter.clearSearch();
   }
 
   // ============================================================================

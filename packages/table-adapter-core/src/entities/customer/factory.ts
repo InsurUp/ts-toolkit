@@ -15,8 +15,7 @@ import type {
   CustomerColumnDef,
   CustomerRowType,
   CustomerExtractFields,
-  CustomerFilterInput,
-  CustomerSearchInput,
+  CustomerUnifiedFilterInput,
 } from './types.js';
 import {
   createEntityTable,
@@ -48,8 +47,7 @@ export function createCustomerTable<const TColumns extends CustomerColumnDef[]>(
     TColumns,
     CustomerRowType<TColumns>,
     QueryCustomerModelSortInput,
-    CustomerFilterInput,
-    CustomerSearchInput,
+    CustomerUnifiedFilterInput,
     GetCustomersOptions<CustomerExtractFields<TColumns>[]>,
     CursorPaginationOptions
   >(options, customerConfig);
@@ -68,8 +66,7 @@ export function createInfiniteCustomerTable<const TColumns extends CustomerColum
     TColumns,
     CustomerRowType<TColumns>,
     QueryCustomerModelSortInput,
-    CustomerFilterInput,
-    CustomerSearchInput,
+    CustomerUnifiedFilterInput,
     GetCustomersOptions<CustomerExtractFields<TColumns>[]>,
     CursorPaginationOptions
   >(options, customerConfig);
@@ -78,16 +75,10 @@ export function createInfiniteCustomerTable<const TColumns extends CustomerColum
 /** Customer table type — row narrowed to the fields referenced by the columns. */
 export type CustomerTable<TColumns extends CustomerColumnDef[] = CustomerColumnDef[]> = TableApi<
   CustomerRowType<TColumns>,
-  CustomerFilterInput,
-  CustomerSearchInput,
+  CustomerUnifiedFilterInput,
   CursorPaginationManager
 >;
 
 /** Infinite customer table type — same shape as `CustomerTable`. */
 export type InfiniteCustomerTable<TColumns extends CustomerColumnDef[] = CustomerColumnDef[]> =
-  TableApi<
-    CustomerRowType<TColumns>,
-    CustomerFilterInput,
-    CustomerSearchInput,
-    CursorPaginationManager
-  >;
+  TableApi<CustomerRowType<TColumns>, CustomerUnifiedFilterInput, CursorPaginationManager>;

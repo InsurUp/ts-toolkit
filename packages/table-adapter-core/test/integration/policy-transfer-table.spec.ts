@@ -151,12 +151,12 @@ describe('createPolicyTransferTable', () => {
     await table.fetch();
     (mockFetch as ReturnType<typeof vi.fn>).mockClear();
 
-    table.setFilter({ policyCount: { eq: 10 } });
+    table.setFilter({ succeededPolicyCount: { eq: 10 } });
     await flushPromises();
 
     expect(mockFetch).toHaveBeenCalledWith(
       expect.objectContaining({
-        filter: { policyCount: { eq: 10 } },
+        filter: { succeededPolicyCount: { eq: 10 } },
       }),
       expect.any(Object)
     );
@@ -169,7 +169,7 @@ describe('createPolicyTransferTable', () => {
       columns: (col) => [col.id()],
       fetch: mockFetch,
       pagination: { type: 'cursor' },
-      defaultFilter: { policyCount: { gt: 5 } },
+      defaultFilter: { succeededPolicyCount: { gt: 5 } },
     });
 
     await table.fetch();

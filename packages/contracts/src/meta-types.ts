@@ -4,35 +4,92 @@
  * Used by auto-generated .meta.ts files.
  */
 
-export interface StringFieldMeta {
+/**
+ * Operator name as accepted by the server `filtering_*` inputs.
+ * Mirrors `StringOperationFilterInput`, `IntOperationFilterInput`,
+ * `DateTimeOperationFilterInput`, `EnumOperationFilterInput`, etc.
+ */
+export type FilterOperator =
+  | 'eq'
+  | 'neq'
+  | 'in'
+  | 'nin'
+  | 'contains'
+  | 'notContains'
+  | 'startsWith'
+  | 'notStartsWith'
+  | 'endsWith'
+  | 'notEndsWith'
+  | 'gt'
+  | 'ngt'
+  | 'gte'
+  | 'ngte'
+  | 'lt'
+  | 'nlt'
+  | 'lte'
+  | 'nlte';
+
+/**
+ * Operator name as accepted by the server `searching_*` inputs.
+ * Independent from `FilterOperator` — the two domains share most names but
+ * they describe different server inputs (`searching_SearchStringOperationFilterInput`
+ * adds the text-search operations; scalar searching inputs happen to mirror their
+ * filtering counterparts).
+ */
+export type SearchOperator =
+  | 'eq'
+  | 'neq'
+  | 'in'
+  | 'nin'
+  | 'contains'
+  | 'notContains'
+  | 'startsWith'
+  | 'notStartsWith'
+  | 'endsWith'
+  | 'notEndsWith'
+  | 'gt'
+  | 'ngt'
+  | 'gte'
+  | 'ngte'
+  | 'lt'
+  | 'nlt'
+  | 'lte'
+  | 'nlte'
+  | 'textSearch'
+  | 'wildcard'
+  | 'autocomplete';
+
+interface BaseFieldMeta {
+  readonly nullable: boolean;
+  readonly filterable: boolean;
+  readonly searchable: boolean;
+  readonly filterOperators?: readonly FilterOperator[];
+  readonly searchOperators?: readonly SearchOperator[];
+}
+
+export interface StringFieldMeta extends BaseFieldMeta {
   readonly type: 'string';
-  readonly nullable: boolean;
 }
 
-export interface NumberFieldMeta {
+export interface NumberFieldMeta extends BaseFieldMeta {
   readonly type: 'number';
-  readonly nullable: boolean;
 }
 
-export interface BooleanFieldMeta {
+export interface BooleanFieldMeta extends BaseFieldMeta {
   readonly type: 'boolean';
-  readonly nullable: boolean;
 }
 
-export interface DateTimeFieldMeta {
+export interface DateTimeFieldMeta extends BaseFieldMeta {
   readonly type: 'DateTime';
-  readonly nullable: boolean;
 }
 
-export interface DateOnlyFieldMeta {
+export interface DateOnlyFieldMeta extends BaseFieldMeta {
   readonly type: 'DateOnly';
-  readonly nullable: boolean;
 }
 
-export interface EnumFieldMeta {
+export interface EnumFieldMeta extends BaseFieldMeta {
   readonly type: 'enum';
   readonly values: readonly string[];
-  readonly nullable: boolean;
 }
 
 export type FieldMeta =

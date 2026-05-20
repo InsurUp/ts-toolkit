@@ -39,6 +39,12 @@ interface MockSearchInput {
   name?: { textSearch: { value: string } };
 }
 
+/** Unified per-field shape used by table consumers. */
+type MockUnifiedFilterInput = {
+  name?: { contains: string } | { $search: true; textSearch: { value: string } };
+  email?: { equals: string };
+};
+
 interface MockSortInput {
   id?: 'ASC' | 'DESC';
   name?: 'ASC' | 'DESC';
@@ -324,8 +330,7 @@ describe('createTableApi', () => {
       MockEntity,
       MockQueryOptions,
       MockSortInput,
-      MockFilterInput,
-      MockSearchInput,
+      MockUnifiedFilterInput,
       CursorPaginationOptions
     >({
       fetchFn,
@@ -334,8 +339,8 @@ describe('createTableApi', () => {
         after: params.after,
         order: params.order,
         select: params.select,
-        filter: params.filter,
-        search: params.search,
+        // The mock fetch sees the unified filter; the SDK splits at request time.
+        filter: params.filter as unknown as MockFilterInput,
       }),
       columns: createMockColumns(),
       pagination: { type: 'cursor', pageSize: 10 },
@@ -358,9 +363,6 @@ describe('createTableApi', () => {
     expect(typeof api.setFilter).toBe('function');
     expect(typeof api.getFilter).toBe('function');
     expect(typeof api.clearFilter).toBe('function');
-    expect(typeof api.setSearch).toBe('function');
-    expect(typeof api.getSearch).toBe('function');
-    expect(typeof api.clearSearch).toBe('function');
 
     api.destroy();
   });
@@ -372,8 +374,7 @@ describe('createTableApi', () => {
       MockEntity,
       MockQueryOptions,
       MockSortInput,
-      MockFilterInput,
-      MockSearchInput,
+      MockUnifiedFilterInput,
       CursorPaginationOptions
     >({
       fetchFn,
@@ -382,8 +383,8 @@ describe('createTableApi', () => {
         after: params.after,
         order: params.order,
         select: params.select,
-        filter: params.filter,
-        search: params.search,
+        // The mock fetch sees the unified filter; the SDK splits at request time.
+        filter: params.filter as unknown as MockFilterInput,
       }),
       columns: createMockColumns(),
       pagination: { type: 'cursor', pageSize: 10 },
@@ -407,8 +408,7 @@ describe('createTableApi', () => {
       MockEntity,
       MockQueryOptions,
       MockSortInput,
-      MockFilterInput,
-      MockSearchInput,
+      MockUnifiedFilterInput,
       CursorPaginationOptions
     >({
       fetchFn,
@@ -417,8 +417,8 @@ describe('createTableApi', () => {
         after: params.after,
         order: params.order,
         select: params.select,
-        filter: params.filter,
-        search: params.search,
+        // The mock fetch sees the unified filter; the SDK splits at request time.
+        filter: params.filter as unknown as MockFilterInput,
       }),
       columns: createMockColumns(),
       pagination: { type: 'cursor', pageSize: 10 },
@@ -441,8 +441,7 @@ describe('createTableApi', () => {
       MockEntity,
       MockQueryOptions,
       MockSortInput,
-      MockFilterInput,
-      MockSearchInput,
+      MockUnifiedFilterInput,
       CursorPaginationOptions
     >({
       fetchFn,
@@ -451,8 +450,8 @@ describe('createTableApi', () => {
         after: params.after,
         order: params.order,
         select: params.select,
-        filter: params.filter,
-        search: params.search,
+        // The mock fetch sees the unified filter; the SDK splits at request time.
+        filter: params.filter as unknown as MockFilterInput,
       }),
       columns: createMockColumns(),
       pagination: { type: 'cursor', pageSize: 10 },
@@ -490,8 +489,7 @@ describe('createTableApi', () => {
       MockEntity,
       MockQueryOptions,
       MockSortInput,
-      MockFilterInput,
-      MockSearchInput,
+      MockUnifiedFilterInput,
       CursorPaginationOptions
     >({
       fetchFn,
@@ -500,8 +498,8 @@ describe('createTableApi', () => {
         after: params.after,
         order: params.order,
         select: params.select,
-        filter: params.filter,
-        search: params.search,
+        // The mock fetch sees the unified filter; the SDK splits at request time.
+        filter: params.filter as unknown as MockFilterInput,
       }),
       columns: createMockColumns(),
       pagination: { type: 'cursor', pageSize: 10 },
@@ -529,8 +527,7 @@ describe('createTableApi', () => {
       MockEntity,
       MockQueryOptions,
       MockSortInput,
-      MockFilterInput,
-      MockSearchInput,
+      MockUnifiedFilterInput,
       CursorPaginationOptions
     >({
       fetchFn,
@@ -539,8 +536,8 @@ describe('createTableApi', () => {
         after: params.after,
         order: params.order,
         select: params.select,
-        filter: params.filter,
-        search: params.search,
+        // The mock fetch sees the unified filter; the SDK splits at request time.
+        filter: params.filter as unknown as MockFilterInput,
       }),
       columns: createMockColumns(),
       pagination: { type: 'cursor', pageSize: 10 },

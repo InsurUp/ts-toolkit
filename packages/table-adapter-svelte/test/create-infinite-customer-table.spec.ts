@@ -68,7 +68,7 @@ describe('createInfiniteCustomerTable', () => {
     try {
       expect(typeof result.adapter.fetch).toBe('function');
       expect(typeof result.adapter.setFilter).toBe('function');
-      expect(typeof result.adapter.setSearch).toBe('function');
+      expect(typeof result.adapter.clearFilter).toBe('function');
     } finally {
       result.destroy();
     }

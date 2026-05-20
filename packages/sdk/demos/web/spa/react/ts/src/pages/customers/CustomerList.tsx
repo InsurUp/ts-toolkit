@@ -54,14 +54,14 @@ export function CustomerList() {
   const fetchCustomers = useCallback(async () => {
     setIsLoading(true);
     try {
-      const searchOptions = deferredSearch
-        ? { name: { textSearch: { value: deferredSearch } } }
+      const filterOptions = deferredSearch
+        ? { name: { $search: true as const, textSearch: deferredSearch } }
         : undefined;
 
       // Fire count query in parallel (non-blocking)
       const countPromise = client.customers.getCustomers({
         first: 1,
-        search: searchOptions,
+        filter: filterOptions,
         select: ['id'] as const,
         includeTotalCount: true,
       });
@@ -73,7 +73,7 @@ export function CustomerList() {
         last: direction === 'backward' ? 10 : undefined,
         after: direction === 'forward' ? cursor : undefined,
         before: direction === 'backward' ? cursor : undefined,
-        search: searchOptions,
+        filter: filterOptions,
         order: sortField ? [{ [sortField]: sortDirection === 'asc' ? 'ASC' : 'DESC' }] : undefined,
         includeTotalCount: false,
       });

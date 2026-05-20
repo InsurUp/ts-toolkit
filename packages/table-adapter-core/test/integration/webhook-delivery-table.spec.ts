@@ -130,14 +130,14 @@ describe('createWebhookDeliveryTable (smoke)', () => {
       columns: (col) => [col.id()],
       fetch: mockFetch,
       pagination: { type: 'cursor' },
-      defaultFilter: { state: { eq: WebhookDeliveryState.Failed } },
+      defaultFilter: { isSuccess: { eq: false } },
     });
 
     await table.fetch();
 
     expect(mockFetch).toHaveBeenCalledWith(
       expect.objectContaining({
-        filter: { state: { eq: WebhookDeliveryState.Failed } },
+        filter: { isSuccess: { eq: false } },
       }),
       expect.any(Object)
     );
@@ -155,12 +155,12 @@ describe('createWebhookDeliveryTable (smoke)', () => {
     await table.fetch();
     (mockFetch as ReturnType<typeof vi.fn>).mockClear();
 
-    table.setFilter({ state: { eq: WebhookDeliveryState.Pending } });
+    table.setFilter({ isSuccess: { eq: true } });
     await flushPromises();
 
     expect(mockFetch).toHaveBeenCalledWith(
       expect.objectContaining({
-        filter: { state: { eq: WebhookDeliveryState.Pending } },
+        filter: { isSuccess: { eq: true } },
       }),
       expect.any(Object)
     );
@@ -173,7 +173,7 @@ describe('createWebhookDeliveryTable (smoke)', () => {
       columns: (col) => [col.id()],
       fetch: mockFetch,
       pagination: { type: 'cursor' },
-      defaultFilter: { state: { eq: WebhookDeliveryState.Failed } },
+      defaultFilter: { isSuccess: { eq: false } },
     });
 
     await table.fetch();

@@ -9,12 +9,26 @@ import type {
   SortEnumType,
   DeepFieldKeys,
   PickFields,
-  ModelFilterInput,
-  ModelSearchInput,
   GetQueryOptions,
+  StringOperationFilterInput,
+  IntOperationFilterInput,
+  DateTimeOperationFilterInput,
+  EnumOperationFilterInput,
+  SearchStringOperationFilterInput,
+  UnifiedFilterInput,
 } from './common.js';
 import type { DateTime } from '../common.date.js';
 import type { UserType } from './policies.js';
+
+/**
+ * Source type for file policy transfers. Filter-only — not exposed on the model
+ * output type, but supported by the server filter input.
+ */
+export enum FilePolicyTransferSourceType {
+  InsuranceCompany = 'INSURANCE_COMPANY',
+  Polisoft = 'POLISOFT',
+  Bentas = 'BENTAS',
+}
 
 // === Output Types ===
 
@@ -40,21 +54,36 @@ export interface QueryFilePolicyTransfersResult {
   failedPolicyCount?: number | null;
 }
 
-// === Filter/Search/Sort Inputs (auto-generated from model) ===
+// === Filter/Search/Sort Inputs ===
+// Hand-declared from server schema: filtering_QueryFilePolicyTransfersResultFilterInput,
+// searching_QueryFilePolicyTransfersResultFilterInput.
 
-/**
- * Filter input for QueryFilePolicyTransfersResult.
- * Auto-generated from model fields using ModelFilterInput.
- */
-export type QueryFilePolicyTransfersResultFilterInput =
-  ModelFilterInput<QueryFilePolicyTransfersResult>;
+export interface QueryFilePolicyTransfersResultFilterInput {
+  and?: QueryFilePolicyTransfersResultFilterInput[] | null;
+  or?: QueryFilePolicyTransfersResultFilterInput[] | null;
+  id?: StringOperationFilterInput | null;
+  createdAt?: DateTimeOperationFilterInput | null;
+  sourceType?: EnumOperationFilterInput<FilePolicyTransferSourceType> | null;
+  insuranceCompanyName?: StringOperationFilterInput | null;
+  insuranceCompanyLogo?: StringOperationFilterInput | null;
+  insuranceCompanyId?: IntOperationFilterInput | null;
+  fileName?: StringOperationFilterInput | null;
+  succeededPolicyCount?: IntOperationFilterInput | null;
+  failedPolicyCount?: IntOperationFilterInput | null;
+  skippedPolicyCount?: IntOperationFilterInput | null;
+  totalPolicyCount?: IntOperationFilterInput | null;
+}
 
-/**
- * Search input for QueryFilePolicyTransfersResult.
- * Auto-generated from model fields using ModelSearchInput.
- */
-export type QueryFilePolicyTransfersResultSearchInput =
-  ModelSearchInput<QueryFilePolicyTransfersResult>;
+export interface QueryFilePolicyTransfersResultSearchInput {
+  and?: QueryFilePolicyTransfersResultSearchInput[] | null;
+  or?: QueryFilePolicyTransfersResultSearchInput[] | null;
+  fileName?: SearchStringOperationFilterInput | null;
+}
+
+export type QueryFilePolicyTransfersResultUnifiedFilterInput = UnifiedFilterInput<
+  QueryFilePolicyTransfersResultFilterInput,
+  QueryFilePolicyTransfersResultSearchInput
+>;
 
 /**
  * Sort input for QueryFilePolicyTransfersResult.
@@ -132,8 +161,7 @@ export interface GetFilePolicyTransfersOptions<
   TFields extends FilePolicyTransferFieldKey[] = FilePolicyTransferFieldKey[],
 > extends GetQueryOptions<
   FilePolicyTransferFieldKey,
-  QueryFilePolicyTransfersResultFilterInput,
-  QueryFilePolicyTransfersResultSearchInput,
+  QueryFilePolicyTransfersResultUnifiedFilterInput,
   QueryFilePolicyTransfersResultSortInput
 > {
   /** Fields to select from the query. If not provided, all fields are returned. */

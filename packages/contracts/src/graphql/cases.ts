@@ -9,9 +9,15 @@ import type {
   SortEnumType,
   DeepFieldKeys,
   PickFields,
-  ModelFilterInput,
-  ModelSearchInput,
   GetQueryOptions,
+  StringOperationFilterInput,
+  IntOperationFilterInput,
+  UuidOperationFilterInput,
+  DateTimeOperationFilterInput,
+  LocalDateOperationFilterInput,
+  EnumOperationFilterInput,
+  SearchStringOperationFilterInput,
+  UnifiedFilterInput,
 } from './common.js';
 import type { DateTime, DateOnly } from '../common.date.js';
 
@@ -135,19 +141,119 @@ export interface QueryCaseModel {
   searchScore?: number | null;
 }
 
-// === Filter/Search/Sort Inputs (auto-generated from model) ===
+// === Filter/Search/Sort Inputs ===
+// Hand-declared from server schema: filtering_QueryCaseModelFilterInput,
+// searching_QueryCaseModelFilterInput.
 
-/**
- * Filter input for QueryCaseModel.
- * Auto-generated from model fields using ModelFilterInput.
- */
-export type QueryCaseModelFilterInput = ModelFilterInput<QueryCaseModel>;
+export interface QueryCaseModelFilterInput {
+  and?: QueryCaseModelFilterInput[] | null;
+  or?: QueryCaseModelFilterInput[] | null;
+  id?: StringOperationFilterInput | null;
+  ref?: StringOperationFilterInput | null;
+  type?: EnumOperationFilterInput<CaseType> | null;
+  status?: EnumOperationFilterInput<CaseStatus> | null;
+  cancelSubType?: EnumOperationFilterInput<CancelCaseSubType> | null;
+  saleOpportunitySubType?: EnumOperationFilterInput<SaleOpportunityCaseSubType> | null;
+  endorsementSubType?: EnumOperationFilterInput<EndorsementCaseSubType> | null;
+  complaintSubType?: EnumOperationFilterInput<ComplaintCaseSubType> | null;
+  mainState?: EnumOperationFilterInput<CaseMainState> | null;
+  subState?: EnumOperationFilterInput<CaseSubState> | null;
+  productBranch?: EnumOperationFilterInput<ProductBranch> | null;
+  channel?: EnumOperationFilterInput<Channel> | null;
+  createdAt?: DateTimeOperationFilterInput | null;
+  createdByName?: StringOperationFilterInput | null;
+  createdById?: UuidOperationFilterInput | null;
+  createdByEmail?: StringOperationFilterInput | null;
+  createdByType?: EnumOperationFilterInput<UserType> | null;
+  representedByName?: StringOperationFilterInput | null;
+  representedById?: UuidOperationFilterInput | null;
+  representedByEmail?: StringOperationFilterInput | null;
+  representedByType?: EnumOperationFilterInput<UserType> | null;
+  policyEndDate?: LocalDateOperationFilterInput | null;
+  assetType?: EnumOperationFilterInput<AssetType> | null;
+  assetId?: UuidOperationFilterInput | null;
+  sourceCaseId?: StringOperationFilterInput | null;
+  policyCount?: IntOperationFilterInput | null;
+  proposalCount?: IntOperationFilterInput | null;
+  lastProposalDate?: DateTimeOperationFilterInput | null;
+  lastPolicyDate?: DateTimeOperationFilterInput | null;
+  lastUpdateDate?: DateTimeOperationFilterInput | null;
+  lastUpdatedByName?: StringOperationFilterInput | null;
+  lastUpdatedById?: UuidOperationFilterInput | null;
+  lastUpdatedByEmail?: StringOperationFilterInput | null;
+  lastUpdatedByType?: EnumOperationFilterInput<UserType> | null;
+  priorityScore?: IntOperationFilterInput | null;
+  customerId?: UuidOperationFilterInput | null;
+  customerName?: StringOperationFilterInput | null;
+  customerType?: EnumOperationFilterInput<CustomerType> | null;
+  customerIdentity?: StringOperationFilterInput | null;
+  customerCityText?: StringOperationFilterInput | null;
+  customerCityValue?: StringOperationFilterInput | null;
+  customerDistrictText?: StringOperationFilterInput | null;
+  customerDistrictValue?: StringOperationFilterInput | null;
+  customerPrimaryPhoneNumber?: StringOperationFilterInput | null;
+  customerPrimaryPhoneCountryCode?: IntOperationFilterInput | null;
+  customerPrimaryEmail?: StringOperationFilterInput | null;
+  customerBirthDate?: LocalDateOperationFilterInput | null;
+  customerPassportNumber?: StringOperationFilterInput | null;
+  customerJob?: EnumOperationFilterInput<Job> | null;
+  vehiclePlateCode?: StringOperationFilterInput | null;
+  vehiclePlateCity?: IntOperationFilterInput | null;
+  vehicleModelBrandText?: StringOperationFilterInput | null;
+  vehicleModelBrandValue?: StringOperationFilterInput | null;
+  vehicleModelTypeText?: StringOperationFilterInput | null;
+  vehicleModelTypeValue?: StringOperationFilterInput | null;
+  vehicleModelYear?: IntOperationFilterInput | null;
+  vehicleUtilizationStyle?: EnumOperationFilterInput<VehicleUtilizationStyle> | null;
+  vehicleEngineNumber?: StringOperationFilterInput | null;
+  vehicleChassisNumber?: StringOperationFilterInput | null;
+  vehicleRegistrationDate?: LocalDateOperationFilterInput | null;
+  vehicleFuelType?: EnumOperationFilterInput<VehicleFuelType> | null;
+  vehicleSeatNumber?: IntOperationFilterInput | null;
+  vehicleDocumentSerialCode?: StringOperationFilterInput | null;
+  vehicleDocumentSerialNumber?: StringOperationFilterInput | null;
+  propertyNumber?: IntOperationFilterInput | null;
+  propertySquareMeter?: IntOperationFilterInput | null;
+  propertyConstructionYear?: IntOperationFilterInput | null;
+  propertyDamageStatus?: EnumOperationFilterInput<PropertyDamageStatus> | null;
+  propertyFloorNumber?: IntOperationFilterInput | null;
+  propertyStructure?: EnumOperationFilterInput<PropertyStructure> | null;
+  propertyUtilizationStyle?: EnumOperationFilterInput<PropertyUtilizationStyle> | null;
+  propertyOwnershipType?: EnumOperationFilterInput<PropertyOwnershipType> | null;
+  propertyDaskPolicyNumber?: StringOperationFilterInput | null;
+  advertisingSource?: StringOperationFilterInput | null;
+  advertisingCampaign?: StringOperationFilterInput | null;
+  agentBranchId?: StringOperationFilterInput | null;
+}
 
-/**
- * Search input for QueryCaseModel.
- * Auto-generated from model fields using ModelSearchInput.
- */
-export type QueryCaseModelSearchInput = ModelSearchInput<QueryCaseModel>;
+export interface QueryCaseModelSearchInput {
+  and?: QueryCaseModelSearchInput[] | null;
+  or?: QueryCaseModelSearchInput[] | null;
+  ref?: SearchStringOperationFilterInput | null;
+  createdByName?: SearchStringOperationFilterInput | null;
+  representedByName?: SearchStringOperationFilterInput | null;
+  lastUpdatedByName?: SearchStringOperationFilterInput | null;
+  lastUpdatedByEmail?: SearchStringOperationFilterInput | null;
+  customerName?: SearchStringOperationFilterInput | null;
+  customerIdentity?: SearchStringOperationFilterInput | null;
+  customerCityText?: SearchStringOperationFilterInput | null;
+  customerDistrictText?: SearchStringOperationFilterInput | null;
+  customerPrimaryPhoneNumber?: SearchStringOperationFilterInput | null;
+  customerPrimaryEmail?: SearchStringOperationFilterInput | null;
+  vehiclePlateCode?: SearchStringOperationFilterInput | null;
+  vehicleModelBrandText?: SearchStringOperationFilterInput | null;
+  vehicleModelTypeText?: SearchStringOperationFilterInput | null;
+  vehicleEngineNumber?: SearchStringOperationFilterInput | null;
+  vehicleChassisNumber?: SearchStringOperationFilterInput | null;
+  vehicleDocumentSerialCode?: SearchStringOperationFilterInput | null;
+  vehicleDocumentSerialNumber?: SearchStringOperationFilterInput | null;
+  propertyDaskPolicyNumber?: SearchStringOperationFilterInput | null;
+}
+
+export type QueryCaseModelUnifiedFilterInput = UnifiedFilterInput<
+  QueryCaseModelFilterInput,
+  QueryCaseModelSearchInput
+>;
 
 /**
  * Sort input for QueryCaseModel.
@@ -302,12 +408,7 @@ export interface SelectedCasesConnection<TFields extends CaseFieldKey[]> extends
  */
 export interface GetCasesOptions<
   TFields extends CaseFieldKey[] = CaseFieldKey[],
-> extends GetQueryOptions<
-  CaseFieldKey,
-  QueryCaseModelFilterInput,
-  QueryCaseModelSearchInput,
-  QueryCaseModelSortInput
-> {
+> extends GetQueryOptions<CaseFieldKey, QueryCaseModelUnifiedFilterInput, QueryCaseModelSortInput> {
   /** Fields to select from the query. If not provided, all fields are returned. */
   select?: TFields;
 }

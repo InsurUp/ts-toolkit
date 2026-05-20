@@ -18,7 +18,6 @@ import {
   type Connection,
   type InsurUpGraphQLResult,
   type CustomerFieldKey,
-  type QueryCustomerModelSearchInput,
 } from '@insurup/sdk';
 import type {
   CustomerRowType,
@@ -253,7 +252,7 @@ describe('createInfiniteCustomerTable', () => {
       table.destroy();
     });
 
-    it('clears accumulated rows when setSearch is called', async () => {
+    it('clears accumulated rows when setFilter promotes a field to search', async () => {
       const pageA = connection([row('A1', 'Alice')], 'c1', true);
       const pageB = connection([row('B1', 'Bob')], null, false);
       const table = createInfiniteCustomerTable({
@@ -269,10 +268,9 @@ describe('createInfiniteCustomerTable', () => {
       await flushPromises();
       expect(table.getState().rows).toHaveLength(2);
 
-      const search: QueryCustomerModelSearchInput = {
-        name: { textSearch: { value: 'Alice' } },
-      };
-      table.setSearch(search);
+      table.setFilter({
+        name: { $search: true, textSearch: { value: 'Alice' } },
+      });
       expect(table.getState().rows).toHaveLength(0);
       table.destroy();
     });
@@ -360,20 +358,22 @@ describe('createInfiniteCustomerTable', () => {
       table.destroy();
     });
 
-    it('clears accumulated rows when clearSearch is called', async () => {
+    it('clears accumulated rows when clearFilter removes a $search-marked entry', async () => {
       const pageA = connection([row('A1', 'Alice')], null, false);
       const table = createInfiniteCustomerTable({
         columns: (col) => [col.id()],
         fetch: pagedFetch([pageA]),
         pagination: { type: 'cursor', pageSize: 1 },
-        defaultSearch: { name: { textSearch: { value: 'Alice' } } },
+        defaultFilter: {
+          name: { $search: true, textSearch: { value: 'Alice' } },
+        },
       });
 
       await table.fetch();
       await flushPromises();
       expect(table.getState().rows).toHaveLength(1);
 
-      table.clearSearch();
+      table.clearFilter();
       expect(table.getState().rows).toHaveLength(0);
       table.destroy();
     });

@@ -15,8 +15,7 @@ import type {
   CaseColumnDef,
   CaseRowType,
   CaseExtractFields,
-  CaseFilterInput,
-  CaseSearchInput,
+  CaseUnifiedFilterInput,
 } from './types.js';
 import {
   createEntityTable,
@@ -34,10 +33,6 @@ const caseConfig: EntityFactoryConfig<GetCasesOptions<CaseFieldKey[]>> = {
   clientMethod: (client) => (vars, requestOptions) => client.cases.getCases(vars, requestOptions),
 };
 
-/**
- * Create a type-safe case table adapter.
- * Row type is narrowed to the fields referenced by the columns.
- */
 export function createCaseTable<const TColumns extends CaseColumnDef[]>(
   options: CaseTableOptions<TColumns>
 ): CaseTable<TColumns> {
@@ -47,17 +42,12 @@ export function createCaseTable<const TColumns extends CaseColumnDef[]>(
     TColumns,
     CaseRowType<TColumns>,
     QueryCaseModelSortInput,
-    CaseFilterInput,
-    CaseSearchInput,
+    CaseUnifiedFilterInput,
     GetCasesOptions<CaseExtractFields<TColumns>[]>,
     CursorPaginationOptions
   >(options, caseConfig);
 }
 
-/**
- * Create an infinite-scroll case table adapter.
- * Rows accumulate across page fetches.
- */
 export function createInfiniteCaseTable<const TColumns extends CaseColumnDef[]>(
   options: CaseTableOptions<TColumns>
 ): InfiniteCaseTable<TColumns> {
@@ -67,25 +57,20 @@ export function createInfiniteCaseTable<const TColumns extends CaseColumnDef[]>(
     TColumns,
     CaseRowType<TColumns>,
     QueryCaseModelSortInput,
-    CaseFilterInput,
-    CaseSearchInput,
+    CaseUnifiedFilterInput,
     GetCasesOptions<CaseExtractFields<TColumns>[]>,
     CursorPaginationOptions
   >(options, caseConfig);
 }
 
-/** Case table type — row narrowed to the fields referenced by the columns. */
 export type CaseTable<TColumns extends CaseColumnDef[] = CaseColumnDef[]> = TableApi<
   CaseRowType<TColumns>,
-  CaseFilterInput,
-  CaseSearchInput,
+  CaseUnifiedFilterInput,
   CursorPaginationManager
 >;
 
-/** Infinite case table type — same shape as `CaseTable`. */
 export type InfiniteCaseTable<TColumns extends CaseColumnDef[] = CaseColumnDef[]> = TableApi<
   CaseRowType<TColumns>,
-  CaseFilterInput,
-  CaseSearchInput,
+  CaseUnifiedFilterInput,
   CursorPaginationManager
 >;

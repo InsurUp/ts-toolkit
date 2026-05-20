@@ -151,11 +151,11 @@ export function CustomerTable(): React.ReactElement {
     (value: string): void => {
       setSearchInput(value);
       if (value.trim()) {
-        adapter.setSearch({
-          name: { textSearch: { value: value.trim() } },
+        adapter.setFilter({
+          name: { $search: true, textSearch: value.trim() },
         });
       } else {
-        adapter.clearSearch();
+        adapter.clearFilter();
       }
     },
     [adapter]
