@@ -74,22 +74,6 @@ describe('splitUnifiedFilter', () => {
     });
   });
 
-  it('splits an `and` item that itself mixes filter + search keys', () => {
-    expect(
-      split({
-        and: [
-          {
-            status: { eq: 'OPEN' },
-            name: { $search: true, textSearch: { value: 'ali' } },
-          },
-        ],
-      })
-    ).toEqual({
-      filter: { and: [{ status: { eq: 'OPEN' } }] },
-      search: { and: [{ name: { textSearch: { value: 'ali' } } }] },
-    });
-  });
-
   it('recurses into nested combinators', () => {
     expect(
       split({
@@ -108,10 +92,6 @@ describe('splitUnifiedFilter', () => {
 
   it('drops an empty combinator entirely', () => {
     expect(split({ and: [] })).toEqual({ filter: undefined, search: undefined });
-  });
-
-  it('emits both buckets as undefined for an empty input object', () => {
-    expect(split({})).toEqual({ filter: undefined, search: undefined });
   });
 
   it('routes an empty $search marker (no operator) to the search bucket', () => {

@@ -1,15 +1,3 @@
-/**
- * @fileoverview Split a unified filter input into the server's `filter` and
- * `search` slots.
- *
- * Consumers express filter+search as one per-field object via `UnifiedFilterInput`.
- * Each entry whose value carries `$search: true` is routed to the GraphQL
- * `search:` slot (marker stripped); plain entries go to `filter:`. `and`/`or`
- * combinators recurse per item — each item's filter half lands in the
- * destination's `and`/`or` array on the filter side, search half on the
- * search side. See `UnifiedFilterInput`'s JSDoc for the OR semantics caveat.
- */
-
 import type { SearchMarked, UnifiedFilterInput } from '@insurup/contracts';
 
 export interface SplitResult<TFilter, TSearch> {
@@ -29,7 +17,11 @@ const stripMarker = ({ $search: _marker, ...rest }: SearchMarked<Dict>): Dict =>
 const nonEmpty = (o: Dict): boolean => Object.keys(o).length > 0;
 
 /**
- * Public entry point. Splits a unified filter input into the two server slots.
+ * Splits a unified filter input into the server's `filter` and `search` slots.
+ * Each entry whose value carries `$search: true` routes to `search:` (marker
+ * stripped); plain entries go to `filter:`. `and`/`or` combinators recurse
+ * per-item; see `UnifiedFilterInput`'s JSDoc for the OR semantics caveat.
+ *
  * The single cast (input boundary → internal `Dict`, return → `TFilter`/`TSearch`)
  * is contained here; the recursive worker is fully predicate-typed.
  */

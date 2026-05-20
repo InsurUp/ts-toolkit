@@ -30,10 +30,19 @@ const client = createE2EClient();
 
 /**
  * Run the three uniform filter+search probes against an entity. Each probe is
- * its own `it`, so vitest reports per-probe pass/fail. `TFilter` is generic so
- * the per-entity unified-filter type flows through unchanged.
+ * its own `it`, so vitest reports per-probe pass/fail.
+ *
+ * `<const TFilter>` preserves the literal `$search: true` discriminator
+ * through the generic so callers don't need `as const` boilerplate. Don't
+ * strip the `const` — without it, TS widens `$search: true` to `boolean` and
+ * the discriminated union narrowing fails at each call site.
+ *
+ * `verifyDefaultProbeRows` is optional: when supplied, each row returned by
+ * the default-filter probe is checked against it. Use it for filters that
+ * have a deterministic row-level effect (enum eq, boolean eq) to prove the
+ * server actually applied the filter — not just that the call returned 200.
  */
-function runEntityProbes<const TFilter>(
+function runEntityProbes<const TFilter, TRow>(
   name: string,
   build: (extra?: { defaultFilter?: TFilter }) => {
     fetch(): Promise<unknown>;
@@ -43,10 +52,12 @@ function runEntityProbes<const TFilter>(
       isSuccess: boolean;
       isFetching: boolean;
       isLoading: boolean;
+      rows: readonly TRow[];
     };
     destroy(): void;
   },
-  filters: { search: TFilter; defaultProbe: TFilter; mixed: TFilter }
+  filters: { search: TFilter; defaultProbe: TFilter; mixed: TFilter },
+  verifyDefaultProbeRows?: (rows: readonly TRow[]) => void
 ): void {
   const expectSuccess = (table: ReturnType<typeof build>) => {
     expect(table.getState().error).toBeNull();
@@ -71,6 +82,7 @@ function runEntityProbes<const TFilter>(
         await table.fetch();
         await waitForIdle(table);
         expectSuccess(table);
+        verifyDefaultProbeRows?.(table.getState().rows);
       } finally {
         table.destroy();
       }
@@ -102,9 +114,14 @@ runEntityProbes(
     search: { ref: { $search: true, textSearch: 'a' } },
     defaultProbe: { type: { eq: CaseType.SaleOpportunity } },
     mixed: {
-      type: { eq: CaseType.SaleOpportunity },
       ref: { $search: true, textSearch: 'a' },
+      type: { eq: CaseType.SaleOpportunity },
     },
+  },
+  (rows) => {
+    for (const row of rows) {
+      expect(row.type).toBe(CaseType.SaleOpportunity);
+    }
   }
 );
 
@@ -217,10 +234,13 @@ runEntityProbes(
     }),
   {
     search: { errorMessage: { $search: true, textSearch: 'timeout' } },
+    // `isSuccess` is filterable but not projected into the output model, so
+    // no row-side verify hook is possible — the call-succeeds assertion is
+    // the only signal here. (Case carries the verify-hook demonstration.)
     defaultProbe: { isSuccess: { eq: false } },
     mixed: {
-      isSuccess: { eq: false },
       errorMessage: { $search: true, textSearch: 'timeout' },
+      isSuccess: { eq: false },
     },
   }
 );

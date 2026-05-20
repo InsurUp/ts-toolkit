@@ -47,7 +47,7 @@ import {
   type CustomersConnection,
 } from '@insurup/contracts';
 import { buildFieldSelection } from '@insurup/contracts';
-import { buildFilterSearchVariables } from './_internal/with-unified-filter.js';
+import { buildFilterSearchVariables } from './_internal/build-filter-search-variables.js';
 
 /**
  * Customer management client providing comprehensive customer lifecycle management.
@@ -630,20 +630,19 @@ export class InsurUpCustomerClient {
       }
     `;
 
-    const variables: Record<string, unknown> = {};
-
-    // Default to first: 50 if no pagination params provided
-    if (requestOptions?.first === undefined && requestOptions?.last === undefined) {
-      variables.first = 50;
-    } else {
-      if (requestOptions?.first !== undefined) variables.first = requestOptions.first;
-      if (requestOptions?.last !== undefined) variables.last = requestOptions.last;
-    }
-
-    if (requestOptions?.after !== undefined) variables.after = requestOptions.after;
-    if (requestOptions?.before !== undefined) variables.before = requestOptions.before;
-    Object.assign(variables, buildFilterSearchVariables(requestOptions?.filter));
-    if (requestOptions?.order !== undefined) variables.order = requestOptions.order;
+    // Default to first: 50 only when neither cursor-direction bound is given.
+    const first =
+      requestOptions?.first === undefined && requestOptions?.last === undefined
+        ? 50
+        : requestOptions?.first;
+    const variables = {
+      first,
+      after: requestOptions?.after,
+      last: requestOptions?.last,
+      before: requestOptions?.before,
+      ...buildFilterSearchVariables(requestOptions?.filter),
+      order: requestOptions?.order,
+    };
 
     const result = await this.graphql.query<{
       customersNew: Omit<CustomersConnection, 'nodes'>;

@@ -59,7 +59,7 @@ import {
   type FilePolicyTransfersConnection,
 } from '@insurup/contracts';
 import { buildFieldSelection } from '@insurup/contracts';
-import { buildFilterSearchVariables } from './_internal/with-unified-filter.js';
+import { buildFilterSearchVariables } from './_internal/build-filter-search-variables.js';
 
 /**
  * Policy Management Client / Poliçe Yönetimi İstemcisi

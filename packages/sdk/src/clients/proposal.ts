@@ -16,7 +16,7 @@ import {
   type ProposalsConnection,
 } from '@insurup/contracts';
 import { buildFieldSelection } from '@insurup/contracts';
-import { buildFilterSearchVariables } from './_internal/with-unified-filter.js';
+import { buildFilterSearchVariables } from './_internal/build-filter-search-variables.js';
 import type {
   CreateProposalRequest,
   CreateProposalResult,

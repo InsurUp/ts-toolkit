@@ -83,11 +83,13 @@ const SEARCH_STRING_OPS = [
 /**
  * Per-kind filter operators. Filter inputs only ever reference kinds whose
  * operator lists are pure `FilterOperator`s (no text-search ops), so the
- * value type stays narrow.
+ * value type stays narrow. The `searchString` entry is required by the
+ * total-record satisfies-check but must never appear on the filter side —
+ * see `assertFilterKind` below.
  */
 const FILTER_OPERATORS_BY_KIND = {
   string: STRING_OPS,
-  searchString: STRING_OPS, // unreachable on the filter side; included for total-record completeness
+  searchString: STRING_OPS,
   stringList: STRING_LIST_OPS,
   int: COMPARABLE_OPS,
   float: COMPARABLE_OPS,
@@ -97,6 +99,23 @@ const FILTER_OPERATORS_BY_KIND = {
   dateOnly: COMPARABLE_OPS,
   enum: ENUM_OPS,
 } as const satisfies Readonly<Record<Kind, readonly FilterOperator[]>>;
+
+/**
+ * Guard against schema drift: if a `Query<X>FilterInput` ever references
+ * `SearchStringOperationFilterInput` (search-side type), the meta would
+ * silently emit a narrower op set instead of `SEARCH_STRING_OPS`. Fail
+ * loudly so the contributor knows to investigate.
+ */
+function assertFilterKind(fieldName: string, ifaceName: string, kind: Kind): void {
+  if (kind === 'searchString') {
+    throw new Error(
+      `generate-meta: field "${fieldName}" on filter input "${ifaceName}" maps to kind ` +
+        `"searchString" — that kind is reserved for the search side. The server schema ` +
+        `must have drifted (a "searching_*" type leaked into a "filtering_*" input). ` +
+        `Investigate before regenerating.`
+    );
+  }
+}
 
 /** Per-kind search operators. `searchString` is the only kind that differs. */
 const SEARCH_OPERATORS_BY_KIND = {
@@ -224,6 +243,11 @@ for (const scanDir of scanDirs) {
       const searchInput = sourceFile.getInterface(`${interfaceName}SearchInput`);
       const filterMap = fieldsFromInputInterface(filterInput);
       const searchMap = fieldsFromInputInterface(searchInput);
+      if (filterInput) {
+        for (const [field, kind] of Object.entries(filterMap)) {
+          assertFilterKind(field, filterInput.getName(), kind);
+        }
+      }
       const fields = processInterface(iface, filterMap, searchMap);
       metas.push({ interfaceName, fields });
     }
