@@ -5,6 +5,7 @@
 
 import { HttpTransport } from './http.js';
 import { GraphQLTransport } from './graphql.js';
+import { SignalRTransport } from './signalr.js';
 import type { InsurUpClientOptions } from '../core/options.js';
 
 // Import specialized clients
@@ -34,6 +35,7 @@ import { InsurUpTemplateClient } from '../clients/template.js';
 export class DefaultInsurUpClient {
   private readonly http: HttpTransport;
   private readonly graphql: GraphQLTransport;
+  private readonly signalR: SignalRTransport;
 
   /**
    * Agent Management Client
@@ -177,6 +179,11 @@ export class DefaultInsurUpClient {
     this.http = new HttpTransport(options);
     this.graphql = new GraphQLTransport(this.http);
     this.options = options || {};
+    this.signalR = new SignalRTransport({
+      hubsBaseUrl: options?.hubsBaseUrl ?? deriveHubsBaseUrl(options?.baseUrl),
+      tokenProvider: options?.tokenProvider,
+      logLevel: options?.signalRLogLevel,
+    });
 
     // Initialize all specialized clients
     this.agents = new InsurUpAgentClient(this.http);
@@ -192,9 +199,23 @@ export class DefaultInsurUpClient {
     this.webhooks = new InsurUpWebhookClient(this.http, this.graphql);
     this.coverage = new InsurUpCoverageClient(this.http);
     this.insurance = new InsurUpInsuranceClient(this.http);
-    this.proposals = new InsurUpProposalClient(this.http, this.graphql);
+    this.proposals = new InsurUpProposalClient(this.http, this.graphql, this.signalR);
     this.files = new InsurUpFileClient(this.http);
     this.languages = new InsurUpLanguageClient(this.http);
     this.templates = new InsurUpTemplateClient(this.http);
   }
+
+  /**
+   * Stop any open SignalR connection and drop pending subscribers. Safe to
+   * call multiple times. Call this when disposing of the SDK client (e.g. on
+   * app teardown or test cleanup).
+   */
+  async close(): Promise<void> {
+    await this.signalR.close();
+  }
+}
+
+function deriveHubsBaseUrl(baseUrl: string | undefined): string {
+  const resolved = baseUrl ?? 'https://api.insurup.com/api/';
+  return new URL(resolved).origin;
 }

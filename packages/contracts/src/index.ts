@@ -20,6 +20,7 @@ export * from './webhooks.js';
 export * from './coverage.js';
 export * from './insurance.js';
 export * from './proposals.js';
+export * from './proposal-events.js';
 
 // Meta types (hand-written)
 export type {

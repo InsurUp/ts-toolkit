@@ -6,6 +6,7 @@
 
 import type { HttpTransport } from '../client/http.js';
 import type { GraphQLTransport } from '../client/graphql.js';
+import type { ProposalDetailHandlers, SignalRTransport } from '../client/signalr.js';
 import type { InsurUpResult, InsurUpGraphQLResult } from '../core/result.js';
 import type { RequestOptions } from '../core/options.js';
 import { endpoints } from '../core/endpoints.js';
@@ -68,8 +69,45 @@ import type {
 export class InsurUpProposalClient {
   constructor(
     private readonly http: HttpTransport,
-    private readonly graphql?: GraphQLTransport
+    private readonly graphql?: GraphQLTransport,
+    private readonly signalR?: SignalRTransport
   ) {}
+
+  /**
+   * Subscribe to real-time updates for a proposal via the InsurUp SignalR
+   * ProposalDetailHub. The first subscriber opens the underlying hub
+   * connection lazily; subscriptions for additional proposals are multiplexed
+   * over the same connection. Pass only the handlers you care about.
+   *
+   * Teklif için gerçek zamanlı güncellemelere SignalR üzerinden abone olur.
+   *
+   * @param proposalId - The proposal to subscribe to / Abone olunacak teklif
+   * @param handlers - Per-event callbacks; missing entries are ignored
+   * @returns An unsubscribe function. When the last subscription is torn
+   *   down, the underlying hub connection is stopped.
+   * @throws If the SDK client was constructed without SignalR support
+   *
+   * @example
+   * ```typescript
+   * const unsub = await client.proposals.subscribeToDetail(proposalId, {
+   *   onProductSuccess: (event) => console.log('priced', event),
+   *   onProductFailed:  (event) => console.warn('failed', event.errorMessage),
+   * });
+   * // later
+   * unsub();
+   * ```
+   */
+  async subscribeToDetail(
+    proposalId: string,
+    handlers: ProposalDetailHandlers
+  ): Promise<() => void> {
+    if (!this.signalR) {
+      throw new Error(
+        'subscribeToDetail requires SignalR support; construct the client via DefaultInsurUpClient'
+      );
+    }
+    return this.signalR.subscribeProposalDetail(proposalId, handlers);
+  }
 
   /**
    * Creates a new insurance proposal with customer information, coverage selections, and product options for quotation.
