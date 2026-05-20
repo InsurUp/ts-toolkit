@@ -149,6 +149,12 @@ export const customers = {
       'customers/{CustomerId}'.replace('{CustomerId}', encodeURIComponent(customerId)),
   },
 
+  getCustomerAssets: {
+    definition: 'customers/{CustomerId}/assets',
+    render: (customerId: string): string =>
+      'customers/{CustomerId}/assets'.replace('{CustomerId}', encodeURIComponent(customerId)),
+  },
+
   getHealthInfo: {
     definition: 'customers/{CustomerId}/health-info',
     render: (customerId: string): string =>
@@ -189,6 +195,24 @@ export const customers = {
       render: (customerId: string): string =>
         'customers/{CustomerId}/emails'.replace('{CustomerId}', encodeURIComponent(customerId)),
     },
+
+    getPrimaryCustomerEmail: {
+      definition: 'customers/{CustomerId}/emails/primary',
+      render: (customerId: string): string =>
+        'customers/{CustomerId}/emails/primary'.replace(
+          '{CustomerId}',
+          encodeURIComponent(customerId)
+        ),
+    },
+
+    setPrimaryCustomerEmail: {
+      definition: 'customers/{CustomerId}/emails/primary',
+      render: (customerId: string): string =>
+        'customers/{CustomerId}/emails/primary'.replace(
+          '{CustomerId}',
+          encodeURIComponent(customerId)
+        ),
+    },
   },
 
   phoneNumbers: {
@@ -223,6 +247,24 @@ export const customers = {
       definition: 'customers/{CustomerId}/phone-numbers',
       render: (customerId: string): string =>
         'customers/{CustomerId}/phone-numbers'.replace(
+          '{CustomerId}',
+          encodeURIComponent(customerId)
+        ),
+    },
+
+    getPrimaryCustomerPhoneNumber: {
+      definition: 'customers/{CustomerId}/phone-numbers/primary',
+      render: (customerId: string): string =>
+        'customers/{CustomerId}/phone-numbers/primary'.replace(
+          '{CustomerId}',
+          encodeURIComponent(customerId)
+        ),
+    },
+
+    setPrimaryCustomerPhoneNumber: {
+      definition: 'customers/{CustomerId}/phone-numbers/primary',
+      render: (customerId: string): string =>
+        'customers/{CustomerId}/phone-numbers/primary'.replace(
           '{CustomerId}',
           encodeURIComponent(customerId)
         ),

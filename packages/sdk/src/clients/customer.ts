@@ -20,6 +20,11 @@ import type {
   RemoveCustomerPhoneNumberRequest,
   ChangePrimaryCustomerPhoneNumberRequest,
   GetCustomerPhoneNumbersResultItem,
+  GetPrimaryCustomerEmailResult,
+  SetPrimaryCustomerEmailRequest,
+  GetPrimaryCustomerPhoneNumberResult,
+  SetPrimaryCustomerPhoneNumberRequest,
+  GetCustomerAssetsResultItem,
   SetCustomerRepresentativeRequest,
   GetCustomerHealthInfoResult,
   UpdateCustomerHealthInfoRequest,
@@ -187,6 +192,39 @@ export class InsurUpCustomerClient {
   }
 
   /**
+   * Retrieves the primary email address for a customer.
+   *
+   * Müşterinin birincil e-posta adresini getirir.
+   */
+  async getPrimaryCustomerEmail(
+    customerId: string,
+    options?: RequestOptions
+  ): Promise<InsurUpResult<GetPrimaryCustomerEmailResult>> {
+    return this.http.get<GetPrimaryCustomerEmailResult>(
+      endpoints.customers.emails.getPrimaryCustomerEmail.render(customerId),
+      options
+    );
+  }
+
+  /**
+   * Sets the primary email address for a customer (upsert — adds to the customer's email
+   * collection if missing, then marks it as primary).
+   *
+   * Müşterinin birincil e-posta adresini ayarlar (mevcut değilse koleksiyona ekler ve birincil
+   * olarak işaretler).
+   */
+  async setPrimaryCustomerEmail(
+    request: SetPrimaryCustomerEmailRequest,
+    options?: RequestOptions
+  ): Promise<InsurUpResult> {
+    return this.http.putNoContent(
+      endpoints.customers.emails.setPrimaryCustomerEmail.render(request.customerId),
+      request,
+      options
+    );
+  }
+
+  /**
    * Retrieves all phone numbers associated with a customer.
    */
   async getCustomerPhoneNumbers(
@@ -236,6 +274,56 @@ export class InsurUpCustomerClient {
     return this.http.postNoContent(
       endpoints.customers.phoneNumbers.changePrimaryCustomerPhoneNumber.render(request),
       undefined,
+      options
+    );
+  }
+
+  /**
+   * Retrieves the primary phone number for a customer.
+   *
+   * Müşterinin birincil telefon numarasını getirir.
+   */
+  async getPrimaryCustomerPhoneNumber(
+    customerId: string,
+    options?: RequestOptions
+  ): Promise<InsurUpResult<GetPrimaryCustomerPhoneNumberResult>> {
+    return this.http.get<GetPrimaryCustomerPhoneNumberResult>(
+      endpoints.customers.phoneNumbers.getPrimaryCustomerPhoneNumber.render(customerId),
+      options
+    );
+  }
+
+  /**
+   * Sets the primary phone number for a customer (upsert — adds to the customer's phone
+   * number collection if missing, then marks it as primary).
+   *
+   * Müşterinin birincil telefon numarasını ayarlar (mevcut değilse koleksiyona ekler ve
+   * birincil olarak işaretler).
+   */
+  async setPrimaryCustomerPhoneNumber(
+    request: SetPrimaryCustomerPhoneNumberRequest,
+    options?: RequestOptions
+  ): Promise<InsurUpResult> {
+    return this.http.putNoContent(
+      endpoints.customers.phoneNumbers.setPrimaryCustomerPhoneNumber.render(request.customerId),
+      request,
+      options
+    );
+  }
+
+  /**
+   * Retrieves all of a customer's insurable assets (vehicles and properties) in a single
+   * polymorphic list discriminated by the `$type` field.
+   *
+   * Müşterinin tüm sigortalanabilir varlıklarını (araçlar ve mülkler) `$type` alanı ile
+   * ayırt edilen tek bir polimorfik listede getirir.
+   */
+  async getCustomerAssets(
+    customerId: string,
+    options?: RequestOptions
+  ): Promise<InsurUpResult<GetCustomerAssetsResultItem[]>> {
+    return this.http.get<GetCustomerAssetsResultItem[]>(
+      endpoints.customers.getCustomerAssets.render(customerId),
       options
     );
   }
