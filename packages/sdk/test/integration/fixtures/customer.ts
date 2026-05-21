@@ -10,7 +10,7 @@ export const sampleCustomer: GetCustomerResultIndividual = {
   primaryPhoneNumber: { number: '5551234567', countryCode: 90 },
   birthDate: new DateOnly('1990-05-15'),
   createdAt: new DateTime('2024-01-15T10:30:00Z'),
-  createdBy: { id: 'AGENT-789', name: 'Agent Smith', role: 'agent' },
+  createdBy: { id: 'AGENT-789', name: 'Agent Smith' },
 };
 
 export const sampleCustomerEmails = [

@@ -475,9 +475,13 @@ export class InsurUpCustomerClient {
     request: GiveCustomerConsentRequest,
     options?: RequestOptions
   ): Promise<InsurUpResult> {
+    // The deployed API also requires `customerId` in the request body even
+    // though it's already in the path (and the OpenAPI spec doesn't declare
+    // this). We inject it from the path arg so callers don't have to pass it
+    // twice.
     return this.http.postNoContent(
       endpoints.customers.consents.give.render(customerId),
-      request,
+      { ...request, customerId },
       options
     );
   }

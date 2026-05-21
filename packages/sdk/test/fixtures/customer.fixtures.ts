@@ -48,7 +48,6 @@ export const customerResponses = {
     createdBy: {
       id: 'AGENT-456',
       name: 'Agent Smith',
-      role: 'agent',
     },
   }),
 } as const;

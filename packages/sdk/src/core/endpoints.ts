@@ -3,6 +3,8 @@
  * @description API endpoint definitions with identical names and render functions
  */
 
+import type { ConsentType } from '@insurup/contracts';
+
 /**
  * Contact form endpoints
  */
@@ -368,7 +370,7 @@ export const customers = {
     },
     revoke: {
       definition: 'customers/{CustomerId}/consents/{ConsentType}',
-      render: (customerId: string, consentType: string): string =>
+      render: (customerId: string, consentType: ConsentType): string =>
         'customers/{CustomerId}/consents/{ConsentType}'
           .replace('{CustomerId}', encodeURIComponent(customerId))
           .replace('{ConsentType}', encodeURIComponent(consentType)),
