@@ -1,6 +1,6 @@
 {
   "name": "@insurup/table-adapter-vue",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "description": "Vue bindings for @insurup/table-adapter-core",
   "type": "module",
   "main": "./dist/index.cjs",
