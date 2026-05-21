@@ -11,6 +11,13 @@ export const sampleCustomer: GetCustomerResultIndividual = {
   birthDate: new DateOnly('1990-05-15'),
   createdAt: new DateTime('2024-01-15T10:30:00Z'),
   createdBy: { id: 'AGENT-789', name: 'Agent Smith' },
+  vehicleCount: 0,
+  propertyCount: 0,
+  proposalCount: 0,
+  policyCount: 0,
+  caseCount: 0,
+  emailCount: 1,
+  phoneCount: 2,
 };
 
 export const sampleCustomerEmails = [

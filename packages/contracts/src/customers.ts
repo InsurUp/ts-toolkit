@@ -770,6 +770,13 @@ interface GetCustomerResultBase {
   createdAt: DateTime;
   createdBy: UserReference;
   representedBy?: UserReference | null;
+  vehicleCount: number;
+  propertyCount: number;
+  proposalCount: number;
+  policyCount: number;
+  caseCount: number;
+  emailCount: number;
+  phoneCount: number;
 }
 
 /**
