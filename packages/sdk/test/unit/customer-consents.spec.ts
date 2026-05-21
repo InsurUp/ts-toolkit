@@ -47,17 +47,14 @@ describe('Customer consent endpoints', () => {
       });
 
       expect(result.kind).toBe('success');
-      expect(mockFetch).toHaveBeenCalledWith(
-        `https://test.api.com/api/customers/${customerId}/consents`,
-        expect.objectContaining({
-          method: 'POST',
-          body: JSON.stringify({
-            consentType: 'KVKK',
-            channel: 'WEB',
-            customerId,
-          }),
-        })
-      );
+      const [url, init] = mockFetch.mock.calls[0] ?? [];
+      expect(url).toBe(`https://test.api.com/api/customers/${customerId}/consents`);
+      expect(init?.method).toBe('POST');
+      expect(JSON.parse(init?.body as string)).toEqual({
+        consentType: 'KVKK',
+        channel: 'WEB',
+        customerId,
+      });
     });
   });
 
