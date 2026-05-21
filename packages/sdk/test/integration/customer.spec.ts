@@ -34,7 +34,6 @@ describe('Customer API Contract', () => {
         expect(result.data.createdBy).toEqual({
           id: 'AGENT-789',
           name: 'Agent Smith',
-          role: 'agent',
         });
       }
     });

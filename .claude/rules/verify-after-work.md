@@ -1,6 +1,6 @@
 # Verify After Work
 
-After completing any code-writing task — feature, bug fix, refactor, test addition — run **all** of these from the repo root and confirm each is clean before reporting the work done:
+After completing any code-writing task — feature, bug fix, refactor, test addition, **even a one-line tweak** — run **all** of these from the repo root and confirm each is clean before reporting the work done OR pushing a commit:
 
 ```bash
 bun run typecheck
@@ -11,6 +11,17 @@ bun run test
 ```
 
 These are the same checks CI runs. Skipping any of them just defers the failure.
+
+## No exemptions
+
+The cycle is **per commit**, not per "milestone." Apply it even when:
+
+- The change is "just a test" or "just a comment."
+- You already ran the cycle on a previous commit in the same session.
+- You ran a subset (e.g. `vitest run path/to/single.spec.ts`) and it passed — a single test file does **not** prove the rest of the suite still compiles or passes.
+- The change is "obviously safe" (renaming a local, tweaking an assertion, reformatting a string). "Obvious" is exactly when a forgotten import or stale snapshot bites.
+
+If you find yourself thinking "this is too small to need the full cycle," that is the signal to run the full cycle. The 30 seconds you save by skipping is paid back tenfold when CI fails on a one-line push.
 
 ## Order and intent
 

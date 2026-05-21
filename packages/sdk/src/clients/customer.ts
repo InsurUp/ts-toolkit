@@ -41,8 +41,8 @@ import type {
   UpdateCustomerAddressRequest,
   GetCustomerAddressResult,
   GiveCustomerConsentRequest,
-  RevokeCustomerConsentRequest,
   GetCustomerConsentsResult,
+  ConsentType,
 } from '@insurup/contracts';
 import {
   ALL_CUSTOMER_FIELDS,
@@ -475,9 +475,13 @@ export class InsurUpCustomerClient {
     request: GiveCustomerConsentRequest,
     options?: RequestOptions
   ): Promise<InsurUpResult> {
+    // The deployed API also requires `customerId` in the request body even
+    // though it's already in the path (and the OpenAPI spec doesn't declare
+    // this). We inject it from the path arg so callers don't have to pass it
+    // twice.
     return this.http.postNoContent(
       endpoints.customers.consents.give.render(customerId),
-      request,
+      { ...request, customerId },
       options
     );
   }
@@ -488,17 +492,16 @@ export class InsurUpCustomerClient {
    * Müşteri veri hakları uyarınca önceden verilmiş bir müşteri iznini geri çeker.
    *
    * @param customerId Unique identifier of the customer / Müşterinin benzersiz tanımlayıcısı
-   * @param request Consent revocation request / İzin geri çekme talebi
+   * @param consentType Type of consent to revoke / Geri çekilecek izin türü
    * @returns Operation result / İşlem sonucu
    */
   async revokeCustomerConsent(
     customerId: string,
-    request: RevokeCustomerConsentRequest,
+    consentType: ConsentType,
     options?: RequestOptions
   ): Promise<InsurUpResult> {
-    return this.http.postNoContent(
-      endpoints.customers.consents.revoke.render(customerId),
-      request,
+    return this.http.deleteNoContent(
+      endpoints.customers.consents.revoke.render(customerId, consentType),
       options
     );
   }

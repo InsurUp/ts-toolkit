@@ -483,14 +483,24 @@ export interface UserReference {
   readonly name: string;
 
   /**
-   * User role / Kullanıcı rolü
-   */
-  readonly role?: string;
-
-  /**
    * User email address / Kullanıcı e-posta adresi
    */
-  readonly email?: string;
+  readonly email?: string | null;
+
+  /**
+   * Whether this reference points to a service account (machine identity).
+   * Bu referansın bir servis hesabına (makine kimliği) işaret edip etmediği.
+   */
+  readonly isServiceAccount?: boolean;
+
+  /**
+   * Numeric user type code (verified live: e.g. `2` for service accounts).
+   * The OpenAPI description says "string representation" but the deployed API
+   * returns an integer — we trust the wire format.
+   *
+   * Kullanıcının kullanıcı türü kodu.
+   */
+  readonly userType?: number | null;
 }
 
 /**
