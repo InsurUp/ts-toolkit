@@ -49,6 +49,13 @@ export const customerResponses = {
       id: 'AGENT-456',
       name: 'Agent Smith',
     },
+    vehicleCount: 0,
+    propertyCount: 0,
+    proposalCount: 0,
+    policyCount: 0,
+    caseCount: 0,
+    emailCount: 1,
+    phoneCount: 1,
   }),
 } as const;
 
