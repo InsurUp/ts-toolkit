@@ -28,6 +28,11 @@ jobs:
 
       - run: bun install
 
+      # Refresh bun.lock so workspace:* references resolve to the bumped versions.
+      # `bun publish` reads workspace versions from the lockfile (oven-sh/bun#24687),
+      # so without this the published manifests get stale @insurup/* pins.
+      - run: bun update
+
       - run: bun run build
 
       - run: bun run test
