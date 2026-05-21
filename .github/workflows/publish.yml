@@ -22,7 +22,11 @@ jobs:
         run: |
           VERSION=${{ steps.version.outputs.VERSION }}
           for pkg in contracts sdk table-adapter-core table-adapter-react table-adapter-vue table-adapter-svelte; do
-            jq --arg v "$VERSION" '.version = $v' packages/$pkg/package.json > tmp.json
+            jq --arg v "$VERSION" '
+              .version = $v
+              | if .dependencies then .dependencies |= with_entries(if .key | startswith("@insurup/") then .value = "^\($v)" else . end) else . end
+              | if .peerDependencies then .peerDependencies |= with_entries(if .key | startswith("@insurup/") then .value = "^\($v)" else . end) else . end
+            ' packages/$pkg/package.json > tmp.json
             mv tmp.json packages/$pkg/package.json
           done
 
