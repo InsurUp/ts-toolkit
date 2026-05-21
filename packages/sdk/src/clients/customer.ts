@@ -55,6 +55,23 @@ import { buildFieldSelection } from '@insurup/contracts';
 import { buildFilterSearchVariables } from './_internal/build-filter-search-variables.js';
 
 /**
+ * The deployed API uses System.Text.Json polymorphism with lowercase
+ * discriminator values (`[JsonDerivedType(typeof(Individual), "individual")]`),
+ * so request bodies must carry `$type: "individual" | "foreign" | "company"`.
+ * The SDK exposes the friendly uppercase enum and translates here.
+ */
+function customerTypeDiscriminator(type: CustomerType): 'individual' | 'foreign' | 'company' {
+  switch (type) {
+    case CustomerType.Individual:
+      return 'individual';
+    case CustomerType.Company:
+      return 'company';
+    case CustomerType.Foreign:
+      return 'foreign';
+  }
+}
+
+/**
  * Customer management client providing comprehensive customer lifecycle management.
  */
 export class InsurUpCustomerClient {
@@ -70,25 +87,10 @@ export class InsurUpCustomerClient {
     request: CreateCustomerRequest,
     options?: RequestOptions
   ): Promise<InsurUpResult<CreateCustomerResult>> {
-    // Transform request: type -> $type with lowercase discriminator for API
     const { type, ...rest } = request;
-
-    let $type: string;
-    switch (type) {
-      case CustomerType.Individual:
-        $type = 'individual';
-        break;
-      case CustomerType.Company:
-        $type = 'company';
-        break;
-      case CustomerType.Foreign:
-        $type = 'foreign';
-        break;
-    }
-
     return this.http.post<CreateCustomerResult>(
       endpoints.customers.createCustomer,
-      { $type, ...rest },
+      { $type: customerTypeDiscriminator(type), ...rest },
       options
     );
   }
@@ -120,9 +122,10 @@ export class InsurUpCustomerClient {
     request: UpdateCustomerRequest,
     options?: RequestOptions
   ): Promise<InsurUpResult> {
+    const { type, ...rest } = request;
     return this.http.putNoContent(
       endpoints.customers.updateCustomer.render(request.id),
-      request,
+      { $type: customerTypeDiscriminator(type), ...rest },
       options
     );
   }
