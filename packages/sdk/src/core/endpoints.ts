@@ -367,12 +367,11 @@ export const customers = {
         'customers/{CustomerId}/consents'.replace('{CustomerId}', encodeURIComponent(customerId)),
     },
     revoke: {
-      definition: 'customers/{CustomerId}/consents/revoke',
-      render: (customerId: string): string =>
-        'customers/{CustomerId}/consents/revoke'.replace(
-          '{CustomerId}',
-          encodeURIComponent(customerId)
-        ),
+      definition: 'customers/{CustomerId}/consents/{ConsentType}',
+      render: (customerId: string, consentType: string): string =>
+        'customers/{CustomerId}/consents/{ConsentType}'
+          .replace('{CustomerId}', encodeURIComponent(customerId))
+          .replace('{ConsentType}', encodeURIComponent(consentType)),
     },
     getAll: {
       definition: 'customers/{CustomerId}/consents',

@@ -41,8 +41,8 @@ import type {
   UpdateCustomerAddressRequest,
   GetCustomerAddressResult,
   GiveCustomerConsentRequest,
-  RevokeCustomerConsentRequest,
   GetCustomerConsentsResult,
+  ConsentType,
 } from '@insurup/contracts';
 import {
   ALL_CUSTOMER_FIELDS,
@@ -488,17 +488,16 @@ export class InsurUpCustomerClient {
    * Müşteri veri hakları uyarınca önceden verilmiş bir müşteri iznini geri çeker.
    *
    * @param customerId Unique identifier of the customer / Müşterinin benzersiz tanımlayıcısı
-   * @param request Consent revocation request / İzin geri çekme talebi
+   * @param consentType Type of consent to revoke / Geri çekilecek izin türü
    * @returns Operation result / İşlem sonucu
    */
   async revokeCustomerConsent(
     customerId: string,
-    request: RevokeCustomerConsentRequest,
+    consentType: ConsentType,
     options?: RequestOptions
   ): Promise<InsurUpResult> {
-    return this.http.postNoContent(
-      endpoints.customers.consents.revoke.render(customerId),
-      request,
+    return this.http.deleteNoContent(
+      endpoints.customers.consents.revoke.render(customerId, consentType),
       options
     );
   }

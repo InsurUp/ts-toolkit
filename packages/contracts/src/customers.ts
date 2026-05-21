@@ -165,6 +165,36 @@ export enum ConsentType {
   ETK = 'ETK',
 }
 
+/**
+ * Channel through which a customer consent was given or revoked.
+ * Müşteri izninin verildiği veya geri çekildiği kanal.
+ */
+export enum ConsentChannel {
+  /** Recorded manually by an agent during customer interaction */
+  Manual = 'MANUAL',
+  /** Provided directly by the customer through the web application */
+  Web = 'WEB',
+  /** Obtained through automated chatbot conversations */
+  Chatbot = 'CHATBOT',
+  /** Obtained through an SMS consent link */
+  Sms = 'SMS',
+  /** Obtained through an email consent link */
+  Email = 'EMAIL',
+  /** Received from an external system integration (e.g. IYS push webhook) */
+  External = 'EXTERNAL',
+}
+
+/**
+ * Action recorded against a consent for audit purposes.
+ * Denetim amaçlı izin üzerinde kaydedilen eylem.
+ */
+export enum ConsentAction {
+  /** Consent was granted */
+  Given = 'GIVEN',
+  /** Consent was withdrawn */
+  Revoked = 'REVOKED',
+}
+
 // ============================================================================
 // SUPPORTING TYPES
 // ============================================================================
@@ -984,47 +1014,42 @@ export interface GetCustomerAddressResult {
 // ============================================================================
 
 /**
- * Request to give customer consent
+ * Request to give customer consent.
+ * Müşteri iznini kaydetme talebi.
  */
 export interface GiveCustomerConsentRequest {
-  readonly consentType: string;
-  readonly consentDate: string;
-  readonly source: string;
+  readonly consentType: ConsentType;
+  readonly channel: ConsentChannel;
 }
 
 /**
- * Request to revoke customer consent
+ * Active consent status for a customer (lightweight model used in list responses).
+ * Müşteri için aktif izin durumu (liste yanıtlarında kullanılan hafif model).
  */
-export interface RevokeCustomerConsentRequest {
-  readonly consentType: string;
-  readonly revocationDate: string;
+export interface CustomerConsent {
+  readonly consentType: ConsentType;
+  readonly isActive: boolean;
 }
 
 /**
- * Active consent
- */
-export interface ActiveConsent {
-  readonly consentType: string;
-  readonly consentDate: string;
-  readonly source: string;
-}
-
-/**
- * Consent history item
+ * Single entry in the consent audit history.
+ * İzin denetim geçmişindeki tek bir kayıt.
  */
 export interface ConsentHistoryItem {
-  readonly consentType: string;
-  readonly action: string;
-  readonly date: string;
-  readonly source?: string;
+  readonly consentType: ConsentType;
+  readonly action: ConsentAction;
+  readonly performedAt: string;
+  readonly performedBy: UserReference;
+  readonly channel: ConsentChannel;
 }
 
 /**
- * Response for customer consents
+ * Response for `GET customers/{customerId}/consents` — current consent states plus full history.
+ * Müşteri için aktif izin durumları ve tam izin geçmişi.
  */
 export interface GetCustomerConsentsResult {
-  readonly activeConsents: readonly ActiveConsent[];
-  readonly consentHistory: readonly ConsentHistoryItem[];
+  readonly consents: readonly CustomerConsent[];
+  readonly history: readonly ConsentHistoryItem[];
 }
 
 // ============================================================================
