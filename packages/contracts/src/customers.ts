@@ -977,11 +977,16 @@ export interface ExternalLookupCompanyCustomerResult extends ExternalLookupCusto
 // ============================================================================
 
 /**
- * Request to set customer branch
+ * Request to set or unassign a customer's branch.
+ *
+ * `agentBranchId` is nullable: pass `null` to remove the current branch assignment.
+ *
+ * Müşterinin şubesini belirleme veya kaldırma isteği. Şube atamasını kaldırmak için
+ * `agentBranchId` alanı `null` geçilebilir.
  */
 export interface SetCustomerBranchRequest {
   readonly customerId: string;
-  readonly branchId: string;
+  readonly agentBranchId: string | null;
 }
 
 // ============================================================================
