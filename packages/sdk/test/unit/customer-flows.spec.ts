@@ -552,24 +552,41 @@ describe('Customer Flow Integration Tests', () => {
   describe('Customer Branch Assignment Flow', () => {
     it('should assign customer to branch', async () => {
       const customerId = 'CUSTOMER-123';
-      const branchId = 'BRANCH-456';
+      const agentBranchId = 'BRANCH-456';
 
-      // Step 1: Assign branch
       mockFetch.mockResolvedValueOnce(MockFetchResponseFactory.empty(204));
 
       const result = await client.customers.setCustomerBranch({
         customerId,
-        branchId,
+        agentBranchId,
       });
 
       expect(result.kind).toBe('success');
-
-      // Verify the request was made correctly
       expect(mockFetch).toHaveBeenCalledWith(
         `https://test.api.com/api/customers/${customerId}/branch`,
         expect.objectContaining({
           method: 'PUT',
-          body: JSON.stringify({ customerId, branchId }),
+          body: JSON.stringify({ customerId, agentBranchId }),
+        })
+      );
+    });
+
+    it('should unassign a customer branch when agentBranchId is null', async () => {
+      const customerId = 'CUSTOMER-123';
+
+      mockFetch.mockResolvedValueOnce(MockFetchResponseFactory.empty(204));
+
+      const result = await client.customers.setCustomerBranch({
+        customerId,
+        agentBranchId: null,
+      });
+
+      expect(result.kind).toBe('success');
+      expect(mockFetch).toHaveBeenCalledWith(
+        `https://test.api.com/api/customers/${customerId}/branch`,
+        expect.objectContaining({
+          method: 'PUT',
+          body: JSON.stringify({ customerId, agentBranchId: null }),
         })
       );
     });
