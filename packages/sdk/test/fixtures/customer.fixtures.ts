@@ -7,7 +7,7 @@ import type {
   CreateCustomerRequestIndividual,
   GetCustomerResultIndividual,
 } from '@insurup/contracts';
-import { CustomerType } from '@insurup/contracts';
+import { Channel, CustomerType } from '@insurup/contracts';
 import { DateTime, DateOnly } from '@insurup/contracts';
 import { createSuccess, type InsurUpResult } from '../../src/core/result';
 
@@ -37,7 +37,7 @@ export const customerResponses = {
     id: 'CUSTOMER-123',
     type: CustomerType.Individual,
     fullName: 'John Doe',
-    identityNumber: 12345678901,
+    identityNumber: '12345678901',
     primaryEmail: 'john.doe@example.com',
     primaryPhoneNumber: {
       number: '5551234567',
@@ -49,6 +49,7 @@ export const customerResponses = {
       id: 'AGENT-456',
       name: 'Agent Smith',
     },
+    creationChannel: Channel.Manual,
     vehicleCount: 0,
     propertyCount: 0,
     proposalCount: 0,

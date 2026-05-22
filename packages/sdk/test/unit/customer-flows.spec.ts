@@ -64,15 +64,8 @@ describe('Customer Flow Integration Tests', () => {
       // Step 2: Retrieve the created customer
       const baseCustomer = customerResponses.individualCustomer();
       const customerData: GetCustomerResultIndividual = {
+        ...baseCustomer,
         id: customerId,
-        type: CustomerType.Individual,
-        fullName: baseCustomer.fullName,
-        identityNumber: baseCustomer.identityNumber,
-        primaryEmail: baseCustomer.primaryEmail,
-        primaryPhoneNumber: baseCustomer.primaryPhoneNumber,
-        birthDate: baseCustomer.birthDate,
-        createdAt: baseCustomer.createdAt,
-        createdBy: baseCustomer.createdBy,
       };
 
       mockFetch.mockResolvedValueOnce(MockFetchResponseFactory.json(customerData));
@@ -165,15 +158,10 @@ describe('Customer Flow Integration Tests', () => {
       // Step 3: Retrieve and verify updates
       const baseForUpdate = customerResponses.individualCustomer();
       const updatedCustomerData: GetCustomerResultIndividual = {
+        ...baseForUpdate,
         id: customerId,
-        type: CustomerType.Individual,
         fullName: 'John Updated Doe',
-        identityNumber: baseForUpdate.identityNumber,
         primaryEmail: 'john.updated@example.com',
-        primaryPhoneNumber: baseForUpdate.primaryPhoneNumber,
-        birthDate: baseForUpdate.birthDate,
-        createdAt: baseForUpdate.createdAt,
-        createdBy: baseForUpdate.createdBy,
       };
 
       mockFetch.mockResolvedValueOnce(MockFetchResponseFactory.json(updatedCustomerData));
@@ -509,19 +497,11 @@ describe('Customer Flow Integration Tests', () => {
       // Step 2: Verify assignment by getting customer
       const baseForRep = customerResponses.individualCustomer();
       const customerWithRep: GetCustomerResultIndividual = {
+        ...baseForRep,
         id: customerId,
-        type: CustomerType.Individual,
-        fullName: baseForRep.fullName,
-        identityNumber: baseForRep.identityNumber,
-        primaryEmail: baseForRep.primaryEmail,
-        primaryPhoneNumber: baseForRep.primaryPhoneNumber,
-        birthDate: baseForRep.birthDate,
-        createdAt: baseForRep.createdAt,
-        createdBy: baseForRep.createdBy,
         representedBy: {
           id: agentId,
           name: 'Agent Smith',
-          role: 'agent',
         },
       };
 
