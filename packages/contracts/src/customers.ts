@@ -10,6 +10,7 @@
 
 import type { CustomerType } from './common.js';
 import type {
+  Channel,
   InsuranceParameter,
   UserReference,
   CustomerPhoneNumber,
@@ -770,6 +771,9 @@ interface GetCustomerResultBase {
   createdAt: DateTime;
   createdBy: UserReference;
   representedBy?: UserReference | null;
+  creationChannel: Channel;
+  agentBranchId?: string | null;
+  consents?: CustomerConsent[] | null;
   vehicleCount: number;
   propertyCount: number;
   proposalCount: number;
@@ -785,13 +789,14 @@ interface GetCustomerResultBase {
 export interface GetCustomerResultIndividual extends GetCustomerResultBase {
   type: CustomerType.Individual;
   fullName?: string | null;
-  identityNumber: number;
+  identityNumber: string;
   birthDate?: DateOnly | null;
   gender?: Gender | null;
   educationStatus?: EducationStatus | null;
   nationality?: Nationality | null;
   maritalStatus?: MaritalStatus | null;
   job?: Job | null;
+  passportNumber?: string | null;
 }
 
 /**
@@ -807,6 +812,8 @@ export interface GetCustomerResultForeign extends GetCustomerResultBase {
   nationality?: Nationality | null;
   maritalStatus?: MaritalStatus | null;
   job?: Job | null;
+  passportNumber?: string | null;
+  fatherName?: string | null;
 }
 
 /**
