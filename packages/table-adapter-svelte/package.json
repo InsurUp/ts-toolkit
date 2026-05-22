@@ -1,6 +1,6 @@
 {
   "name": "@insurup/table-adapter-svelte",
-  "version": "0.1.21",
+  "version": "0.1.22",
   "description": "Svelte bindings for @insurup/table-adapter-core",
   "type": "module",
   "main": "./dist/index.js",
