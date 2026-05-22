@@ -588,7 +588,7 @@ describe('Customer Flow Integration Tests', () => {
       expect(mockFetch).toHaveBeenCalledWith(
         `https://test.api.com/api/customers/${customerId}/branch`,
         expect.objectContaining({
-          method: 'POST',
+          method: 'PUT',
           body: JSON.stringify({ customerId, branchId }),
         })
       );

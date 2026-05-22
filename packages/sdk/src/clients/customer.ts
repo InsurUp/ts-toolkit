@@ -357,7 +357,7 @@ export class InsurUpCustomerClient {
     request: SetCustomerBranchRequest,
     options?: RequestOptions
   ): Promise<InsurUpResult> {
-    return this.http.postNoContent(
+    return this.http.putNoContent(
       endpoints.customers.setCustomerBranch.render(request.customerId),
       request,
       options
