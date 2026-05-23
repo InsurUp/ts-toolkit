@@ -52,19 +52,6 @@ export interface ExceedingQuantity {
   readonly value: number;
 }
 
-/**
- * Runtime list of `NumericQuantity` discriminator values. Used by the SDK's
- * polymorphic encoder/decoder to bridge between the public `type` field
- * and the wire-level `$type` discriminator. Must enumerate every variant of
- * the `NumericQuantity` union — the typed element ensures a compile error
- * if the union grows without this list being updated.
- */
-export const NUMERIC_QUANTITY_DISCRIMINATORS: readonly NumericQuantity['type'][] = [
-  'range',
-  'exact',
-  'exceeding',
-];
-
 // ============================================================================
 // PROPERTY-RELATED ENUMS
 // ============================================================================

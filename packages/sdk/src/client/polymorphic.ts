@@ -7,23 +7,45 @@
  * This module bridges the two on every request/response that flows through
  * the HTTP transport.
  *
- * Outbound: rename `type` -> `$type` on any object whose `type` value is a
- *   known polymorphic discriminator string.
+ *   Outbound: rename `type` -> `$type` on any object whose `type` value is a
+ *             polymorphic discriminator (see {@link looksLikePolymorphicDiscriminator}).
+ *   Inbound:  rename `$type` -> `type` whenever the backend emits it. Safe
+ *             unconditionally because `$type` is reserved for polymorphic
+ *             discriminators in the backend's serializer.
  *
- * Inbound: rename `$type` -> `type` whenever the backend emits it.
+ * Discrimination is convention-based, not registry-based, so adding a new
+ * `[JsonDerivedType]` union on the backend requires no changes here. The
+ * convention is:
  *
- * The list of polymorphic discriminator strings is owned by the contracts
- * package — adding a new polymorphic type never requires editing the SDK.
+ *   - Backend `[JsonDerivedType]` short names are always lowercase tokens
+ *     (e.g. `"range"`, `"audio"`, `"display"`).
+ *   - Every regular enum in `@insurup/contracts` uses `SCREAMING_SNAKE_CASE`
+ *     (e.g. `'BANK'`, `'INDIVIDUAL'`, `'TURKISH_LIRA'`).
+ *
+ * The two namespaces don't overlap, so the presence of any uppercase letter
+ * in a `type` value is a reliable signal that the field is a regular enum
+ * and must be left alone.
  */
 
-import { POLYMORPHIC_DISCRIMINATORS as POLYMORPHIC_DISCRIMINATORS_LIST } from '@insurup/contracts';
-
-const POLYMORPHIC_DISCRIMINATORS: ReadonlySet<string> = new Set(POLYMORPHIC_DISCRIMINATORS_LIST);
+/**
+ * Returns true when `value` looks like a polymorphic `$type` discriminator
+ * emitted by the backend: a non-empty string containing at least one letter
+ * and no uppercase letters at all.
+ */
+function looksLikePolymorphicDiscriminator(value: unknown): value is string {
+  return (
+    typeof value === 'string' &&
+    value.length > 0 &&
+    value === value.toLowerCase() &&
+    /[a-z]/.test(value)
+  );
+}
 
 /**
  * Returns a deep-cloned copy of `value` with the public `type` discriminator
  * renamed to the wire-level `$type` on any object whose `type` value matches
- * a known polymorphic discriminator. All other fields pass through unchanged.
+ * the polymorphic-discriminator convention. All other fields pass through
+ * unchanged.
  */
 export function encodePolymorphicTypes(value: unknown): unknown {
   if (Array.isArray(value)) {
@@ -33,10 +55,7 @@ export function encodePolymorphicTypes(value: unknown): unknown {
     return value;
   }
   const source = value as Record<string, unknown>;
-  const shouldRename =
-    typeof source.type === 'string' &&
-    POLYMORPHIC_DISCRIMINATORS.has(source.type) &&
-    !('$type' in source);
+  const shouldRename = looksLikePolymorphicDiscriminator(source.type) && !('$type' in source);
 
   const result: Record<string, unknown> = {};
   for (const key of Object.keys(source)) {

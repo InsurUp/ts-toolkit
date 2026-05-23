@@ -10,4 +10,3 @@ export * from './common.customer.js';
 export * from './common.policy.js';
 export * from './common.property.js';
 export * from './common.vehicle.js';
-export * from './common.polymorphic.js';
