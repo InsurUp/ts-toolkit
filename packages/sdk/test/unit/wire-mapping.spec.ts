@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { decodePolymorphicTypes, encodePolymorphicTypes } from '../../src/client/polymorphic.js';
+import { decodeWireFields, encodeWireFields } from '../../src/client/wire-mapping.js';
 
-describe('encodePolymorphicTypes', () => {
+describe('encodeWireFields', () => {
   it('renames `type` to `$type` on NumericQuantity discriminators', () => {
     const input = { totalFloors: { type: 'range', min: 1, max: 5 }, currentFloor: 3 };
-    expect(encodePolymorphicTypes(input)).toEqual({
+    expect(encodeWireFields(input)).toEqual({
       totalFloors: { $type: 'range', min: 1, max: 5 },
       currentFloor: 3,
     });
@@ -19,7 +19,7 @@ describe('encodePolymorphicTypes', () => {
         { type: 'other', price: 800 },
       ],
     };
-    expect(encodePolymorphicTypes(input)).toEqual({
+    expect(encodeWireFields(input)).toEqual({
       accessories: [
         { $type: 'audio', price: 1500 },
         { $type: 'display', price: 2400 },
@@ -33,12 +33,19 @@ describe('encodePolymorphicTypes', () => {
       customerType: 'INDIVIDUAL',
       lossPayeeClause: { type: 'BANK', creditAgreementNumber: 'ABC123' },
     };
-    expect(encodePolymorphicTypes(input)).toEqual(input);
+    expect(encodeWireFields(input)).toEqual(input);
+  });
+
+  it('does not rename `type` values that are not in the generated registry', () => {
+    // Guards against any accidental return to convention-based detection.
+    // `made_up_lowercase` is lowercase but not a recognized discriminator.
+    const input = { type: 'made_up_lowercase', payload: 'x' };
+    expect(encodeWireFields(input)).toEqual(input);
   });
 
   it('does not produce duplicate `$type` if both are already present', () => {
     const input = { $type: 'range', type: 'range', min: 1, max: 2 };
-    const out = encodePolymorphicTypes(input) as Record<string, unknown>;
+    const out = encodeWireFields(input) as Record<string, unknown>;
     expect(out.$type).toBe('range');
     expect(out.type).toBe('range');
   });
@@ -46,15 +53,15 @@ describe('encodePolymorphicTypes', () => {
   it('does not mutate the original input', () => {
     const input = { node: { type: 'exact', value: 7 } };
     const snapshot = JSON.stringify(input);
-    encodePolymorphicTypes(input);
+    encodeWireFields(input);
     expect(JSON.stringify(input)).toBe(snapshot);
   });
 
   it('passes primitives, null, and undefined through', () => {
-    expect(encodePolymorphicTypes(null)).toBeNull();
-    expect(encodePolymorphicTypes(undefined)).toBeUndefined();
-    expect(encodePolymorphicTypes(42)).toBe(42);
-    expect(encodePolymorphicTypes('hello')).toBe('hello');
+    expect(encodeWireFields(null)).toBeNull();
+    expect(encodeWireFields(undefined)).toBeUndefined();
+    expect(encodeWireFields(42)).toBe(42);
+    expect(encodeWireFields('hello')).toBe('hello');
   });
 
   it('handles nested arrays of polymorphic values', () => {
@@ -62,14 +69,14 @@ describe('encodePolymorphicTypes', () => {
       { type: 'exceeding', value: 100 },
       { type: 'exact', value: 5 },
     ];
-    expect(encodePolymorphicTypes(input)).toEqual([
+    expect(encodeWireFields(input)).toEqual([
       { $type: 'exceeding', value: 100 },
       { $type: 'exact', value: 5 },
     ]);
   });
 });
 
-describe('decodePolymorphicTypes', () => {
+describe('decodeWireFields', () => {
   it('renames `$type` to `type` recursively', () => {
     const input = {
       property: {
@@ -77,7 +84,7 @@ describe('decodePolymorphicTypes', () => {
         accessories: [{ $type: 'audio', price: 999 }],
       },
     };
-    expect(decodePolymorphicTypes(input)).toEqual({
+    expect(decodeWireFields(input)).toEqual({
       property: {
         floor: { totalFloors: { type: 'range', min: 1, max: 4 }, currentFloor: 2 },
         accessories: [{ type: 'audio', price: 999 }],
@@ -88,14 +95,14 @@ describe('decodePolymorphicTypes', () => {
   it('does not mutate the original input', () => {
     const input = { node: { $type: 'exact', value: 7 } };
     const snapshot = JSON.stringify(input);
-    decodePolymorphicTypes(input);
+    decodeWireFields(input);
     expect(JSON.stringify(input)).toBe(snapshot);
   });
 
   it('passes primitives, null, and undefined through', () => {
-    expect(decodePolymorphicTypes(null)).toBeNull();
-    expect(decodePolymorphicTypes(undefined)).toBeUndefined();
-    expect(decodePolymorphicTypes(true)).toBe(true);
+    expect(decodeWireFields(null)).toBeNull();
+    expect(decodeWireFields(undefined)).toBeUndefined();
+    expect(decodeWireFields(true)).toBe(true);
   });
 });
 
@@ -109,6 +116,6 @@ describe('encode/decode round-trip', () => {
       ],
       lossPayeeClause: { type: 'BANK', creditAgreementNumber: 'X' },
     };
-    expect(decodePolymorphicTypes(encodePolymorphicTypes(input))).toEqual(input);
+    expect(decodeWireFields(encodeWireFields(input))).toEqual(input);
   });
 });

@@ -389,8 +389,7 @@ export interface VehicleAccessory {
    * The type of vehicle accessory.
    * Araç aksesuarının türü.
    *
-   * Discriminated by `type`. The SDK client maps this to/from the backend's
-   * `$type` discriminator on the wire.
+   * @wire $type
    */
   readonly type: VehicleAccessoryType;
 

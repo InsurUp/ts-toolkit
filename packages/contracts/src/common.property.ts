@@ -27,6 +27,7 @@ export type NumericQuantity = RangeQuantity | ExactQuantity | ExceedingQuantity;
  * Tamsayı aralığı (içerir). Min, Max'tan kesinlikle küçük olmalıdır.
  */
 export interface RangeQuantity {
+  /** @wire $type */
   readonly type: 'range';
   readonly min: number;
   readonly max: number;
@@ -38,6 +39,7 @@ export interface RangeQuantity {
  * Kesin tamsayı değeri.
  */
 export interface ExactQuantity {
+  /** @wire $type */
   readonly type: 'exact';
   readonly value: number;
 }
@@ -48,6 +50,7 @@ export interface ExactQuantity {
  * Tanımlanan bir üst sınırı aşan değer.
  */
 export interface ExceedingQuantity {
+  /** @wire $type */
   readonly type: 'exceeding';
   readonly value: number;
 }

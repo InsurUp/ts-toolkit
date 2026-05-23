@@ -10,11 +10,12 @@
  * Run: bun run scripts/generate-meta.ts <primary-dir> [extra-dir ...]
  */
 
-import { Project, type InterfaceDeclaration, type Type, SyntaxKind } from 'ts-morph';
+import { Project, type InterfaceDeclaration, type Type } from 'ts-morph';
 import { resolve, basename, dirname, join, relative } from 'node:path';
 import { writeFileSync } from 'node:fs';
 import prettier from 'prettier';
 import type { FilterOperator, SearchOperator } from '../src/meta-types.js';
+import { resolveEnumValues } from './lib/resolve-enum-values.js';
 
 // ---------------------------------------------------------------------------
 // Operator-type-name → kind, and kind → operator-list lookups.
@@ -347,37 +348,6 @@ function classifyType(type: Type): Omit<FieldEntry, 'name' | 'nullable'> | null 
   if (type.isBoolean() || type.isBooleanLiteral()) return { type: 'boolean' };
 
   // Object / interface / other -- skip
-  return null;
-}
-
-function resolveEnumValues(type: Type): string[] | null {
-  const symbol = type.getSymbol();
-  if (!symbol) return null;
-
-  // Direct enum declaration (full enum type)
-  for (const decl of symbol.getDeclarations()) {
-    if (decl.getKind() === SyntaxKind.EnumDeclaration) {
-      const enumDecl = decl.asKindOrThrow(SyntaxKind.EnumDeclaration);
-      return enumDecl.getMembers().map((m) => {
-        const val = m.getValue();
-        return typeof val === 'string' ? val : String(val);
-      });
-    }
-  }
-
-  // Enum literal (single member) -- navigate to parent enum declaration
-  if (type.isEnumLiteral()) {
-    for (const decl of symbol.getDeclarations()) {
-      if (decl.getKind() === SyntaxKind.EnumMember) {
-        const enumDecl = decl.getParentIfKindOrThrow(SyntaxKind.EnumDeclaration);
-        return enumDecl.getMembers().map((m) => {
-          const val = m.getValue();
-          return typeof val === 'string' ? val : String(val);
-        });
-      }
-    }
-  }
-
   return null;
 }
 
