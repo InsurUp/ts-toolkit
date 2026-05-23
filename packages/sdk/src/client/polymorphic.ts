@@ -11,24 +11,14 @@
  *   known polymorphic discriminator string.
  *
  * Inbound: rename `$type` -> `type` whenever the backend emits it.
+ *
+ * The list of polymorphic discriminator strings is owned by the contracts
+ * package — adding a new polymorphic type never requires editing the SDK.
  */
 
-/**
- * Wire-format discriminator values that map to a polymorphic value object.
- * Renames are only applied when an object's `type` field exactly matches one
- * of these strings, so plain `type` fields on unrelated objects
- * (e.g. `LossPayeeClause.type`, `Customer.type`) are left untouched.
- */
-const POLYMORPHIC_DISCRIMINATORS: ReadonlySet<string> = new Set([
-  // NumericQuantity
-  'range',
-  'exact',
-  'exceeding',
-  // VehicleAccessory
-  'audio',
-  'display',
-  'other',
-]);
+import { POLYMORPHIC_DISCRIMINATORS as POLYMORPHIC_DISCRIMINATORS_LIST } from '@insurup/contracts';
+
+const POLYMORPHIC_DISCRIMINATORS: ReadonlySet<string> = new Set(POLYMORPHIC_DISCRIMINATORS_LIST);
 
 /**
  * Returns a deep-cloned copy of `value` with the public `type` discriminator

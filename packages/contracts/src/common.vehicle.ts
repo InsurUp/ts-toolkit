@@ -247,6 +247,14 @@ export enum VehicleAccessoryType {
   Other = 'other',
 }
 
+/**
+ * Runtime list of `VehicleAccessory` discriminator values. Derived from the
+ * `VehicleAccessoryType` enum so new variants are picked up automatically.
+ * Used by the SDK's polymorphic encoder/decoder.
+ */
+export const VEHICLE_ACCESSORY_DISCRIMINATORS: readonly VehicleAccessoryType[] =
+  Object.values(VehicleAccessoryType);
+
 // ============================================================================
 // VEHICLE-RELATED INTERFACES
 // ============================================================================
