@@ -16,8 +16,8 @@ import type { InsuranceParameter } from './common.base.js';
  * Bir sayısal niceliği temsil eder; kesin bir değer, bir aralık (min/max)
  * veya bir eşiği aşan değer olarak ifade edilebilir.
  *
- * Wire format: discriminated by `$type` matching the backend
- * `[JsonDerivedType]` configuration on `NumericQuantity`.
+ * Discriminated by `type`. The SDK client maps this to/from the backend's
+ * `$type` discriminator on the wire.
  */
 export type NumericQuantity = RangeQuantity | ExactQuantity | ExceedingQuantity;
 
@@ -27,7 +27,7 @@ export type NumericQuantity = RangeQuantity | ExactQuantity | ExceedingQuantity;
  * Tamsayı aralığı (içerir). Min, Max'tan kesinlikle küçük olmalıdır.
  */
 export interface RangeQuantity {
-  readonly $type: 'range';
+  readonly type: 'range';
   readonly min: number;
   readonly max: number;
 }
@@ -38,7 +38,7 @@ export interface RangeQuantity {
  * Kesin tamsayı değeri.
  */
 export interface ExactQuantity {
-  readonly $type: 'exact';
+  readonly type: 'exact';
   readonly value: number;
 }
 
@@ -48,7 +48,7 @@ export interface ExactQuantity {
  * Tanımlanan bir üst sınırı aşan değer.
  */
 export interface ExceedingQuantity {
-  readonly $type: 'exceeding';
+  readonly type: 'exceeding';
   readonly value: number;
 }
 
