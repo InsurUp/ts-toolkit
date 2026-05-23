@@ -101,6 +101,14 @@ export interface CreateCustomerVehicleRequest {
   readonly registrationDate?: string | null;
 
   /**
+   * The date when the vehicle was first issued to traffic. May differ from
+   * `registrationDate` for re-registered or transferred vehicles.
+   * Aracın ilk trafiğe çıkış tarihi. Yeniden tescil edilen veya devredilen
+   * araçlar için `registrationDate` değerinden farklı olabilir.
+   */
+  readonly firstRegistrationDate?: string | null;
+
+  /**
    * The total number of seats available in the vehicle as specified by the manufacturer.
    * Üretici tarafından belirtilen araçta mevcut toplam koltuk sayısı.
    */
@@ -129,6 +137,12 @@ export interface CreateCustomerVehicleRequest {
    * Araçta mali çıkarı olan finansal kuruluşu veya varlığı belirtir.
    */
   readonly lossPayeeClause?: LossPayeeClause | null;
+
+  /**
+   * Whether the vehicle is designated as a disabled vehicle.
+   * Aracın engelli aracı olarak belirlenip belirlenmediği.
+   */
+  readonly isDisabledVehicle?: boolean | null;
 }
 
 /**
@@ -200,6 +214,13 @@ export interface UpdateCustomerVehicleRequest {
   readonly registrationDate?: string | null;
 
   /**
+   * The updated date when the vehicle was first issued to traffic. May differ
+   * from `registrationDate` for re-registered or transferred vehicles.
+   * Aracın güncellenmiş ilk trafiğe çıkış tarihi.
+   */
+  readonly firstRegistrationDate?: string | null;
+
+  /**
    * The updated engine serial number.
    * Güncellenmiş motor seri numarası.
    */
@@ -240,6 +261,12 @@ export interface UpdateCustomerVehicleRequest {
    * Finansman durumları için güncellenmiş rehin alacaklısı bilgileri.
    */
   readonly lossPayeeClause?: LossPayeeClause | null;
+
+  /**
+   * Whether the vehicle is designated as a disabled vehicle.
+   * Aracın engelli aracı olarak belirlenip belirlenmediği.
+   */
+  readonly isDisabledVehicle?: boolean | null;
 }
 
 /**
@@ -430,6 +457,13 @@ export interface GetCustomerVehicleResult {
   readonly registrationDate?: string | null;
 
   /**
+   * The date when the vehicle was first issued to traffic. May differ from
+   * `registrationDate` for re-registered or transferred vehicles.
+   * Aracın ilk trafiğe çıkış tarihi.
+   */
+  readonly firstRegistrationDate?: string | null;
+
+  /**
    * The total number of seats available in the vehicle as specified by the manufacturer.
    * Üretici tarafından belirtilen araçta mevcut toplam koltuk sayısı.
    */
@@ -465,6 +499,12 @@ export interface GetCustomerVehicleResult {
    * Araçta güvence altına alınmış çıkarı bulunan herhangi bir finansal kuruluş veya varlık hakkında bilgiler.
    */
   readonly lossPayeeClause?: LossPayeeClause | null;
+
+  /**
+   * Whether the vehicle is designated as a disabled vehicle.
+   * Aracın engelli aracı olarak belirlenip belirlenmediği.
+   */
+  readonly isDisabledVehicle?: boolean | null;
 }
 
 /**
@@ -565,6 +605,12 @@ export interface GetCustomerVehiclesResult {
    * Araçta güvence altına alınmış çıkarı olan herhangi bir finansal kuruluş veya varlık hakkında bilgiler.
    */
   readonly lossPayeeClause?: LossPayeeClause | null;
+
+  /**
+   * Whether the vehicle is designated as a disabled vehicle.
+   * Aracın engelli aracı olarak belirlenip belirlenmediği.
+   */
+  readonly isDisabledVehicle?: boolean | null;
 }
 
 /**
@@ -580,6 +626,13 @@ export interface ExternalLookupVehicleResult {
    * Harici devlet veritabanlarından alınan, aracın Türk trafik makamlarına ilk tescil edildiği resmi tarih.
    */
   readonly registrationDate?: string | null;
+
+  /**
+   * The date when the vehicle was first issued to traffic. May differ from
+   * `registrationDate` for re-registered or transferred vehicles.
+   * Aracın ilk trafiğe çıkış tarihi.
+   */
+  readonly firstRegistrationDate?: string | null;
 
   /**
    * The license plate number of the vehicle as confirmed by external data sources.

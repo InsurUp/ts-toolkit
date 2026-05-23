@@ -13,6 +13,8 @@ import type {
   PropertyDamageStatus,
   PropertyUtilizationStyle,
   PropertyOwnershipType,
+  PropertyLocationType,
+  PropertyPosition,
   PropertyFloor,
   PropertyAddress,
   DaskOldPolicy,
@@ -207,6 +209,20 @@ export interface CreateCustomerPropertyRequest {
    * Konutun yasal sahiplik türü.
    */
   ownershipType: PropertyOwnershipType;
+
+  /**
+   * The location type of the property.
+   *
+   * Konutun konum tipi.
+   */
+  locationType?: PropertyLocationType | null;
+
+  /**
+   * The vertical position of the property within the building.
+   *
+   * Konutun bina içindeki dikey konumu.
+   */
+  position?: PropertyPosition | null;
 }
 
 /**
@@ -293,6 +309,20 @@ export interface UpdateCustomerPropertyRequest {
    * Konutun yasal sahiplik türü.
    */
   ownershipType: PropertyOwnershipType;
+
+  /**
+   * The location type of the property.
+   *
+   * Konutun konum tipi.
+   */
+  locationType?: PropertyLocationType | null;
+
+  /**
+   * The vertical position of the property within the building.
+   *
+   * Konutun bina içindeki dikey konumu.
+   */
+  position?: PropertyPosition | null;
 }
 
 /**
@@ -454,6 +484,20 @@ export interface GetCustomerPropertyByIdResult {
   ownershipType: PropertyOwnershipType;
 
   /**
+   * The location type of the property.
+   *
+   * Konutun konum tipi.
+   */
+  locationType: PropertyLocationType | null;
+
+  /**
+   * The vertical position of the property within the building.
+   *
+   * Konutun bina içindeki dikey konumu.
+   */
+  position: PropertyPosition | null;
+
+  /**
    * Loss payee clause information for financing or ownership arrangements.
    *
    * Finansman veya sahiplik düzenlemeleri için lehtar klozu bilgileri.
@@ -545,6 +589,20 @@ export interface GetAllCustomerPropertiesResult {
    * Konutun yasal sahiplik türü.
    */
   ownershipType: PropertyOwnershipType;
+
+  /**
+   * The location type of the property.
+   *
+   * Konutun konum tipi.
+   */
+  locationType: PropertyLocationType | null;
+
+  /**
+   * The vertical position of the property within the building.
+   *
+   * Konutun bina içindeki dikey konumu.
+   */
+  position: PropertyPosition | null;
 
   /**
    * Loss payee clause information for financing or ownership arrangements.

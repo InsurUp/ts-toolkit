@@ -413,10 +413,10 @@ export interface VehicleAccessory {
  */
 export interface VehicleOldPolicy {
   /**
-   * Insurance company's policy number (6-20 digits).
-   * Sigorta şirketinin poliçe numarası (6-20 hane).
+   * Insurance company's policy number (6-20 digit string; leading zeros preserved).
+   * Sigorta şirketinin poliçe numarası (6-20 haneli string; baştaki sıfırlar korunur).
    */
-  readonly insuranceCompanyPolicyNumber: number;
+  readonly insuranceCompanyPolicyNumber: string;
 
   /**
    * Insurance company's renewal number (0-9).
@@ -431,10 +431,12 @@ export interface VehicleOldPolicy {
   readonly insuranceCompanyReference: string;
 
   /**
-   * Agent number associated with the policy (3-18 digits).
-   * Poliçe ile ilişkili acente numarası (3-18 hane).
+   * Agent number associated with the policy (3-18 alphanumeric characters,
+   * with an optional single internal slash).
+   * Poliçe ile ilişkili acente numarası (3-18 alfanümerik karakter,
+   * isteğe bağlı tek iç slash içerebilir).
    */
-  readonly agentNumber: number;
+  readonly agentNumber: string;
 
   /**
    * Policy end date if available.
@@ -563,6 +565,15 @@ export interface ProposalSnapshotVehicle {
   readonly registrationDate: VehicleRegistrationDate;
 
   /**
+   * The date when the vehicle was first issued to traffic. May differ from
+   * `registrationDate` for re-registered or transferred vehicles.
+   *
+   * Aracın ilk trafiğe çıkış tarihi. Yeniden tescil edilen veya devredilen
+   * araçlar için `registrationDate` değerinden farklı olabilir.
+   */
+  readonly firstRegistrationDate?: VehicleRegistrationDate | null;
+
+  /**
    * Number of seats in the vehicle
    * Araçtaki koltuk sayısı
    */
@@ -597,4 +608,10 @@ export interface ProposalSnapshotVehicle {
    * Aracın geçerli bir plakası ve belge seri numarası olup olmadığı
    */
   readonly hasPlate: boolean;
+
+  /**
+   * Whether the vehicle is designated as a disabled vehicle.
+   * Aracın engelli aracı olarak belirlenip belirlenmediği.
+   */
+  readonly isDisabledVehicle?: boolean | null;
 }
