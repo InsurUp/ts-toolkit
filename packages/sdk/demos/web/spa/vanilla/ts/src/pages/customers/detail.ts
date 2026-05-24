@@ -238,7 +238,7 @@ async function loadRelatedData(container: HTMLElement, customerId: string): Prom
                   .join(', ');
                 return `
               <article>
-                <header><strong>${escapeHtml(a.addressType || 'Address')}</strong></header>
+                <header><strong>${escapeHtml(a.type || 'Address')}</strong></header>
                 <p>
                   ${escapeHtml(parts.join(' ') || '-')}
                   ${location ? `<br>${escapeHtml(location)}` : ''}

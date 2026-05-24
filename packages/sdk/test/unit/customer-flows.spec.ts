@@ -298,19 +298,14 @@ describe('Customer Flow Integration Tests', () => {
       await client.customers.createCustomer(customerRequests.validIndividualCustomer());
 
       // Step 2: Create address for customer
-      const addressResponse = {
-        addressId: 'ADDRESS-123',
-        customerId,
-        propertyNumber: 12345,
-        addressType: 'HOME',
-      };
+      const createResponse = { addressId: 'ADDRESS-123' };
 
-      mockFetch.mockResolvedValueOnce(MockFetchResponseFactory.json(addressResponse, 201));
+      mockFetch.mockResolvedValueOnce(MockFetchResponseFactory.json(createResponse, 201));
 
       const addressResult = await client.customers.createCustomerAddress({
         customerId,
         propertyNumber: 12345,
-        addressType: 'HOME',
+        type: 'HOME',
       });
 
       expect(addressResult.kind).toBe('success');
@@ -319,7 +314,14 @@ describe('Customer Flow Integration Tests', () => {
       }
 
       // Step 3: Retrieve all addresses
-      mockFetch.mockResolvedValueOnce(MockFetchResponseFactory.json([addressResponse]));
+      const getResponse = {
+        id: 'ADDRESS-123',
+        propertyNumber: 12345,
+        type: 'HOME',
+        address: {},
+        createdAt: '2026-01-01T00:00:00Z',
+      };
+      mockFetch.mockResolvedValueOnce(MockFetchResponseFactory.json([getResponse]));
 
       const addressesResult = await client.customers.getCustomerAddresses(customerId);
 
