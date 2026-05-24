@@ -49,9 +49,8 @@
     }
   },
   "scripts": {
-    "build": "bun run generate-meta && bun run generate-wire-mappings && tsup && tsc",
+    "build": "bun run generate-meta && tsup && tsc",
     "generate-meta": "bun run scripts/generate-meta.ts src/graphql test/unit/meta",
-    "generate-wire-mappings": "bun run scripts/generate-wire-mappings.ts",
     "check-types": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",

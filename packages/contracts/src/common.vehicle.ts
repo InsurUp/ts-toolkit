@@ -388,10 +388,8 @@ export interface VehicleAccessory {
   /**
    * The type of vehicle accessory.
    * Araç aksesuarının türü.
-   *
-   * @wire $type
    */
-  readonly type: VehicleAccessoryType;
+  readonly $type: VehicleAccessoryType;
 
   /**
    * The total price/value of the accessory for insurance coverage calculation.

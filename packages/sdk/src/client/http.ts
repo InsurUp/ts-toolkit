@@ -15,7 +15,6 @@ import {
 import type { InsurUpClientOptions, RequestConfig, RequestOptions } from '../core/options.js';
 import { mergeWithDefaults, type RequiredClientOptions } from '../core/config.js';
 import { withRetry } from '../core/retry.js';
-import { encodeWireFields, decodeWireFields } from './wire-mapping.js';
 
 /**
  * HTTP method types
@@ -254,7 +253,7 @@ export class HttpTransport {
         serializedBody = body;
       } else {
         try {
-          serializedBody = JSON.stringify(encodeWireFields(body));
+          serializedBody = JSON.stringify(body);
           // Set Content-Type header for JSON requests
           if (!this.hasContentTypeHeader(requestHeaders)) {
             requestHeaders['Content-Type'] = 'application/json';
@@ -659,7 +658,7 @@ export class HttpTransport {
    */
   private parseSuccessResponse<T>(responseText: string): InsurUpResult<T> | InsurUpResult {
     try {
-      const data = decodeWireFields(JSON.parse(responseText)) as T;
+      const data = JSON.parse(responseText) as T;
       return createSuccess(data);
     } catch (error) {
       return createDeserializationError(error);
