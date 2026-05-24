@@ -6,6 +6,53 @@
 import type { InsuranceParameter } from './common.base.js';
 
 // ============================================================================
+// SHARED VALUE OBJECTS
+// ============================================================================
+
+/**
+ * Discriminated union representing a numeric quantity that can be expressed
+ * as an exact value, a range (min/max), or a value exceeding a threshold.
+ *
+ * Bir sayısal niceliği temsil eder; kesin bir değer, bir aralık (min/max)
+ * veya bir eşiği aşan değer olarak ifade edilebilir.
+ *
+ * Discriminated by `$type` to match the backend's `[JsonDerivedType]`
+ * serialization.
+ */
+export type NumericQuantity = RangeQuantity | ExactQuantity | ExceedingQuantity;
+
+/**
+ * Range of integer values (inclusive). Min must be strictly less than Max.
+ *
+ * Tamsayı aralığı (içerir). Min, Max'tan kesinlikle küçük olmalıdır.
+ */
+export interface RangeQuantity {
+  readonly $type: 'range';
+  readonly min: number;
+  readonly max: number;
+}
+
+/**
+ * Exact integer value.
+ *
+ * Kesin tamsayı değeri.
+ */
+export interface ExactQuantity {
+  readonly $type: 'exact';
+  readonly value: number;
+}
+
+/**
+ * Value that exceeds some defined upper bound.
+ *
+ * Tanımlanan bir üst sınırı aşan değer.
+ */
+export interface ExceedingQuantity {
+  readonly $type: 'exceeding';
+  readonly value: number;
+}
+
+// ============================================================================
 // PROPERTY-RELATED ENUMS
 // ============================================================================
 
@@ -157,6 +204,96 @@ export enum PropertyOwnershipType {
  * Sigorta poliçelerinde hasar alacaklısı olarak belirlenebilecek finansal kurum türlerini temsil eder.
  * Ödenmemiş krediler veya finansman olduğunda sigorta hasar ödemelerini kimin alacağını belirtmek için kullanılır.
  */
+/**
+ * Represents the physical placement category of a property within a building or area.
+ * Used to classify the property type for insurance risk assessment.
+ *
+ * Bir konutun bina veya alan içindeki fiziksel yerleşim kategorisini temsil eder.
+ * Sigorta risk değerlendirmesi için konut tipini sınıflandırmak amacıyla kullanılır.
+ */
+export enum PropertyLocationType {
+  /**
+   * Location type is unknown or not yet determined.
+   *
+   * Konum tipi bilinmiyor veya henüz belirlenmedi.
+   */
+  Unknown = 'UNKNOWN',
+
+  /**
+   * Summer house or vacation home.
+   *
+   * Yazlık konut veya tatil evi.
+   */
+  SummerHouse = 'SUMMER_HOUSE',
+
+  /**
+   * Detached building or standalone structure.
+   *
+   * Müstakil bina veya bağımsız yapı.
+   */
+  DetachedBuilding = 'DETACHED_BUILDING',
+
+  /**
+   * Apartment unit within a multi-story building.
+   *
+   * Çok katlı bir bina içindeki apartman dairesi.
+   */
+  Apartment = 'APARTMENT',
+}
+
+/**
+ * Represents the vertical position of a property unit within a building.
+ * Floor position affects exposure to specific perils such as flooding,
+ * break-in risk, and earthquake damage patterns.
+ *
+ * Bir konut biriminin bina içindeki dikey konumunu temsil eder.
+ * Kat konumu, su baskını, hırsızlık riski ve deprem hasar kalıpları gibi
+ * belirli tehlikelere maruziyeti etkiler.
+ */
+export enum PropertyPosition {
+  /**
+   * Position is unknown or not yet determined.
+   *
+   * Konum bilinmiyor veya henüz belirlenmedi.
+   */
+  Unknown = 'UNKNOWN',
+
+  /**
+   * Basement floor, below ground level.
+   *
+   * Bodrum kat, zemin seviyesinin altında.
+   */
+  Basement = 'BASEMENT',
+
+  /**
+   * Ground floor at street level.
+   *
+   * Sokak seviyesinde giriş kat.
+   */
+  GroundFloor = 'GROUND_FLOOR',
+
+  /**
+   * First floor above the entrance level.
+   *
+   * Giriş katının üstündeki birinci kat.
+   */
+  AboveEntrance = 'ABOVE_ENTRANCE',
+
+  /**
+   * Middle floor, between ground and top floors.
+   *
+   * Ara kat, zemin ve üst katlar arasında.
+   */
+  MiddleFloor = 'MIDDLE_FLOOR',
+
+  /**
+   * Detached building, standalone structure without shared floors.
+   *
+   * Müstakil bina, paylaşılmış katları olmayan bağımsız yapı.
+   */
+  DetachedBuilding = 'DETACHED_BUILDING',
+}
+
 export enum LossPayeeClauseType {
   /**
    * Bank as loss payee.
@@ -186,11 +323,13 @@ export enum LossPayeeClauseType {
  */
 export interface PropertyFloor {
   /**
-   * The total number of floors in the building.
+   * The total number of floors in the building. Can be an exact value, a range,
+   * or a value that exceeds a defined threshold.
    *
-   * Binadaki toplam kat sayısı.
+   * Binadaki toplam kat sayısı. Kesin değer, aralık veya tanımlı bir eşiği
+   * aşan değer olabilir.
    */
-  totalFloors: number | null;
+  totalFloors: NumericQuantity | null;
 
   /**
    * The specific floor where the property is located.
@@ -278,7 +417,77 @@ export interface DaskOldPolicy {
    *
    * Mevcut DASK poliçesinin bitiş tarihi.
    */
-  endDate: string;
+  endDate: string | null;
+}
+
+/**
+ * Bank institution reference used in loss payee arrangements.
+ *
+ * Hasar alacaklısı düzenlemelerinde kullanılan banka kurumu referansı.
+ */
+export interface BankModel {
+  /**
+   * The unique identifier of the bank institution.
+   *
+   * Banka kurumunun benzersiz tanımlayıcısı.
+   */
+  id: string;
+
+  /**
+   * The official name of the bank institution.
+   *
+   * Banka kurumunun resmi adı.
+   */
+  name: string;
+}
+
+/**
+ * Bank branch reference used in loss payee arrangements.
+ *
+ * Hasar alacaklısı düzenlemelerinde kullanılan banka şubesi referansı.
+ */
+export interface BankBranchModel {
+  /**
+   * The unique identifier of the bank branch.
+   *
+   * Banka şubesinin benzersiz tanımlayıcısı.
+   */
+  id: string;
+
+  /**
+   * The name of the bank branch.
+   *
+   * Banka şubesinin adı.
+   */
+  name: string;
+
+  /**
+   * The unique identifier of the parent bank that owns this branch.
+   *
+   * Bu şubeye sahip olan ana bankanın benzersiz tanımlayıcısı.
+   */
+  bankId: string;
+}
+
+/**
+ * Financial institution reference (non-bank lender) used in loss payee arrangements.
+ *
+ * Hasar alacaklısı düzenlemelerinde kullanılan finansal kurum (banka dışı) referansı.
+ */
+export interface FinancialInstitutionModel {
+  /**
+   * The unique identifier of the financial institution.
+   *
+   * Finansal kurumun benzersiz tanımlayıcısı.
+   */
+  id: string;
+
+  /**
+   * The official name of the financial institution.
+   *
+   * Finansal kurumun resmi adı.
+   */
+  name: string;
 }
 
 /**
@@ -297,30 +506,30 @@ export interface LossPayeeClause {
   type: LossPayeeClauseType;
 
   /**
-   * Gets the bank information (applicable when Type is Bank).
+   * Bank information (set when type is Bank).
    *
-   * Banka bilgilerini alır (Tür Banka olduğunda geçerlidir).
+   * Banka bilgileri (tür Bank olduğunda doludur).
    */
-  bank: unknown;
+  bank: BankModel | null;
 
   /**
-   * Gets the bank branch information (applicable when Type is Bank).
+   * Bank branch information (set when type is Bank).
    *
-   * Banka şube bilgilerini alır (Tür Banka olduğunda geçerlidir).
+   * Banka şube bilgileri (tür Bank olduğunda doludur).
    */
-  bankBranch: unknown;
+  bankBranch: BankBranchModel | null;
 
   /**
-   * Gets the financial institution information (applicable when Type is FinancialInstitution).
+   * Financial institution information (set when type is FinancialInstitution).
    *
-   * Finansal kurum bilgilerini alır (Tür FinancialInstitution olduğunda geçerlidir).
+   * Finansal kurum bilgileri (tür FinancialInstitution olduğunda doludur).
    */
-  financialInstitution: unknown;
+  financialInstitution: FinancialInstitutionModel | null;
 
   /**
-   * Gets the credit agreement number if specified.
+   * Credit agreement number if specified (6-20 alphanumeric characters when set).
    *
-   * Belirtilmişse kredi sözleşme numarasını alır.
+   * Belirtilmişse kredi sözleşme numarası (ayarlandığında 6-20 alfanümerik karakter).
    */
   creditAgreementNumber: string | null;
 }
@@ -446,6 +655,18 @@ export interface ProposalSnapshotProperty {
    * Konutun sahiplik türü
    */
   readonly ownershipType: PropertyOwnershipType;
+
+  /**
+   * The location type of the property.
+   * Konutun konum tipi.
+   */
+  readonly locationType?: PropertyLocationType | null;
+
+  /**
+   * The vertical position of the property within the building.
+   * Konutun bina içindeki dikey konumu.
+   */
+  readonly position?: PropertyPosition | null;
 
   /**
    * DASK old policy information
