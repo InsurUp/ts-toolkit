@@ -296,16 +296,16 @@ export class InsurUpPropertyClient {
    *
    * Çapraz referans ve süreklilik için mevcut DASK deprem sigortası poliçe numarasını kullanarak mülk bilgilerini sorgular.
    *
-   * @param daskPolicyNumber DASK earthquake insurance policy number / DASK deprem sigortası poliçe numarası
+   * @param daskOldPolicyNumber DASK earthquake insurance policy number / DASK deprem sigortası poliçe numarası
    * @returns Property information from DASK records / DASK kayıtlarından mülk bilgileri
    */
   async queryPropertyByDaskOldPolicy(
-    daskPolicyNumber: number,
+    daskOldPolicyNumber: number,
     options?: RequestOptions
   ): Promise<InsurUpResult<QueryPropertyByDaskOldPolicyResult>> {
     return this.http.post<QueryPropertyByDaskOldPolicyResult>(
       properties.queryPropertyByDaskOldPolicy,
-      { daskPolicyNumber },
+      { daskOldPolicyNumber },
       options
     );
   }
