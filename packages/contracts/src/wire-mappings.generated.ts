@@ -5,8 +5,14 @@
  * The SDK applies the rename at the HTTP boundary — outbound when the runtime
  * value of `tsName` is in `triggerValues` (or unconditionally if it is `null`),
  * inbound whenever the response carries `wireName`.
+ *
+ * `contractName` records the interface or type alias the annotation came
+ * from. Multiple entries can share the same `(tsName, wireName)` pair (e.g.
+ * every member of a polymorphic union contributes one entry).
  */
 export interface WireFieldMapping {
+  /** Name of the contract (interface or type alias) the annotation came from. */
+  readonly contractName: string;
   readonly tsName: string;
   readonly wireName: string;
   /** When non-null, only rename if the value is in this set. */
@@ -14,9 +20,18 @@ export interface WireFieldMapping {
 }
 
 export const WIRE_FIELD_MAPPINGS: readonly WireFieldMapping[] = [
+  { contractName: 'ExactQuantity', tsName: 'type', wireName: '$type', triggerValues: ['exact'] },
   {
+    contractName: 'ExceedingQuantity',
     tsName: 'type',
     wireName: '$type',
-    triggerValues: ['audio', 'display', 'exact', 'exceeding', 'other', 'range'],
+    triggerValues: ['exceeding'],
+  },
+  { contractName: 'RangeQuantity', tsName: 'type', wireName: '$type', triggerValues: ['range'] },
+  {
+    contractName: 'VehicleAccessory',
+    tsName: 'type',
+    wireName: '$type',
+    triggerValues: ['audio', 'display', 'other'],
   },
 ];

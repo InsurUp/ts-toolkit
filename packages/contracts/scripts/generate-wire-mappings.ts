@@ -49,13 +49,29 @@ const project = new Project({
 // 2. Collect every `@wire <wireName>` annotation
 // ---------------------------------------------------------------------------
 
-interface RawMapping {
+interface Mapping {
+  contractName: string;
   tsName: string;
   wireName: string;
-  triggerValues: string[] | null;
+  triggerValues: readonly string[] | null;
 }
 
-const raw: RawMapping[] = [];
+const mappings: Mapping[] = [];
+
+function readContractName(prop: PropertySignature): string {
+  const iface = prop.getFirstAncestorByKind(SyntaxKind.InterfaceDeclaration);
+  if (iface) return iface.getName();
+  const alias = prop.getFirstAncestorByKind(SyntaxKind.TypeAliasDeclaration);
+  if (alias) return alias.getName();
+  // Anonymous property somehow -- shouldn't happen for exported contracts,
+  // but fail loudly if it does so the contributor investigates rather than
+  // having "<anonymous>" silently end up in the registry.
+  throw new Error(
+    `generate-wire-mappings: @wire on "${prop.getName()}" at ${prop
+      .getSourceFile()
+      .getFilePath()}:${prop.getStartLineNumber()} has no named interface or type alias ancestor.`
+  );
+}
 
 function readWireTag(prop: PropertySignature): string | null {
   for (const doc of prop.getJsDocs()) {
@@ -124,14 +140,18 @@ for (const sourceFile of project.getSourceFiles(resolve(SRC_DIR, '**/*.ts'))) {
     const wireName = readWireTag(prop);
     if (!wireName) continue;
 
-    const tsName = prop.getName();
     const triggerValues = collectTriggerValues(prop.getType());
 
-    raw.push({ tsName, wireName, triggerValues });
+    mappings.push({
+      contractName: readContractName(prop),
+      tsName: prop.getName(),
+      wireName,
+      triggerValues: triggerValues ? Object.freeze([...new Set(triggerValues)].sort()) : null,
+    });
   }
 }
 
-if (raw.length === 0) {
+if (mappings.length === 0) {
   console.error(
     'generate-wire-mappings: no @wire tags found. Either the codegen broke or the tags ' +
       'were accidentally removed. Refusing to overwrite the registry with an empty list.'
@@ -139,42 +159,12 @@ if (raw.length === 0) {
   process.exit(1);
 }
 
-// ---------------------------------------------------------------------------
-// 3. Merge by (tsName, wireName)
-// ---------------------------------------------------------------------------
-
-interface Mapping {
-  tsName: string;
-  wireName: string;
-  triggerValues: readonly string[] | null;
-}
-
-const merged = new Map<string, Mapping>();
-for (const entry of raw) {
-  const key = `${entry.tsName}\0${entry.wireName}`;
-  const existing = merged.get(key);
-  if (!existing) {
-    merged.set(key, {
-      tsName: entry.tsName,
-      wireName: entry.wireName,
-      triggerValues: entry.triggerValues ? [...new Set(entry.triggerValues)].sort() : null,
-    });
-    continue;
-  }
-
-  // If any annotated occurrence is unconditional, the merged entry is too.
-  if (entry.triggerValues === null || existing.triggerValues === null) {
-    existing.triggerValues = null;
-    continue;
-  }
-
-  const combined = new Set<string>([...existing.triggerValues, ...entry.triggerValues]);
-  existing.triggerValues = [...combined].sort();
-}
-
-const mappings = [...merged.values()].sort((a, b) =>
-  a.tsName === b.tsName ? a.wireName.localeCompare(b.wireName) : a.tsName.localeCompare(b.tsName)
-);
+// Stable order: by contractName, then tsName, then wireName.
+mappings.sort((a, b) => {
+  if (a.contractName !== b.contractName) return a.contractName.localeCompare(b.contractName);
+  if (a.tsName !== b.tsName) return a.tsName.localeCompare(b.tsName);
+  return a.wireName.localeCompare(b.wireName);
+});
 
 // ---------------------------------------------------------------------------
 // 4. Emit registry
@@ -189,8 +179,14 @@ const lines: string[] = [
   ' * The SDK applies the rename at the HTTP boundary — outbound when the runtime',
   ' * value of `tsName` is in `triggerValues` (or unconditionally if it is `null`),',
   ' * inbound whenever the response carries `wireName`.',
+  ' *',
+  ' * `contractName` records the interface or type alias the annotation came',
+  ' * from. Multiple entries can share the same `(tsName, wireName)` pair (e.g.',
+  ' * every member of a polymorphic union contributes one entry).',
   ' */',
   'export interface WireFieldMapping {',
+  '  /** Name of the contract (interface or type alias) the annotation came from. */',
+  '  readonly contractName: string;',
   '  readonly tsName: string;',
   '  readonly wireName: string;',
   '  /** When non-null, only rename if the value is in this set. */',
@@ -206,7 +202,9 @@ for (const m of mappings) {
       ? 'null'
       : `[${m.triggerValues.map((v) => JSON.stringify(v)).join(', ')}]`;
   lines.push(
-    `  { tsName: ${JSON.stringify(m.tsName)}, wireName: ${JSON.stringify(m.wireName)}, triggerValues: ${trig} },`
+    `  { contractName: ${JSON.stringify(m.contractName)}, tsName: ${JSON.stringify(
+      m.tsName
+    )}, wireName: ${JSON.stringify(m.wireName)}, triggerValues: ${trig} },`
   );
 }
 

@@ -27,16 +27,41 @@ interface OutboundRule {
 }
 
 const OUTBOUND_RULES: ReadonlyMap<string, readonly OutboundRule[]> = (() => {
-  const map = new Map<string, OutboundRule[]>();
+  // Multiple contracts can share `(tsName, wireName)` -- e.g. every member of a
+  // polymorphic union contributes one entry to WIRE_FIELD_MAPPINGS. Merge them
+  // here so the encoder does one lookup per object: the trigger set is the
+  // union of every contract's trigger values, and an unconditional rule
+  // (`triggerValues: null`) anywhere on the pair makes the merged rule
+  // unconditional too.
+  const buckets = new Map<string, Map<string, OutboundRule>>();
   for (const { tsName, wireName, triggerValues } of WIRE_FIELD_MAPPINGS) {
-    const bucket = map.get(tsName) ?? [];
-    bucket.push({
-      wireName,
-      triggerValues: triggerValues ? new Set(triggerValues) : null,
-    });
-    map.set(tsName, bucket);
+    let perTs = buckets.get(tsName);
+    if (!perTs) {
+      perTs = new Map();
+      buckets.set(tsName, perTs);
+    }
+    const existing = perTs.get(wireName);
+    if (!existing) {
+      perTs.set(wireName, {
+        wireName,
+        triggerValues: triggerValues ? new Set(triggerValues) : null,
+      });
+      continue;
+    }
+    if (existing.triggerValues === null || triggerValues === null) {
+      perTs.set(wireName, { wireName, triggerValues: null });
+      continue;
+    }
+    const merged = new Set(existing.triggerValues);
+    for (const v of triggerValues) merged.add(v);
+    perTs.set(wireName, { wireName, triggerValues: merged });
   }
-  return map;
+
+  const result = new Map<string, OutboundRule[]>();
+  for (const [tsName, perTs] of buckets) {
+    result.set(tsName, [...perTs.values()]);
+  }
+  return result;
 })();
 
 const INBOUND_RULES: ReadonlyMap<string, string> = (() => {
