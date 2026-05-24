@@ -996,7 +996,13 @@ export interface SetCustomerBranchRequest {
 /**
  * Classification of a customer address. Mirrors the backend `AddressType` enum.
  */
-export type AddressType = 'UNKNOWN' | 'HOME' | 'WORK' | 'TEMPORARY' | 'OTHER';
+export enum AddressType {
+  Unknown = 'UNKNOWN',
+  Home = 'HOME',
+  Work = 'WORK',
+  Temporary = 'TEMPORARY',
+  Other = 'OTHER',
+}
 
 /**
  * Request to create customer address
