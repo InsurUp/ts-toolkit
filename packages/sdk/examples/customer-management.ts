@@ -143,7 +143,7 @@ async function manageCustomerAddresses(customerId: string) {
   const createResult = await client.customers.createCustomerAddress({
     customerId,
     propertyNumber: 123456,
-    addressType: 'Home',
+    type: 'HOME',
   });
 
   if (createResult.isSuccess) {
@@ -160,7 +160,7 @@ async function manageCustomerAddresses(customerId: string) {
     await client.customers.updateCustomerAddress({
       customerId,
       addressId,
-      addressType: 'Work',
+      type: 'WORK',
     });
   }
 }

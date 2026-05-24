@@ -994,12 +994,17 @@ export interface SetCustomerBranchRequest {
 // ============================================================================
 
 /**
+ * Classification of a customer address. Mirrors the backend `AddressType` enum.
+ */
+export type AddressType = 'UNKNOWN' | 'HOME' | 'WORK' | 'TEMPORARY' | 'OTHER';
+
+/**
  * Request to create customer address
  */
 export interface CreateCustomerAddressRequest {
   readonly customerId: string;
   readonly propertyNumber: number;
-  readonly addressType: string;
+  readonly type: AddressType;
 }
 
 /**
@@ -1015,17 +1020,18 @@ export interface CreateCustomerAddressResult {
 export interface UpdateCustomerAddressRequest {
   readonly customerId: string;
   readonly addressId: string;
-  readonly addressType: string;
+  readonly type: AddressType;
 }
 
 /**
  * Response for customer address
  */
 export interface GetCustomerAddressResult {
-  readonly addressId: string;
+  readonly id: string;
   readonly propertyNumber: number;
-  readonly addressType: string;
+  readonly type: AddressType;
   readonly address: PropertyAddress;
+  readonly createdAt: string;
 }
 
 // ============================================================================
