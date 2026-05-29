@@ -720,23 +720,35 @@ export type ExternalLookupCustomerRequest =
 
 /**
  * External lookup request for Turkish citizens using their National Identity Number.
+ *
+ * The backend binds this request polymorphically via System.Text.Json, so the `$type`
+ * discriminator is required (and must be serialized first — the SDK guarantees this).
  */
 export interface ExternalLookupCustomerRequestIndividual {
+  $type: 'individual';
   identityNumber: number;
   birthDate?: string | null;
 }
 
 /**
  * External lookup request for corporate entities using their tax identification number.
+ *
+ * The backend binds this request polymorphically via System.Text.Json, so the `$type`
+ * discriminator is required (and must be serialized first — the SDK guarantees this).
  */
 export interface ExternalLookupCustomerRequestCompany {
+  $type: 'company';
   taxNumber: string;
 }
 
 /**
  * External lookup request for foreign nationals using their foreign identification documents.
+ *
+ * The backend binds this request polymorphically via System.Text.Json, so the `$type`
+ * discriminator is required (and must be serialized first — the SDK guarantees this).
  */
 export interface ExternalLookupCustomerRequestForeign {
+  $type: 'foreign';
   identityNumber: string;
   birthDate: string;
 }

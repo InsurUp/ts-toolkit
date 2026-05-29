@@ -526,6 +526,7 @@ describe('Customer Flow Integration Tests', () => {
       mockFetch.mockResolvedValueOnce(MockFetchResponseFactory.json(lookupResponse));
 
       const lookup = await client.customers.externalLookupCustomer({
+        $type: 'individual',
         identityNumber: 12345678901,
         birthDate: '1990-05-15',
       });
@@ -561,6 +562,7 @@ describe('Customer Flow Integration Tests', () => {
       );
 
       const lookup = await client.customers.externalLookupCustomer({
+        $type: 'individual',
         identityNumber: 12345678901,
         birthDate: '1990-05-15',
       });
@@ -578,7 +580,10 @@ describe('Customer Flow Integration Tests', () => {
         MockFetchResponseFactory.json({ $type: 'company', title: 'Acme Inc.' })
       );
 
-      const lookup = await client.customers.externalLookupCustomer({ taxNumber: '1234567890' });
+      const lookup = await client.customers.externalLookupCustomer({
+        $type: 'company',
+        taxNumber: '1234567890',
+      });
 
       expect(lookup.kind).toBe('success');
       if (lookup.kind === 'success' && lookup.data.$type === 'company') {
@@ -596,6 +601,7 @@ describe('Customer Flow Integration Tests', () => {
       );
 
       const lookup = await client.customers.externalLookupCustomer({
+        $type: 'foreign',
         identityNumber: 'P1234567',
         birthDate: '1985-03-20',
       });
@@ -605,6 +611,23 @@ describe('Customer Flow Integration Tests', () => {
         expect(lookup.data.fullName).toBe('Jane Roe');
         expect(lookup.data.gender).toBe(Gender.Female);
       }
+    });
+
+    it('should serialize $type as the first body property regardless of caller key order', async () => {
+      mockFetch.mockResolvedValueOnce(MockFetchResponseFactory.json({ $type: 'individual' }));
+
+      // Caller puts $type last; the backend's System.Text.Json binder requires it first, so the
+      // SDK must reorder it to the front of the JSON body.
+      await client.customers.externalLookupCustomer({
+        identityNumber: 12345678901,
+        birthDate: '1990-05-15',
+        $type: 'individual',
+      });
+
+      const [, init] = mockFetch.mock.calls[0] ?? [];
+      const body = init?.body as string;
+      expect(body.startsWith('{"$type":"individual"')).toBe(true);
+      expect(Object.keys(JSON.parse(body))[0]).toBe('$type');
     });
   });
 

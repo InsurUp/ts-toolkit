@@ -634,9 +634,13 @@ export class InsurUpCustomerClient {
     request: ExternalLookupCustomerRequest,
     options?: RequestOptions
   ): Promise<InsurUpResult<ExternalLookupCustomerResult>> {
+    // The backend deserializes this request polymorphically (System.Text.Json), which requires
+    // the `$type` discriminator to be the FIRST property in the JSON body. Rebuild the payload so
+    // `$type` always leads, regardless of the order the caller assigned the keys in.
+    const { $type, ...rest } = request;
     return this.http.post<ExternalLookupCustomerResult>(
       endpoints.customers.externalLookup,
-      request,
+      { $type, ...rest },
       options
     );
   }
