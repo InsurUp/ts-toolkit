@@ -36,6 +36,7 @@ export { InsurUpProposalClient } from './clients/proposal.js';
 export { InsurUpFileClient } from './clients/file.js';
 export { InsurUpLanguageClient } from './clients/language.js';
 export { InsurUpTemplateClient } from './clients/template.js';
+export { InsurUpOAuthClientClient } from './clients/oauthClient.js';
 
 // Core types and results
 export type {

@@ -1021,6 +1021,29 @@ export const webhooks = {
 } as const;
 
 /**
+ * OAuth client management endpoints
+ */
+export const oauthClients = {
+  getAll: 'oauth-clients',
+  create: 'oauth-clients',
+
+  getById: {
+    definition: 'oauth-clients/{Id}',
+    render: (id: string): string => 'oauth-clients/{Id}'.replace('{Id}', encodeURIComponent(id)),
+  },
+
+  update: {
+    definition: 'oauth-clients/{Id}',
+    render: (id: string): string => 'oauth-clients/{Id}'.replace('{Id}', encodeURIComponent(id)),
+  },
+
+  delete: {
+    definition: 'oauth-clients/{Id}',
+    render: (id: string): string => 'oauth-clients/{Id}'.replace('{Id}', encodeURIComponent(id)),
+  },
+} as const;
+
+/**
  * Case management endpoints
  */
 export const cases = {

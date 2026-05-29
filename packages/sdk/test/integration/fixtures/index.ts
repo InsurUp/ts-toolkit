@@ -16,6 +16,7 @@ export * from './customer';
 export * from './file';
 export * from './insurance';
 export * from './language';
+export * from './oauthClient';
 export * from './policy';
 export * from './property';
 export * from './proposal';
