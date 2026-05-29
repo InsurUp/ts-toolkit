@@ -5,7 +5,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { DefaultInsurUpClient } from '../../src/client/client';
-import { CustomerType } from '@insurup/contracts';
+import { CustomerType, Gender } from '@insurup/contracts';
 import type {
   CreateCustomerRequestIndividual,
   GetCustomerResultIndividual,
@@ -521,7 +521,7 @@ describe('Customer Flow Integration Tests', () => {
   describe('External Customer Lookup Flow', () => {
     it('should lookup and create customer from external data', async () => {
       // Step 1: Perform external lookup for individual customer
-      const lookupResponse = {};
+      const lookupResponse = { $type: 'individual' };
 
       mockFetch.mockResolvedValueOnce(MockFetchResponseFactory.json(lookupResponse));
 
@@ -547,6 +547,63 @@ describe('Customer Flow Integration Tests', () => {
         });
 
         expect(createResult.kind).toBe('success');
+      }
+    });
+
+    it('should narrow to individual result via the $type discriminator', async () => {
+      mockFetch.mockResolvedValueOnce(
+        MockFetchResponseFactory.json({
+          $type: 'individual',
+          fullName: 'John Doe',
+          gender: Gender.Male,
+          email: 'john@example.com',
+        })
+      );
+
+      const lookup = await client.customers.externalLookupCustomer({
+        identityNumber: 12345678901,
+        birthDate: '1990-05-15',
+      });
+
+      expect(lookup.kind).toBe('success');
+      if (lookup.kind === 'success' && lookup.data.$type === 'individual') {
+        expect(lookup.data.fullName).toBe('John Doe');
+        expect(lookup.data.gender).toBe(Gender.Male);
+        expect(lookup.data.email).toBe('john@example.com');
+      }
+    });
+
+    it('should narrow to company result via the $type discriminator', async () => {
+      mockFetch.mockResolvedValueOnce(
+        MockFetchResponseFactory.json({ $type: 'company', title: 'Acme Inc.' })
+      );
+
+      const lookup = await client.customers.externalLookupCustomer({ taxNumber: '1234567890' });
+
+      expect(lookup.kind).toBe('success');
+      if (lookup.kind === 'success' && lookup.data.$type === 'company') {
+        expect(lookup.data.title).toBe('Acme Inc.');
+      }
+    });
+
+    it('should narrow to foreign result via the $type discriminator', async () => {
+      mockFetch.mockResolvedValueOnce(
+        MockFetchResponseFactory.json({
+          $type: 'foreign',
+          fullName: 'Jane Roe',
+          gender: Gender.Female,
+        })
+      );
+
+      const lookup = await client.customers.externalLookupCustomer({
+        identityNumber: 'P1234567',
+        birthDate: '1985-03-20',
+      });
+
+      expect(lookup.kind).toBe('success');
+      if (lookup.kind === 'success' && lookup.data.$type === 'foreign') {
+        expect(lookup.data.fullName).toBe('Jane Roe');
+        expect(lookup.data.gender).toBe(Gender.Female);
       }
     });
   });

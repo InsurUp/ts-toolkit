@@ -915,10 +915,16 @@ export interface PhoneCallContactResultItem extends GetCustomerContactsResultIte
 }
 
 /**
- * Response containing external customer data retrieved from third-party sources.
- * Base interface containing common location properties for all customer types.
+ * Discriminator for the polymorphic external lookup response. Mirrors the backend
+ * `$type` JSON discriminator emitted by `ExternalLookupCustomerEndpointResponse`.
  */
-export interface ExternalLookupCustomerResult {
+export type ExternalLookupCustomerResultType = 'individual' | 'company' | 'foreign';
+
+/**
+ * Common location fields shared by every external lookup response variant.
+ */
+interface ExternalLookupCustomerResultBase {
+  readonly $type: ExternalLookupCustomerResultType;
   /** City information retrieved from external sources */
   readonly city?: InsuranceParameter | null;
   /** District information retrieved from external sources */
@@ -929,7 +935,8 @@ export interface ExternalLookupCustomerResult {
  * External lookup response for individual customers (Turkish citizens).
  * Contains personal information retrieved from government databases and identity verification services.
  */
-export interface ExternalLookupIndividualCustomerResult extends ExternalLookupCustomerResult {
+export interface ExternalLookupIndividualCustomerResult extends ExternalLookupCustomerResultBase {
+  readonly $type: 'individual';
   /** Full legal name retrieved from official records */
   readonly fullName?: string | null;
   /** Gender information retrieved from official records */
@@ -948,7 +955,8 @@ export interface ExternalLookupIndividualCustomerResult extends ExternalLookupCu
  * External lookup response for foreign customers (non-Turkish citizens).
  * Contains personal information retrieved from international identity verification services.
  */
-export interface ExternalLookupForeignCustomerResult extends ExternalLookupCustomerResult {
+export interface ExternalLookupForeignCustomerResult extends ExternalLookupCustomerResultBase {
+  readonly $type: 'foreign';
   /** Full name retrieved from international verification services */
   readonly fullName?: string | null;
   /** Gender information retrieved from international sources */
@@ -967,10 +975,21 @@ export interface ExternalLookupForeignCustomerResult extends ExternalLookupCusto
  * External lookup response for company customers (corporate entities).
  * Contains corporate information retrieved from tax authority and commercial registry databases.
  */
-export interface ExternalLookupCompanyCustomerResult extends ExternalLookupCustomerResult {
+export interface ExternalLookupCompanyCustomerResult extends ExternalLookupCustomerResultBase {
+  readonly $type: 'company';
   /** Official registered business name */
   readonly title?: string | null;
 }
+
+/**
+ * Polymorphic external lookup response. The `$type` discriminator narrows between individual,
+ * foreign, and company results, each carrying the demographic fields the backend returns for
+ * that customer type.
+ */
+export type ExternalLookupCustomerResult =
+  | ExternalLookupIndividualCustomerResult
+  | ExternalLookupForeignCustomerResult
+  | ExternalLookupCompanyCustomerResult;
 
 // ============================================================================
 // BRANCH ASSIGNMENT TYPES
