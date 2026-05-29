@@ -26,6 +26,7 @@ import { InsurUpProposalClient } from '../clients/proposal.js';
 import { InsurUpFileClient } from '../clients/file.js';
 import { InsurUpLanguageClient } from '../clients/language.js';
 import { InsurUpTemplateClient } from '../clients/template.js';
+import { InsurUpOAuthClientClient } from '../clients/oauthClient.js';
 
 /**
  * Main unified client providing comprehensive access to all InsurUp platform operations.
@@ -173,6 +174,15 @@ export class DefaultInsurUpClient {
    */
   public readonly templates: InsurUpTemplateClient;
 
+  /**
+   * OAuth Client Management Client
+   *
+   * Provides OAuth client management operations for listing, retrieving, creating, updating, and
+   * deleting OAuth clients registered for the current agent, enabling automated management of
+   * redirect URIs and other client configuration within the InsurUp platform.
+   */
+  public readonly oauthClients: InsurUpOAuthClientClient;
+
   public readonly options: InsurUpClientOptions;
 
   constructor(options?: InsurUpClientOptions) {
@@ -203,6 +213,7 @@ export class DefaultInsurUpClient {
     this.files = new InsurUpFileClient(this.http);
     this.languages = new InsurUpLanguageClient(this.http);
     this.templates = new InsurUpTemplateClient(this.http);
+    this.oauthClients = new InsurUpOAuthClientClient(this.http);
   }
 
   /**

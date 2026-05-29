@@ -91,7 +91,7 @@ graph TB
 
 The SDK uses a **compositional architecture**:
 
-- `DefaultInsurUpClient` aggregates 17 specialized clients
+- `DefaultInsurUpClient` aggregates 18 specialized clients
 - All clients share `HttpTransport` and `GraphQLTransport` instances
 - GraphQL queries support filtering, searching, sorting, and type-safe field selection
 - Request/response interceptors hook into the transport layer
@@ -331,6 +331,7 @@ Access specialized clients through the main client instance:
 | `client.agentUsers`    | Agency staff management                      |
 | `client.agentSetup`    | Agent onboarding                             |
 | `client.webhooks`      | Event notifications, integrations            |
+| `client.oauthClients`  | OAuth client management, redirect URIs       |
 | `client.insurance`     | Companies, products, resource keys           |
 | `client.files`         | File uploads and management                  |
 | `client.languages`     | Localization support                         |
