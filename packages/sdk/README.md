@@ -13,6 +13,7 @@ Type-safe TypeScript SDK for the InsurUp insurance platform with GraphQL support
 
 - [Installation](#installation)
 - [Quick Start](#quick-start)
+- [Authentication](#authentication)
 - [Architecture](#architecture)
 - [Result Handling](#result-handling)
 - [GraphQL Queries](#graphql-queries)
@@ -55,6 +56,140 @@ if (result.isSuccess) {
   console.log(result.data);
 }
 ```
+
+---
+
+## Authentication
+
+The SDK ships an auth module for OAuth 2.0 / OIDC login, token storage, and transparent refresh. `createInsurUpAuth()` returns an `InsurUpAuth` handle; pass it to the client as `auth` and tokens are injected into every HTTP and SignalR request automatically.
+
+```typescript
+import { createInsurUpAuth, DefaultInsurUpClient } from '@insurup/sdk';
+
+const auth = createInsurUpAuth({ clientId, clientSecret });
+await auth.loginWithClientCredentials();
+
+const client = new DefaultInsurUpClient({ auth }); // tokens flow automatically
+```
+
+Passing `auth` wires `auth.tokenProvider` into the client. An explicit `tokenProvider` always takes precedence, so you can still bring your own tokens.
+
+### Client credentials (server-to-server)
+
+For backend services and scripts. Requires a `clientSecret` — **never ship a secret to a browser.**
+
+```typescript
+const auth = createInsurUpAuth({
+  clientId: process.env.INSURUP_CLIENT_ID!,
+  clientSecret: process.env.INSURUP_CLIENT_SECRET!,
+  scopes: ['core-api'],
+});
+
+await auth.loginWithClientCredentials();
+// or override per call: auth.loginWithClientCredentials({ scopes: ['core-api', 'reports'] })
+
+const client = new DefaultInsurUpClient({ auth });
+```
+
+> The client credentials grant does not issue a refresh token. When the access token expires the session is cleared and `getAccessToken()` returns `null` — call `loginWithClientCredentials()` again to acquire a fresh one. See [Token lifecycle](#token-lifecycle).
+
+### Authorization code + PKCE (browser / public clients)
+
+No client secret. Redirect the user to the authorization server, then exchange the returned code.
+
+```typescript
+const auth = createInsurUpAuth({
+  clientId: 'spa-client',
+  authServer: 'https://auth.insurup.com', // endpoints resolved via OIDC discovery
+  storage: localStorageTokenStorage(), // persist across reloads (see Token storage)
+});
+
+// 1. Build the authorize URL and send the user there
+const { url, codeVerifier, state } = await auth.getAuthorizeUrl({
+  redirectUri: 'https://app.example.com/callback',
+  scopes: ['openid', 'offline_access', 'core-api'], // offline_access → refresh token
+});
+sessionStorage.setItem('insurup.pkce', JSON.stringify({ codeVerifier, state }));
+window.location.assign(url);
+
+// 2. On the callback page, exchange the code for tokens
+const { codeVerifier, state } = JSON.parse(sessionStorage.getItem('insurup.pkce')!);
+await auth.exchangeCode({
+  callbackUrl: window.location.href, // ?code & ?state are parsed out of it
+  redirectUri: 'https://app.example.com/callback',
+  codeVerifier,
+  state,
+});
+
+const client = new DefaultInsurUpClient({ auth });
+```
+
+### Token storage
+
+By default tokens are held in memory and lost on restart/reload. Provide a `TokenStorage` (`get` / `set` / `clear`, sync or async) to persist them — e.g. browser `localStorage`:
+
+```typescript
+import type { TokenStorage, OAuthTokens } from '@insurup/sdk';
+
+function localStorageTokenStorage(key = 'insurup.tokens'): TokenStorage {
+  return {
+    get: () => {
+      const raw = localStorage.getItem(key);
+      return raw ? (JSON.parse(raw) as OAuthTokens) : null;
+    },
+    set: (tokens) => localStorage.setItem(key, JSON.stringify(tokens)),
+    clear: () => localStorage.removeItem(key),
+  };
+}
+```
+
+The same shape works for a keychain, an encrypted file, or an edge KV store. The in-memory default is also exported as `createMemoryTokenStorage()`.
+
+> **Serverless / edge:** in-memory storage does not survive between invocations (each request may run in a fresh isolate), so tokens are re-fetched every time. Back `TokenStorage` with a shared store (KV, Durable Object, Redis, cookie) to persist sessions across requests.
+
+### Token lifecycle
+
+Refresh is automatic — `tokenProvider` calls `getAccessToken()`, which refreshes when the token is within `refreshBufferSeconds` (default **60s**) of expiry, de-duping concurrent refreshes into a single request. You rarely need these directly:
+
+```typescript
+await auth.getAccessToken(); // valid token (refreshing if needed) or null
+await auth.refresh(); // force a refresh; rejects if no refresh token
+await auth.getTokens(); // raw stored tokens (may be expired) or null
+await auth.logout(); // clear the session
+auth.getState(); // sync { isAuthenticated, tokens }
+```
+
+If a refresh fails — or an access token expires with no refresh token available — the session is cleared and `getAccessToken()` returns `null`.
+
+### Reactive state
+
+`subscribe` + `getState` plug straight into `useSyncExternalStore` (React) or a store (Vue/Svelte):
+
+```typescript
+const unsubscribe = auth.subscribe((state) => {
+  render(state.isAuthenticated ? 'Signed in' : 'Signed out');
+});
+```
+
+### Error handling
+
+Login and refresh failures are normalized to a typed `OAuthError`:
+
+```typescript
+import { OAuthError } from '@insurup/sdk';
+
+try {
+  await auth.loginWithClientCredentials();
+} catch (err) {
+  if (err instanceof OAuthError) {
+    console.error(err.code, err.description, err.status); // e.g. 'invalid_client', …, 401
+  }
+}
+```
+
+### Runtime support
+
+The auth module imports no Node built-ins — it runs on any platform with the Fetch API and Web Crypto (`crypto.subtle`): Node 18+, Bun, Deno, modern browsers, and edge runtimes (Cloudflare Workers, Vercel Edge). On stateless runtimes, supply a persistent `TokenStorage` (see [Token storage](#token-storage)).
 
 ---
 
