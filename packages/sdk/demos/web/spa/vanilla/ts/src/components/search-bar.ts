@@ -11,12 +11,12 @@ export interface SearchBarOptions {
 /**
  * Create a debounced function that delays invoking the provided function.
  */
-function debounce<T extends (...args: unknown[]) => void>(
-  fn: T,
+function debounce<TArgs extends unknown[]>(
+  fn: (...args: TArgs) => void,
   delay: number
-): (...args: Parameters<T>) => void {
+): (...args: TArgs) => void {
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
-  return (...args: Parameters<T>) => {
+  return (...args: TArgs) => {
     if (timeoutId) {
       clearTimeout(timeoutId);
     }

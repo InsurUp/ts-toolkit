@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import type { QueryCustomerModelUnifiedFilterInput } from '@insurup/sdk';
 import { ClientService } from '../../services/client.service';
 import { DataTableComponent, type Column } from '../../components/data-table.component';
 import { PaginationComponent } from '../../components/pagination.component';
@@ -160,13 +161,13 @@ export class CustomerListComponent {
   async fetchCustomers(): Promise<void> {
     this.isLoading.set(true);
     try {
-      const searchOptions = this.search
-        ? { name: { textSearch: { value: this.search } } }
+      const filterOptions: QueryCustomerModelUnifiedFilterInput | undefined = this.search
+        ? { name: { $search: true, textSearch: { value: this.search } } }
         : undefined;
 
       const countPromise = this.clientService.customers.getCustomers({
         first: 1,
-        search: searchOptions,
+        filter: filterOptions,
         select: ['id'] as const,
         includeTotalCount: true,
       });
@@ -177,7 +178,7 @@ export class CustomerListComponent {
         last: this.direction() === 'backward' ? 10 : undefined,
         after: this.direction() === 'forward' ? this.cursor() : undefined,
         before: this.direction() === 'backward' ? this.cursor() : undefined,
-        search: searchOptions,
+        filter: filterOptions,
         order: this.sortField()
           ? [{ [this.sortField()]: this.sortDirection() === 'asc' ? 'ASC' : 'DESC' }]
           : undefined,

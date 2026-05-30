@@ -24,10 +24,7 @@ import { escapeHtml } from '../../utils/dom';
 import { getTableState, setTableState } from '../../utils/url-state';
 import { CustomerType, SortEnumType } from '@insurup/contracts';
 import type { CustomerFieldKey } from '@insurup/contracts';
-import type {
-  QueryCustomerModelSearchInput,
-  QueryCustomerModelFilterInput,
-} from '@insurup/contracts';
+import type { QueryCustomerModelUnifiedFilterInput } from '@insurup/sdk';
 
 const PAGE_SIZE = 10;
 const STORAGE_KEY = 'demo-customers-columns';
@@ -149,27 +146,26 @@ export async function render(container: HTMLElement): Promise<void> {
   }
 
   /**
-   * Build search input for SDK call.
+   * Build the unified filter+search input for the SDK call.
+   * Search fields carry `$search: true`; the type filter stays a plain filter key.
    */
-  function buildSearchOptions(): QueryCustomerModelSearchInput | undefined {
-    if (!searchQuery) return undefined;
+  function buildFilterOptions(): QueryCustomerModelUnifiedFilterInput | undefined {
+    const filter: QueryCustomerModelUnifiedFilterInput = {};
 
-    return {
-      or: [
-        { name: { textSearch: { value: searchQuery } } },
-        { primaryEmail: { textSearch: { value: searchQuery } } },
-        { identityNumber: { textSearch: { value: searchQuery } } },
-        { taxNumber: { textSearch: { value: searchQuery } } },
-      ],
-    };
-  }
+    if (typeFilter) {
+      filter.type = { eq: typeFilter };
+    }
 
-  /**
-   * Build filter input for SDK call.
-   */
-  function buildFilterOptions(): QueryCustomerModelFilterInput | undefined {
-    if (!typeFilter) return undefined;
-    return { type: { eq: typeFilter } };
+    if (searchQuery) {
+      filter.or = [
+        { name: { $search: true, textSearch: { value: searchQuery } } },
+        { primaryEmail: { $search: true, textSearch: { value: searchQuery } } },
+        { identityNumber: { $search: true, textSearch: { value: searchQuery } } },
+        { taxNumber: { $search: true, textSearch: { value: searchQuery } } },
+      ];
+    }
+
+    return typeFilter || searchQuery ? filter : undefined;
   }
 
   async function loadPage(cursor: string | null = null): Promise<void> {
@@ -186,13 +182,11 @@ export async function render(container: HTMLElement): Promise<void> {
 
     try {
       const client = getClient();
-      const searchOptions = buildSearchOptions();
       const filterOptions = buildFilterOptions();
       const orderOptions = buildOrderOptions(sortState);
 
       const countPromise = client.customers.getCustomers({
         first: 1,
-        search: searchOptions,
         filter: filterOptions,
         select: ['id'] as const,
       });
@@ -202,7 +196,6 @@ export async function render(container: HTMLElement): Promise<void> {
       const dataRes = await client.customers.getCustomers({
         first: PAGE_SIZE,
         after: cursor ?? undefined,
-        search: searchOptions,
         filter: filterOptions,
         order: orderOptions,
         select: selectFields,
@@ -476,7 +469,6 @@ export async function render(container: HTMLElement): Promise<void> {
 
     try {
       const client = getClient();
-      const searchOptions = buildSearchOptions();
       const filterOptions = buildFilterOptions();
       const orderOptions = buildOrderOptions(sortState);
 
@@ -488,7 +480,6 @@ export async function render(container: HTMLElement): Promise<void> {
         const pageRes = await client.customers.getCustomers({
           first: PAGE_SIZE,
           after: afterCursor,
-          search: searchOptions,
           filter: filterOptions,
           order: orderOptions,
           select: ['id'] as const,

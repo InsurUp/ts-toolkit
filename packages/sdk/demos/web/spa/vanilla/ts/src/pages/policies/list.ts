@@ -37,10 +37,7 @@ import {
   type DateTime,
 } from '@insurup/contracts';
 import type { PolicyFieldKey } from '@insurup/contracts';
-import type {
-  QueryPoliciesResultSearchInput,
-  QueryPoliciesResultFilterInput,
-} from '@insurup/contracts';
+import type { QueryPoliciesResultUnifiedFilterInput } from '@insurup/sdk';
 
 const PAGE_SIZE = 10;
 const STORAGE_KEY = 'demo-policies-columns';
@@ -189,38 +186,32 @@ export async function render(container: HTMLElement): Promise<void> {
   }
 
   /**
-   * Build search input for SDK call.
+   * Build the unified filter+search input for the SDK call.
+   * The policy-number search carries `$search: true`; state/branch stay plain filters.
    */
-  function buildSearchOptions(): QueryPoliciesResultSearchInput | undefined {
-    if (!searchQuery) return undefined;
-
-    return {
-      or: [
-        { insuranceCompanyPolicyNumber: { textSearch: { value: searchQuery } } },
-        { insuredCustomerName: { textSearch: { value: searchQuery } } },
-        { productName: { textSearch: { value: searchQuery } } },
-      ],
-    };
-  }
-
-  /**
-   * Build filter input for SDK call.
-   */
-  function buildFilterOptions(): QueryPoliciesResultFilterInput | undefined {
-    const filters: QueryPoliciesResultFilterInput = {};
-    let hasFilters = false;
+  function buildFilterOptions(): QueryPoliciesResultUnifiedFilterInput | undefined {
+    const filter: QueryPoliciesResultUnifiedFilterInput = {};
+    let hasCriteria = false;
 
     if (stateFilter) {
-      filters.state = { eq: stateFilter };
-      hasFilters = true;
+      filter.state = { eq: stateFilter };
+      hasCriteria = true;
     }
 
     if (branchFilter) {
-      filters.productBranch = { eq: branchFilter };
-      hasFilters = true;
+      filter.productBranch = { eq: branchFilter };
+      hasCriteria = true;
     }
 
-    return hasFilters ? filters : undefined;
+    if (searchQuery) {
+      filter.insuranceCompanyPolicyNumber = {
+        $search: true,
+        textSearch: { value: searchQuery },
+      };
+      hasCriteria = true;
+    }
+
+    return hasCriteria ? filter : undefined;
   }
 
   async function loadPage(cursor: string | null = null): Promise<void> {
@@ -237,13 +228,11 @@ export async function render(container: HTMLElement): Promise<void> {
 
     try {
       const client = getClient();
-      const searchOptions = buildSearchOptions();
       const filterOptions = buildFilterOptions();
       const orderOptions = buildOrderOptions(sortState);
 
       const countPromise = client.policies.getPolicies({
         first: 1,
-        search: searchOptions,
         filter: filterOptions,
         select: ['id'] as const,
       });
@@ -253,7 +242,6 @@ export async function render(container: HTMLElement): Promise<void> {
       const dataRes = await client.policies.getPolicies({
         first: PAGE_SIZE,
         after: cursor ?? undefined,
-        search: searchOptions,
         filter: filterOptions,
         order: orderOptions,
         select: selectFields,
@@ -532,7 +520,6 @@ export async function render(container: HTMLElement): Promise<void> {
 
     try {
       const client = getClient();
-      const searchOptions = buildSearchOptions();
       const filterOptions = buildFilterOptions();
       const orderOptions = buildOrderOptions(sortState);
 
@@ -544,7 +531,6 @@ export async function render(container: HTMLElement): Promise<void> {
         const pageRes = await client.policies.getPolicies({
           first: PAGE_SIZE,
           after: afterCursor,
-          search: searchOptions,
           filter: filterOptions,
           order: orderOptions,
           select: ['id'] as const,

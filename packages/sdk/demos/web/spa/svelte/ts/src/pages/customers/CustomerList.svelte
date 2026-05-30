@@ -1,6 +1,7 @@
 <script lang="ts">
   import { navigate } from "$lib/router";
   import { getClient } from "$lib/client";
+  import type { QueryCustomerModelUnifiedFilterInput } from "@insurup/sdk";
   import type { Column } from "$lib/types";
   import DataTable from "$lib/components/DataTable.svelte";
   import Pagination from "$lib/components/Pagination.svelte";
@@ -42,14 +43,14 @@
   async function fetchCustomers() {
     isLoading = true;
     try {
-      const searchOptions = search
-        ? { name: { textSearch: { value: search } } }
+      const filterOptions: QueryCustomerModelUnifiedFilterInput | undefined = search
+        ? { name: { $search: true, textSearch: { value: search } } }
         : undefined;
 
       // Fire count query in parallel
       const countPromise = client.customers.getCustomers({
         first: 1,
-        search: searchOptions,
+        filter: filterOptions,
         select: ["id"] as const,
         includeTotalCount: true,
       });
@@ -60,7 +61,7 @@
         last: direction === "backward" ? 10 : undefined,
         after: direction === "forward" ? cursor : undefined,
         before: direction === "backward" ? cursor : undefined,
-        search: searchOptions,
+        filter: filterOptions,
         order: sortField ? [{ [sortField]: sortDirection === "asc" ? "ASC" : "DESC" }] : undefined,
         includeTotalCount: false,
       });

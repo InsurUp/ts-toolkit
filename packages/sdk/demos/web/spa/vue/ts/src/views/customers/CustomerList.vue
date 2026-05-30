@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import type { QueryCustomerModelUnifiedFilterInput } from '@insurup/sdk';
 import { useClient } from '@/composables/useClient';
 import DataTable, { type Column } from '@/components/DataTable.vue';
 import Pagination from '@/components/Pagination.vue';
@@ -43,13 +44,13 @@ const currentPage = ref(1);
 async function fetchCustomers() {
   isLoading.value = true;
   try {
-    const searchOptions = search.value
-      ? { name: { textSearch: { value: search.value } } }
+    const filterOptions: QueryCustomerModelUnifiedFilterInput | undefined = search.value
+      ? { name: { $search: true, textSearch: { value: search.value } } }
       : undefined;
 
     const countPromise = client.customers.getCustomers({
       first: 1,
-      search: searchOptions,
+      filter: filterOptions,
       select: ['id'] as const,
       includeTotalCount: true,
     });
@@ -60,7 +61,7 @@ async function fetchCustomers() {
       last: direction.value === 'backward' ? 10 : undefined,
       after: direction.value === 'forward' ? cursor.value : undefined,
       before: direction.value === 'backward' ? cursor.value : undefined,
-      search: searchOptions,
+      filter: filterOptions,
       order: sortField.value
         ? [{ [sortField.value]: sortDirection.value === 'asc' ? 'ASC' : 'DESC' }]
         : undefined,

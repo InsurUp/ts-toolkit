@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import type { QueryPoliciesResultUnifiedFilterInput } from '@insurup/sdk';
 import { ClientService } from '../../services/client.service';
 import { DataTableComponent, type Column } from '../../components/data-table.component';
 import { PaginationComponent } from '../../components/pagination.component';
@@ -178,15 +179,15 @@ export class PolicyListComponent {
   async fetchPolicies(): Promise<void> {
     this.isLoading.set(true);
     try {
-      const searchOptions = this.search
-        ? { insuranceCompanyPolicyNumber: { textSearch: { value: this.search } } }
+      const filterOptions: QueryPoliciesResultUnifiedFilterInput | undefined = this.search
+        ? { insuranceCompanyPolicyNumber: { $search: true, textSearch: { value: this.search } } }
         : undefined;
 
       const apiSortField = sortFieldToApiField[this.sortField()] || this.sortField();
 
       const countPromise = this.clientService.policies.getPolicies({
         first: 1,
-        search: searchOptions,
+        filter: filterOptions,
         select: ['id'] as const,
         includeTotalCount: true,
       });
@@ -207,7 +208,7 @@ export class PolicyListComponent {
         last: this.direction() === 'backward' ? 10 : undefined,
         after: this.direction() === 'forward' ? this.cursor() : undefined,
         before: this.direction() === 'backward' ? this.cursor() : undefined,
-        search: searchOptions,
+        filter: filterOptions,
         order: apiSortField
           ? [{ [apiSortField]: this.sortDirection() === 'asc' ? 'ASC' : 'DESC' }]
           : undefined,
