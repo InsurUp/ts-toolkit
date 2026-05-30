@@ -3,6 +3,7 @@
  * @description Default configuration values for the InsurUp SDK client
  */
 
+import type { InsurUpAuth } from '../auth/types.js';
 import type {
   InsurUpClientOptions,
   RetryOptions,
@@ -59,10 +60,17 @@ export const DEFAULT_LOGGER = {
 export type RequiredClientOptions = Required<
   Omit<
     InsurUpClientOptions,
-    'tokenProvider' | 'onRequest' | 'onResponse' | 'retry' | 'hubsBaseUrl' | 'signalRLogLevel'
+    | 'tokenProvider'
+    | 'auth'
+    | 'onRequest'
+    | 'onResponse'
+    | 'retry'
+    | 'hubsBaseUrl'
+    | 'signalRLogLevel'
   >
 > & {
   tokenProvider?: TokenProvider;
+  auth?: InsurUpAuth;
   onRequest?: RequestInterceptor;
   onResponse?: ResponseInterceptor;
   retry?: Required<RetryOptions>;

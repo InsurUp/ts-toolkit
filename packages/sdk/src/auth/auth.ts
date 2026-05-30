@@ -1,0 +1,107 @@
+/**
+ * @fileoverview createInsurUpAuth
+ * @description The public auth factory — ties config, storage, the token
+ * manager, and the OAuth flows into a single {@link InsurUpAuth} handle.
+ */
+
+import type * as oauth from 'oauth4webapi';
+
+import { OAuthError } from './errors.js';
+import {
+  buildAuthorizeUrl,
+  clientCredentialsGrant,
+  discoverAuthServer,
+  exchangeAuthorizationCode,
+  refreshTokenGrant,
+} from './oauth-client.js';
+import { createMemoryTokenStorage } from './storage.js';
+import { TokenManager } from './token-manager.js';
+import type { InsurUpAuth, InsurUpAuthConfig } from './types.js';
+
+const DEFAULT_REFRESH_BUFFER_SECONDS = 60;
+
+/**
+ * Creates an {@link InsurUpAuth} handle that acquires, stores, and refreshes
+ * OAuth tokens for the InsurUp platform. The authorization server metadata is
+ * resolved lazily (and cached) on first use — via OIDC discovery unless explicit
+ * endpoints are configured.
+ *
+ * @example Server-to-server (client credentials)
+ * ```typescript
+ * const auth = createInsurUpAuth({ clientId, clientSecret });
+ * await auth.loginWithClientCredentials({ scopes: ['core-api'] });
+ * const client = new DefaultInsurUpClient({ auth });
+ * ```
+ *
+ * @example Browser (authorization code + PKCE)
+ * ```typescript
+ * const auth = createInsurUpAuth({ clientId, storage: myStorage });
+ * const { url, codeVerifier, state } = await auth.getAuthorizeUrl({ redirectUri });
+ * // ...persist codeVerifier/state, navigate to url, then on the callback:
+ * await auth.exchangeCode({ callbackUrl: location.href, redirectUri, codeVerifier, state });
+ * ```
+ *
+ * InsurUp platformu için OAuth belirteçlerini edinen, saklayan ve yenileyen bir
+ * {@link InsurUpAuth} tutamacı oluşturur.
+ */
+export function createInsurUpAuth(config: InsurUpAuthConfig): InsurUpAuth {
+  const storage = config.storage ?? createMemoryTokenStorage();
+  const refreshBufferSeconds = config.refreshBufferSeconds ?? DEFAULT_REFRESH_BUFFER_SECONDS;
+
+  let serverPromise: Promise<oauth.AuthorizationServer> | null = null;
+  const getServer = (): Promise<oauth.AuthorizationServer> => {
+    serverPromise ??= discoverAuthServer(config);
+    return serverPromise;
+  };
+
+  const manager = new TokenManager({
+    storage,
+    refreshBufferSeconds,
+    refresh: async (refreshToken) =>
+      refreshTokenGrant(await getServer(), config.clientId, refreshToken, config.clientSecret),
+  });
+
+  const getAccessToken = (): Promise<string | null> => manager.getAccessToken();
+
+  return {
+    getAccessToken,
+    tokenProvider: getAccessToken,
+
+    async loginWithClientCredentials(options) {
+      const clientSecret = options?.clientSecret ?? config.clientSecret;
+      if (clientSecret === undefined) {
+        throw new OAuthError('A client secret is required for the client credentials grant.');
+      }
+      const tokens = await clientCredentialsGrant(
+        await getServer(),
+        config.clientId,
+        clientSecret,
+        options?.scopes ?? config.scopes
+      );
+      await manager.setTokens(tokens);
+      return tokens;
+    },
+
+    async getAuthorizeUrl(options) {
+      return buildAuthorizeUrl(await getServer(), config.clientId, {
+        ...options,
+        scopes: options.scopes ?? config.scopes,
+      });
+    },
+
+    async exchangeCode(options) {
+      const tokens = await exchangeAuthorizationCode(await getServer(), config.clientId, {
+        ...options,
+        clientSecret: options.clientSecret ?? config.clientSecret,
+      });
+      await manager.setTokens(tokens);
+      return tokens;
+    },
+
+    refresh: () => manager.refresh(),
+    logout: () => manager.clear(),
+    getTokens: () => manager.getTokens(),
+    getState: () => manager.getState(),
+    subscribe: (listener) => manager.subscribe(listener),
+  };
+}

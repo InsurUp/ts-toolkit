@@ -82,6 +82,7 @@
   },
   "dependencies": {
     "@insurup/contracts": "workspace:*",
-    "@microsoft/signalr": "^10.0.0"
+    "@microsoft/signalr": "^10.0.0",
+    "oauth4webapi": "^3.8.6"
   }
 }

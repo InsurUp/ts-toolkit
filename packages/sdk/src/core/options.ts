@@ -5,6 +5,7 @@
 
 import type { LogLevel as SignalRLogLevel } from '@microsoft/signalr';
 
+import type { InsurUpAuth } from '../auth/types.js';
 import type { InsurUpResult } from './result.js';
 
 /**
@@ -244,6 +245,14 @@ export interface InsurUpClientOptions {
    * The token will be automatically added to the Authorization header as 'Bearer {token}'
    */
   readonly tokenProvider?: TokenProvider;
+
+  /**
+   * Optional auth handle from `createInsurUpAuth`. When provided and no explicit
+   * {@link InsurUpClientOptions.tokenProvider} is set, the client uses
+   * `auth.tokenProvider` for both HTTP and SignalR requests — so tokens are
+   * injected and refreshed automatically.
+   */
+  readonly auth?: InsurUpAuth;
 
   /**
    * Optional request interceptor called before each request is sent

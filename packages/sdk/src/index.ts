@@ -82,6 +82,27 @@ export type {
   Logger,
 } from './core/options.js';
 
+// Auth module — OAuth login, token management, and refresh
+export {
+  createInsurUpAuth,
+  OAuthError,
+  createMemoryTokenStorage,
+  DEFAULT_AUTH_SERVER,
+} from './auth/index.js';
+export type {
+  InsurUpAuth,
+  InsurUpAuthConfig,
+  AuthServerConfig,
+  OAuthTokens,
+  OAuthErrorOptions,
+  AuthState,
+  TokenStorage,
+  AuthorizeUrl,
+  AuthorizeUrlOptions,
+  ExchangeCodeOptions,
+  ClientCredentialsLoginOptions,
+} from './auth/index.js';
+
 // Re-export all contract types from @insurup/contracts
 export * from '@insurup/contracts';
 

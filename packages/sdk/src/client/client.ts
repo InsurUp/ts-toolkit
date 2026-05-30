@@ -186,13 +186,20 @@ export class DefaultInsurUpClient {
   public readonly options: InsurUpClientOptions;
 
   constructor(options?: InsurUpClientOptions) {
-    this.http = new HttpTransport(options);
+    // When an `auth` handle is supplied without an explicit tokenProvider, wire
+    // its tokenProvider in so HTTP and SignalR inject (and refresh) tokens.
+    const resolvedOptions: InsurUpClientOptions =
+      options?.auth && !options.tokenProvider
+        ? { ...options, tokenProvider: options.auth.tokenProvider }
+        : (options ?? {});
+
+    this.http = new HttpTransport(resolvedOptions);
     this.graphql = new GraphQLTransport(this.http);
-    this.options = options || {};
+    this.options = resolvedOptions;
     this.signalR = new SignalRTransport({
-      hubsBaseUrl: options?.hubsBaseUrl ?? deriveHubsBaseUrl(options?.baseUrl),
-      tokenProvider: options?.tokenProvider,
-      logLevel: options?.signalRLogLevel,
+      hubsBaseUrl: resolvedOptions.hubsBaseUrl ?? deriveHubsBaseUrl(resolvedOptions.baseUrl),
+      tokenProvider: resolvedOptions.tokenProvider,
+      logLevel: resolvedOptions.signalRLogLevel,
     });
 
     // Initialize all specialized clients
