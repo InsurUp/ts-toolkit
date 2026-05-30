@@ -128,6 +128,20 @@ if (!result.isSuccess) throw result.error;
 const client = new DefaultInsurUpClient({ auth });
 ```
 
+#### Pushed Authorization Requests (PAR)
+
+Set `usePAR: true` to use [RFC 9126](https://www.rfc-editor.org/rfc/rfc9126) instead of a standard authorize URL. The request parameters (`scope`, `code_challenge`, `state`, `redirect_uri`, `extraParams`, …) are POSTed to the server's `pushed_authorization_request_endpoint` over a back-channel call, and the returned `url` carries only `client_id` + a one-shot `request_uri` — keeping the parameters out of the user-visible redirect, browser history, and server logs.
+
+```typescript
+const { url, codeVerifier, state } = await auth.getAuthorizeUrl({
+  redirectUri: 'https://app.example.com/callback',
+  scopes: ['openid', 'offline_access', 'core-api'],
+  usePAR: true, // ← push params; url is just ?client_id=…&request_uri=…
+});
+```
+
+The rest of the flow (persist `codeVerifier`/`state`, redirect, then `exchangeCode`) is unchanged. PAR needs the server to advertise the endpoint via OIDC discovery; with explicit endpoints, set `pushedAuthorizationRequestEndpoint` in the config. If `usePAR` is set but no endpoint is available, `getAuthorizeUrl()` throws an `OAuthError` rather than silently falling back. For confidential clients the push is authenticated with `clientSecret`.
+
 ### Token storage
 
 By default tokens are held in memory and lost on restart/reload. Provide a `TokenStorage` (`get` / `set` / `clear`, sync or async) to persist them — e.g. browser `localStorage`:

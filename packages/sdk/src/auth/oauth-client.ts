@@ -29,6 +29,7 @@ export async function discoverAuthServer(
       issuer,
       token_endpoint: config.tokenEndpoint,
       authorization_endpoint: config.authorizationEndpoint,
+      pushed_authorization_request_endpoint: config.pushedAuthorizationRequestEndpoint,
     };
   }
 
@@ -120,11 +121,21 @@ export async function refreshTokenGrant(
 /**
  * Builds an authorization-code (PKCE) authorize URL, generating a PKCE verifier
  * and `state` when not supplied.
+ *
+ * When {@link AuthorizeUrlOptions.usePAR} is set, the request parameters are
+ * pushed to the authorization server's `pushed_authorization_request_endpoint`
+ * (RFC 9126) over a back-channel call and the returned URL carries only
+ * `client_id` + the one-shot `request_uri`.
  */
 export async function buildAuthorizeUrl(
   as: oauth.AuthorizationServer,
   clientId: string,
-  options: AuthorizeUrlOptions
+  options: AuthorizeUrlOptions & {
+    /** Client secret for confidential clients — authenticates the PAR call. */
+    clientSecret?: string;
+    /** Permits a non-HTTPS PAR endpoint (development only). */
+    allowInsecure?: boolean;
+  }
 ): Promise<AuthorizeUrl> {
   if (as.authorization_endpoint === undefined) {
     throw new OAuthError(
@@ -137,21 +148,85 @@ export async function buildAuthorizeUrl(
   const state = options.state ?? oauth.generateRandomState();
   const codeChallenge = await oauth.calculatePKCECodeChallenge(codeVerifier);
 
-  const url = new URL(as.authorization_endpoint);
-  url.searchParams.set('client_id', clientId);
-  url.searchParams.set('redirect_uri', options.redirectUri);
-  url.searchParams.set('response_type', 'code');
-  url.searchParams.set('code_challenge', codeChallenge);
-  url.searchParams.set('code_challenge_method', 'S256');
-  url.searchParams.set('state', state);
+  // The authorization request parameters, shared by the standard and PAR flows.
+  // `client_id` is added by the standard URL builder / by oauth4webapi for PAR.
+  const params = new URLSearchParams();
+  params.set('redirect_uri', options.redirectUri);
+  params.set('response_type', 'code');
+  params.set('code_challenge', codeChallenge);
+  params.set('code_challenge_method', 'S256');
+  params.set('state', state);
   if (options.scopes && options.scopes.length > 0) {
-    url.searchParams.set('scope', options.scopes.join(' '));
+    params.set('scope', options.scopes.join(' '));
   }
   for (const [key, value] of Object.entries(options.extraParams ?? {})) {
-    url.searchParams.set(key, value);
+    params.set(key, value);
   }
 
-  return { url: url.href, codeVerifier, state };
+  const url = options.usePAR
+    ? await pushAuthorizationRequest(as, as.authorization_endpoint, clientId, params, options)
+    : buildStandardAuthorizeUrl(as.authorization_endpoint, clientId, params);
+
+  return { url, codeVerifier, state };
+}
+
+/** Builds a standard OAuth authorize URL with all parameters in the query string. */
+function buildStandardAuthorizeUrl(
+  authorizationEndpoint: string,
+  clientId: string,
+  params: URLSearchParams
+): string {
+  const url = new URL(authorizationEndpoint);
+  url.searchParams.set('client_id', clientId);
+  for (const [key, value] of params) {
+    url.searchParams.set(key, value);
+  }
+  return url.href;
+}
+
+/**
+ * Pushes the authorization request parameters to the server's
+ * `pushed_authorization_request_endpoint` (RFC 9126) and returns an authorize
+ * URL carrying only `client_id` + the one-shot `request_uri`.
+ */
+async function pushAuthorizationRequest(
+  as: oauth.AuthorizationServer,
+  authorizationEndpoint: string,
+  clientId: string,
+  params: URLSearchParams,
+  options: { clientSecret?: string; allowInsecure?: boolean }
+): Promise<string> {
+  if (as.pushed_authorization_request_endpoint === undefined) {
+    throw new OAuthError(
+      'usePAR was set, but the authorization server does not advertise a ' +
+        'pushed_authorization_request_endpoint (RFC 9126). Configure ' +
+        'pushedAuthorizationRequestEndpoint, use a server that supports PAR, or disable usePAR.'
+    );
+  }
+
+  const client: oauth.Client = { client_id: clientId };
+  const clientAuth =
+    options.clientSecret !== undefined
+      ? oauth.ClientSecretPost(options.clientSecret)
+      : oauth.None();
+
+  try {
+    const response = await oauth.pushedAuthorizationRequest(
+      as,
+      client,
+      clientAuth,
+      params,
+      options.allowInsecure ? { [oauth.allowInsecureRequests]: true } : undefined
+    );
+    const { request_uri } = await oauth.processPushedAuthorizationResponse(as, client, response);
+
+    const url = new URL(authorizationEndpoint);
+    url.searchParams.set('client_id', clientId);
+    url.searchParams.set('request_uri', request_uri);
+    return url.href;
+  } catch (error) {
+    throw toOAuthError(error);
+  }
 }
 
 /**

@@ -106,6 +106,15 @@ export interface AuthServerConfig {
    * skipped for building authorize URLs.
    */
   readonly authorizationEndpoint?: string;
+
+  /**
+   * Explicit Pushed Authorization Request endpoint URL (RFC 9126). When set, the
+   * {@link AuthorizeUrlOptions.usePAR} flow posts authorization parameters here
+   * instead of relying on the endpoint advertised via OIDC discovery. Only
+   * consulted alongside an explicit {@link AuthServerConfig.authorizationEndpoint}
+   * or {@link AuthServerConfig.tokenEndpoint} (which is what skips discovery).
+   */
+  readonly pushedAuthorizationRequestEndpoint?: string;
 }
 
 /**
@@ -214,6 +223,24 @@ export interface AuthorizeUrlOptions {
    * `login_hint`, `acr_values`).
    */
   readonly extraParams?: Readonly<Record<string, string>>;
+
+  /**
+   * Use Pushed Authorization Request (RFC 9126). When `true`, the authorization
+   * parameters (`scope`, `code_challenge`, `state`, `redirect_uri`,
+   * `extraParams`, …) are POSTed to the authorization server's
+   * `pushed_authorization_request_endpoint` over a back-channel HTTPS call, and
+   * {@link AuthorizeUrl.url} carries only `client_id` + the one-shot `request_uri`
+   * returned by the server — keeping the parameters out of the user-visible
+   * redirect, browser history, and server logs.
+   *
+   * Requires the authorization server to advertise the endpoint via OIDC
+   * discovery (or {@link AuthServerConfig.pushedAuthorizationRequestEndpoint}).
+   * When it does not, `getAuthorizeUrl` throws an `OAuthError` rather than
+   * silently falling back to a standard authorize URL.
+   *
+   * @default false
+   */
+  readonly usePAR?: boolean;
 }
 
 /**

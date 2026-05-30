@@ -20,6 +20,7 @@ import { DefaultInsurUpClient } from '../../../src/client/client';
 const AUTH_SERVER = 'https://auth.insurup.com';
 const TOKEN_ENDPOINT = `${AUTH_SERVER}/connect/token`;
 const AUTHORIZE_ENDPOINT = `${AUTH_SERVER}/connect/authorize`;
+const PAR_ENDPOINT = `${AUTH_SERVER}/connect/par`;
 const DISCOVERY_ENDPOINT = `${AUTH_SERVER}/.well-known/openid-configuration`;
 const CALLBACK = 'http://localhost:8080/cb';
 
@@ -419,6 +420,158 @@ describe('createInsurUpAuth', () => {
       expect(result.isSuccess).toBe(false);
       if (result.isSuccess) throw new Error('expected failure');
       expect(result.error.code).toBe('access_denied');
+    });
+  });
+
+  describe('pushed authorization requests (PAR)', () => {
+    /**
+     * A PAR endpoint that records the pushed body and answers with a one-shot
+     * `request_uri` (RFC 9126 mandates HTTP 201 on success).
+     */
+    function parEndpoint(capture: { body?: string }, requestUri: string) {
+      return http.post(PAR_ENDPOINT, async ({ request }) => {
+        capture.body = await request.text();
+        return HttpResponse.json({ request_uri: requestUri, expires_in: 60 }, { status: 201 });
+      });
+    }
+
+    it('pushes the params and returns a URL carrying only client_id + request_uri', async () => {
+      const capture: { body?: string } = {};
+      const requestUri = 'urn:ietf:params:oauth:request_uri:abc123';
+      server.use(parEndpoint(capture, requestUri));
+
+      const auth = makeAuth({ pushedAuthorizationRequestEndpoint: PAR_ENDPOINT });
+      const { url, codeVerifier, state } = await auth.getAuthorizeUrl({
+        redirectUri: CALLBACK,
+        scopes: ['openid', 'core-api'],
+        usePAR: true,
+      });
+
+      // The user-visible redirect leaks nothing but client_id + request_uri.
+      const parsed = new URL(url);
+      expect(parsed.origin + parsed.pathname).toBe(AUTHORIZE_ENDPOINT);
+      expect(parsed.searchParams.get('client_id')).toBe('demo');
+      expect(parsed.searchParams.get('request_uri')).toBe(requestUri);
+      expect(parsed.searchParams.get('redirect_uri')).toBeNull();
+      expect(parsed.searchParams.get('code_challenge')).toBeNull();
+      expect(parsed.searchParams.get('scope')).toBeNull();
+      expect(parsed.searchParams.get('state')).toBeNull();
+
+      // The sensitive params instead travel over the back-channel push.
+      const pushed = new URLSearchParams(capture.body);
+      expect(pushed.get('client_id')).toBe('demo');
+      expect(pushed.get('redirect_uri')).toBe(CALLBACK);
+      expect(pushed.get('response_type')).toBe('code');
+      expect(pushed.get('code_challenge_method')).toBe('S256');
+      expect(pushed.get('scope')).toBe('openid core-api');
+      expect(pushed.get('state')).toBe(state);
+      expect(pushed.get('code_challenge')).toBe(await s256Challenge(codeVerifier));
+    });
+
+    it('authenticates the push with the client secret for confidential clients', async () => {
+      const capture: { body?: string } = {};
+      server.use(parEndpoint(capture, 'urn:req:1'));
+
+      const auth = makeAuth({
+        clientSecret: 'par-secret',
+        pushedAuthorizationRequestEndpoint: PAR_ENDPOINT,
+      });
+      await auth.getAuthorizeUrl({ redirectUri: CALLBACK, usePAR: true });
+
+      expect(new URLSearchParams(capture.body).get('client_secret')).toBe('par-secret');
+    });
+
+    it('omits client authentication for public (PKCE-only) clients', async () => {
+      const capture: { body?: string } = {};
+      server.use(parEndpoint(capture, 'urn:req:2'));
+
+      const auth = createInsurUpAuth({
+        clientId: 'demo',
+        authorizationEndpoint: AUTHORIZE_ENDPOINT,
+        pushedAuthorizationRequestEndpoint: PAR_ENDPOINT,
+      });
+      await auth.getAuthorizeUrl({ redirectUri: CALLBACK, usePAR: true });
+
+      const pushed = new URLSearchParams(capture.body);
+      expect(pushed.get('client_id')).toBe('demo');
+      expect(pushed.get('client_secret')).toBeNull();
+    });
+
+    it('appends extra params to the push, not the redirect', async () => {
+      const capture: { body?: string } = {};
+      server.use(parEndpoint(capture, 'urn:req:3'));
+
+      const auth = makeAuth({ pushedAuthorizationRequestEndpoint: PAR_ENDPOINT });
+      const { url } = await auth.getAuthorizeUrl({
+        redirectUri: CALLBACK,
+        usePAR: true,
+        extraParams: { prompt: 'login', login_hint: 'a@b.com' },
+      });
+
+      expect(new URL(url).searchParams.get('prompt')).toBeNull();
+      const pushed = new URLSearchParams(capture.body);
+      expect(pushed.get('prompt')).toBe('login');
+      expect(pushed.get('login_hint')).toBe('a@b.com');
+    });
+
+    it('discovers the PAR endpoint via OIDC', async () => {
+      const capture: { body?: string } = {};
+      server.use(
+        http.get(DISCOVERY_ENDPOINT, () =>
+          HttpResponse.json({
+            issuer: AUTH_SERVER,
+            token_endpoint: TOKEN_ENDPOINT,
+            authorization_endpoint: AUTHORIZE_ENDPOINT,
+            pushed_authorization_request_endpoint: PAR_ENDPOINT,
+            response_types_supported: ['code'],
+          })
+        ),
+        parEndpoint(capture, 'urn:req:discovered')
+      );
+
+      const auth = createInsurUpAuth({
+        clientId: 'demo',
+        clientSecret: 'secret',
+        authServer: AUTH_SERVER,
+      });
+      const { url } = await auth.getAuthorizeUrl({ redirectUri: CALLBACK, usePAR: true });
+
+      expect(new URL(url).searchParams.get('request_uri')).toBe('urn:req:discovered');
+      expect(capture.body).toBeDefined();
+    });
+
+    it('throws an OAuthError when the server advertises no PAR endpoint', async () => {
+      // makeAuth() configures only token + authorization endpoints — no PAR.
+      const auth = makeAuth();
+      await expect(
+        auth.getAuthorizeUrl({ redirectUri: CALLBACK, usePAR: true })
+      ).rejects.toBeInstanceOf(OAuthError);
+    });
+
+    it('maps a PAR endpoint error response to a thrown OAuthError', async () => {
+      server.use(
+        http.post(PAR_ENDPOINT, () =>
+          HttpResponse.json(
+            { error: 'invalid_request', error_description: 'bad redirect_uri' },
+            { status: 400 }
+          )
+        )
+      );
+
+      const auth = makeAuth({ pushedAuthorizationRequestEndpoint: PAR_ENDPOINT });
+      await expect(
+        auth.getAuthorizeUrl({ redirectUri: CALLBACK, usePAR: true })
+      ).rejects.toMatchObject({ name: 'OAuthError', code: 'invalid_request' });
+    });
+
+    it('builds a standard authorize URL when usePAR is not set, even if a PAR endpoint exists', async () => {
+      const auth = makeAuth({ pushedAuthorizationRequestEndpoint: PAR_ENDPOINT });
+      const { url } = await auth.getAuthorizeUrl({ redirectUri: CALLBACK, scopes: ['openid'] });
+
+      const parsed = new URL(url);
+      expect(parsed.searchParams.get('request_uri')).toBeNull();
+      expect(parsed.searchParams.get('code_challenge')).not.toBeNull();
+      expect(parsed.searchParams.get('redirect_uri')).toBe(CALLBACK);
     });
   });
 
