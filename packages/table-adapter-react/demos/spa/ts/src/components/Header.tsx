@@ -67,6 +67,16 @@ export function Header(): React.ReactElement {
               >
                 Customers (Infinite)
               </NavLink>
+              <NavLink
+                to="/roles"
+                className={({ isActive }) =>
+                  isActive
+                    ? 'text-foreground'
+                    : 'text-foreground/60 transition-colors hover:text-foreground'
+                }
+              >
+                Roles (In-memory)
+              </NavLink>
             </nav>
           )}
         </div>

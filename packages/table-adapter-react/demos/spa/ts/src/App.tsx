@@ -5,6 +5,7 @@ import { Home } from '@/pages/Home';
 import { Callback } from '@/pages/Callback';
 import { CustomerTable } from '@/pages/CustomerTable';
 import { CustomerTableInfinite } from '@/pages/CustomerTableInfinite';
+import { RoleTable } from '@/pages/RoleTable';
 
 function App(): React.ReactElement {
   return (
@@ -20,6 +21,7 @@ function App(): React.ReactElement {
           <Route element={<ProtectedRoute />}>
             <Route path="/customers" element={<CustomerTable />} />
             <Route path="/customers-infinite" element={<CustomerTableInfinite />} />
+            <Route path="/roles" element={<RoleTable />} />
           </Route>
         </Routes>
       </main>
