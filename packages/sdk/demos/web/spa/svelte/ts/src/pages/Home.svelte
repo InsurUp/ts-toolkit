@@ -1,6 +1,6 @@
 <script lang="ts">
   import { navigate } from "$lib/router";
-  import { getAuthState, startLogin } from "$lib/auth/index.svelte";
+  import { getAuthState, login } from "$lib/auth/index.svelte";
   import { Button, Card, CardHeader, CardTitle, CardContent, CardDescription } from "$lib/components/ui";
   import { Users, FileText, Shield } from "lucide-svelte";
 
@@ -8,7 +8,7 @@
 
   async function handleLogin() {
     auth.setLoginInProgress(true);
-    await startLogin();
+    await login();
   }
 </script>
 

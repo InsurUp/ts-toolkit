@@ -1,83 +1,64 @@
 /**
- * OAuth2/OIDC authentication module using @badgateway/oauth2-client.
- * Orchestrates the authorization code flow with PKCE.
+ * OAuth2/OIDC authentication module using the InsurUp SDK auth module.
+ * Orchestrates the authorization code flow with PKCE (public client, no secret).
  */
 
-import { OAuth2Client, generateCodeVerifier, type OAuth2Token } from '@badgateway/oauth2-client';
+import {
+  createInsurUpAuth,
+  type InsurUpAuth,
+  type OAuthTokens,
+  type TokenStorage,
+} from '@insurup/sdk';
 import open from 'open';
-import { saveTokens, loadTokens, clearTokens, type TokenData } from './credential-store.js';
+import { saveTokens, loadTokens, clearTokens } from './credential-store.js';
 import { waitForCallback, type CallbackResult } from './callback-server.js';
 import { getConfig } from '../config.js';
 
 // Timeout for OAuth callback (5 minutes)
 const CALLBACK_TIMEOUT = 5 * 60 * 1000;
 
-// Lazily initialized OAuth2 client (uses config values)
-let _client: OAuth2Client | null = null;
+/**
+ * Keychain-backed token storage for the SDK auth module.
+ * Bridges the SDK's TokenStorage contract to the credential store.
+ */
+const storage: TokenStorage = {
+  get: () => loadTokens(),
+  set: (tokens) => saveTokens(tokens),
+  clear: () => clearTokens(),
+};
+
+// Lazily initialized auth handle (uses config values)
+let _auth: InsurUpAuth | null = null;
 
 /**
- * Get the OAuth2 client instance.
+ * Get the auth handle.
  * Lazily initializes with config values.
  */
-function getOAuthClient(): OAuth2Client {
-  if (!_client) {
+function getAuth(): InsurUpAuth {
+  if (!_auth) {
     const config = getConfig();
-    _client = new OAuth2Client({
-      server: config.authServer,
+    _auth = createInsurUpAuth({
       clientId: config.clientId,
+      authServer: config.authServer,
+      scopes: config.scopes,
+      storage,
     });
   }
-  return _client;
-}
-
-/**
- * Convert library token to our TokenData format.
- */
-function toTokenData(token: OAuth2Token): TokenData {
-  return {
-    accessToken: token.accessToken,
-    refreshToken: token.refreshToken ?? undefined,
-    expiresAt: token.expiresAt ?? undefined,
-    tokenType: 'Bearer',
-  };
-}
-
-/**
- * Convert our TokenData to library token format.
- */
-function toOAuth2Token(data: TokenData): OAuth2Token {
-  return {
-    accessToken: data.accessToken,
-    refreshToken: data.refreshToken ?? null,
-    expiresAt: data.expiresAt ?? null,
-  };
+  return _auth;
 }
 
 /**
  * Start the OAuth2 login flow.
  * Opens the browser, waits for callback, exchanges code for tokens.
  */
-export async function login(): Promise<TokenData> {
-  // Generate PKCE code verifier
-  const codeVerifier = await generateCodeVerifier();
+export async function login(): Promise<OAuthTokens> {
+  const auth = getAuth();
 
   // Start callback server to receive the authorization code
   const { result, url: redirectUri, stop } = await waitForCallback();
 
-  // Generate state for CSRF protection
-  const state = crypto.randomUUID();
-
-  // Get config for scopes
-  const config = getConfig();
-  const client = getOAuthClient();
-
-  // Get authorization URL with PKCE
-  const authUrl = await client.authorizationCode.getAuthorizeUri({
-    redirectUri,
-    state,
-    codeVerifier,
-    scope: config.scopes,
-  });
+  // Build the authorize URL (generates PKCE verifier + state)
+  const { url: authUrl, codeVerifier, state } = await auth.getAuthorizeUrl({ redirectUri });
 
   // Open browser for user authentication
   await open(authUrl);
@@ -106,23 +87,25 @@ export async function login(): Promise<TokenData> {
       throw new Error('No authorization code received');
     }
 
-    // Verify state
-    if (callbackResult.state !== state) {
-      throw new Error('State mismatch - possible CSRF attack');
+    // Exchange code for tokens (callbackUrl must be absolute; state is validated)
+    const callbackUrl = new URL(redirectUri);
+    callbackUrl.searchParams.set('code', callbackResult.code);
+    if (callbackResult.state) {
+      callbackUrl.searchParams.set('state', callbackResult.state);
     }
 
-    // Exchange code for tokens using the library
-    const token = await client.authorizationCode.getToken({
-      code: callbackResult.code,
+    const exchange = await auth.exchangeCode({
+      callbackUrl,
       redirectUri,
       codeVerifier,
+      state,
     });
 
-    // Convert and save tokens
-    const tokenData = toTokenData(token);
-    await saveTokens(tokenData);
+    if (!exchange.isSuccess) {
+      throw new Error(exchange.error.message);
+    }
 
-    return tokenData;
+    return exchange.data;
   } finally {
     // Always stop the callback server
     stop();
@@ -130,48 +113,12 @@ export async function login(): Promise<TokenData> {
 }
 
 /**
- * Refresh the access token using the refresh token.
- */
-async function refreshAccessToken(tokenData: TokenData): Promise<TokenData> {
-  const oauth2Token = toOAuth2Token(tokenData);
-  const newToken = await getOAuthClient().refreshToken(oauth2Token);
-
-  const newTokenData = toTokenData(newToken);
-  await saveTokens(newTokenData);
-
-  return newTokenData;
-}
-
-/**
  * Get a valid access token.
- * Refreshes the token if expired.
+ * Refreshes the token transparently if expired.
  * Returns null if not logged in.
  */
 export async function getAccessToken(): Promise<string | null> {
-  const tokens = await loadTokens();
-
-  if (!tokens) {
-    return null;
-  }
-
-  // Check if token is expired (with 60 second buffer)
-  if (tokens.expiresAt && Date.now() >= tokens.expiresAt - 60000) {
-    if (tokens.refreshToken) {
-      try {
-        const newTokens = await refreshAccessToken(tokens);
-        return newTokens.accessToken;
-      } catch {
-        // Refresh failed - clear tokens and return null
-        await clearTokens();
-        return null;
-      }
-    }
-    // No refresh token and expired - clear and return null
-    await clearTokens();
-    return null;
-  }
-
-  return tokens.accessToken;
+  return getAuth().getAccessToken();
 }
 
 /**
@@ -182,7 +129,7 @@ export async function getAuthStatus(): Promise<{
   expiresAt?: Date;
   hasRefreshToken: boolean;
 }> {
-  const tokens = await loadTokens();
+  const tokens = await getAuth().getTokens();
 
   if (!tokens) {
     return {
@@ -202,7 +149,7 @@ export async function getAuthStatus(): Promise<{
  * Logout and clear stored tokens.
  */
 export async function logout(): Promise<void> {
-  await clearTokens();
+  await getAuth().logout();
 }
 
 /**

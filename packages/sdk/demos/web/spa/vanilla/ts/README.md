@@ -79,9 +79,7 @@ src/
 ├── client.ts                   # SDK client singleton with token provider
 ├── auth/
 │   ├── index.ts                # Auth module exports
-│   ├── oauth.ts                # OAuth2/PKCE flow implementation
-│   ├── token-store.ts          # localStorage token persistence
-│   └── pkce.ts                 # PKCE code verifier/challenge generation
+│   └── auth.ts                 # SDK auth handle (createInsurUpAuth) + helpers
 ├── components/
 │   ├── header.ts               # Navigation bar with auth status
 │   ├── toast.ts                # Toast notifications
@@ -159,10 +157,11 @@ This demo implements the OAuth2 Authorization Code flow with PKCE (Proof Key for
 
 ```typescript
 import { DefaultInsurUpClient } from '@insurup/sdk';
-import { getAccessToken } from './auth';
+import { getAuth } from './auth';
 
+// The auth handle (from createInsurUpAuth) auto-injects and refreshes the token.
 const client = new DefaultInsurUpClient({
-  tokenProvider: () => getAccessToken(),
+  auth: getAuth(),
 });
 ```
 

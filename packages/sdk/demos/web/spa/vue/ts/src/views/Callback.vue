@@ -13,7 +13,7 @@ onMounted(async () => {
 
   if (code && state) {
     try {
-      await handleCallback(code, state);
+      await handleCallback();
       window.history.replaceState({}, '', window.location.pathname);
       router.replace('/');
     } catch (error) {

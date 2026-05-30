@@ -1,9 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { navigate } from "$lib/router";
-  import { getAuthState, handleCallback } from "$lib/auth/index.svelte";
-
-  const auth = getAuthState();
+  import { handleCallback } from "$lib/auth/index.svelte";
 
   onMount(async () => {
     // Parse the callback URL parameters
@@ -13,8 +11,12 @@
 
     if (code && state) {
       try {
-        const tokens = await handleCallback(code, state);
-        auth.setTokens(tokens);
+        // The auth handle exchanges the code, persists the tokens, and notifies
+        // subscribers; the reactive auth store updates automatically.
+        const result = await handleCallback();
+        if (!result.isSuccess) {
+          console.error("Callback error:", result.error);
+        }
         // Clear the URL params and redirect to home
         window.history.replaceState({}, "", window.location.pathname);
         navigate("/");

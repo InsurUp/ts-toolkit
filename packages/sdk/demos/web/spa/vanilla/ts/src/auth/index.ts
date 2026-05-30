@@ -1,14 +1,17 @@
 /**
  * Authentication module exports.
+ *
+ * Backed by the InsurUp SDK's first-class auth module (`createInsurUpAuth`).
  */
 
 export {
+  getAuth,
   startLogin,
   handleCallback,
   getAccessToken,
   getAuthStatus,
-  logout,
   isAuthenticated,
-} from './oauth';
-
-export type { TokenData } from './token-store';
+  subscribeAuth,
+  logout,
+  type AuthStatus,
+} from './auth';

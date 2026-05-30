@@ -1,13 +1,12 @@
-import { useAuthContext } from 'react-oauth2-code-pkce';
+import { useAuth } from '@/auth';
 import { useNavigate } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, FileText, Shield } from 'lucide-react';
 
 export function Home() {
-  const { token, login, loginInProgress } = useAuthContext();
+  const { isAuthenticated, login } = useAuth();
   const navigate = useNavigate();
-  const isAuthenticated = !!token;
 
   if (!isAuthenticated) {
     return (
@@ -17,8 +16,8 @@ export function Home() {
         <p className="text-xl text-muted-foreground mb-8 max-w-md">
           A React SPA demonstrating the InsurUp SDK for insurance platform integration.
         </p>
-        <Button size="lg" onClick={() => login()} disabled={loginInProgress}>
-          {loginInProgress ? 'Signing in...' : 'Sign in to get started'}
+        <Button size="lg" onClick={() => void login()}>
+          Sign in to get started
         </Button>
       </div>
     );

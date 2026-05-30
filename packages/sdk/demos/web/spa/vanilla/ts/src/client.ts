@@ -4,7 +4,7 @@
  */
 
 import { DefaultInsurUpClient } from '@insurup/sdk';
-import { getAccessToken } from './auth';
+import { getAuth } from './auth';
 import { getConfig } from './config';
 
 let clientInstance: DefaultInsurUpClient | null = null;
@@ -12,12 +12,15 @@ let clientInstance: DefaultInsurUpClient | null = null;
 /**
  * Get the SDK client instance.
  * Creates a new instance if one doesn't exist.
+ *
+ * The auth handle is passed directly so the client auto-injects (and refreshes)
+ * the access token for every request.
  */
 export function getClient(): DefaultInsurUpClient {
   if (!clientInstance) {
     const config = getConfig();
     clientInstance = new DefaultInsurUpClient({
-      tokenProvider: () => getAccessToken(),
+      auth: getAuth(),
       ...(config.apiBaseUrl && { baseUrl: config.apiBaseUrl }),
     });
   }

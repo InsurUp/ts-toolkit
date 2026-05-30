@@ -12,7 +12,7 @@ export class ClientService {
 
   constructor() {
     this.client = new DefaultInsurUpClient({
-      tokenProvider: () => this.authService.getAccessToken(),
+      auth: this.authService.auth,
       baseUrl: environment.apiBaseUrl,
     });
   }

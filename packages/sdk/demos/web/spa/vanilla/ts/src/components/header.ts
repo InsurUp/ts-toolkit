@@ -2,13 +2,23 @@
  * Header component with navigation and auth status.
  */
 
-import { getAuthStatus, logout } from '../auth';
+import { getAuthStatus, logout, subscribeAuth } from '../auth';
 import { navigate } from '../utils/router';
+
+/** Unsubscribe handle for the active auth subscription, if any. */
+let unsubscribeAuth: (() => void) | null = null;
 
 /**
  * Render the header navigation.
+ *
+ * Subscribes to auth state changes so the header (auth status, expiry, nav
+ * links) stays in sync on login, transparent refresh, and logout.
  */
 export function renderHeader(container: HTMLElement): void {
+  if (!unsubscribeAuth) {
+    unsubscribeAuth = subscribeAuth(() => renderHeader(container));
+  }
+
   const authStatus = getAuthStatus();
 
   const navLinks = authStatus.isAuthenticated
@@ -68,13 +78,14 @@ export function renderHeader(container: HTMLElement): void {
 
 /**
  * Handle logout click.
+ *
+ * Clearing the session notifies the auth subscription, which re-renders the
+ * header; navigating home re-renders the current page for the new auth state.
  */
-function handleLogout(e: Event): void {
+async function handleLogout(e: Event): Promise<void> {
   e.preventDefault();
-  logout();
+  await logout();
   navigate('/');
-  // Refresh the page to update header
-  window.location.reload();
 }
 
 /**

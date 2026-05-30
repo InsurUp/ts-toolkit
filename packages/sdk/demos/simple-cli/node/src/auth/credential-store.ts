@@ -4,25 +4,18 @@
  */
 
 import keytar from 'keytar';
-
-export interface TokenData {
-  accessToken: string;
-  refreshToken?: string;
-  expiresAt?: number;
-  tokenType?: string;
-  scope?: string;
-}
+import type { OAuthTokens } from '@insurup/sdk';
 
 const SERVICE = 'com.insurup.sdk';
 const ACCOUNT = 'tokens';
 
-export async function saveTokens(data: TokenData): Promise<void> {
+export async function saveTokens(data: OAuthTokens): Promise<void> {
   await keytar.setPassword(SERVICE, ACCOUNT, JSON.stringify(data));
 }
 
-export async function loadTokens(): Promise<TokenData | null> {
+export async function loadTokens(): Promise<OAuthTokens | null> {
   const json = await keytar.getPassword(SERVICE, ACCOUNT);
-  return json ? (JSON.parse(json) as TokenData) : null;
+  return json ? (JSON.parse(json) as OAuthTokens) : null;
 }
 
 export async function clearTokens(): Promise<void> {

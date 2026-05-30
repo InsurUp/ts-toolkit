@@ -38,7 +38,7 @@ async function init(): Promise<void> {
   }
 
   try {
-    await handleCallback(code, state);
+    await handleCallback();
     showSuccess('Successfully authenticated!');
 
     // Clear URL params and redirect to home

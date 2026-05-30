@@ -14,12 +14,9 @@ export async function render(container: HTMLElement): Promise<void> {
   `;
 
   try {
-    // Parse URL parameters from query string
-    // The callback URL format is: /callback?code=xxx&state=yyy
+    // Surface an explicit authorization-server error before attempting exchange.
+    // The callback URL format is: /callback?code=xxx&state=yyy (or ?error=...)
     const params = new URLSearchParams(window.location.search);
-
-    const code = params.get('code');
-    const state = params.get('state');
     const error = params.get('error');
     const errorDescription = params.get('error_description');
 
@@ -29,12 +26,9 @@ export async function render(container: HTMLElement): Promise<void> {
       );
     }
 
-    if (!code || !state) {
-      throw new Error('Missing authorization code or state parameter');
-    }
-
-    // Exchange code for tokens
-    await handleCallback(code, state);
+    // Exchange the authorization code for tokens. The SDK parses code and state
+    // from the callback URL and validates state against the stashed value.
+    await handleCallback(window.location.href);
 
     showSuccess('Successfully authenticated!');
 

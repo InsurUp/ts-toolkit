@@ -3,7 +3,7 @@
  */
 
 import { DefaultInsurUpClient } from '@insurup/sdk';
-import { getAccessToken } from './auth';
+import { getAuth } from './auth';
 import { getConfig } from './config';
 
 let clientInstance: DefaultInsurUpClient | null = null;
@@ -12,7 +12,7 @@ export function getClient(): DefaultInsurUpClient {
   if (!clientInstance) {
     const config = getConfig();
     clientInstance = new DefaultInsurUpClient({
-      tokenProvider: () => getAccessToken(),
+      auth: getAuth(),
       ...(config.apiBaseUrl && { baseUrl: config.apiBaseUrl }),
     });
   }

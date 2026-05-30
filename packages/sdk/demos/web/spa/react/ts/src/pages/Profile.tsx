@@ -1,14 +1,27 @@
-import { useAuthContext } from 'react-oauth2-code-pkce';
+import { useAuth } from '@/auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { User, Mail, Clock, LogOut } from 'lucide-react';
 
-export function Profile() {
-  const { token, idTokenData, logOut } = useAuthContext();
+/** Decodes the payload of a JWT without verifying its signature. */
+function decodeJwtPayload(jwt: string): Record<string, unknown> | undefined {
+  const payload = jwt.split('.')[1];
+  if (!payload) return undefined;
+  try {
+    const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+    return JSON.parse(json) as Record<string, unknown>;
+  } catch {
+    return undefined;
+  }
+}
 
-  // Parse token claims if available
-  const claims = idTokenData as Record<string, unknown> | undefined;
+export function Profile() {
+  const { tokens, logout } = useAuth();
+  const token = tokens?.accessToken;
+
+  // Parse ID token claims if available
+  const claims = tokens?.idToken ? decodeJwtPayload(tokens.idToken) : undefined;
 
   return (
     <div className="space-y-6">
@@ -82,7 +95,7 @@ export function Profile() {
               </div>
             )}
             <div className="pt-4">
-              <Button variant="destructive" onClick={() => logOut()}>
+              <Button variant="destructive" onClick={() => void logout()}>
                 <LogOut className="mr-2 h-4 w-4" />
                 Sign Out
               </Button>
