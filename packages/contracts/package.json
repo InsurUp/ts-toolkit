@@ -51,7 +51,7 @@
   "scripts": {
     "build": "bun run generate-meta && tsup && tsc",
     "generate-meta": "bun run scripts/generate-meta.ts src/graphql test/unit/meta",
-    "check-types": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
