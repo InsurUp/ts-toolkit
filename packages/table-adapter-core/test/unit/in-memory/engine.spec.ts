@@ -191,6 +191,45 @@ describe('applySort', () => {
     const result = applySort(rows, [{ 'branch.name': SortEnumType.ASC }]).map((r) => r.id);
     expect(result).toEqual(['c', 'a', 'b']);
   });
+
+  it('sorts booleans (false before true ascending)', () => {
+    // people: r1/r2/r4 active=true, r3 active=false
+    const asc = applySort(people, [{ active: SortEnumType.ASC }]).map((r) => r.id);
+    expect(asc).toEqual(['r3', 'r1', 'r2', 'r4']);
+    const desc = applySort(people, [{ active: SortEnumType.DESC }]).map((r) => r.id);
+    expect(desc).toEqual(['r1', 'r2', 'r4', 'r3']);
+  });
+
+  it('sorts Date values chronologically', () => {
+    interface DateRow {
+      id: string;
+      when: Date;
+    }
+    const rows: DateRow[] = [
+      { id: 'a', when: new Date('2024-03-01T00:00:00Z') },
+      { id: 'b', when: new Date('2024-01-01T00:00:00Z') },
+      { id: 'c', when: new Date('2024-02-01T00:00:00Z') },
+    ];
+    expect(applySort(rows, [{ when: SortEnumType.ASC }]).map((r) => r.id)).toEqual(['b', 'c', 'a']);
+  });
+
+  it('ignores empty sort entries', () => {
+    const result = applySort(people, [{}]);
+    expect(result).toEqual(people);
+    expect(result).not.toBe(people);
+  });
+
+  it('does not throw on invalid Date values', () => {
+    interface DateRow {
+      id: string;
+      when: Date;
+    }
+    const rows: DateRow[] = [
+      { id: 'a', when: new Date('not-a-date') },
+      { id: 'b', when: new Date('2024-01-01T00:00:00Z') },
+    ];
+    expect(applySort(rows, [{ when: SortEnumType.ASC }])).toHaveLength(2);
+  });
 });
 
 describe('sliceToConnection', () => {
@@ -227,6 +266,12 @@ describe('sliceToConnection', () => {
     expect(conn.totalCount).toBe(5);
     expect(conn.pageInfo.hasNextPage).toBe(false);
   });
+
+  it('treats a non-numeric cursor as the first page', () => {
+    const conn = sliceToConnection(rows, 2, 'not-a-number');
+    expect(conn.nodes).toEqual([1, 2]);
+    expect(conn.pageInfo.startCursor).toBe('0');
+  });
 });
 
 describe('createInMemoryFetchFn', () => {
@@ -256,6 +301,17 @@ describe('createInMemoryFetchFn', () => {
     if (!result.isSuccess) throw new Error('expected success');
     expect(result.data.nodes?.map((n) => n?.id)).toEqual(['r2', 'r1']);
     expect(result.data.totalCount).toBe(2);
+  });
+
+  it('applies the default page size when first/filter/order are omitted', async () => {
+    const loadAll = vi.fn(async () => createSuccessResult(rows));
+    const fetchFn = createInMemoryFetchFn<Row>(loadAll, { searchableFields: ['name'] });
+
+    const result = await fetchFn({});
+    expect(result.isSuccess).toBe(true);
+    if (!result.isSuccess) throw new Error('expected success');
+    expect(result.data.nodes).toHaveLength(rows.length); // default page size (20) >= row count
+    expect(result.data.totalCount).toBe(rows.length);
   });
 
   it('re-loads after reset()', async () => {
