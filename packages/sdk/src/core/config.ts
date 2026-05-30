@@ -62,6 +62,7 @@ export type RequiredClientOptions = Required<
     InsurUpClientOptions,
     | 'tokenProvider'
     | 'auth'
+    | 'authContext'
     | 'onRequest'
     | 'onResponse'
     | 'retry'

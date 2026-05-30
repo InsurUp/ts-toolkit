@@ -4,8 +4,6 @@
  * server configuration, flow options, and the {@link InsurUpAuth} surface.
  */
 
-import type { TokenProvider } from '../core/options.js';
-
 import type { AuthResult } from './result.js';
 
 /**
@@ -122,25 +120,37 @@ export interface AuthServerConfig {
  * async; the default is in-memory (see `createMemoryTokenStorage`). Provide your
  * own (e.g. `localStorage`, a keychain, or a file) to persist sessions.
  *
+ * The optional `TContext` type parameter threads a per-call context through
+ * every method — for multi-tenant servers that key tokens by, say, a session
+ * id. It defaults to `void`, so single-session implementations (the common
+ * case) take no `context` argument and compile unchanged. Multi-tenant
+ * implementations specify a non-`void` `TContext` (e.g. `{ sessionId: string }`)
+ * and receive it on every read and write.
+ *
  * {@link OAuthTokens} için takılabilir kalıcılık katmanı.
  */
-export interface TokenStorage {
-  /** Returns the currently stored tokens, or `null` when none are stored. */
-  get(): OAuthTokens | null | Promise<OAuthTokens | null>;
+export interface TokenStorage<TContext = void> {
+  /** Returns the tokens stored for `context`, or `null` when none are stored. */
+  get(context?: TContext): OAuthTokens | null | Promise<OAuthTokens | null>;
 
-  /** Persists the given tokens, replacing any previously stored set. */
-  set(tokens: OAuthTokens): void | Promise<void>;
+  /** Persists `tokens` under `context`, replacing any previously stored set. */
+  set(tokens: OAuthTokens, context?: TContext): void | Promise<void>;
 
-  /** Removes any stored tokens. */
-  clear(): void | Promise<void>;
+  /** Removes any tokens stored under `context`. */
+  clear(context?: TContext): void | Promise<void>;
 }
 
 /**
  * Configuration for {@link InsurUpAuth} created by `createInsurUpAuth`.
  *
+ * The optional `TContext` type parameter must match the {@link TokenStorage}
+ * passed in {@link InsurUpAuthConfig.storage} — multi-tenant servers set it to
+ * the per-session context their storage keys by; single-session callers leave
+ * it as the `void` default.
+ *
  * `createInsurUpAuth` ile oluşturulan {@link InsurUpAuth} için yapılandırma.
  */
-export interface InsurUpAuthConfig extends AuthServerConfig {
+export interface InsurUpAuthConfig<TContext = void> extends AuthServerConfig {
   /** The OAuth `client_id`. */
   readonly clientId: string;
 
@@ -158,7 +168,7 @@ export interface InsurUpAuthConfig extends AuthServerConfig {
   readonly scopes?: readonly InsurUpScope[];
 
   /** Token storage backend. Defaults to in-memory storage. */
-  readonly storage?: TokenStorage;
+  readonly storage?: TokenStorage<TContext>;
 
   /**
    * Seconds before access-token expiry at which `getAccessToken()` treats the
@@ -185,7 +195,7 @@ export interface InsurUpAuthConfig extends AuthServerConfig {
  *
  * @remarks Server-only — never ship a client secret to a browser.
  */
-export interface ClientCredentialsLoginOptions {
+export interface ClientCredentialsLoginOptions<TContext = void> {
   /**
    * The client secret. Falls back to {@link InsurUpAuthConfig.clientSecret} when
    * omitted; an {@link OAuthTokens} request fails if neither is set.
@@ -194,6 +204,13 @@ export interface ClientCredentialsLoginOptions {
 
   /** Scopes to request. Falls back to {@link InsurUpAuthConfig.scopes}. */
   readonly scopes?: readonly InsurUpScope[];
+
+  /**
+   * The storage context the acquired tokens are written under. Required only for
+   * multi-tenant configs (a non-`void` `TContext`); omitted for single-session
+   * setups.
+   */
+  readonly context?: TContext;
 }
 
 /**
@@ -261,7 +278,7 @@ export interface AuthorizeUrl {
 /**
  * Options for exchanging an authorization-code callback for tokens.
  */
-export interface ExchangeCodeOptions {
+export interface ExchangeCodeOptions<TContext = void> {
   /** The full callback URL (or query string) received at the redirect URI. */
   readonly callbackUrl: string | URL;
 
@@ -282,6 +299,14 @@ export interface ExchangeCodeOptions {
    * {@link InsurUpAuthConfig.clientSecret}. Omit for public (PKCE-only) clients.
    */
   readonly clientSecret?: string;
+
+  /**
+   * The storage context the acquired tokens are written under. Required only for
+   * multi-tenant configs (a non-`void` `TContext`); omitted for single-session
+   * setups. This is where a server mints/binds its session before the tokens
+   * are persisted.
+   */
+  readonly context?: TContext;
 }
 
 /**
@@ -302,16 +327,22 @@ export interface AuthState {
  *
  * `createInsurUpAuth` tarafından döndürülen kimlik doğrulama tutamacı.
  */
-export interface InsurUpAuth {
+export interface InsurUpAuth<TContext = void> {
   /**
    * Returns a valid access token, refreshing transparently when the current one
    * is expired (or within the refresh buffer). Resolves to `null` when there is
-   * no usable session. {@link TokenProvider}-compatible.
+   * no usable session. Compatible with `InsurUpClientOptions.tokenProvider`.
+   *
+   * Multi-tenant configs pass the storage `context` identifying the session;
+   * single-session configs omit it.
    */
-  getAccessToken(): Promise<string | null>;
+  getAccessToken(context?: TContext): Promise<string | null>;
 
-  /** {@link InsurUpAuth.getAccessToken} as a {@link TokenProvider}, ready for `InsurUpClientOptions.tokenProvider`. */
-  readonly tokenProvider: TokenProvider;
+  /**
+   * {@link InsurUpAuth.getAccessToken} as a token provider, ready for
+   * `InsurUpClientOptions.tokenProvider` (or bound via `authContext`).
+   */
+  readonly tokenProvider: (context?: TContext) => Promise<string | null>;
 
   /**
    * Authenticates via the client credentials grant (machine-to-machine) and,
@@ -321,7 +352,7 @@ export interface InsurUpAuth {
    * @remarks Server-only — never ship a client secret to a browser.
    */
   loginWithClientCredentials(
-    options?: ClientCredentialsLoginOptions
+    options?: ClientCredentialsLoginOptions<TContext>
   ): Promise<AuthResult<OAuthTokens>>;
 
   /**
@@ -333,24 +364,30 @@ export interface InsurUpAuth {
 
   /**
    * Exchanges an authorization-code callback for tokens and, on success, stores
-   * them. Returns an {@link AuthResult} rather than throwing.
+   * them under {@link ExchangeCodeOptions.context}. Returns an {@link AuthResult}
+   * rather than throwing.
    */
-  exchangeCode(options: ExchangeCodeOptions): Promise<AuthResult<OAuthTokens>>;
+  exchangeCode(options: ExchangeCodeOptions<TContext>): Promise<AuthResult<OAuthTokens>>;
 
   /**
-   * Forces a token refresh using the stored refresh token and, on success,
-   * stores the result. Returns an {@link AuthResult} — a failure (rather than a
-   * throw) when no refresh token is available or the server rejects the grant.
+   * Forces a token refresh using the refresh token stored under `context` and,
+   * on success, stores the result. Returns an {@link AuthResult} — a failure
+   * (rather than a throw) when no refresh token is available or the server
+   * rejects the grant.
    */
-  refresh(): Promise<AuthResult<OAuthTokens>>;
+  refresh(context?: TContext): Promise<AuthResult<OAuthTokens>>;
 
-  /** Clears the stored session. */
-  logout(): Promise<void>;
+  /** Clears the stored session for `context`. */
+  logout(context?: TContext): Promise<void>;
 
-  /** Returns the currently stored tokens (which may be expired), or `null`. */
-  getTokens(): Promise<OAuthTokens | null>;
+  /** Returns the tokens stored under `context` (which may be expired), or `null`. */
+  getTokens(context?: TContext): Promise<OAuthTokens | null>;
 
-  /** Returns a synchronous snapshot of the current {@link AuthState}. */
+  /**
+   * Returns a synchronous snapshot of the current {@link AuthState}. Reflects the
+   * most recent token set that flowed through this handle — meaningful for
+   * single-session use; multi-tenant servers track state per session in storage.
+   */
   getState(): AuthState;
 
   /**

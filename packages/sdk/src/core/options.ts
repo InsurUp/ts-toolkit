@@ -188,9 +188,15 @@ export interface RequestOptions {
 }
 
 /**
- * Configuration options for the InsurUp SDK client
+ * Configuration options for the InsurUp SDK client.
+ *
+ * The optional `TContext` type parameter matches the {@link InsurUpAuth} passed
+ * as {@link InsurUpClientOptions.auth}. It defaults to `void` (single-session),
+ * so existing callers are unaffected; a multi-tenant `auth` infers a non-`void`
+ * `TContext` and then {@link InsurUpClientOptions.authContext} binds the session
+ * the client threads through every request.
  */
-export interface InsurUpClientOptions {
+export interface InsurUpClientOptions<TContext = void> {
   /**
    * The base URL of the InsurUp API
    *
@@ -252,7 +258,16 @@ export interface InsurUpClientOptions {
    * `auth.tokenProvider` for both HTTP and SignalR requests — so tokens are
    * injected and refreshed automatically.
    */
-  readonly auth?: InsurUpAuth;
+  readonly auth?: InsurUpAuth<TContext>;
+
+  /**
+   * The storage context bound for this client's requests, passed to
+   * {@link InsurUpClientOptions.auth} on every token lookup. Required only for a
+   * multi-tenant `auth` (a non-`void` `TContext`) — bind one per request, e.g.
+   * `new DefaultInsurUpClient({ auth, authContext: { sessionId } })`. Ignored
+   * when an explicit {@link InsurUpClientOptions.tokenProvider} is set.
+   */
+  readonly authContext?: TContext;
 
   /**
    * Optional request interceptor called before each request is sent
