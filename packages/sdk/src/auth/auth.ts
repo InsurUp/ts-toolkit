@@ -105,6 +105,8 @@ export function createInsurUpAuth(config: InsurUpAuthConfig): InsurUpAuth {
       return buildAuthorizeUrl(await getServer(), config.clientId, {
         ...options,
         scopes: options.scopes ?? config.scopes,
+        clientSecret: config.clientSecret,
+        allowInsecure: config.allowInsecureRequests,
       });
     },
 
