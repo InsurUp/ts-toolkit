@@ -50,8 +50,10 @@ const DEFAULT_REFRESH_BUFFER_SECONDS = 60;
  * InsurUp platformu için OAuth belirteçlerini edinen, saklayan ve yenileyen bir
  * {@link InsurUpAuth} tutamacı oluşturur.
  */
-export function createInsurUpAuth(config: InsurUpAuthConfig): InsurUpAuth {
-  const storage = config.storage ?? createMemoryTokenStorage();
+export function createInsurUpAuth<TContext = void>(
+  config: InsurUpAuthConfig<TContext>
+): InsurUpAuth<TContext> {
+  const storage = config.storage ?? createMemoryTokenStorage<TContext>();
   const refreshBufferSeconds = config.refreshBufferSeconds ?? DEFAULT_REFRESH_BUFFER_SECONDS;
 
   let serverPromise: Promise<oauth.AuthorizationServer> | null = null;
@@ -60,7 +62,7 @@ export function createInsurUpAuth(config: InsurUpAuthConfig): InsurUpAuth {
     return serverPromise;
   };
 
-  const manager = new TokenManager({
+  const manager = new TokenManager<TContext>({
     storage,
     refreshBufferSeconds,
     refresh: async (refreshToken) =>
@@ -73,7 +75,8 @@ export function createInsurUpAuth(config: InsurUpAuthConfig): InsurUpAuth {
       ),
   });
 
-  const getAccessToken = (): Promise<string | null> => manager.getAccessToken();
+  const getAccessToken = (context?: TContext): Promise<string | null> =>
+    manager.getAccessToken(context);
 
   return {
     getAccessToken,
@@ -94,7 +97,7 @@ export function createInsurUpAuth(config: InsurUpAuthConfig): InsurUpAuth {
           options?.scopes ?? config.scopes,
           config.allowInsecureRequests
         );
-        await manager.setTokens(tokens);
+        await manager.setTokens(tokens, options?.context);
         return authSuccess(tokens);
       } catch (error) {
         return authFailure(toOAuthError(error));
@@ -117,22 +120,22 @@ export function createInsurUpAuth(config: InsurUpAuthConfig): InsurUpAuth {
           clientSecret: options.clientSecret ?? config.clientSecret,
           allowInsecure: config.allowInsecureRequests,
         });
-        await manager.setTokens(tokens);
+        await manager.setTokens(tokens, options.context);
         return authSuccess(tokens);
       } catch (error) {
         return authFailure(toOAuthError(error));
       }
     },
 
-    async refresh() {
+    async refresh(context) {
       try {
-        return authSuccess(await manager.refresh());
+        return authSuccess(await manager.refresh(context));
       } catch (error) {
         return authFailure(toOAuthError(error));
       }
     },
-    logout: () => manager.clear(),
-    getTokens: () => manager.getTokens(),
+    logout: (context) => manager.clear(context),
+    getTokens: (context) => manager.getTokens(context),
     getState: () => manager.getState(),
     subscribe: (listener) => manager.subscribe(listener),
   };

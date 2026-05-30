@@ -165,6 +165,43 @@ The same shape works for a keychain, an encrypted file, or an edge KV store. The
 
 > **Serverless / edge:** in-memory storage does not survive between invocations (each request may run in a fresh isolate), so tokens are re-fetched every time. Back `TokenStorage` with a shared store (KV, Durable Object, Redis, cookie) to persist sessions across requests.
 
+#### Multi-tenant servers (per-request context)
+
+`TokenStorage`, `InsurUpAuth`, and `InsurUpClientOptions` take an optional `TContext` type parameter so one process can serve many users. It defaults to `void` — single-session code (everything above) is unaffected. Specify a non-`void` context (e.g. `{ sessionId: string }`) and it is threaded through every storage read/write and every auth method, so the SDK knows _which_ session each call belongs to:
+
+```typescript
+type Ctx = { sessionId: string };
+
+const store = new Map<string, OAuthTokens>(); // your real store: Redis, DB, KV…
+const storage: TokenStorage<Ctx> = {
+  get: (ctx) => (ctx ? (store.get(ctx.sessionId) ?? null) : null),
+  set: (tokens, ctx) => void (ctx && store.set(ctx.sessionId, tokens)),
+  clear: (ctx) => void (ctx && store.delete(ctx.sessionId)),
+};
+
+// TContext is inferred from the storage you pass.
+const auth = createInsurUpAuth<Ctx>({ clientId, clientSecret, storage });
+
+// Login mints the session, then writes tokens under it (no instance per user):
+const result = await auth.exchangeCode({
+  callbackUrl,
+  redirectUri,
+  codeVerifier,
+  state,
+  context: { sessionId }, // ← tokens stored under this session
+});
+
+// Every storage-touching method takes the context:
+await auth.getAccessToken({ sessionId });
+await auth.refresh({ sessionId });
+await auth.logout({ sessionId });
+
+// Bind a session once per request; the client threads it through every call:
+const client = new DefaultInsurUpClient({ auth, authContext: { sessionId } });
+```
+
+Each session's tokens stay isolated, and concurrent refreshes are de-duped per refresh token (so two sessions never share a refresh). The context is optional at the type level, so a multi-tenant caller that forgets to pass it gets an `undefined` context at runtime rather than a compile error — pass it on every storage-touching call. `getState()`/`subscribe()` remain single-session reactive helpers; multi-tenant servers read per-session state from their store.
+
 ### Token lifecycle
 
 Refresh is automatic — `tokenProvider` calls `getAccessToken()`, which refreshes when the token is within `refreshBufferSeconds` (default **60s**) of expiry, de-duping concurrent refreshes into a single request. You rarely need these directly:

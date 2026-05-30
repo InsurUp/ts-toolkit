@@ -6,7 +6,7 @@
 import { HttpTransport } from './http.js';
 import { GraphQLTransport } from './graphql.js';
 import { SignalRTransport } from './signalr.js';
-import type { InsurUpClientOptions } from '../core/options.js';
+import type { InsurUpClientOptions, TokenProvider } from '../core/options.js';
 
 // Import specialized clients
 import { InsurUpAgentClient } from '../clients/agent.js';
@@ -33,7 +33,7 @@ import { InsurUpOAuthClientClient } from '../clients/oauthClient.js';
  * Aggregates specialized client interfaces for authentication, agent management, customer operations,
  * vehicle and property insurance, coverage management, and policy administration.
  */
-export class DefaultInsurUpClient {
+export class DefaultInsurUpClient<TContext = void> {
   private readonly http: HttpTransport;
   private readonly graphql: GraphQLTransport;
   private readonly signalR: SignalRTransport;
@@ -183,23 +183,26 @@ export class DefaultInsurUpClient {
    */
   public readonly oauthClients: InsurUpOAuthClientClient;
 
-  public readonly options: InsurUpClientOptions;
+  public readonly options: InsurUpClientOptions<TContext>;
 
-  constructor(options?: InsurUpClientOptions) {
-    // When an `auth` handle is supplied without an explicit tokenProvider, wire
-    // its tokenProvider in so HTTP and SignalR inject (and refresh) tokens.
-    const resolvedOptions: InsurUpClientOptions =
-      options?.auth && !options.tokenProvider
-        ? { ...options, tokenProvider: options.auth.tokenProvider }
-        : (options ?? {});
+  constructor(options?: InsurUpClientOptions<TContext>) {
+    // When an `auth` handle is supplied without an explicit tokenProvider, bind
+    // its token provider to `authContext` so HTTP and SignalR inject (and
+    // refresh) tokens for this client's session. The resulting provider is
+    // context-free, so the transports never need to know about `TContext`.
+    const { auth, authContext, ...rest } = options ?? {};
+    const tokenProvider: TokenProvider | undefined =
+      rest.tokenProvider ?? (auth ? () => auth.tokenProvider(authContext) : undefined);
 
-    this.http = new HttpTransport(resolvedOptions);
+    const transportOptions: InsurUpClientOptions = { ...rest, tokenProvider };
+
+    this.http = new HttpTransport(transportOptions);
     this.graphql = new GraphQLTransport(this.http);
-    this.options = resolvedOptions;
+    this.options = options ?? {};
     this.signalR = new SignalRTransport({
-      hubsBaseUrl: resolvedOptions.hubsBaseUrl ?? deriveHubsBaseUrl(resolvedOptions.baseUrl),
-      tokenProvider: resolvedOptions.tokenProvider,
-      logLevel: resolvedOptions.signalRLogLevel,
+      hubsBaseUrl: transportOptions.hubsBaseUrl ?? deriveHubsBaseUrl(transportOptions.baseUrl),
+      tokenProvider,
+      logLevel: transportOptions.signalRLogLevel,
     });
 
     // Initialize all specialized clients

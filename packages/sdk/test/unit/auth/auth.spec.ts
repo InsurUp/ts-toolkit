@@ -14,7 +14,7 @@ import { createInsurUpAuth } from '../../../src/auth/auth';
 import { OAuthError } from '../../../src/auth/errors';
 import type { AuthResult } from '../../../src/auth/result';
 import { createMemoryTokenStorage } from '../../../src/auth/storage';
-import type { InsurUpAuthConfig } from '../../../src/auth/types';
+import type { InsurUpAuthConfig, OAuthTokens, TokenStorage } from '../../../src/auth/types';
 import { DefaultInsurUpClient } from '../../../src/client/client';
 
 const AUTH_SERVER = 'https://auth.insurup.com';
@@ -738,6 +738,193 @@ describe('createInsurUpAuth', () => {
 
       expect(tokens.accessToken).toBe('at-insecure');
       expect(body).toContain('grant_type=client_credentials');
+    });
+  });
+
+  describe('multi-tenant context (TContext)', () => {
+    type SessionContext = { sessionId: string };
+
+    /** A context-keyed storage: each session id holds its own token set. */
+    function createSessionStorage(): TokenStorage<SessionContext> & {
+      readonly map: Map<string, OAuthTokens>;
+    } {
+      const map = new Map<string, OAuthTokens>();
+      return {
+        map,
+        get: (ctx) => (ctx ? (map.get(ctx.sessionId) ?? null) : null),
+        set: (tokens, ctx) => {
+          if (ctx) map.set(ctx.sessionId, tokens);
+        },
+        clear: (ctx) => {
+          if (ctx) map.delete(ctx.sessionId);
+        },
+      };
+    }
+
+    function makeTenantAuth(storage: TokenStorage<SessionContext>) {
+      return createInsurUpAuth<SessionContext>({
+        clientId: 'demo',
+        clientSecret: 'secret',
+        tokenEndpoint: TOKEN_ENDPOINT,
+        authorizationEndpoint: AUTHORIZE_ENDPOINT,
+        storage,
+      });
+    }
+
+    /** A token endpoint that hands out a distinct access/refresh token per call. */
+    function incrementingTokenEndpoint() {
+      let n = 0;
+      return http.post(TOKEN_ENDPOINT, () => {
+        n += 1;
+        return HttpResponse.json({
+          access_token: `at-${n}`,
+          token_type: 'Bearer',
+          expires_in: 3600,
+          refresh_token: `rt-${n}`,
+        });
+      });
+    }
+
+    it('keeps each session’s tokens isolated in storage', async () => {
+      server.use(incrementingTokenEndpoint());
+      const storage = createSessionStorage();
+      const auth = makeTenantAuth(storage);
+
+      unwrap(await auth.loginWithClientCredentials({ context: { sessionId: 'a' } }));
+      unwrap(await auth.loginWithClientCredentials({ context: { sessionId: 'b' } }));
+
+      expect(await auth.getAccessToken({ sessionId: 'a' })).toBe('at-1');
+      expect(await auth.getAccessToken({ sessionId: 'b' })).toBe('at-2');
+      expect(storage.map.size).toBe(2);
+      // A session that was never logged in has no token.
+      expect(await auth.getAccessToken({ sessionId: 'c' })).toBeNull();
+      expect(await auth.getTokens({ sessionId: 'a' })).toMatchObject({ accessToken: 'at-1' });
+    });
+
+    it('logout clears only the targeted session', async () => {
+      server.use(incrementingTokenEndpoint());
+      const storage = createSessionStorage();
+      const auth = makeTenantAuth(storage);
+
+      unwrap(await auth.loginWithClientCredentials({ context: { sessionId: 'a' } }));
+      unwrap(await auth.loginWithClientCredentials({ context: { sessionId: 'b' } }));
+
+      await auth.logout({ sessionId: 'a' });
+
+      expect(await auth.getAccessToken({ sessionId: 'a' })).toBeNull();
+      expect(await auth.getAccessToken({ sessionId: 'b' })).toBe('at-2');
+    });
+
+    it('exchangeCode stores tokens under the supplied context', async () => {
+      server.use(tokenEndpoint());
+      const storage = createSessionStorage();
+      const auth = makeTenantAuth(storage);
+
+      const { codeVerifier, state } = await auth.getAuthorizeUrl({ redirectUri: CALLBACK });
+      unwrap(
+        await auth.exchangeCode({
+          callbackUrl: `${CALLBACK}?code=auth-code-123&state=${state}`,
+          redirectUri: CALLBACK,
+          codeVerifier,
+          state,
+          context: { sessionId: 's1' },
+        })
+      );
+
+      expect(await auth.getAccessToken({ sessionId: 's1' })).toBe('at-code');
+      expect(await auth.getAccessToken({ sessionId: 's2' })).toBeNull();
+    });
+
+    it('refresh uses the refresh token of the targeted session', async () => {
+      server.use(tokenEndpoint());
+      const storage = createSessionStorage();
+      const auth = makeTenantAuth(storage);
+
+      unwrap(await auth.loginWithClientCredentials({ context: { sessionId: 'a' } }));
+      const refreshed = unwrap(await auth.refresh({ sessionId: 'a' }));
+
+      expect(refreshed.accessToken).toBe('at-refreshed');
+      expect(await auth.getAccessToken({ sessionId: 'a' })).toBe('at-refreshed');
+    });
+
+    it('refreshes expired sessions independently (lock keyed by refresh token)', async () => {
+      let refreshCalls = 0;
+      server.use(
+        http.post(TOKEN_ENDPOINT, async ({ request }) => {
+          const body = await request.text();
+          if (body.includes('grant_type=refresh_token')) {
+            refreshCalls += 1;
+            const rt = new URLSearchParams(body).get('refresh_token');
+            return HttpResponse.json({
+              access_token: `at-${rt}-new`,
+              token_type: 'Bearer',
+              expires_in: 3600,
+            });
+          }
+          // Two distinct, immediately-expired sessions.
+          const rt = body.includes('sa') ? 'rt-a' : 'rt-b';
+          return HttpResponse.json({
+            access_token: `at-${rt}`,
+            token_type: 'Bearer',
+            expires_in: 1,
+            refresh_token: rt,
+          });
+        })
+      );
+      const storage = createSessionStorage();
+      const auth = makeTenantAuth(storage);
+
+      // Seed two sessions with distinct, already-expired tokens.
+      unwrap(
+        await auth.loginWithClientCredentials({ scopes: ['sa'], context: { sessionId: 'a' } })
+      );
+      unwrap(
+        await auth.loginWithClientCredentials({ scopes: ['sb'], context: { sessionId: 'b' } })
+      );
+
+      const [a, b] = await Promise.all([
+        auth.getAccessToken({ sessionId: 'a' }),
+        auth.getAccessToken({ sessionId: 'b' }),
+      ]);
+
+      // Each session refreshed with its own refresh token — not deduped together.
+      expect(a).toBe('at-rt-a-new');
+      expect(b).toBe('at-rt-b-new');
+      expect(refreshCalls).toBe(2);
+    });
+
+    it('DefaultInsurUpClient threads authContext through requests', async () => {
+      const captured: string[] = [];
+      server.use(
+        incrementingTokenEndpoint(),
+        http.get('https://api.insurup.com/api/agents/me', ({ request }) => {
+          captured.push(request.headers.get('authorization') ?? '');
+          return HttpResponse.json({ id: 'agent-1' });
+        })
+      );
+
+      const storage = createSessionStorage();
+      const auth = makeTenantAuth(storage);
+      unwrap(await auth.loginWithClientCredentials({ context: { sessionId: 'a' } })); // at-1
+      unwrap(await auth.loginWithClientCredentials({ context: { sessionId: 'b' } })); // at-2
+
+      // Each client binds its own session; the SDK injects the matching token.
+      const clientA = new DefaultInsurUpClient<SessionContext>({
+        auth,
+        authContext: { sessionId: 'a' },
+      });
+      const clientB = new DefaultInsurUpClient<SessionContext>({
+        auth,
+        authContext: { sessionId: 'b' },
+      });
+      try {
+        await clientA.agents.getCurrentAgent();
+        await clientB.agents.getCurrentAgent();
+        expect(captured).toEqual(['Bearer at-1', 'Bearer at-2']);
+      } finally {
+        await clientA.close();
+        await clientB.close();
+      }
     });
   });
 });
