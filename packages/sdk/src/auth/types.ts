@@ -6,6 +6,8 @@
 
 import type { TokenProvider } from '../core/options.js';
 
+import type { AuthResult } from './result.js';
+
 /**
  * An OAuth 2.0 token set held by the auth module. Mirrors the relevant fields
  * of the token endpoint response, with an absolute {@link OAuthTokens.expiresAt}
@@ -238,12 +240,15 @@ export interface InsurUpAuth {
   readonly tokenProvider: TokenProvider;
 
   /**
-   * Authenticates via the client credentials grant (machine-to-machine) and
-   * stores the resulting tokens.
+   * Authenticates via the client credentials grant (machine-to-machine) and,
+   * on success, stores the resulting tokens. Returns an {@link AuthResult}
+   * rather than throwing — discriminate on `isSuccess`.
    *
    * @remarks Server-only — never ship a client secret to a browser.
    */
-  loginWithClientCredentials(options?: ClientCredentialsLoginOptions): Promise<OAuthTokens>;
+  loginWithClientCredentials(
+    options?: ClientCredentialsLoginOptions
+  ): Promise<AuthResult<OAuthTokens>>;
 
   /**
    * Builds an authorization-code (PKCE) authorize URL. Retain the returned
@@ -253,15 +258,17 @@ export interface InsurUpAuth {
   getAuthorizeUrl(options: AuthorizeUrlOptions): Promise<AuthorizeUrl>;
 
   /**
-   * Exchanges an authorization-code callback for tokens and stores them.
+   * Exchanges an authorization-code callback for tokens and, on success, stores
+   * them. Returns an {@link AuthResult} rather than throwing.
    */
-  exchangeCode(options: ExchangeCodeOptions): Promise<OAuthTokens>;
+  exchangeCode(options: ExchangeCodeOptions): Promise<AuthResult<OAuthTokens>>;
 
   /**
-   * Forces a token refresh using the stored refresh token and stores the
-   * result. Rejects when no refresh token is available.
+   * Forces a token refresh using the stored refresh token and, on success,
+   * stores the result. Returns an {@link AuthResult} — a failure (rather than a
+   * throw) when no refresh token is available or the server rejects the grant.
    */
-  refresh(): Promise<OAuthTokens>;
+  refresh(): Promise<AuthResult<OAuthTokens>>;
 
   /** Clears the stored session. */
   logout(): Promise<void>;

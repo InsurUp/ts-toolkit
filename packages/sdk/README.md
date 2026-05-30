@@ -3,9 +3,8 @@
 [![npm version](https://img.shields.io/npm/v/@insurup/sdk.svg)](https://www.npmjs.com/package/@insurup/sdk)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178c6.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Zero Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)](package.json)
 
-Type-safe TypeScript SDK for the InsurUp insurance platform with GraphQL support. Zero dependencies, tree-shakeable, works everywhere.
+Type-safe TypeScript SDK for the InsurUp insurance platform with GraphQL support. Tree-shakeable and runtime-agnostic — runs on Node, Bun, Deno, browsers, and edge.
 
 ---
 
@@ -67,12 +66,15 @@ The SDK ships an auth module for OAuth 2.0 / OIDC login, token storage, and tran
 import { createInsurUpAuth, DefaultInsurUpClient } from '@insurup/sdk';
 
 const auth = createInsurUpAuth({ clientId, clientSecret });
-await auth.loginWithClientCredentials();
+const login = await auth.loginWithClientCredentials();
+if (!login.isSuccess) throw login.error; // or handle login.error (an OAuthError)
 
 const client = new DefaultInsurUpClient({ auth }); // tokens flow automatically
 ```
 
 Passing `auth` wires `auth.tokenProvider` into the client. An explicit `tokenProvider` always takes precedence, so you can still bring your own tokens.
+
+The imperative flows — `loginWithClientCredentials`, `exchangeCode`, and `refresh` — return an **`AuthResult<OAuthTokens>`**: the same `isSuccess` / `kind` discriminated union the rest of the SDK uses (a failure carries `error`, an `OAuthError`), so you branch on results instead of `try`/`catch`. `getAccessToken()` stays `string | null`.
 
 ### Client credentials (server-to-server)
 
@@ -85,8 +87,9 @@ const auth = createInsurUpAuth({
   scopes: ['core-api'],
 });
 
-await auth.loginWithClientCredentials();
+const login = await auth.loginWithClientCredentials();
 // or override per call: auth.loginWithClientCredentials({ scopes: ['core-api', 'reports'] })
+if (!login.isSuccess) throw login.error;
 
 const client = new DefaultInsurUpClient({ auth });
 ```
@@ -114,12 +117,13 @@ window.location.assign(url);
 
 // 2. On the callback page, exchange the code for tokens
 const { codeVerifier, state } = JSON.parse(sessionStorage.getItem('insurup.pkce')!);
-await auth.exchangeCode({
+const result = await auth.exchangeCode({
   callbackUrl: window.location.href, // ?code & ?state are parsed out of it
   redirectUri: 'https://app.example.com/callback',
   codeVerifier,
   state,
 });
+if (!result.isSuccess) throw result.error;
 
 const client = new DefaultInsurUpClient({ auth });
 ```
@@ -153,7 +157,7 @@ Refresh is automatic — `tokenProvider` calls `getAccessToken()`, which refresh
 
 ```typescript
 await auth.getAccessToken(); // valid token (refreshing if needed) or null
-await auth.refresh(); // force a refresh; rejects if no refresh token
+await auth.refresh(); // force a refresh → AuthResult (failure if no refresh token)
 await auth.getTokens(); // raw stored tokens (may be expired) or null
 await auth.logout(); // clear the session
 auth.getState(); // sync { isAuthenticated, tokens }
@@ -173,19 +177,17 @@ const unsubscribe = auth.subscribe((state) => {
 
 ### Error handling
 
-Login and refresh failures are normalized to a typed `OAuthError`:
+Login, exchange, and refresh failures come back as the failure branch of `AuthResult` — no `try`/`catch`. The carried `error` is a typed `OAuthError`:
 
 ```typescript
-import { OAuthError } from '@insurup/sdk';
-
-try {
-  await auth.loginWithClientCredentials();
-} catch (err) {
-  if (err instanceof OAuthError) {
-    console.error(err.code, err.description, err.status); // e.g. 'invalid_client', …, 401
-  }
+const result = await auth.loginWithClientCredentials();
+if (!result.isSuccess) {
+  const { code, description, status } = result.error; // OAuthError
+  console.error(code, description, status); // e.g. 'invalid_client', …, 401
 }
 ```
+
+> `getAuthorizeUrl()` is the exception — it builds a URL and **throws** an `OAuthError` on a configuration problem (e.g. no authorization endpoint), rather than returning a result.
 
 ### Runtime support
 

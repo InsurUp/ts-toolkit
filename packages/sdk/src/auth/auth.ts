@@ -6,7 +6,7 @@
 
 import type * as oauth from 'oauth4webapi';
 
-import { OAuthError } from './errors.js';
+import { OAuthError, toOAuthError } from './errors.js';
 import {
   buildAuthorizeUrl,
   clientCredentialsGrant,
@@ -14,6 +14,7 @@ import {
   exchangeAuthorizationCode,
   refreshTokenGrant,
 } from './oauth-client.js';
+import { authFailure, authSuccess } from './result.js';
 import { createMemoryTokenStorage } from './storage.js';
 import { TokenManager } from './token-manager.js';
 import type { InsurUpAuth, InsurUpAuthConfig } from './types.js';
@@ -29,7 +30,8 @@ const DEFAULT_REFRESH_BUFFER_SECONDS = 60;
  * @example Server-to-server (client credentials)
  * ```typescript
  * const auth = createInsurUpAuth({ clientId, clientSecret });
- * await auth.loginWithClientCredentials({ scopes: ['core-api'] });
+ * const login = await auth.loginWithClientCredentials({ scopes: ['core-api'] });
+ * if (!login.isSuccess) throw login.error;
  * const client = new DefaultInsurUpClient({ auth });
  * ```
  *
@@ -38,7 +40,11 @@ const DEFAULT_REFRESH_BUFFER_SECONDS = 60;
  * const auth = createInsurUpAuth({ clientId, storage: myStorage });
  * const { url, codeVerifier, state } = await auth.getAuthorizeUrl({ redirectUri });
  * // ...persist codeVerifier/state, navigate to url, then on the callback:
- * await auth.exchangeCode({ callbackUrl: location.href, redirectUri, codeVerifier, state });
+ * const result = await auth.exchangeCode({ callbackUrl: location.href, redirectUri, codeVerifier, state });
+ * if (result.isSuccess) {
+ *   // tokens stored — result.data holds them
+ *   const client = new DefaultInsurUpClient({ auth });
+ * }
  * ```
  *
  * InsurUp platformu için OAuth belirteçlerini edinen, saklayan ve yenileyen bir
@@ -70,16 +76,22 @@ export function createInsurUpAuth(config: InsurUpAuthConfig): InsurUpAuth {
     async loginWithClientCredentials(options) {
       const clientSecret = options?.clientSecret ?? config.clientSecret;
       if (clientSecret === undefined) {
-        throw new OAuthError('A client secret is required for the client credentials grant.');
+        return authFailure(
+          new OAuthError('A client secret is required for the client credentials grant.')
+        );
       }
-      const tokens = await clientCredentialsGrant(
-        await getServer(),
-        config.clientId,
-        clientSecret,
-        options?.scopes ?? config.scopes
-      );
-      await manager.setTokens(tokens);
-      return tokens;
+      try {
+        const tokens = await clientCredentialsGrant(
+          await getServer(),
+          config.clientId,
+          clientSecret,
+          options?.scopes ?? config.scopes
+        );
+        await manager.setTokens(tokens);
+        return authSuccess(tokens);
+      } catch (error) {
+        return authFailure(toOAuthError(error));
+      }
     },
 
     async getAuthorizeUrl(options) {
@@ -90,15 +102,25 @@ export function createInsurUpAuth(config: InsurUpAuthConfig): InsurUpAuth {
     },
 
     async exchangeCode(options) {
-      const tokens = await exchangeAuthorizationCode(await getServer(), config.clientId, {
-        ...options,
-        clientSecret: options.clientSecret ?? config.clientSecret,
-      });
-      await manager.setTokens(tokens);
-      return tokens;
+      try {
+        const tokens = await exchangeAuthorizationCode(await getServer(), config.clientId, {
+          ...options,
+          clientSecret: options.clientSecret ?? config.clientSecret,
+        });
+        await manager.setTokens(tokens);
+        return authSuccess(tokens);
+      } catch (error) {
+        return authFailure(toOAuthError(error));
+      }
     },
 
-    refresh: () => manager.refresh(),
+    async refresh() {
+      try {
+        return authSuccess(await manager.refresh());
+      } catch (error) {
+        return authFailure(toOAuthError(error));
+      }
+    },
     logout: () => manager.clear(),
     getTokens: () => manager.getTokens(),
     getState: () => manager.getState(),

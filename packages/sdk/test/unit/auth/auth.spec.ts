@@ -2,7 +2,8 @@
  * @fileoverview createInsurUpAuth integration tests
  * @description Exercises the public auth surface against a mocked authorization
  * server (MSW): client credentials, refresh, authorization code + PKCE, OIDC
- * discovery, OAuth error mapping, and DefaultInsurUpClient token wiring.
+ * discovery, the AuthResult error model, token storage/persistence,
+ * subscriptions, and DefaultInsurUpClient token wiring.
  */
 
 import { http, HttpResponse } from 'msw';
@@ -11,13 +12,16 @@ import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
 import { createInsurUpAuth } from '../../../src/auth/auth';
 import { OAuthError } from '../../../src/auth/errors';
-import { DefaultInsurUpClient } from '../../../src/client/client';
+import type { AuthResult } from '../../../src/auth/result';
+import { createMemoryTokenStorage } from '../../../src/auth/storage';
 import type { InsurUpAuthConfig } from '../../../src/auth/types';
+import { DefaultInsurUpClient } from '../../../src/client/client';
 
 const AUTH_SERVER = 'https://auth.insurup.com';
 const TOKEN_ENDPOINT = `${AUTH_SERVER}/connect/token`;
 const AUTHORIZE_ENDPOINT = `${AUTH_SERVER}/connect/authorize`;
 const DISCOVERY_ENDPOINT = `${AUTH_SERVER}/.well-known/openid-configuration`;
+const CALLBACK = 'http://localhost:8080/cb';
 
 const server = setupServer();
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
@@ -31,6 +35,37 @@ function makeAuth(overrides: Partial<InsurUpAuthConfig> = {}) {
     tokenEndpoint: TOKEN_ENDPOINT,
     authorizationEndpoint: AUTHORIZE_ENDPOINT,
     ...overrides,
+  });
+}
+
+/** Asserts an AuthResult succeeded and returns its data, narrowing the union. */
+function unwrap<T>(result: AuthResult<T>): T {
+  if (!result.isSuccess) {
+    throw new Error(
+      `expected success, got auth-error: ${result.error.code ?? result.error.message}`
+    );
+  }
+  return result.data;
+}
+
+/** A token endpoint that answers each grant with a distinct access token. */
+function tokenEndpoint(options: { withRefreshToken?: boolean } = {}) {
+  const { withRefreshToken = true } = options;
+  return http.post(TOKEN_ENDPOINT, async ({ request }) => {
+    const body = await request.text();
+    const base = { token_type: 'Bearer', expires_in: 3600 };
+    if (body.includes('grant_type=refresh_token')) {
+      return HttpResponse.json({ ...base, access_token: 'at-refreshed', refresh_token: 'rt-2' });
+    }
+    if (body.includes('grant_type=authorization_code')) {
+      return HttpResponse.json({ ...base, access_token: 'at-code', refresh_token: 'rt-code' });
+    }
+    return HttpResponse.json({
+      ...base,
+      access_token: 'at-1',
+      ...(withRefreshToken ? { refresh_token: 'rt-1' } : {}),
+      scope: 'core-api',
+    });
   });
 }
 
@@ -64,7 +99,7 @@ describe('createInsurUpAuth', () => {
       );
 
       const auth = makeAuth();
-      const tokens = await auth.loginWithClientCredentials({ scopes: ['core-api'] });
+      const tokens = unwrap(await auth.loginWithClientCredentials({ scopes: ['core-api'] }));
 
       expect(tokens.accessToken).toBe('at-1');
       expect(tokens.refreshToken).toBe('rt-1');
@@ -75,12 +110,55 @@ describe('createInsurUpAuth', () => {
       expect(await auth.getAccessToken()).toBe('at-1');
     });
 
-    it('throws OAuthError when no client secret is available', async () => {
-      const auth = createInsurUpAuth({ clientId: 'demo', tokenEndpoint: TOKEN_ENDPOINT });
-      await expect(auth.loginWithClientCredentials()).rejects.toBeInstanceOf(OAuthError);
+    it('falls back to the configured scopes when none are passed', async () => {
+      let body = '';
+      server.use(
+        http.post(TOKEN_ENDPOINT, async ({ request }) => {
+          body = await request.text();
+          return HttpResponse.json({
+            access_token: 'at-1',
+            token_type: 'Bearer',
+            expires_in: 3600,
+          });
+        })
+      );
+
+      const auth = makeAuth({ scopes: ['core-api', 'reports'] });
+      unwrap(await auth.loginWithClientCredentials());
+      // form-urlencoded body encodes the space between scopes as '+'
+      expect(body).toContain('scope=core-api+reports');
     });
 
-    it('maps a token endpoint error response to OAuthError', async () => {
+    it('uses a per-call client secret over the configured one', async () => {
+      let body = '';
+      server.use(
+        http.post(TOKEN_ENDPOINT, async ({ request }) => {
+          body = await request.text();
+          return HttpResponse.json({
+            access_token: 'at-1',
+            token_type: 'Bearer',
+            expires_in: 3600,
+          });
+        })
+      );
+
+      const auth = makeAuth({ clientSecret: 'configured' });
+      unwrap(await auth.loginWithClientCredentials({ clientSecret: 'per-call' }));
+      expect(body).toContain('client_secret=per-call');
+    });
+
+    it('returns an auth-error result when no client secret is available', async () => {
+      const auth = createInsurUpAuth({ clientId: 'demo', tokenEndpoint: TOKEN_ENDPOINT });
+      const result = await auth.loginWithClientCredentials();
+
+      expect(result.isSuccess).toBe(false);
+      expect(result.kind).toBe('auth-error');
+      if (result.isSuccess) throw new Error('expected failure');
+      expect(result.error).toBeInstanceOf(OAuthError);
+      expect(auth.getState().isAuthenticated).toBe(false);
+    });
+
+    it('maps a token endpoint error response to an auth-error result', async () => {
       server.use(
         http.post(TOKEN_ENDPOINT, () =>
           HttpResponse.json(
@@ -91,16 +169,23 @@ describe('createInsurUpAuth', () => {
       );
 
       const auth = makeAuth();
-      await expect(auth.loginWithClientCredentials()).rejects.toMatchObject({
+      const result = await auth.loginWithClientCredentials();
+
+      expect(result.isSuccess).toBe(false);
+      if (result.isSuccess) throw new Error('expected failure');
+      expect(result.error).toMatchObject({
         name: 'OAuthError',
         code: 'invalid_client',
         description: 'bad secret',
+        status: 400,
       });
+      // A failed login must not leave a half-authenticated session.
+      expect(auth.getState().isAuthenticated).toBe(false);
     });
   });
 
   describe('refresh', () => {
-    it('refreshes an expired access token on getAccessToken', async () => {
+    it('refreshes an expired access token transparently on getAccessToken', async () => {
       let calls = 0;
       server.use(
         http.post(TOKEN_ENDPOINT, async ({ request }) => {
@@ -127,9 +212,82 @@ describe('createInsurUpAuth', () => {
       );
 
       const auth = makeAuth();
-      await auth.loginWithClientCredentials();
+      unwrap(await auth.loginWithClientCredentials());
       expect(await auth.getAccessToken()).toBe('at-2');
       expect(calls).toBe(2);
+    });
+
+    it('refreshes explicitly via refresh()', async () => {
+      server.use(tokenEndpoint());
+
+      const auth = makeAuth();
+      unwrap(await auth.loginWithClientCredentials());
+      const refreshed = unwrap(await auth.refresh());
+
+      expect(refreshed.accessToken).toBe('at-refreshed');
+      expect(await auth.getAccessToken()).toBe('at-refreshed');
+    });
+
+    it('returns an auth-error result when there is no refresh token', async () => {
+      server.use(tokenEndpoint({ withRefreshToken: false }));
+
+      const auth = makeAuth();
+      unwrap(await auth.loginWithClientCredentials());
+      const result = await auth.refresh();
+
+      expect(result.isSuccess).toBe(false);
+      if (result.isSuccess) throw new Error('expected failure');
+      expect(result.error).toBeInstanceOf(OAuthError);
+    });
+
+    it('returns an auth-error result when the server rejects the refresh', async () => {
+      server.use(
+        http.post(TOKEN_ENDPOINT, async ({ request }) => {
+          const body = await request.text();
+          if (body.includes('grant_type=refresh_token')) {
+            return HttpResponse.json({ error: 'invalid_grant' }, { status: 400 });
+          }
+          return HttpResponse.json({
+            access_token: 'at-1',
+            token_type: 'Bearer',
+            expires_in: 3600,
+            refresh_token: 'rt-1',
+          });
+        })
+      );
+
+      const auth = makeAuth();
+      unwrap(await auth.loginWithClientCredentials());
+      const result = await auth.refresh();
+
+      expect(result.isSuccess).toBe(false);
+      if (result.isSuccess) throw new Error('expected failure');
+      expect(result.error.code).toBe('invalid_grant');
+    });
+  });
+
+  describe('getAccessToken', () => {
+    it('returns null when there is no session', async () => {
+      const auth = makeAuth();
+      expect(await auth.getAccessToken()).toBeNull();
+      expect(auth.getState().isAuthenticated).toBe(false);
+    });
+
+    it('clears an expired session that has no refresh token and returns null', async () => {
+      server.use(tokenEndpoint({ withRefreshToken: false }));
+
+      const auth = makeAuth();
+      // expires_in default is 3600, so override to make it instantly expired.
+      server.use(
+        http.post(TOKEN_ENDPOINT, () =>
+          HttpResponse.json({ access_token: 'at-1', token_type: 'Bearer', expires_in: 1 })
+        )
+      );
+      unwrap(await auth.loginWithClientCredentials());
+
+      expect(await auth.getAccessToken()).toBeNull();
+      expect(await auth.getTokens()).toBeNull();
+      expect(auth.getState().isAuthenticated).toBe(false);
     });
   });
 
@@ -137,7 +295,7 @@ describe('createInsurUpAuth', () => {
     it('builds an authorize URL with S256 PKCE and the requested scopes', async () => {
       const auth = makeAuth();
       const { url, codeVerifier, state } = await auth.getAuthorizeUrl({
-        redirectUri: 'http://localhost:8080/cb',
+        redirectUri: CALLBACK,
         scopes: ['openid', 'core-api'],
       });
 
@@ -145,7 +303,7 @@ describe('createInsurUpAuth', () => {
       expect(parsed.origin + parsed.pathname).toBe(AUTHORIZE_ENDPOINT);
       expect(parsed.searchParams.get('response_type')).toBe('code');
       expect(parsed.searchParams.get('client_id')).toBe('demo');
-      expect(parsed.searchParams.get('redirect_uri')).toBe('http://localhost:8080/cb');
+      expect(parsed.searchParams.get('redirect_uri')).toBe(CALLBACK);
       expect(parsed.searchParams.get('code_challenge_method')).toBe('S256');
       expect(parsed.searchParams.get('scope')).toBe('openid core-api');
       expect(parsed.searchParams.get('state')).toBe(state);
@@ -156,12 +314,33 @@ describe('createInsurUpAuth', () => {
       expect(parsed.searchParams.get('code_challenge')).toBe(expectedChallenge);
     });
 
+    it('falls back to configured scopes and appends extra params', async () => {
+      const auth = makeAuth({ scopes: ['openid', 'core-api'] });
+      const { url } = await auth.getAuthorizeUrl({
+        redirectUri: CALLBACK,
+        extraParams: { prompt: 'login', login_hint: 'a@b.com' },
+      });
+
+      const params = new URL(url).searchParams;
+      expect(params.get('scope')).toBe('openid core-api');
+      expect(params.get('prompt')).toBe('login');
+      expect(params.get('login_hint')).toBe('a@b.com');
+    });
+
     it('generates a unique verifier and state per call', async () => {
       const auth = makeAuth();
-      const a = await auth.getAuthorizeUrl({ redirectUri: 'http://localhost/cb' });
-      const b = await auth.getAuthorizeUrl({ redirectUri: 'http://localhost/cb' });
+      const a = await auth.getAuthorizeUrl({ redirectUri: CALLBACK });
+      const b = await auth.getAuthorizeUrl({ redirectUri: CALLBACK });
       expect(a.codeVerifier).not.toBe(b.codeVerifier);
       expect(a.state).not.toBe(b.state);
+    });
+
+    it('throws when the server has no authorization endpoint', async () => {
+      // Only a token endpoint configured → no authorization_endpoint to build from.
+      const auth = createInsurUpAuth({ clientId: 'demo', tokenEndpoint: TOKEN_ENDPOINT });
+      await expect(auth.getAuthorizeUrl({ redirectUri: CALLBACK })).rejects.toBeInstanceOf(
+        OAuthError
+      );
     });
 
     it('exchanges an authorization code callback for tokens', async () => {
@@ -179,21 +358,51 @@ describe('createInsurUpAuth', () => {
       );
 
       const auth = makeAuth();
-      const { codeVerifier, state } = await auth.getAuthorizeUrl({
-        redirectUri: 'http://localhost:8080/cb',
-      });
-      const tokens = await auth.exchangeCode({
-        callbackUrl: `http://localhost:8080/cb?code=auth-code-123&state=${state}`,
-        redirectUri: 'http://localhost:8080/cb',
-        codeVerifier,
-        state,
-      });
+      const { codeVerifier, state } = await auth.getAuthorizeUrl({ redirectUri: CALLBACK });
+      const tokens = unwrap(
+        await auth.exchangeCode({
+          callbackUrl: `${CALLBACK}?code=auth-code-123&state=${state}`,
+          redirectUri: CALLBACK,
+          codeVerifier,
+          state,
+        })
+      );
 
       expect(tokens.accessToken).toBe('at-x');
       expect(body).toContain('grant_type=authorization_code');
       expect(body).toContain('code=auth-code-123');
       expect(body).toContain('code_verifier=');
       expect(auth.getState().isAuthenticated).toBe(true);
+    });
+
+    it('returns an auth-error result on a state mismatch', async () => {
+      const auth = makeAuth();
+      const { codeVerifier, state } = await auth.getAuthorizeUrl({ redirectUri: CALLBACK });
+      const result = await auth.exchangeCode({
+        callbackUrl: `${CALLBACK}?code=auth-code-123&state=TAMPERED`,
+        redirectUri: CALLBACK,
+        codeVerifier,
+        state,
+      });
+
+      expect(result.isSuccess).toBe(false);
+      if (result.isSuccess) throw new Error('expected failure');
+      expect(result.error).toBeInstanceOf(OAuthError);
+    });
+
+    it('returns an auth-error result when the callback carries an error param', async () => {
+      const auth = makeAuth();
+      const { codeVerifier, state } = await auth.getAuthorizeUrl({ redirectUri: CALLBACK });
+      const result = await auth.exchangeCode({
+        callbackUrl: `${CALLBACK}?error=access_denied&state=${state}`,
+        redirectUri: CALLBACK,
+        codeVerifier,
+        state,
+      });
+
+      expect(result.isSuccess).toBe(false);
+      if (result.isSuccess) throw new Error('expected failure');
+      expect(result.error.code).toBe('access_denied');
     });
   });
 
@@ -218,8 +427,67 @@ describe('createInsurUpAuth', () => {
         clientSecret: 'secret',
         authServer: AUTH_SERVER,
       });
-      const tokens = await auth.loginWithClientCredentials();
+      const tokens = unwrap(await auth.loginWithClientCredentials());
       expect(tokens.accessToken).toBe('at-disc');
+    });
+
+    it('skips discovery when explicit endpoints are configured', async () => {
+      let discoveryCalls = 0;
+      server.use(
+        http.get(DISCOVERY_ENDPOINT, () => {
+          discoveryCalls += 1;
+          return HttpResponse.json({ issuer: AUTH_SERVER, token_endpoint: TOKEN_ENDPOINT });
+        }),
+        tokenEndpoint()
+      );
+
+      const auth = makeAuth(); // tokenEndpoint + authorizationEndpoint set
+      unwrap(await auth.loginWithClientCredentials());
+      expect(discoveryCalls).toBe(0);
+    });
+  });
+
+  describe('storage and lifecycle', () => {
+    it('persists tokens through a shared storage and hydrates lazily', async () => {
+      server.use(tokenEndpoint());
+      const storage = createMemoryTokenStorage();
+
+      const writer = makeAuth({ storage });
+      unwrap(await writer.loginWithClientCredentials());
+
+      // A fresh handle over the same storage has no hot state until it reads.
+      const reader = makeAuth({ storage });
+      expect(reader.getState().isAuthenticated).toBe(false); // not hydrated yet
+      expect(await reader.getAccessToken()).toBe('at-1'); // hydrates from storage
+      expect(reader.getState().isAuthenticated).toBe(true);
+    });
+
+    it('logout clears the session and storage', async () => {
+      server.use(tokenEndpoint());
+      const storage = createMemoryTokenStorage();
+      const auth = makeAuth({ storage });
+
+      unwrap(await auth.loginWithClientCredentials());
+      await auth.logout();
+
+      expect(auth.getState().isAuthenticated).toBe(false);
+      expect(await auth.getTokens()).toBeNull();
+      expect(await auth.getAccessToken()).toBeNull();
+      expect(await storage.get()).toBeNull();
+    });
+
+    it('notifies subscribers on login and logout, and stops after unsubscribe', async () => {
+      server.use(tokenEndpoint());
+      const auth = makeAuth();
+      const events: boolean[] = [];
+      const unsubscribe = auth.subscribe((state) => events.push(state.isAuthenticated));
+
+      unwrap(await auth.loginWithClientCredentials());
+      await auth.logout();
+      unsubscribe();
+      await auth.loginWithClientCredentials();
+
+      expect(events).toEqual([true, false]);
     });
   });
 
@@ -237,11 +505,32 @@ describe('createInsurUpAuth', () => {
       );
 
       const auth = makeAuth();
-      await auth.loginWithClientCredentials();
+      unwrap(await auth.loginWithClientCredentials());
       const client = new DefaultInsurUpClient({ auth });
       try {
         await client.agents.getCurrentAgent();
         expect(authHeader).toBe('Bearer at-bearer');
+      } finally {
+        await client.close();
+      }
+    });
+
+    it('lets an explicit tokenProvider take precedence over auth', async () => {
+      let authHeader: string | null = null;
+      server.use(
+        tokenEndpoint(),
+        http.get('https://api.insurup.com/api/agents/me', ({ request }) => {
+          authHeader = request.headers.get('authorization');
+          return HttpResponse.json({ id: 'agent-1' });
+        })
+      );
+
+      const auth = makeAuth();
+      unwrap(await auth.loginWithClientCredentials());
+      const client = new DefaultInsurUpClient({ auth, tokenProvider: () => 'explicit-token' });
+      try {
+        await client.agents.getCurrentAgent();
+        expect(authHeader).toBe('Bearer explicit-token');
       } finally {
         await client.close();
       }

@@ -9,6 +9,8 @@ export type { OAuthErrorOptions } from './errors.js';
 export { createMemoryTokenStorage } from './storage.js';
 export { DEFAULT_AUTH_SERVER } from './oauth-client.js';
 
+export type { AuthResult, AuthSuccess, AuthFailure } from './result.js';
+
 export type {
   InsurUpAuth,
   InsurUpAuthConfig,
