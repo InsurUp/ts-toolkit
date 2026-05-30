@@ -76,6 +76,59 @@ export {
   type UseInfiniteWebhookDeliveryTableResult,
 } from './use-infinite-webhook-delivery-table.js';
 
+// In-memory entity hooks (REST list resources)
+
+// Role
+export { useRoleTable, type UseRoleTableResult } from './use-role-table.js';
+export {
+  useInfiniteRoleTable,
+  type UseInfiniteRoleTableResult,
+} from './use-infinite-role-table.js';
+
+// AgentBranch
+export { useAgentBranchTable, type UseAgentBranchTableResult } from './use-agent-branch-table.js';
+export {
+  useInfiniteAgentBranchTable,
+  type UseInfiniteAgentBranchTableResult,
+} from './use-infinite-agent-branch-table.js';
+
+// CoverageGroup
+export {
+  useCoverageGroupTable,
+  type UseCoverageGroupTableResult,
+} from './use-coverage-group-table.js';
+export {
+  useInfiniteCoverageGroupTable,
+  type UseInfiniteCoverageGroupTableResult,
+} from './use-infinite-coverage-group-table.js';
+
+// AgentInsuranceCompany
+export {
+  useAgentInsuranceCompanyTable,
+  type UseAgentInsuranceCompanyTableResult,
+} from './use-agent-insurance-company-table.js';
+export {
+  useInfiniteAgentInsuranceCompanyTable,
+  type UseInfiniteAgentInsuranceCompanyTableResult,
+} from './use-infinite-agent-insurance-company-table.js';
+
+// OAuthClient
+export { useOAuthClientTable, type UseOAuthClientTableResult } from './use-oauth-client-table.js';
+export {
+  useInfiniteOAuthClientTable,
+  type UseInfiniteOAuthClientTableResult,
+} from './use-infinite-oauth-client-table.js';
+
+// AgentTemplate
+export {
+  useAgentTemplateTable,
+  type UseAgentTemplateTableResult,
+} from './use-agent-template-table.js';
+export {
+  useInfiniteAgentTemplateTable,
+  type UseInfiniteAgentTemplateTableResult,
+} from './use-infinite-agent-template-table.js';
+
 // ============================================================================
 // Re-export public surface from core
 // ============================================================================
