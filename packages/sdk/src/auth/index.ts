@@ -14,6 +14,7 @@ export type { AuthResult, AuthSuccess, AuthFailure } from './result.js';
 export type {
   InsurUpAuth,
   InsurUpAuthConfig,
+  InsurUpScope,
   AuthServerConfig,
   OAuthTokens,
   AuthState,

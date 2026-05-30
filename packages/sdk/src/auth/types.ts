@@ -9,6 +9,42 @@ import type { TokenProvider } from '../core/options.js';
 import type { AuthResult } from './result.js';
 
 /**
+ * An OAuth scope understood by the InsurUp authorization server. The known
+ * scopes — standard OIDC scopes plus the InsurUp API scopes — autocomplete,
+ * while any other string is still accepted (scopes are server-defined and may
+ * evolve, and clients may be granted tenant-specific scopes).
+ *
+ * InsurUp yetkilendirme sunucusunun tanıdığı bir OAuth kapsamı.
+ */
+export type InsurUpScope =
+  // Standard OIDC scopes
+  | 'openid'
+  | 'profile'
+  | 'email'
+  | 'roles'
+  | 'offline_access'
+  // Full API access (internal apps)
+  | 'core-api'
+  // Granular API scopes (`resource:action`, for third-party clients)
+  | 'customer:read'
+  | 'customer:write'
+  | 'proposal:read'
+  | 'proposal:write'
+  | 'policy:read'
+  | 'policy:write'
+  | 'case:read'
+  | 'case:write'
+  | 'webhook:read'
+  | 'webhook:write'
+  | 'me:read'
+  | 'me:write'
+  // Authorization-server administration
+  | 'auth-server-management'
+  // Escape hatch: any other (future / tenant-specific) scope. Preserves the
+  // literal suggestions above without collapsing the union to `string`.
+  | (string & {});
+
+/**
  * An OAuth 2.0 token set held by the auth module. Mirrors the relevant fields
  * of the token endpoint response, with an absolute {@link OAuthTokens.expiresAt}
  * computed at acquisition time so expiry can be checked without tracking when
@@ -110,7 +146,7 @@ export interface InsurUpAuthConfig extends AuthServerConfig {
   readonly clientSecret?: string;
 
   /** Default scopes requested by flows that do not specify their own. */
-  readonly scopes?: readonly string[];
+  readonly scopes?: readonly InsurUpScope[];
 
   /** Token storage backend. Defaults to in-memory storage. */
   readonly storage?: TokenStorage;
@@ -137,7 +173,7 @@ export interface ClientCredentialsLoginOptions {
   readonly clientSecret?: string;
 
   /** Scopes to request. Falls back to {@link InsurUpAuthConfig.scopes}. */
-  readonly scopes?: readonly string[];
+  readonly scopes?: readonly InsurUpScope[];
 }
 
 /**
@@ -148,7 +184,7 @@ export interface AuthorizeUrlOptions {
   readonly redirectUri: string;
 
   /** Scopes to request. Falls back to {@link InsurUpAuthConfig.scopes}. */
-  readonly scopes?: readonly string[];
+  readonly scopes?: readonly InsurUpScope[];
 
   /**
    * A PKCE code verifier to use. When omitted, one is generated and returned in

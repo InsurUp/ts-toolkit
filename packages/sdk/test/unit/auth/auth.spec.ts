@@ -147,6 +147,22 @@ describe('createInsurUpAuth', () => {
       expect(body).toContain('client_secret=per-call');
     });
 
+    it('accepts both known granular scopes and arbitrary server-defined scopes', async () => {
+      let scope: string | null = null;
+      server.use(
+        http.post(TOKEN_ENDPOINT, async ({ request }) => {
+          scope = new URLSearchParams(await request.text()).get('scope');
+          return HttpResponse.json({ access_token: 'at', token_type: 'Bearer', expires_in: 3600 });
+        })
+      );
+
+      const auth = makeAuth();
+      // 'customer:read' is a typed InsurUpScope; 'tenant:custom' exercises the
+      // string escape hatch — both must compile and reach the wire.
+      unwrap(await auth.loginWithClientCredentials({ scopes: ['customer:read', 'tenant:custom'] }));
+      expect(scope).toBe('customer:read tenant:custom');
+    });
+
     it('returns an auth-error result when no client secret is available', async () => {
       const auth = createInsurUpAuth({ clientId: 'demo', tokenEndpoint: TOKEN_ENDPOINT });
       const result = await auth.loginWithClientCredentials();

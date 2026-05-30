@@ -92,6 +92,7 @@ export {
 export type {
   InsurUpAuth,
   InsurUpAuthConfig,
+  InsurUpScope,
   AuthServerConfig,
   OAuthTokens,
   OAuthErrorOptions,
