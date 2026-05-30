@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router';
-import { useAuthContext } from 'react-oauth2-code-pkce';
+import { useAuth } from '@/auth';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -21,8 +21,7 @@ function getInitialTheme(): boolean {
 }
 
 export function Header(): React.ReactElement {
-  const { token, login, logOut, loginInProgress } = useAuthContext();
-  const isAuthenticated = !!token;
+  const { isAuthenticated, login, logout } = useAuth();
   const [isDark, setIsDark] = useState(getInitialTheme);
 
   useEffect(() => {
@@ -96,16 +95,14 @@ export function Header(): React.ReactElement {
                   <span className="text-muted-foreground">Logged in</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => logOut()}>
+                <DropdownMenuItem onClick={() => void logout()}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button onClick={() => login()} disabled={loginInProgress}>
-              {loginInProgress ? 'Logging in...' : 'Login'}
-            </Button>
+            <Button onClick={() => void login()}>Login</Button>
           )}
         </div>
       </div>

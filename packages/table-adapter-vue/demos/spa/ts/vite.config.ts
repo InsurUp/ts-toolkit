@@ -19,6 +19,16 @@ export default defineConfig({
     },
   },
   server: {
-    port: 4001,
+    port: 3000,
+    proxy: {
+      // The auth server sends no CORS headers on /connect/token, so a direct
+      // browser fetch is blocked. Route it same-origin through the dev server.
+      // changeOrigin keeps the upstream Host as auth.insurup.com so issued
+      // tokens carry the correct (https, trailing-slash) issuer.
+      '/connect/token': {
+        target: 'https://auth.insurup.com',
+        changeOrigin: true,
+      },
+    },
   },
 });

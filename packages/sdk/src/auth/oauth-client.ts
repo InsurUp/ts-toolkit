@@ -64,7 +64,8 @@ export async function clientCredentialsGrant(
   as: oauth.AuthorizationServer,
   clientId: string,
   clientSecret: string,
-  scopes: readonly string[] | undefined
+  scopes: readonly string[] | undefined,
+  allowInsecure = false
 ): Promise<OAuthTokens> {
   const client: oauth.Client = { client_id: clientId };
   const clientAuth = oauth.ClientSecretPost(clientSecret);
@@ -74,7 +75,13 @@ export async function clientCredentialsGrant(
   }
 
   try {
-    const response = await oauth.clientCredentialsGrantRequest(as, client, clientAuth, params);
+    const response = await oauth.clientCredentialsGrantRequest(
+      as,
+      client,
+      clientAuth,
+      params,
+      allowInsecure ? { [oauth.allowInsecureRequests]: true } : undefined
+    );
     return normalizeTokens(await oauth.processClientCredentialsResponse(as, client, response));
   } catch (error) {
     throw toOAuthError(error);
@@ -89,14 +96,21 @@ export async function refreshTokenGrant(
   as: oauth.AuthorizationServer,
   clientId: string,
   refreshToken: string,
-  clientSecret: string | undefined
+  clientSecret: string | undefined,
+  allowInsecure = false
 ): Promise<OAuthTokens> {
   const client: oauth.Client = { client_id: clientId };
   const clientAuth =
     clientSecret !== undefined ? oauth.ClientSecretPost(clientSecret) : oauth.None();
 
   try {
-    const response = await oauth.refreshTokenGrantRequest(as, client, clientAuth, refreshToken);
+    const response = await oauth.refreshTokenGrantRequest(
+      as,
+      client,
+      clientAuth,
+      refreshToken,
+      allowInsecure ? { [oauth.allowInsecureRequests]: true } : undefined
+    );
     return normalizeTokens(await oauth.processRefreshTokenResponse(as, client, response));
   } catch (error) {
     throw toOAuthError(error);
@@ -152,6 +166,7 @@ export async function exchangeAuthorizationCode(
     codeVerifier: string;
     state?: string;
     clientSecret?: string;
+    allowInsecure?: boolean;
   }
 ): Promise<OAuthTokens> {
   const client: oauth.Client = { client_id: clientId };
@@ -175,7 +190,8 @@ export async function exchangeAuthorizationCode(
       clientAuth,
       params,
       options.redirectUri,
-      options.codeVerifier
+      options.codeVerifier,
+      options.allowInsecure ? { [oauth.allowInsecureRequests]: true } : undefined
     );
     return normalizeTokens(await oauth.processAuthorizationCodeResponse(as, client, response));
   } catch (error) {

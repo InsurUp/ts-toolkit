@@ -4,7 +4,7 @@
 
 import { DefaultInsurUpClient } from '@insurup/sdk';
 import { getConfig } from '$lib/config';
-import { getAccessToken } from '$lib/auth/oauth';
+import { auth } from '$lib/auth/oauth';
 
 let clientInstance: DefaultInsurUpClient | null = null;
 
@@ -12,7 +12,8 @@ export function getClient(): DefaultInsurUpClient {
   if (!clientInstance) {
     const config = getConfig();
     clientInstance = new DefaultInsurUpClient({
-      tokenProvider: () => getAccessToken(),
+      // Passing the auth handle wires automatic token injection and refresh.
+      auth,
       baseUrl: config.apiBaseUrl,
     });
   }

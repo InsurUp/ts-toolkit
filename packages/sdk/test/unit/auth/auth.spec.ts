@@ -552,4 +552,39 @@ describe('createInsurUpAuth', () => {
       }
     });
   });
+
+  describe('allowInsecureRequests', () => {
+    const HTTP_TOKEN_ENDPOINT = 'http://localhost:8080/connect/token';
+
+    it('rejects an http token endpoint by default (HTTPS is required)', async () => {
+      // oauth4webapi enforces HTTPS before sending, so no request is made.
+      const auth = makeAuth({ tokenEndpoint: HTTP_TOKEN_ENDPOINT });
+      const result = await auth.loginWithClientCredentials({ scopes: ['core-api'] });
+
+      expect(result.isSuccess).toBe(false);
+      if (!result.isSuccess) {
+        expect(result.error.message).toMatch(/https/i);
+      }
+    });
+
+    it('permits an http token endpoint when enabled (e.g. behind a dev proxy)', async () => {
+      let body = '';
+      server.use(
+        http.post(HTTP_TOKEN_ENDPOINT, async ({ request }) => {
+          body = await request.text();
+          return HttpResponse.json({
+            access_token: 'at-insecure',
+            token_type: 'Bearer',
+            expires_in: 3600,
+          });
+        })
+      );
+
+      const auth = makeAuth({ tokenEndpoint: HTTP_TOKEN_ENDPOINT, allowInsecureRequests: true });
+      const tokens = unwrap(await auth.loginWithClientCredentials({ scopes: ['core-api'] }));
+
+      expect(tokens.accessToken).toBe('at-insecure');
+      expect(body).toContain('grant_type=client_credentials');
+    });
+  });
 });

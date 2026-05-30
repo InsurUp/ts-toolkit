@@ -2,23 +2,27 @@
   import { onMount } from "svelte";
   import { toast } from "svelte-sonner";
   import { navigate } from "$lib/router";
-  import { handleCallback, setTokens } from "$lib/auth/index.svelte";
+  import { handleCallback } from "$lib/auth/index.svelte";
 
-  onMount(() => {
+  onMount(async () => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
     const state = params.get("state");
 
     if (code && state) {
-      handleCallback(code, state)
-        .then((tokens) => {
-          setTokens(tokens);
-          navigate("/");
-        })
-        .catch((error) => {
-          toast.error(`Login failed: ${error.message}`);
-          navigate("/");
-        });
+      try {
+        // The auth handle exchanges the code, persists the tokens, and notifies
+        // subscribers; the reactive auth store updates automatically.
+        const result = await handleCallback();
+        if (!result.isSuccess) {
+          toast.error(`Login failed: ${result.error.description ?? result.error.message}`);
+        }
+        window.history.replaceState({}, "", window.location.pathname);
+        navigate("/");
+      } catch (error) {
+        toast.error(`Login failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+        navigate("/");
+      }
     } else {
       navigate("/");
     }
