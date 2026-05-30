@@ -5,8 +5,6 @@
  * discovery, OAuth error mapping, and DefaultInsurUpClient token wiring.
  */
 
-import { createHash } from 'node:crypto';
-
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
@@ -34,6 +32,18 @@ function makeAuth(overrides: Partial<InsurUpAuthConfig> = {}) {
     authorizationEndpoint: AUTHORIZE_ENDPOINT,
     ...overrides,
   });
+}
+
+/**
+ * base64url(SHA-256(verifier)) via Web Crypto — an independent S256 challenge
+ * computed without oauth4webapi (and without node:crypto).
+ */
+async function s256Challenge(verifier: string): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
+  return btoa(String.fromCharCode(...new Uint8Array(digest)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
 }
 
 describe('createInsurUpAuth', () => {
@@ -142,7 +152,7 @@ describe('createInsurUpAuth', () => {
 
       // The challenge must be the base64url SHA-256 of the verifier (verified
       // independently of oauth4webapi).
-      const expectedChallenge = createHash('sha256').update(codeVerifier).digest('base64url');
+      const expectedChallenge = await s256Challenge(codeVerifier);
       expect(parsed.searchParams.get('code_challenge')).toBe(expectedChallenge);
     });
 

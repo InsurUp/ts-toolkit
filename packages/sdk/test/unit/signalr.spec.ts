@@ -686,7 +686,7 @@ describe('InsurUpProposalClient.subscribeToDetail', () => {
 async function subscribeAndGetConnection(
   transport: SignalRTransport,
   proposalId: string
-): Promise<FakeHubConnection> {
+): Promise<FakeHubConnectionInstance> {
   const before = builtConnections.length;
   await transport.subscribeProposalDetail(proposalId, {});
   return builtConnections[before]!;
