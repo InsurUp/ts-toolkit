@@ -158,6 +158,17 @@ export interface InsurUpAuthConfig extends AuthServerConfig {
    * @default 60
    */
   readonly refreshBufferSeconds?: number;
+
+  /**
+   * Permits OAuth token requests to non-HTTPS (`http:`) endpoints.
+   * **Development only** — OAuth (and `oauth4webapi`) require HTTPS. Enable this
+   * to allow an `http:` token endpoint, e.g. when the browser routes it through
+   * a local dev proxy (`http://localhost:3000/connect/token`). Never enable it
+   * in production.
+   *
+   * @default false
+   */
+  readonly allowInsecureRequests?: boolean;
 }
 
 /**

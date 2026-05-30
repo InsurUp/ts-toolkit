@@ -10,8 +10,8 @@
 import { createInsurUpAuth, type OAuthTokens, type TokenStorage } from '@insurup/sdk';
 import { getConfig } from './config';
 
-const TOKENS_KEY = 'insurup_tokens';
-const PKCE_KEY = 'insurup_pkce';
+const TOKENS_KEY = 'table-adapter-vue-demo-tokens';
+const PKCE_KEY = 'table-adapter-vue-demo-pkce';
 
 /** PKCE values stashed between the authorize redirect and the callback exchange. */
 export interface PKCEData {
@@ -28,6 +28,7 @@ function createLocalStorageTokenStorage(): TokenStorage {
       try {
         return JSON.parse(stored) as OAuthTokens;
       } catch {
+        localStorage.removeItem(TOKENS_KEY);
         return null;
       }
     },
@@ -45,8 +46,7 @@ const config = getConfig();
 /**
  * The single auth handle for the app. Public client: PKCE only, no
  * `clientSecret`. Endpoints are pinned (discovery is CORS-blocked in the
- * browser); `authServer` carries the server's trailing-slash issuer so the
- * `iss` callback check (RFC 9207) passes.
+ * browser).
  */
 export const auth = createInsurUpAuth({
   clientId: config.clientId,
@@ -55,6 +55,8 @@ export const auth = createInsurUpAuth({
   tokenEndpoint: config.tokenEndpoint,
   scopes: config.scopes,
   storage: createLocalStorageTokenStorage(),
+  // Dev only: the token endpoint is routed through the http Vite dev proxy.
+  allowInsecureRequests: import.meta.env.DEV,
 });
 
 /**

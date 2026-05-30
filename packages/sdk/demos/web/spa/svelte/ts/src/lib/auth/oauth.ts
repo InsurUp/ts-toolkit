@@ -68,15 +68,15 @@ const config = getConfig();
 
 /**
  * The single shared auth handle. Created once, backed by localStorage.
- * Authorization/token endpoints are pinned to the existing OpenIddict paths
- * (`/connect/authorize`, `/connect/token`) to preserve the prior behavior and
- * skip OIDC discovery.
+ * Endpoints are pinned (discovery is CORS-blocked in the browser); `authServer`
+ * carries the server's trailing-slash issuer so the `iss` callback check
+ * (RFC 9207) passes.
  */
 export const auth = createInsurUpAuth({
   clientId: config.clientId,
   authServer: config.authServer,
-  authorizationEndpoint: `${config.authServer}/connect/authorize`,
-  tokenEndpoint: `${config.authServer}/connect/token`,
+  authorizationEndpoint: config.authorizationEndpoint,
+  tokenEndpoint: config.tokenEndpoint,
   scopes: config.scopes,
   storage: localStorageTokenStorage,
 });

@@ -1,13 +1,12 @@
-import { useAuthContext } from 'react-oauth2-code-pkce';
+import { useAuth } from '@/auth';
 import { useNavigate } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, TableIcon, ShieldCheck } from 'lucide-react';
 
 export function Home(): React.ReactElement {
-  const { token, login, loginInProgress } = useAuthContext();
+  const { isAuthenticated, login } = useAuth();
   const navigate = useNavigate();
-  const isAuthenticated = !!token;
 
   if (!isAuthenticated) {
     return (
@@ -18,8 +17,8 @@ export function Home(): React.ReactElement {
           A React SPA demonstrating the @insurup/table-adapter-react package with TanStack Table
           integration.
         </p>
-        <Button size="lg" onClick={() => login()} disabled={loginInProgress}>
-          {loginInProgress ? 'Signing in...' : 'Sign in to get started'}
+        <Button size="lg" onClick={() => void login()}>
+          Sign in to get started
         </Button>
       </div>
     );

@@ -1,20 +1,17 @@
 <script lang="ts">
   import { Table2, Users } from "@lucide/svelte";
-  import { startLogin, isAuthenticatedStore, loginInProgress } from "$lib/auth/index.svelte";
+  import { getAuthState, login } from "$lib/auth/index.svelte";
   import { p } from "$lib/router";
 
-  let isAuthenticated = $state(false);
-  let isLoggingIn = $state(false);
-  isAuthenticatedStore.subscribe((v) => (isAuthenticated = v));
-  loginInProgress.subscribe((v) => (isLoggingIn = v));
+  const auth = getAuthState();
 
   async function handleLogin(): Promise<void> {
-    loginInProgress.set(true);
-    await startLogin();
+    auth.setLoginInProgress(true);
+    await login();
   }
 </script>
 
-{#if !isAuthenticated}
+{#if !auth.isAuthenticated}
   <div class="flex flex-col items-center justify-center min-h-[70vh] text-center">
     <Table2 class="h-16 w-16 text-primary mb-6" />
     <h1 class="text-4xl font-bold tracking-tight mb-4">
@@ -26,10 +23,10 @@
     </p>
     <button
       class="h-10 px-6 rounded-md bg-primary text-primary-foreground hover:bg-primary/90"
-      disabled={isLoggingIn}
+      disabled={auth.loginInProgress}
       onclick={handleLogin}
     >
-      {isLoggingIn ? "Signing in..." : "Sign in to get started"}
+      {auth.loginInProgress ? "Signing in..." : "Sign in to get started"}
     </button>
   </div>
 {:else}

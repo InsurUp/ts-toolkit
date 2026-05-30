@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuth } from '@/composables/useAuth';
+import { authReady } from '@/lib/auth';
 
 import Home from '@/views/Home.vue';
 import Callback from '@/views/Callback.vue';
@@ -27,7 +28,10 @@ const router = createRouter({
   ],
 });
 
-router.beforeEach((to, _from, next) => {
+router.beforeEach(async (to, _from, next) => {
+  // Wait for the persisted session to hydrate so a reload onto a protected route
+  // isn't bounced to home before the restored token is recognized.
+  await authReady;
   const { isAuthenticated } = useAuth();
 
   if (to.meta.requiresAuth && !isAuthenticated.value) {

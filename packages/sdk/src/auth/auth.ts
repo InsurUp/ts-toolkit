@@ -64,7 +64,13 @@ export function createInsurUpAuth(config: InsurUpAuthConfig): InsurUpAuth {
     storage,
     refreshBufferSeconds,
     refresh: async (refreshToken) =>
-      refreshTokenGrant(await getServer(), config.clientId, refreshToken, config.clientSecret),
+      refreshTokenGrant(
+        await getServer(),
+        config.clientId,
+        refreshToken,
+        config.clientSecret,
+        config.allowInsecureRequests
+      ),
   });
 
   const getAccessToken = (): Promise<string | null> => manager.getAccessToken();
@@ -85,7 +91,8 @@ export function createInsurUpAuth(config: InsurUpAuthConfig): InsurUpAuth {
           await getServer(),
           config.clientId,
           clientSecret,
-          options?.scopes ?? config.scopes
+          options?.scopes ?? config.scopes,
+          config.allowInsecureRequests
         );
         await manager.setTokens(tokens);
         return authSuccess(tokens);
@@ -106,6 +113,7 @@ export function createInsurUpAuth(config: InsurUpAuthConfig): InsurUpAuth {
         const tokens = await exchangeAuthorizationCode(await getServer(), config.clientId, {
           ...options,
           clientSecret: options.clientSecret ?? config.clientSecret,
+          allowInsecure: config.allowInsecureRequests,
         });
         await manager.setTokens(tokens);
         return authSuccess(tokens);

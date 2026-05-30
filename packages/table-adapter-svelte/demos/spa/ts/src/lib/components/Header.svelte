@@ -1,12 +1,9 @@
 <script lang="ts">
   import { Sun, Moon, User, LogOut } from "@lucide/svelte";
-  import { startLogin, logout, isAuthenticatedStore, loginInProgress, logOut } from "$lib/auth/index.svelte";
+  import { getAuthState, login } from "$lib/auth/index.svelte";
   import { navigate, p, isActive } from "$lib/router";
 
-  let isAuthenticated = $state(false);
-  let isLoggingIn = $state(false);
-  isAuthenticatedStore.subscribe((v) => (isAuthenticated = v));
-  loginInProgress.subscribe((v) => (isLoggingIn = v));
+  const auth = getAuthState();
 
   const THEME_KEY = "table-adapter-svelte-theme";
 
@@ -36,13 +33,12 @@
   }
 
   async function handleLogin(): Promise<void> {
-    loginInProgress.set(true);
-    await startLogin();
+    auth.setLoginInProgress(true);
+    await login();
   }
 
-  function handleLogout(): void {
-    logout();
-    logOut();
+  async function handleLogout(): Promise<void> {
+    await auth.logOut();
     showDropdown = false;
     navigate("/");
   }
@@ -54,7 +50,7 @@
       <a href={p("/")} class="mr-6 flex items-center space-x-2 font-bold">
         Table Adapter Demo
       </a>
-      {#if isAuthenticated}
+      {#if auth.isAuthenticated}
         <nav class="flex items-center space-x-6 text-sm font-medium">
           <a
             href={p("/customers/basic")}
@@ -95,7 +91,7 @@
           <Moon class="h-5 w-5" />
         {/if}
       </button>
-      {#if isAuthenticated}
+      {#if auth.isAuthenticated}
         <div class="relative">
           <button
             class="inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-accent"
@@ -118,10 +114,10 @@
       {:else}
         <button
           class="inline-flex items-center justify-center h-9 px-4 rounded-md bg-primary text-primary-foreground hover:bg-primary/90"
-          disabled={isLoggingIn}
+          disabled={auth.loginInProgress}
           onclick={handleLogin}
         >
-          {isLoggingIn ? "Logging in..." : "Login"}
+          {auth.loginInProgress ? "Logging in..." : "Login"}
         </button>
       {/if}
     </div>
