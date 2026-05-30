@@ -51,6 +51,38 @@ export type { WebhookDeliveryTableInstance } from './create-webhook-delivery-tab
 export { createInfiniteWebhookDeliveryTable } from './create-infinite-webhook-delivery-table.svelte.js';
 export type { InfiniteWebhookDeliveryTableInstance } from './create-infinite-webhook-delivery-table.svelte.js';
 
+// In-memory entity creators (REST list resources)
+
+export { createRoleTable } from './create-role-table.svelte.js';
+export type { RoleTableInstance } from './create-role-table.svelte.js';
+export { createInfiniteRoleTable } from './create-infinite-role-table.svelte.js';
+export type { InfiniteRoleTableInstance } from './create-infinite-role-table.svelte.js';
+
+export { createAgentBranchTable } from './create-agent-branch-table.svelte.js';
+export type { AgentBranchTableInstance } from './create-agent-branch-table.svelte.js';
+export { createInfiniteAgentBranchTable } from './create-infinite-agent-branch-table.svelte.js';
+export type { InfiniteAgentBranchTableInstance } from './create-infinite-agent-branch-table.svelte.js';
+
+export { createCoverageGroupTable } from './create-coverage-group-table.svelte.js';
+export type { CoverageGroupTableInstance } from './create-coverage-group-table.svelte.js';
+export { createInfiniteCoverageGroupTable } from './create-infinite-coverage-group-table.svelte.js';
+export type { InfiniteCoverageGroupTableInstance } from './create-infinite-coverage-group-table.svelte.js';
+
+export { createAgentInsuranceCompanyTable } from './create-agent-insurance-company-table.svelte.js';
+export type { AgentInsuranceCompanyTableInstance } from './create-agent-insurance-company-table.svelte.js';
+export { createInfiniteAgentInsuranceCompanyTable } from './create-infinite-agent-insurance-company-table.svelte.js';
+export type { InfiniteAgentInsuranceCompanyTableInstance } from './create-infinite-agent-insurance-company-table.svelte.js';
+
+export { createOAuthClientTable } from './create-oauth-client-table.svelte.js';
+export type { OAuthClientTableInstance } from './create-oauth-client-table.svelte.js';
+export { createInfiniteOAuthClientTable } from './create-infinite-oauth-client-table.svelte.js';
+export type { InfiniteOAuthClientTableInstance } from './create-infinite-oauth-client-table.svelte.js';
+
+export { createAgentTemplateTable } from './create-agent-template-table.svelte.js';
+export type { AgentTemplateTableInstance } from './create-agent-template-table.svelte.js';
+export { createInfiniteAgentTemplateTable } from './create-infinite-agent-template-table.svelte.js';
+export type { InfiniteAgentTemplateTableInstance } from './create-infinite-agent-template-table.svelte.js';
+
 export type { TableCoreResult } from './internal/create-table-core.svelte.js';
 
 // ============================================================================

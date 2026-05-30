@@ -87,6 +87,50 @@ export {
   type InfiniteWebhookDeliveryTable,
 } from './entities/webhook-delivery/index.js';
 
+// In-memory entity tables (REST list resources — filter/search/sort/paginate in memory)
+
+export {
+  createRoleTable,
+  createInfiniteRoleTable,
+  type RoleTable,
+  type InfiniteRoleTable,
+} from './entities/role/index.js';
+
+export {
+  createAgentBranchTable,
+  createInfiniteAgentBranchTable,
+  type AgentBranchTable,
+  type InfiniteAgentBranchTable,
+} from './entities/agent-branch/index.js';
+
+export {
+  createCoverageGroupTable,
+  createInfiniteCoverageGroupTable,
+  type CoverageGroupTable,
+  type InfiniteCoverageGroupTable,
+} from './entities/coverage-group/index.js';
+
+export {
+  createAgentInsuranceCompanyTable,
+  createInfiniteAgentInsuranceCompanyTable,
+  type AgentInsuranceCompanyTable,
+  type InfiniteAgentInsuranceCompanyTable,
+} from './entities/agent-insurance-company/index.js';
+
+export {
+  createOAuthClientTable,
+  createInfiniteOAuthClientTable,
+  type OAuthClientTable,
+  type InfiniteOAuthClientTable,
+} from './entities/oauth-client/index.js';
+
+export {
+  createAgentTemplateTable,
+  createInfiniteAgentTemplateTable,
+  type AgentTemplateTable,
+  type InfiniteAgentTemplateTable,
+} from './entities/agent-template/index.js';
+
 // ============================================================================
 // Entity-Specific Types
 // ============================================================================
@@ -170,6 +214,73 @@ export type {
   WebhookDeliveryFilterInput,
   WebhookDeliverySearchInput,
 } from './entities/webhook-delivery/index.js';
+
+// In-memory entity types (REST list resources)
+
+export type {
+  RoleEntity,
+  RoleColumnDef,
+  RoleRowType,
+  RoleExtractFields,
+  RoleTableOptions,
+  RoleFilterInput,
+} from './entities/role/index.js';
+
+export type {
+  AgentBranchEntity,
+  AgentBranchColumnDef,
+  AgentBranchRowType,
+  AgentBranchExtractFields,
+  AgentBranchTableOptions,
+  AgentBranchFilterInput,
+} from './entities/agent-branch/index.js';
+
+export type {
+  CoverageGroupEntity,
+  CoverageGroupColumnDef,
+  CoverageGroupRowType,
+  CoverageGroupExtractFields,
+  CoverageGroupTableOptions,
+  CoverageGroupFilterInput,
+} from './entities/coverage-group/index.js';
+
+export type {
+  AgentInsuranceCompanyEntity,
+  AgentInsuranceCompanyColumnDef,
+  AgentInsuranceCompanyRowType,
+  AgentInsuranceCompanyExtractFields,
+  AgentInsuranceCompanyTableOptions,
+  AgentInsuranceCompanyFilterInput,
+} from './entities/agent-insurance-company/index.js';
+
+export type {
+  OAuthClientEntity,
+  OAuthClientColumnDef,
+  OAuthClientRowType,
+  OAuthClientExtractFields,
+  OAuthClientTableOptions,
+  OAuthClientFilterInput,
+} from './entities/oauth-client/index.js';
+
+export type {
+  AgentTemplateEntity,
+  AgentTemplateColumnDef,
+  AgentTemplateRowType,
+  AgentTemplateExtractFields,
+  AgentTemplateTableOptions,
+  AgentTemplateFilterInput,
+} from './entities/agent-template/index.js';
+
+// Generic in-memory filter/options types (shared by the REST list tables)
+
+export type {
+  FieldPredicate,
+  InMemoryFilterInput,
+  InMemoryTableOptions,
+  InMemoryEntityFactoryConfig,
+  InMemoryDataSource,
+  InMemoryLoadAll,
+} from './lib/in-memory/index.js';
 
 // SDK types (Query*, *FieldKey, Get*Options) are NOT re-exported — import them
 // directly from `@insurup/sdk` to avoid two import paths for the same symbol.
