@@ -51,7 +51,7 @@
   },
   "scripts": {
     "build": "tsup && tsc -p tsconfig.build.json",
-    "check-types": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "dev": "tsup --watch",
     "docs": "typedoc",
     "lint": "eslint src test --max-warnings 0",
@@ -82,6 +82,7 @@
   },
   "dependencies": {
     "@insurup/contracts": "workspace:*",
-    "@microsoft/signalr": "^10.0.0"
+    "@microsoft/signalr": "^10.0.0",
+    "oauth4webapi": "^3.8.6"
   }
 }

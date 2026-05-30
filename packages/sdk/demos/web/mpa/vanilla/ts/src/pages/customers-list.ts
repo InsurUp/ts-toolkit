@@ -19,6 +19,7 @@ import { requireAuth } from '../shared/auth';
 import { getClient } from '../shared/client';
 import { formatCustomerType, formatDate, truncate } from '../shared/format';
 import type { CustomerType, DateTime } from '@insurup/contracts';
+import type { QueryCustomerModelUnifiedFilterInput } from '@insurup/sdk';
 
 const PAGE_SIZE = 10;
 
@@ -53,12 +54,12 @@ async function loadCustomers(container: HTMLElement, cursor: string | null): Pro
   try {
     const client = getClient();
 
-    const searchOptions = searchQuery
+    const filterOptions: QueryCustomerModelUnifiedFilterInput | undefined = searchQuery
       ? {
           or: [
-            { name: { textSearch: { value: searchQuery } } },
-            { identityNumber: { textSearch: { value: searchQuery } } },
-            { primaryEmail: { textSearch: { value: searchQuery } } },
+            { name: { $search: true, textSearch: { value: searchQuery } } },
+            { identityNumber: { $search: true, textSearch: { value: searchQuery } } },
+            { primaryEmail: { $search: true, textSearch: { value: searchQuery } } },
           ],
         }
       : undefined;
@@ -66,7 +67,7 @@ async function loadCustomers(container: HTMLElement, cursor: string | null): Pro
     // Fire count query without awaiting (non-blocking)
     const countPromise = client.customers.getCustomers({
       first: 1,
-      search: searchOptions,
+      filter: filterOptions,
       select: ['id'] as const,
     });
 
@@ -74,7 +75,7 @@ async function loadCustomers(container: HTMLElement, cursor: string | null): Pro
     const dataRes = await client.customers.getCustomers({
       first: PAGE_SIZE,
       after: cursor ?? undefined,
-      search: searchOptions,
+      filter: filterOptions,
       select: ['id', 'name', 'identityNumber', 'primaryEmail', 'type', 'createdAt'] as const,
       includeTotalCount: false,
     });

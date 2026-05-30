@@ -12,7 +12,7 @@
   import { User, Mail, Clock, LogOut } from "lucide-svelte";
 
   const auth = getAuthState();
-  const claims = $derived(parseIdTokenClaims());
+  const claims = $derived(parseIdTokenClaims(auth.tokens));
 </script>
 
 <div class="space-y-6">

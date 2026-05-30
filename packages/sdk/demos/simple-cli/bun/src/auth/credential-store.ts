@@ -3,25 +3,18 @@
  */
 
 import { secrets } from 'bun';
-
-export interface TokenData {
-  accessToken: string;
-  refreshToken?: string;
-  expiresAt?: number;
-  tokenType?: string;
-  scope?: string;
-}
+import type { OAuthTokens } from '@insurup/sdk';
 
 const SERVICE = 'com.insurup.sdk';
 const NAME = 'tokens';
 
-export async function saveTokens(data: TokenData): Promise<void> {
+export async function saveTokens(data: OAuthTokens): Promise<void> {
   await secrets.set({ service: SERVICE, name: NAME, value: JSON.stringify(data) });
 }
 
-export async function loadTokens(): Promise<TokenData | null> {
+export async function loadTokens(): Promise<OAuthTokens | null> {
   const json = await secrets.get({ service: SERVICE, name: NAME });
-  return json ? (JSON.parse(json) as TokenData) : null;
+  return json ? (JSON.parse(json) as OAuthTokens) : null;
 }
 
 export async function clearTokens(): Promise<void> {

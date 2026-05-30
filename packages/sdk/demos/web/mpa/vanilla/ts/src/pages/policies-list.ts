@@ -27,6 +27,7 @@ import {
 import { PolicyState, type Currency } from '@insurup/contracts';
 
 import type { DateOnly, DateTime } from '@insurup/contracts';
+import type { QueryPoliciesResultUnifiedFilterInput } from '@insurup/sdk';
 
 const PAGE_SIZE = 10;
 
@@ -66,22 +67,24 @@ async function loadPolicies(container: HTMLElement, cursor: string | null): Prom
   try {
     const client = getClient();
 
-    const searchOptions = searchQuery
-      ? {
-          or: [
-            { insuranceCompanyPolicyNumber: { textSearch: { value: searchQuery } } },
-            { insuredCustomerName: { textSearch: { value: searchQuery } } },
-            { productName: { textSearch: { value: searchQuery } } },
-          ],
-        }
-      : undefined;
-
-    const filterOptions = stateFilter ? { state: { eq: stateFilter as PolicyState } } : undefined;
+    const filterOptions: QueryPoliciesResultUnifiedFilterInput | undefined =
+      searchQuery || stateFilter
+        ? {
+            ...(searchQuery
+              ? {
+                  insuranceCompanyPolicyNumber: {
+                    $search: true,
+                    textSearch: { value: searchQuery },
+                  },
+                }
+              : {}),
+            ...(stateFilter ? { state: { eq: stateFilter as PolicyState } } : {}),
+          }
+        : undefined;
 
     // Fire count query without awaiting (non-blocking)
     const countPromise = client.policies.getPolicies({
       first: 1,
-      search: searchOptions,
       filter: filterOptions,
       select: ['id'] as const,
     });
@@ -90,7 +93,6 @@ async function loadPolicies(container: HTMLElement, cursor: string | null): Prom
     const dataRes = await client.policies.getPolicies({
       first: PAGE_SIZE,
       after: cursor ?? undefined,
-      search: searchOptions,
       filter: filterOptions,
       select: [
         'id',

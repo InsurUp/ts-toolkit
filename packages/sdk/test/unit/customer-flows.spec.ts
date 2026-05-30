@@ -5,7 +5,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { DefaultInsurUpClient } from '../../src/client/client';
-import { CustomerType, Gender } from '@insurup/contracts';
+import { AddressType, CustomerType, Gender } from '@insurup/contracts';
 import type {
   CreateCustomerRequestIndividual,
   GetCustomerResultIndividual,
@@ -305,7 +305,7 @@ describe('Customer Flow Integration Tests', () => {
       const addressResult = await client.customers.createCustomerAddress({
         customerId,
         propertyNumber: 12345,
-        type: 'HOME',
+        type: AddressType.Home,
       });
 
       expect(addressResult.kind).toBe('success');

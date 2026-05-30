@@ -46,9 +46,9 @@ export function renderHeader(container: HTMLElement): void {
   }
 }
 
-function handleLogout(e: Event): void {
+async function handleLogout(e: Event): Promise<void> {
   e.preventDefault();
-  logout();
+  await logout();
   window.location.href = '/';
 }
 

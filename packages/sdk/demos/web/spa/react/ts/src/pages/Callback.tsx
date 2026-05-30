@@ -1,22 +1,64 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { useAuthContext } from 'react-oauth2-code-pkce';
+import { auth, takePkceHandshake } from '@/auth';
+import { authConfig } from '@/config';
 
 /**
- * OAuth callback page.
- * The AuthProvider handles the token exchange automatically.
- * This page just redirects to home after auth completes.
+ * OAuth callback page. Completes the authorization-code (PKCE) exchange using the
+ * code verifier and state stashed before the redirect, then navigates home.
  */
 export function Callback() {
   const navigate = useNavigate();
-  const { loginInProgress } = useAuthContext();
+  const [error, setError] = useState<string | null>(null);
+  // StrictMode mounts effects twice in dev; guard so we only exchange once.
+  const startedRef = useRef(false);
 
   useEffect(() => {
-    // Once login is complete, redirect to home
-    if (!loginInProgress) {
-      navigate('/', { replace: true });
-    }
-  }, [loginInProgress, navigate]);
+    if (startedRef.current) return;
+    startedRef.current = true;
+
+    const { codeVerifier, state } = takePkceHandshake();
+
+    const complete = async (): Promise<void> => {
+      if (!codeVerifier) {
+        setError('Missing login session. Please try signing in again.');
+        return;
+      }
+      try {
+        const result = await auth.exchangeCode({
+          callbackUrl: window.location.href,
+          redirectUri: authConfig.redirectUri,
+          codeVerifier,
+          state: state ?? undefined,
+        });
+        if (result.isSuccess) {
+          navigate('/', { replace: true });
+        } else {
+          setError(result.error.description ?? result.error.message);
+        }
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Login failed.');
+      }
+    };
+
+    void complete();
+  }, [navigate]);
+
+  if (error) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <div className="text-center">
+          <p className="mb-4 text-destructive">{error}</p>
+          <button
+            className="text-sm text-primary underline"
+            onClick={() => navigate('/', { replace: true })}
+          >
+            Back to home
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-[50vh] items-center justify-center">

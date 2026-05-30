@@ -1,62 +1,72 @@
 /**
- * Auth store for Svelte.
- * Provides reactive authentication state using Svelte 5 runes.
+ * Auth store for Svelte, backed by the SDK's first-class auth module.
+ *
+ * The SDK's `createInsurUpAuth` owns PKCE generation, the authorize URL,
+ * the code exchange, token storage, and refresh. This module exposes the
+ * single shared auth handle plus a reactive Svelte 5 store mirroring its state.
  */
 
-import { loadTokens, clearTokens, type TokenData } from './token-store';
+import type { AuthState, OAuthTokens } from '@insurup/sdk';
 
-export {
-  startLogin,
-  handleCallback,
-  logout,
-  getAccessToken,
-  isAuthenticated,
-  parseIdTokenClaims,
-} from './oauth';
-export type { TokenData } from './token-store';
+import { auth, login, handleCallback } from './oauth';
+
+export { auth, login, handleCallback };
 
 /**
- * Create a reactive auth state.
- * Returns functions to get and update auth state.
+ * Parse ID token claims (basic JWT parsing without verification).
+ */
+export function parseIdTokenClaims(tokens: OAuthTokens | null): Record<string, unknown> | null {
+  if (!tokens?.idToken) return null;
+
+  try {
+    const parts = tokens.idToken.split('.');
+    if (parts.length !== 3) return null;
+
+    const payload = parts[1];
+    const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+    return JSON.parse(decoded) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Create a reactive auth state mirroring the SDK auth handle.
+ * A `$state` is seeded from `auth.getState()` and kept in sync via
+ * `auth.subscribe`.
  */
 export function createAuthState() {
-  let tokens = $state<TokenData | null>(loadTokens());
+  let state = $state<AuthState>(auth.getState());
   let loginInProgress = $state(false);
 
-  function setTokens(newTokens: TokenData | null) {
-    tokens = newTokens;
-  }
+  // Keep the reactive snapshot in sync with login, refresh, and logout.
+  auth.subscribe((next) => {
+    state = next;
+  });
 
   function setLoginInProgress(value: boolean) {
     loginInProgress = value;
   }
 
-  function logOut() {
-    clearTokens();
-    tokens = null;
-  }
-
-  function refresh() {
-    tokens = loadTokens();
+  async function logOut() {
+    await auth.logout();
   }
 
   return {
     get tokens() {
-      return tokens;
+      return state.tokens;
     },
     get token() {
-      return tokens?.accessToken ?? null;
+      return state.tokens?.accessToken ?? null;
     },
     get isAuthenticated() {
-      return !!tokens?.accessToken;
+      return state.isAuthenticated;
     },
     get loginInProgress() {
       return loginInProgress;
     },
-    setTokens,
     setLoginInProgress,
     logOut,
-    refresh,
   };
 }
 

@@ -5,20 +5,9 @@
  * Each page has its own entry point that gets bundled when requested.
  */
 
-const PORT = process.env.PORT || 3011;
+import { BUNDLE_ENTRIES } from './bundle-entries';
 
-// Map bundle paths to their TypeScript entry points
-const BUNDLE_ENTRIES: Record<string, string> = {
-  '/index.html.bundle.js': 'src/pages/home.ts',
-  '/login.html.bundle.js': 'src/pages/login.ts',
-  '/callback.html.bundle.js': 'src/pages/callback.ts',
-  '/profile.html.bundle.js': 'src/pages/profile.ts',
-  '/customers/index.html.bundle.js': 'src/pages/customers-list.ts',
-  '/customers/detail.html.bundle.js': 'src/pages/customers-detail.ts',
-  '/customers/create.html.bundle.js': 'src/pages/customers-create.ts',
-  '/policies/index.html.bundle.js': 'src/pages/policies-list.ts',
-  '/policies/detail.html.bundle.js': 'src/pages/policies-detail.ts',
-};
+const PORT = process.env.PORT || 3011;
 
 // Cache for bundled scripts
 const bundleCache = new Map<string, { code: string; mtime: number }>();

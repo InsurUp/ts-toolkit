@@ -4,7 +4,7 @@
  * Demonstrates client initialization and simple operations with the InsurUp SDK.
  */
 
-import { DefaultInsurUpClient } from '@insurup/sdk';
+import { createInsurUpAuth, DefaultInsurUpClient } from '@insurup/sdk';
 
 // Print SDK info
 console.log('InsurUp SDK - Basic Usage Example');
@@ -36,6 +36,32 @@ const dynamicAuthClient = new DefaultInsurUpClient({
     return 'dynamic-token';
   },
 });
+
+// ============================================================================
+// 3b. Authenticated client via the SDK auth module (recommended)
+// ============================================================================
+// `createInsurUpAuth` handles OAuth login, token storage, and transparent
+// refresh. Pass the handle as `auth` and tokens are injected automatically.
+
+async function withAuthModule() {
+  const auth = createInsurUpAuth({
+    clientId: 'your-client-id',
+    clientSecret: 'your-client-secret', // server-only — omit in browsers (use PKCE)
+    scopes: ['core-api'],
+  });
+
+  const login = await auth.loginWithClientCredentials();
+  if (!login.isSuccess) {
+    console.error('Login failed:', login.error.code, login.error.description);
+    return;
+  }
+
+  const client = new DefaultInsurUpClient({ auth });
+  const languages = await client.languages.getLanguages();
+  if (languages.isSuccess) {
+    console.log('Auth module →', languages.data.length, 'languages');
+  }
+}
 
 // ============================================================================
 // 4. Client with custom configuration
@@ -76,5 +102,6 @@ async function basicUsage() {
 void authenticatedClient;
 void dynamicAuthClient;
 void customClient;
+void withAuthModule;
 
 basicUsage();

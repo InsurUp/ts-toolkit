@@ -1,223 +1,114 @@
 /**
- * OAuth2/PKCE authentication flow for browser.
- * Handles authorization, token exchange, and refresh.
+ * OAuth2/PKCE authentication via the SDK's first-class auth module.
+ *
+ * The SDK's `createInsurUpAuth` handles PKCE generation, the authorize URL,
+ * the code exchange, token persistence, and refresh. This module wires it to a
+ * localStorage-backed `TokenStorage` (so sessions survive reloads) and exposes
+ * browser-facing `login()` / `handleCallback()` helpers.
+ *
+ * Public browser client: PKCE only, no client secret.
  */
+
+import { createInsurUpAuth } from '@insurup/sdk';
+import type { AuthResult, OAuthTokens, TokenStorage } from '@insurup/sdk';
 
 import { getConfig } from '../config';
-import { generateCodeVerifier, generateCodeChallenge, generateState } from './pkce';
-import {
-  saveTokens,
-  loadTokens,
-  clearTokens,
-  savePKCEData,
-  loadAndClearPKCEData,
-  type TokenData,
-} from './token-store';
 
-// Buffer time before token expiry to trigger refresh (60 seconds)
-const EXPIRY_BUFFER_MS = 60 * 1000;
+const STORAGE_KEY = 'insurup_tokens';
+const PKCE_KEY = 'insurup_pkce';
 
 /**
- * Start the OAuth2 login flow.
- * Redirects the user to the authorization server.
+ * PKCE flow data stashed in sessionStorage between the authorize redirect and
+ * the callback. Survives the full-page navigation to the auth server.
  */
-export async function startLogin(): Promise<void> {
-  const config = getConfig();
+interface PKCEData {
+  codeVerifier: string;
+  state: string;
+}
 
-  // Generate PKCE values
-  const codeVerifier = await generateCodeVerifier();
-  const codeChallenge = await generateCodeChallenge(codeVerifier);
-  const state = generateState();
+function savePKCEData(data: PKCEData): void {
+  sessionStorage.setItem(PKCE_KEY, JSON.stringify(data));
+}
 
-  // Save PKCE data for callback
-  savePKCEData({ codeVerifier, state });
+function loadAndClearPKCEData(): PKCEData | null {
+  const stored = sessionStorage.getItem(PKCE_KEY);
+  if (!stored) return null;
 
-  // Build authorization URL
-  const params = new URLSearchParams({
-    response_type: 'code',
-    client_id: config.clientId,
-    redirect_uri: config.redirectUri,
-    scope: config.scopes.join(' '),
-    state: state,
-    code_challenge: codeChallenge,
-    code_challenge_method: 'S256',
-  });
+  sessionStorage.removeItem(PKCE_KEY);
 
-  const authUrl = `${config.authServer}/connect/authorize?${params.toString()}`;
-
-  // Redirect to authorization server
-  window.location.href = authUrl;
+  try {
+    return JSON.parse(stored) as PKCEData;
+  } catch {
+    return null;
+  }
 }
 
 /**
- * Handle the OAuth callback.
- * Exchanges the authorization code for tokens.
+ * localStorage-backed token storage so sessions persist across reloads.
  */
-export async function handleCallback(code: string, state: string): Promise<TokenData> {
-  const config = getConfig();
+const localStorageTokenStorage: TokenStorage = {
+  get(): OAuthTokens | null {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) return null;
+    try {
+      return JSON.parse(stored) as OAuthTokens;
+    } catch {
+      return null;
+    }
+  },
+  set(tokens: OAuthTokens): void {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tokens));
+  },
+  clear(): void {
+    localStorage.removeItem(STORAGE_KEY);
+  },
+};
 
-  // Load and validate PKCE data
+const config = getConfig();
+
+/**
+ * The single shared auth handle. Created once, backed by localStorage.
+ * Authorization/token endpoints are pinned to the existing OpenIddict paths
+ * (`/connect/authorize`, `/connect/token`) to preserve the prior behavior and
+ * skip OIDC discovery.
+ */
+export const auth = createInsurUpAuth({
+  clientId: config.clientId,
+  authServer: config.authServer,
+  authorizationEndpoint: `${config.authServer}/connect/authorize`,
+  tokenEndpoint: `${config.authServer}/connect/token`,
+  scopes: config.scopes,
+  storage: localStorageTokenStorage,
+});
+
+/**
+ * Start the OAuth2 login flow.
+ * Builds the authorize URL, stashes the PKCE verifier + state, then redirects.
+ */
+export async function login(): Promise<void> {
+  const { url, codeVerifier, state } = await auth.getAuthorizeUrl({
+    redirectUri: config.redirectUri,
+  });
+
+  savePKCEData({ codeVerifier, state });
+
+  window.location.href = url;
+}
+
+/**
+ * Handle the OAuth callback by exchanging the authorization code for tokens.
+ * Returns the SDK's discriminated `AuthResult` so callers can branch on success.
+ */
+export async function handleCallback(): Promise<AuthResult<OAuthTokens>> {
   const pkceData = loadAndClearPKCEData();
   if (!pkceData) {
     throw new Error('No PKCE data found. Please start login again.');
   }
 
-  // Validate state to prevent CSRF
-  if (pkceData.state !== state) {
-    throw new Error('State mismatch. Possible CSRF attack.');
-  }
-
-  // Exchange code for tokens
-  const tokenResponse = await fetch(`${config.authServer}/connect/token`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams({
-      grant_type: 'authorization_code',
-      client_id: config.clientId,
-      code: code,
-      redirect_uri: config.redirectUri,
-      code_verifier: pkceData.codeVerifier,
-    }),
+  return auth.exchangeCode({
+    callbackUrl: window.location.href,
+    redirectUri: config.redirectUri,
+    codeVerifier: pkceData.codeVerifier,
+    state: pkceData.state,
   });
-
-  if (!tokenResponse.ok) {
-    const error = await tokenResponse.text();
-    throw new Error(`Token exchange failed: ${error}`);
-  }
-
-  const tokenData = await tokenResponse.json();
-
-  // Calculate expiry time
-  const expiresAt = tokenData.expires_in ? Date.now() + tokenData.expires_in * 1000 : undefined;
-
-  const tokens: TokenData = {
-    accessToken: tokenData.access_token,
-    refreshToken: tokenData.refresh_token,
-    expiresAt,
-    tokenType: tokenData.token_type || 'Bearer',
-    idToken: tokenData.id_token,
-  };
-
-  // Save tokens
-  saveTokens(tokens);
-
-  return tokens;
-}
-
-/**
- * Refresh the access token using the refresh token.
- */
-async function refreshAccessToken(tokens: TokenData): Promise<TokenData> {
-  if (!tokens.refreshToken) {
-    throw new Error('No refresh token available');
-  }
-
-  const config = getConfig();
-
-  const tokenResponse = await fetch(`${config.authServer}/connect/token`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams({
-      grant_type: 'refresh_token',
-      client_id: config.clientId,
-      refresh_token: tokens.refreshToken,
-    }),
-  });
-
-  if (!tokenResponse.ok) {
-    throw new Error('Token refresh failed');
-  }
-
-  const tokenData = await tokenResponse.json();
-
-  const expiresAt = tokenData.expires_in ? Date.now() + tokenData.expires_in * 1000 : undefined;
-
-  const newTokens: TokenData = {
-    accessToken: tokenData.access_token,
-    refreshToken: tokenData.refresh_token || tokens.refreshToken,
-    expiresAt,
-    tokenType: tokenData.token_type || 'Bearer',
-    idToken: tokenData.id_token || tokens.idToken,
-  };
-
-  saveTokens(newTokens);
-
-  return newTokens;
-}
-
-/**
- * Get a valid access token.
- * Automatically refreshes if expired.
- * Returns null if not authenticated.
- */
-export async function getAccessToken(): Promise<string | null> {
-  const tokens = loadTokens();
-
-  if (!tokens) {
-    return null;
-  }
-
-  // Check if token is expired (with buffer)
-  if (tokens.expiresAt && Date.now() >= tokens.expiresAt - EXPIRY_BUFFER_MS) {
-    if (tokens.refreshToken) {
-      try {
-        const newTokens = await refreshAccessToken(tokens);
-        return newTokens.accessToken;
-      } catch {
-        // Refresh failed - clear tokens
-        clearTokens();
-        return null;
-      }
-    }
-    // No refresh token and expired
-    clearTokens();
-    return null;
-  }
-
-  return tokens.accessToken;
-}
-
-/**
- * Logout and clear stored tokens.
- */
-export function logout(): void {
-  clearTokens();
-}
-
-/**
- * Check if the user is currently authenticated.
- */
-export function isAuthenticated(): boolean {
-  const tokens = loadTokens();
-  if (!tokens) return false;
-
-  // Check if definitely expired
-  if (tokens.expiresAt && Date.now() >= tokens.expiresAt) {
-    return false;
-  }
-
-  return true;
-}
-
-/**
- * Parse ID token claims (basic JWT parsing without verification).
- */
-export function parseIdTokenClaims(): Record<string, unknown> | null {
-  const tokens = loadTokens();
-  if (!tokens?.idToken) return null;
-
-  try {
-    const parts = tokens.idToken.split('.');
-    if (parts.length !== 3) return null;
-
-    const payload = parts[1];
-    const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
-    return JSON.parse(decoded);
-  } catch {
-    return null;
-  }
 }

@@ -8,7 +8,7 @@
     DropdownMenuSeparator,
   } from "$lib/components/ui";
   import { User, LogOut, Moon, Sun } from "lucide-svelte";
-  import { getAuthState, startLogin } from "$lib/auth/index.svelte";
+  import { getAuthState, login } from "$lib/auth/index.svelte";
   import { navigate, isActive } from "$lib/router";
 
   const THEME_KEY = "insurup-demo-theme";
@@ -38,11 +38,11 @@
 
   async function handleLogin() {
     auth.setLoginInProgress(true);
-    await startLogin();
+    await login();
   }
 
-  function handleLogout() {
-    auth.logOut();
+  async function handleLogout() {
+    await auth.logOut();
   }
 </script>
 
