@@ -5,7 +5,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createWebhookDeliveryTable } from '../../src/entities/webhook-delivery/factory.js';
-import { WebhookEvent, WebhookDeliveryState } from '@insurup/sdk';
+import { WebhookEvent } from '@insurup/sdk';
 import type {
   Connection,
   InsurUpGraphQLResult,
@@ -27,13 +27,14 @@ function createMockDelivery(overrides: Partial<FullRow> = {}): FullRow {
   return {
     id: 'WD-001',
     webhookId: 'WH-001',
-    webhookName: 'Customer Created Hook',
     event: WebhookEvent.ProposalPremiumReceived,
-    state: WebhookDeliveryState.Success,
-    responseStatusCode: 200,
-    createdAt: '2024-01-01T00:00:00Z',
-    completedAt: '2024-01-01T00:00:01Z',
-    retryCount: 0,
+    sentAt: '2024-01-01T00:00:00Z',
+    statusCode: 200,
+    response: 'OK',
+    errorMessage: null,
+    payload: '{}',
+    durationMs: 120,
+    isSuccess: true,
     ...overrides,
   } as FullRow;
 }
@@ -70,7 +71,7 @@ describe('createWebhookDeliveryTable (smoke)', () => {
       createSuccessResult(
         createConnection([
           createMockDelivery({ id: 'WD-001' }),
-          createMockDelivery({ id: 'WD-002', state: WebhookDeliveryState.Failed }),
+          createMockDelivery({ id: 'WD-002', isSuccess: false }),
         ])
       )
     );
@@ -78,7 +79,7 @@ describe('createWebhookDeliveryTable (smoke)', () => {
 
   it('creates a table with the column builder', () => {
     const table = createWebhookDeliveryTable({
-      columns: (col) => [col.id(), col.event(), col.state()],
+      columns: (col) => [col.id(), col.event(), col.isSuccess()],
       fetch: mockFetch,
       pagination: { type: 'cursor' },
     });
@@ -91,7 +92,7 @@ describe('createWebhookDeliveryTable (smoke)', () => {
 
   it('extracts selected fields from column definitions', async () => {
     const table = createWebhookDeliveryTable({
-      columns: (col) => [col.id(), col.event(), col.state(), col.responseStatusCode()],
+      columns: (col) => [col.id(), col.event(), col.isSuccess(), col.statusCode()],
       fetch: mockFetch,
       pagination: { type: 'cursor' },
     });
@@ -100,7 +101,7 @@ describe('createWebhookDeliveryTable (smoke)', () => {
 
     expect(mockFetch).toHaveBeenCalledWith(
       expect.objectContaining({
-        select: expect.arrayContaining(['id', 'event', 'state', 'responseStatusCode']),
+        select: expect.arrayContaining(['id', 'event', 'isSuccess', 'statusCode']),
       }),
       expect.any(Object)
     );

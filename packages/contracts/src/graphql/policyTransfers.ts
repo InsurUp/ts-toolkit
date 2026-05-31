@@ -17,30 +17,28 @@ import type {
   SearchStringOperationFilterInput,
   UnifiedFilterInput,
 } from './common.js';
-import type { DateTime } from '../common.date.js';
+import type { DateTime, DateOnly } from '../common.date.js';
 
 // === Output Types ===
 
 /** @meta */
 export interface QueryPolicyTransfersResult {
   id: string;
-  startDate?: DateTime | null;
-  endDate?: DateTime | null;
-  insuranceCompanyCount: number;
-  policyTransferTriggerCount: number;
-  policyCount: number;
+  startDate: DateOnly;
+  endDate: DateOnly;
+  createdAt: DateTime;
+  succeededPolicyCount: number;
+  failedPolicyCount: number;
+  skippedPolicyCount: number;
 }
 
 // === Filter/Search/Sort Inputs ===
 // Hand-declared from server schema: filtering_QueryPolicyTransfersResultFilterInput,
-// searching_QueryPolicyTransfersResultFilterInput. Two server quirks worth knowing:
-//   1. The filter input references fields (succeededPolicyCount / failedPolicyCount /
-//      skippedPolicyCount, LocalDate-typed startDate/endDate) that are not part of the
-//      output model — they are filter-only.
-//   2. The search input exposes the same non-string fields with `searching_*` versions
-//      of `LocalDate`/`DateTime`/`Int` operators. This is asymmetric across entities —
-//      every other entity's search input contains only `SearchStringOperationFilterInput`
-//      fields — but verified server-faithful for PolicyTransfers. Do not "fix" it.
+// searching_QueryPolicyTransfersResultFilterInput. One server quirk worth knowing:
+//   The search input exposes non-string fields with `searching_*` versions of
+//   `LocalDate`/`DateTime`/`Int` operators. This is asymmetric across entities —
+//   every other entity's search input contains only `SearchStringOperationFilterInput`
+//   fields — but verified server-faithful for PolicyTransfers. Do not "fix" it.
 
 export interface QueryPolicyTransfersResultFilterInput {
   and?: QueryPolicyTransfersResultFilterInput[] | null;
@@ -78,9 +76,10 @@ export type QueryPolicyTransfersResultUnifiedFilterInput = UnifiedFilterInput<
 export interface QueryPolicyTransfersResultSortInput {
   startDate?: SortEnumType | null;
   endDate?: SortEnumType | null;
-  insuranceCompanyCount?: SortEnumType | null;
-  policyTransferTriggerCount?: SortEnumType | null;
-  policyCount?: SortEnumType | null;
+  createdAt?: SortEnumType | null;
+  succeededPolicyCount?: SortEnumType | null;
+  failedPolicyCount?: SortEnumType | null;
+  skippedPolicyCount?: SortEnumType | null;
 }
 
 // === Connection Types ===
@@ -104,9 +103,10 @@ export const ALL_POLICY_TRANSFER_FIELDS = [
   'id',
   'startDate',
   'endDate',
-  'insuranceCompanyCount',
-  'policyTransferTriggerCount',
-  'policyCount',
+  'createdAt',
+  'succeededPolicyCount',
+  'failedPolicyCount',
+  'skippedPolicyCount',
 ] as const satisfies readonly PolicyTransferFieldKey[];
 
 /**

@@ -35,17 +35,22 @@ type ExpectedFetchFn = AgentUserFetchFn<FullAgentUserRow, AgentUserFieldKey[]>;
 function createMockAgentUser(overrides: Partial<FullAgentUserRow> = {}): FullAgentUserRow {
   return {
     id: 'AU-001',
-    email: 'agent@example.com',
+    authUserId: null,
     firstName: 'Jane',
     lastName: 'Agent',
-    name: 'Jane Agent',
-    phoneNumber: null,
-    phoneNumberCountryCode: null,
+    email: 'agent@example.com',
     state: AgentUserState.Active,
     createdAt: '2024-01-01T00:00:00Z',
-    lastLoginAt: null,
-    roles: null,
-    branches: null,
+    updatedAt: null,
+    createdById: 'AU-000',
+    updatedById: null,
+    createdByName: 'System',
+    updatedByName: null,
+    roles: [],
+    agentBranchIds: [],
+    isServiceAccount: false,
+    serviceAccountName: null,
+    searchScore: null,
     ...overrides,
   } as FullAgentUserRow;
 }
@@ -113,7 +118,7 @@ describe('createAgentUserTable', () => {
 
   it('should extract fields from column definitions', async () => {
     const table = createAgentUserTable({
-      columns: (col) => [col.id(), col.email('Email'), col.name('Name')],
+      columns: (col) => [col.id(), col.email('Email'), col.firstName('First Name')],
       fetch: mockFetch,
       pagination: { type: 'cursor' },
     });
@@ -122,7 +127,7 @@ describe('createAgentUserTable', () => {
 
     expect(mockFetch).toHaveBeenCalledWith(
       expect.objectContaining({
-        select: expect.arrayContaining(['id', 'email', 'name']),
+        select: expect.arrayContaining(['id', 'email', 'firstName']),
       }),
       expect.any(Object)
     );

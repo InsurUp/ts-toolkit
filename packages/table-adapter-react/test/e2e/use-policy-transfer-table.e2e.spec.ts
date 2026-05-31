@@ -6,9 +6,8 @@
  * adapter state changes flow through useSyncExternalStore and cause React
  * to re-render with fresh data.
  *
- * Note: the live `policyTransfersNew` endpoint currently rejects requests
- * that select or filter on `policyCount`, `insuranceCompanyCount`, or
- * `policyTransferTriggerCount`. Tests stick to `id`, `startDate`, `endDate`.
+ * Tests select `id`, `startDate`, `endDate` — scalar fields on the deployed
+ * `policyTransfersNew` result type.
  */
 
 import { expect, it } from 'vitest';

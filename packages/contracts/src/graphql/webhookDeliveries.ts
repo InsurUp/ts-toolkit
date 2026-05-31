@@ -21,31 +21,20 @@ import type {
 import type { DateTime } from '../common.date.js';
 import type { WebhookEvent } from '../webhooks.js';
 
-// === Enums ===
-
-/**
- * Webhook Delivery State
- * Represents the current status of a webhook delivery attempt
- */
-export enum WebhookDeliveryState {
-  Pending = 'PENDING',
-  Success = 'SUCCESS',
-  Failed = 'FAILED',
-}
-
 // === Output Types ===
 
 /** @meta */
 export interface QueryWebhookDeliveryResult {
   id: string;
   webhookId: string;
-  webhookName?: string | null;
   event: WebhookEvent;
-  state: WebhookDeliveryState;
-  responseStatusCode?: number | null;
-  createdAt: DateTime;
-  completedAt?: DateTime | null;
-  retryCount: number;
+  sentAt: DateTime;
+  statusCode?: number | null;
+  response?: string | null;
+  errorMessage?: string | null;
+  payload: string;
+  durationMs: number;
+  isSuccess: boolean;
 }
 
 // === Filter/Search/Sort Inputs ===
@@ -83,12 +72,9 @@ export type QueryWebhookDeliveryResultUnifiedFilterInput = UnifiedFilterInput<
  * Note: Sort fields are explicitly defined as they may differ from model fields.
  */
 export interface QueryWebhookDeliveryResultSortInput {
-  event?: SortEnumType | null;
-  state?: SortEnumType | null;
-  responseStatusCode?: SortEnumType | null;
-  createdAt?: SortEnumType | null;
-  completedAt?: SortEnumType | null;
-  retryCount?: SortEnumType | null;
+  sentAt?: SortEnumType | null;
+  statusCode?: SortEnumType | null;
+  durationMs?: SortEnumType | null;
 }
 
 // === Connection Types ===
@@ -111,13 +97,14 @@ export type WebhookDeliveryFieldKey = DeepFieldKeys<QueryWebhookDeliveryResult>;
 export const ALL_WEBHOOK_DELIVERY_FIELDS = [
   'id',
   'webhookId',
-  'webhookName',
   'event',
-  'state',
-  'responseStatusCode',
-  'createdAt',
-  'completedAt',
-  'retryCount',
+  'sentAt',
+  'statusCode',
+  'response',
+  'errorMessage',
+  'payload',
+  'durationMs',
+  'isSuccess',
 ] as const satisfies readonly WebhookDeliveryFieldKey[];
 
 /**

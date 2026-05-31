@@ -5,9 +5,8 @@
  * the mocked fetch for the real M2M-authenticated SDK client. Proves that real
  * adapter state changes propagate through Vue's reactive ShallowRef.
  *
- * Note: the live `policyTransfersNew` endpoint currently rejects requests
- * that select or filter on `policyCount`, `insuranceCompanyCount`, or
- * `policyTransferTriggerCount`. Tests stick to `id`, `startDate`, `endDate`.
+ * Tests select `id`, `startDate`, `endDate` — scalar fields on the deployed
+ * `policyTransfersNew` result type.
  */
 
 import { expect, it } from 'vitest';

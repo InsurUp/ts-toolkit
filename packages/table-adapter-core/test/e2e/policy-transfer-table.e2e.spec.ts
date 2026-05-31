@@ -1,10 +1,8 @@
 /**
  * @fileoverview E2E smoke: createPolicyTransferTable against the real InsurUp API.
  *
- * Note: the live `policyTransfersNew` endpoint currently rejects requests that
- * select or filter on `policyCount`, `insuranceCompanyCount`, or
- * `policyTransferTriggerCount` (server returns 400). Tests stick to the
- * scalar fields the API accepts (`id`, `startDate`, `endDate`).
+ * Tests select the scalar fields on the deployed `policyTransfersNew` result
+ * type (`id`, `startDate`, `endDate`).
  */
 
 import { expect, it } from 'vitest';
