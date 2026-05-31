@@ -1,6 +1,6 @@
 {
   "name": "@insurup/table-adapter-react",
-  "version": "0.1.29",
+  "version": "0.1.30",
   "description": "React bindings for @insurup/table-adapter-core",
   "type": "module",
   "main": "./dist/index.cjs",
