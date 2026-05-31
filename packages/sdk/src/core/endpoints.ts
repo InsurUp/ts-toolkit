@@ -1202,7 +1202,7 @@ export const agentBranches = {
  * Files endpoints
  */
 export const files = {
-  uploadPublicFile: 'files/upload-public',
+  uploadPublicFile: 'files/public',
 } as const;
 
 /**
