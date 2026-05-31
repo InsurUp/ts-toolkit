@@ -35,11 +35,12 @@ function createMockPolicyTransfer(
 ): FullPolicyTransferRow {
   return {
     id: 'PT-001',
-    startDate: '2024-01-01T00:00:00Z',
-    endDate: '2024-12-31T00:00:00Z',
-    insuranceCompanyCount: 3,
-    policyTransferTriggerCount: 5,
-    policyCount: 42,
+    startDate: '2024-01-01',
+    endDate: '2024-12-31',
+    createdAt: '2024-01-01T00:00:00Z',
+    succeededPolicyCount: 42,
+    failedPolicyCount: 2,
+    skippedPolicyCount: 1,
     ...overrides,
   } as FullPolicyTransferRow;
 }
@@ -85,8 +86,8 @@ describe('createPolicyTransferTable', () => {
     mockFetch = createPolicyTransferFetchMock(
       createSuccessResult(
         createPolicyTransferConnection([
-          createMockPolicyTransfer({ id: 'PT-001', policyCount: 10 }),
-          createMockPolicyTransfer({ id: 'PT-002', policyCount: 20 }),
+          createMockPolicyTransfer({ id: 'PT-001', succeededPolicyCount: 10 }),
+          createMockPolicyTransfer({ id: 'PT-002', succeededPolicyCount: 20 }),
         ])
       )
     );
@@ -107,7 +108,7 @@ describe('createPolicyTransferTable', () => {
 
   it('should extract fields from column definitions', async () => {
     const table = createPolicyTransferTable({
-      columns: (col) => [col.id(), col.startDate(), col.policyCount()],
+      columns: (col) => [col.id(), col.startDate(), col.succeededPolicyCount()],
       fetch: mockFetch,
       pagination: { type: 'cursor' },
     });
@@ -116,7 +117,7 @@ describe('createPolicyTransferTable', () => {
 
     expect(mockFetch).toHaveBeenCalledWith(
       expect.objectContaining({
-        select: expect.arrayContaining(['id', 'startDate', 'policyCount']),
+        select: expect.arrayContaining(['id', 'startDate', 'succeededPolicyCount']),
       }),
       expect.any(Object)
     );
@@ -126,7 +127,7 @@ describe('createPolicyTransferTable', () => {
 
   it('should fetch and populate rows', async () => {
     const table = createPolicyTransferTable({
-      columns: (col) => [col.id(), col.policyCount()],
+      columns: (col) => [col.id(), col.succeededPolicyCount()],
       fetch: mockFetch,
       pagination: { type: 'cursor' },
     });

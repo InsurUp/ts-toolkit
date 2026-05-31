@@ -24,35 +24,25 @@ import type { AgentUserState } from '../agents.js';
 
 // === Output Types ===
 
-export interface AgentUserRoleInfo {
-  id: string;
-  name: string;
-  isAdmin: boolean;
-}
-
-export interface AgentUserBranchInfo {
-  id: string;
-  name: string;
-  parentId?: string | null;
-  parentName?: string | null;
-  level: number;
-  hierarchy: string;
-}
-
 /** @meta */
 export interface QueryAgentUserResult {
   id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  name: string;
-  phoneNumber?: string | null;
-  phoneNumberCountryCode?: number | null;
+  authUserId?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  email?: string | null;
   state: AgentUserState;
-  createdAt?: DateTime | null;
-  lastLoginAt?: DateTime | null;
-  roles?: AgentUserRoleInfo[] | null;
-  branches?: AgentUserBranchInfo[] | null;
+  createdAt: DateTime;
+  updatedAt?: DateTime | null;
+  createdById: string;
+  updatedById?: string | null;
+  createdByName: string;
+  updatedByName?: string | null;
+  roles: string[];
+  agentBranchIds: string[];
+  isServiceAccount: boolean;
+  serviceAccountName?: string | null;
+  searchScore?: number | null;
 }
 
 // === Filter/Search/Sort Inputs ===
@@ -95,13 +85,9 @@ export type QueryAgentUserResultUnifiedFilterInput = UnifiedFilterInput<
  * Note: Sort fields are explicitly defined as they may differ from model fields.
  */
 export interface QueryAgentUserResultSortInput {
-  email?: SortEnumType | null;
-  firstName?: SortEnumType | null;
-  lastName?: SortEnumType | null;
-  name?: SortEnumType | null;
-  state?: SortEnumType | null;
   createdAt?: SortEnumType | null;
-  lastLoginAt?: SortEnumType | null;
+  updatedAt?: SortEnumType | null;
+  searchScore?: SortEnumType | null;
 }
 
 // === Connection Types ===
@@ -114,36 +100,31 @@ export type AgentUsersConnection<
 // === Select Options ===
 
 /**
- * All available field keys for QueryAgentUserResult with nested dot-notation paths.
+ * All available field keys for QueryAgentUserResult.
  */
 export type AgentUserFieldKey = DeepFieldKeys<QueryAgentUserResult>;
 
 /**
- * Runtime array of all agent user field keys including nested paths.
+ * Runtime array of all agent user field keys.
  */
 export const ALL_AGENT_USER_FIELDS = [
-  // Primitive fields
   'id',
-  'email',
+  'authUserId',
   'firstName',
   'lastName',
-  'name',
-  'phoneNumber',
-  'phoneNumberCountryCode',
+  'email',
   'state',
   'createdAt',
-  'lastLoginAt',
-  // Nested roles fields
-  'roles.id',
-  'roles.name',
-  'roles.isAdmin',
-  // Nested branches fields
-  'branches.id',
-  'branches.name',
-  'branches.parentId',
-  'branches.parentName',
-  'branches.level',
-  'branches.hierarchy',
+  'updatedAt',
+  'createdById',
+  'updatedById',
+  'createdByName',
+  'updatedByName',
+  'roles',
+  'agentBranchIds',
+  'isServiceAccount',
+  'serviceAccountName',
+  'searchScore',
 ] as const satisfies readonly AgentUserFieldKey[];
 
 /**

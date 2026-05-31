@@ -40,7 +40,7 @@ export type InfinitePolicyTransferTableInstance<TColumns extends PolicyTransferC
  * import { createInfinitePolicyTransferTable } from '@insurup/table-adapter-svelte';
  *
  * const ct = createInfinitePolicyTransferTable(() => ({
- *   columns: (col) => [col.id(), col.startDate(), col.policyCount()],
+ *   columns: (col) => [col.id(), col.startDate(), col.succeededPolicyCount()],
  *   fetch: (options) => client.policies.getPolicyTransfers(options),
  *   pageSize: 50,
  *   autoFetch: true,

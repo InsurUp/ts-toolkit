@@ -267,7 +267,7 @@ export class InsurUpAgentUserClient {
    * @example
    * // Type-safe field selection
    * const result = await client.agentUsers.getAgentUsers({
-   *   select: ['id', 'email', 'name', 'state'] as const,
+   *   select: ['id', 'email', 'firstName', 'state'] as const,
    *   first: 10,
    *   filter: { state: { eq: AgentUserState.Active } }
    * });

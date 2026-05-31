@@ -11,6 +11,7 @@ import type {
   FilePolicyTransferFieldKey,
   GetFilePolicyTransfersOptions,
 } from '@insurup/sdk';
+import { FilePolicyTransferSourceType } from '@insurup/sdk';
 import { flushPromises } from '../utils/helpers.js';
 import { createMockPageInfo, createSuccessResult } from '../utils/mocks.js';
 import type {
@@ -38,21 +39,17 @@ function createMockFilePolicyTransfer(
 ): FullFilePolicyTransferRow {
   return {
     id: 'FPT-001',
+    sourceType: FilePolicyTransferSourceType.InsuranceCompany,
     insuranceCompanyId: 1,
     insuranceCompanyName: 'Acme Insurance',
     insuranceCompanyLogo: null,
     fileName: 'transfers.csv',
-    fileUrl: 'https://example.com/transfers.csv',
     createdAt: '2024-01-01T00:00:00Z',
-    createdBy: {
-      id: 'user-1',
-      name: 'Test User',
-      email: 'user@example.com',
-      userType: null,
-    },
+    createdByName: 'Test User',
     totalPolicyCount: 10,
-    completedPolicyCount: 7,
+    succeededPolicyCount: 7,
     failedPolicyCount: 1,
+    skippedPolicyCount: 2,
     ...overrides,
   } as FullFilePolicyTransferRow;
 }

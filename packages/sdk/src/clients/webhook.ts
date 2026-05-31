@@ -158,9 +158,9 @@ export class InsurUpWebhookClient {
    * @example
    * // Type-safe field selection with filter
    * const result = await client.webhooks.getWebhookDeliveries({
-   *   select: ['id', 'webhookId', 'event', 'state'] as const,
+   *   select: ['id', 'webhookId', 'event', 'isSuccess'] as const,
    *   first: 10,
-   *   filter: { state: { eq: WebhookDeliveryState.Failed } }
+   *   filter: { isSuccess: { eq: false } }
    * });
    *
    * @param requestOptions Query options including pagination, filters, search, and field selection

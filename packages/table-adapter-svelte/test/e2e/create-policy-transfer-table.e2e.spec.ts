@@ -6,9 +6,8 @@
  * The polymorphic wait helpers handle both `getState()` adapters and runes
  * that expose the fields directly.
  *
- * Note: the live `policyTransfersNew` endpoint currently rejects requests
- * that select or filter on `policyCount`, `insuranceCompanyCount`, or
- * `policyTransferTriggerCount`. Tests stick to `id`, `startDate`, `endDate`.
+ * Tests select `id`, `startDate`, `endDate` — scalar fields on the deployed
+ * `policyTransfersNew` result type.
  */
 
 import { expect, it } from 'vitest';

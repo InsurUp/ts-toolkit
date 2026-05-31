@@ -40,7 +40,7 @@ export type PolicyTransferTableInstance<TColumns extends PolicyTransferColumnDef
  * import { createPolicyTransferTable } from '@insurup/table-adapter-svelte';
  *
  * const ct = createPolicyTransferTable(() => ({
- *   columns: (col) => [col.id(), col.startDate(), col.policyCount()],
+ *   columns: (col) => [col.id(), col.startDate(), col.succeededPolicyCount()],
  *   fetch: (options) => client.policies.getPolicyTransfers(options),
  *   autoFetch: true,
  * }));

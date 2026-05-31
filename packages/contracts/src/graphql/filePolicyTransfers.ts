@@ -18,11 +18,9 @@ import type {
   UnifiedFilterInput,
 } from './common.js';
 import type { DateTime } from '../common.date.js';
-import type { UserType } from './policies.js';
 
 /**
- * Source type for file policy transfers. Filter-only — not exposed on the model
- * output type, but supported by the server filter input.
+ * Source type for file policy transfers.
  */
 export enum FilePolicyTransferSourceType {
   InsuranceCompany = 'INSURANCE_COMPANY',
@@ -32,26 +30,20 @@ export enum FilePolicyTransferSourceType {
 
 // === Output Types ===
 
-export interface FilePolicyTransferUserReference {
-  id: string;
-  name: string;
-  email?: string | null;
-  userType?: UserType | null;
-}
-
 /** @meta */
 export interface QueryFilePolicyTransfersResult {
   id: string;
-  insuranceCompanyId: number;
+  sourceType: FilePolicyTransferSourceType;
+  insuranceCompanyId?: number | null;
   insuranceCompanyName?: string | null;
   insuranceCompanyLogo?: string | null;
-  fileName?: string | null;
-  fileUrl?: string | null;
+  fileName: string;
   createdAt: DateTime;
-  createdBy: FilePolicyTransferUserReference;
-  totalPolicyCount?: number | null;
-  completedPolicyCount?: number | null;
-  failedPolicyCount?: number | null;
+  createdByName: string;
+  totalPolicyCount: number;
+  succeededPolicyCount: number;
+  failedPolicyCount: number;
+  skippedPolicyCount: number;
 }
 
 // === Filter/Search/Sort Inputs ===
@@ -91,10 +83,9 @@ export type QueryFilePolicyTransfersResultUnifiedFilterInput = UnifiedFilterInpu
  */
 export interface QueryFilePolicyTransfersResultSortInput {
   createdAt?: SortEnumType | null;
-  insuranceCompanyId?: SortEnumType | null;
-  totalPolicyCount?: SortEnumType | null;
-  completedPolicyCount?: SortEnumType | null;
+  succeededPolicyCount?: SortEnumType | null;
   failedPolicyCount?: SortEnumType | null;
+  skippedPolicyCount?: SortEnumType | null;
 }
 
 // === Connection Types ===
@@ -107,30 +98,26 @@ export type FilePolicyTransfersConnection<
 // === Select Options ===
 
 /**
- * All available field keys for QueryFilePolicyTransfersResult with nested dot-notation paths.
+ * All available field keys for QueryFilePolicyTransfersResult.
  */
 export type FilePolicyTransferFieldKey = DeepFieldKeys<QueryFilePolicyTransfersResult>;
 
 /**
- * Runtime array of all file policy transfer field keys including nested paths.
+ * Runtime array of all file policy transfer field keys.
  */
 export const ALL_FILE_POLICY_TRANSFER_FIELDS = [
-  // Primitive fields
   'id',
+  'sourceType',
   'insuranceCompanyId',
   'insuranceCompanyName',
   'insuranceCompanyLogo',
   'fileName',
-  'fileUrl',
   'createdAt',
+  'createdByName',
   'totalPolicyCount',
-  'completedPolicyCount',
+  'succeededPolicyCount',
   'failedPolicyCount',
-  // Nested createdBy fields
-  'createdBy.id',
-  'createdBy.name',
-  'createdBy.email',
-  'createdBy.userType',
+  'skippedPolicyCount',
 ] as const satisfies readonly FilePolicyTransferFieldKey[];
 
 /**
