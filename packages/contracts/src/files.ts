@@ -14,6 +14,6 @@ export interface UploadPublicFileRequest {
  * Response containing uploaded file information
  */
 export interface UploadPublicFileResult {
-  readonly url: string;
-  readonly path: string;
+  readonly fileUrl: string;
+  readonly filePath: string;
 }

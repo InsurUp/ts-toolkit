@@ -13,7 +13,7 @@ describe('FileClient', () => {
     let receivedPath: string | undefined;
 
     server.use(
-      http.post(`${BASE_URL}/files/upload-public`, async ({ request }) => {
+      http.post(`${BASE_URL}/files/public`, async ({ request }) => {
         receivedContentType = request.headers.get('content-type');
         const form = await request.formData();
         const file = form.get('file');
@@ -29,7 +29,8 @@ describe('FileClient', () => {
 
     expect(result.kind).toBe('success');
     if (result.kind === 'success') {
-      expect(result.data.url).toBe(sampleFileUpload.url);
+      expect(result.data.fileUrl).toBe(sampleFileUpload.fileUrl);
+      expect(result.data.filePath).toBe(sampleFileUpload.filePath);
     }
     expect(receivedContentType).toMatch(/^multipart\/form-data/);
     expect(receivedFileName).toBe('sample.txt');
@@ -39,10 +40,10 @@ describe('FileClient', () => {
   it('uploadPublicFile omits path when not provided', async () => {
     let receivedPath: FormDataEntryValue | null = null;
     server.use(
-      http.post(`${BASE_URL}/files/upload-public`, async ({ request }) => {
+      http.post(`${BASE_URL}/files/public`, async ({ request }) => {
         const form = await request.formData();
         receivedPath = form.get('path');
-        return HttpResponse.json({ url: 'x' });
+        return HttpResponse.json(sampleFileUpload);
       })
     );
 

@@ -1,3 +1,4 @@
 export const sampleFileUpload = {
-  url: 'https://cdn.insurup.com/files/public/abc/sample.txt',
+  fileUrl: 'https://s3.insurup.com/agent-abc/public/sample.txt',
+  filePath: 'public/sample.txt',
 };
