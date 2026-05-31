@@ -14,7 +14,6 @@ import type {
   IntOperationFilterInput,
   DateTimeOperationFilterInput,
   LocalDateOperationFilterInput,
-  SearchStringOperationFilterInput,
   UnifiedFilterInput,
 } from './common.js';
 import type { DateTime, DateOnly } from '../common.date.js';
@@ -55,7 +54,6 @@ export interface QueryPolicyTransfersResultFilterInput {
 export interface QueryPolicyTransfersResultSearchInput {
   and?: QueryPolicyTransfersResultSearchInput[] | null;
   or?: QueryPolicyTransfersResultSearchInput[] | null;
-  id?: SearchStringOperationFilterInput | null;
   startDate?: LocalDateOperationFilterInput | null;
   endDate?: LocalDateOperationFilterInput | null;
   createdAt?: DateTimeOperationFilterInput | null;
