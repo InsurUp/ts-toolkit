@@ -95,8 +95,6 @@ export const insuranceCompanies = {
       ),
   },
 
-  getAllProducts: 'insurance-companies/products',
-
   connectionFields: {
     getAgentBasedConnectionFieldsByCompanyId: {
       definition: 'insurance-companies/{InsuranceCompanyId}/connection-fields:agent-based',
@@ -107,6 +105,13 @@ export const insuranceCompanies = {
         ),
     },
   },
+} as const;
+
+/**
+ * Insurance product endpoints
+ */
+export const products = {
+  getAll: 'products',
 } as const;
 
 /**
@@ -1252,6 +1257,7 @@ export const endpoints = {
   insuranceServices,
   agents,
   insuranceCompanies,
+  products,
   resourceKeys,
   releaseNotes,
   banks,

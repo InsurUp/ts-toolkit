@@ -89,7 +89,7 @@ export class InsurUpInsuranceClient {
    * @returns List of all insurance products / Tüm sigorta ürünleri listesi
    */
   async getAllProducts(options?: RequestOptions): Promise<InsurUpResult<InsuranceProduct[]>> {
-    return this.http.get<InsuranceProduct[]>(endpoints.insuranceCompanies.getAllProducts, options);
+    return this.http.get<InsuranceProduct[]>(endpoints.products.getAll, options);
   }
 
   /**
