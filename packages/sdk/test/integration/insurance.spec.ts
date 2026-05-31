@@ -50,11 +50,7 @@ describe('InsuranceClient', () => {
   });
 
   it('getAllProducts hits the cross-company products endpoint', async () => {
-    server.use(
-      http.get(`${BASE_URL}/insurance-companies/products`, () =>
-        HttpResponse.json([{ id: 'PROD-X' }])
-      )
-    );
+    server.use(http.get(`${BASE_URL}/products`, () => HttpResponse.json([{ id: 'PROD-X' }])));
 
     const result = await t.client.insurance.getAllProducts();
 
