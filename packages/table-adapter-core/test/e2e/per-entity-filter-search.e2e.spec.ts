@@ -182,9 +182,9 @@ runEntityProbes(
   }
 );
 
-// PolicyTransfer's only filter-string field is `id`, which on the local server
-// rejects `contains`/`notContains` with an internal error (server-side quirk).
-// Use a numeric filter probe instead.
+// PolicyTransfer has no free-text searchable field: its `id` is not search-indexed
+// on the deployed schema (see #61/#62). Its searchable fields are numeric/date
+// (e.g. succeededPolicyCount), so the $search probe routes a numeric search clause.
 runEntityProbes(
   'createPolicyTransferTable',
   (extra) =>
@@ -195,11 +195,11 @@ runEntityProbes(
       ...extra,
     }),
   {
-    search: { id: { $search: true, textSearch: 'a' } },
+    search: { succeededPolicyCount: { $search: true, gte: 0 } },
     defaultProbe: { succeededPolicyCount: { gte: 0 } },
     mixed: {
-      id: { $search: true, textSearch: 'a' },
-      succeededPolicyCount: { gte: 0 },
+      succeededPolicyCount: { $search: true, gte: 0 },
+      failedPolicyCount: { gte: 0 },
     },
   }
 );

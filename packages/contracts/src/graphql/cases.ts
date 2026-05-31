@@ -232,8 +232,6 @@ export interface QueryCaseModelSearchInput {
   ref?: SearchStringOperationFilterInput | null;
   createdByName?: SearchStringOperationFilterInput | null;
   representedByName?: SearchStringOperationFilterInput | null;
-  lastUpdatedByName?: SearchStringOperationFilterInput | null;
-  lastUpdatedByEmail?: SearchStringOperationFilterInput | null;
   customerName?: SearchStringOperationFilterInput | null;
   customerIdentity?: SearchStringOperationFilterInput | null;
   customerCityText?: SearchStringOperationFilterInput | null;

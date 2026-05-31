@@ -226,7 +226,6 @@ export interface QueryPoliciesResultSearchInput {
   or?: QueryPoliciesResultSearchInput[] | null;
   insuranceCompanyProposalNumber?: SearchStringOperationFilterInput | null;
   insuranceCompanyPolicyNumber?: SearchStringOperationFilterInput | null;
-  updateReasonText?: SearchStringOperationFilterInput | null;
   insuredCustomerName?: SearchStringOperationFilterInput | null;
   insuredCustomerIdentityNumber?: SearchStringOperationFilterInput | null;
   insuredCustomerCityText?: SearchStringOperationFilterInput | null;
@@ -241,8 +240,6 @@ export interface QueryPoliciesResultSearchInput {
   vehicleModelBrandText?: SearchStringOperationFilterInput | null;
   vehicleModelTypeText?: SearchStringOperationFilterInput | null;
   daskPolicyNumber?: SearchStringOperationFilterInput | null;
-  advertisingSource?: SearchStringOperationFilterInput | null;
-  advertisingCampaign?: SearchStringOperationFilterInput | null;
 }
 
 export type QueryPoliciesResultUnifiedFilterInput = UnifiedFilterInput<
