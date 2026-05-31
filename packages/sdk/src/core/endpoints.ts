@@ -1237,8 +1237,8 @@ export const templates = {
  */
 export const b2c = {
   configFields: {
-    getAll: 'b2c/config-fields',
-    updateAll: 'b2c/config-fields',
+    getAll: 'b2c/config/fields',
+    updateAll: 'b2c/config/fields',
   },
 } as const;
 
