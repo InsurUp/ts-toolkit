@@ -1,14 +1,17 @@
 import { describe, it, expect } from 'vitest';
 import { http, HttpResponse } from 'msw';
+import { ProductBranch } from '@insurup/sdk';
 import { BASE_URL, server } from './server';
 import { setupIntegrationTest } from './setup';
 import { emptyCoverage, sampleCoverageGroup } from './fixtures/coverage';
 
 const t = setupIntegrationTest();
 
+const coverageTable = [{ coverage: emptyCoverage }];
+
 describe('CoverageClient', () => {
-  it('createCoverageGroup POSTs name and coverage', async () => {
-    let receivedBody: { name?: string; coverage?: unknown } | undefined;
+  it('createCoverageGroup POSTs name and coverage table', async () => {
+    let receivedBody: { name?: string; coverageTable?: unknown } | undefined;
     let methodSeen: string | undefined;
     server.use(
       http.post(`${BASE_URL}/coverage-groups`, async ({ request }) => {
@@ -18,11 +21,15 @@ describe('CoverageClient', () => {
       })
     );
 
-    await t.client.coverage.createCoverageGroup({ name: 'Basic', coverage: emptyCoverage });
+    await t.client.coverage.createCoverageGroup({
+      name: 'Basic',
+      productBranch: ProductBranch.Kasko,
+      coverageTable,
+    });
 
     expect(methodSeen).toBe('POST');
     expect(receivedBody?.name).toBe('Basic');
-    expect(receivedBody?.coverage).toEqual(emptyCoverage);
+    expect(receivedBody?.coverageTable).toEqual(coverageTable);
   });
 
   it('updateCoverageGroup PUTs to id-specific path', async () => {
@@ -38,7 +45,7 @@ describe('CoverageClient', () => {
     await t.client.coverage.updateCoverageGroup({
       id: 'CG-9',
       name: 'Premium',
-      coverage: emptyCoverage,
+      coverageTable,
     });
 
     expect(receivedBody?.id).toBe('CG-9');
@@ -100,7 +107,9 @@ describe('CoverageClient', () => {
     server.use(
       http.get(`${BASE_URL}/coverage-choices:kasko`, ({ request }) => {
         capturedUrl = request.url;
-        return HttpResponse.json([{ companyId: 1, choices: [] }]);
+        return HttpResponse.json([
+          { insuranceCompanyId: 1, productType: 'WEB_SERVICE', coverageChoices: {} },
+        ]);
       })
     );
 
@@ -118,7 +127,9 @@ describe('CoverageClient', () => {
     server.use(
       http.get(`${BASE_URL}/coverage-choices:konut`, ({ request }) => {
         capturedUrl = request.url;
-        return HttpResponse.json([{ companyId: 2, choices: [] }]);
+        return HttpResponse.json([
+          { insuranceCompanyId: 2, productType: 'ROBOT', coverageChoices: {} },
+        ]);
       })
     );
 
@@ -154,5 +165,47 @@ describe('CoverageClient', () => {
     await t.client.coverage.getImmCoverageChoices();
 
     expect(capturedUrl).toContain('/coverage-choices:imm');
+  });
+
+  it('getOssCoverageChoices hits oss endpoint', async () => {
+    let capturedUrl: string | undefined;
+    server.use(
+      http.get(`${BASE_URL}/coverage-choices:oss`, ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json([]);
+      })
+    );
+
+    await t.client.coverage.getOssCoverageChoices();
+
+    expect(capturedUrl).toContain('/coverage-choices:oss');
+  });
+
+  it('getSeyahatSaglikCoverageChoices hits seyahat-saglik endpoint', async () => {
+    let capturedUrl: string | undefined;
+    server.use(
+      http.get(`${BASE_URL}/coverage-choices:seyahat-saglik`, ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json([]);
+      })
+    );
+
+    await t.client.coverage.getSeyahatSaglikCoverageChoices();
+
+    expect(capturedUrl).toContain('/coverage-choices:seyahat-saglik');
+  });
+
+  it('getYabanciSaglikCoverageChoices hits yabanci-saglik endpoint', async () => {
+    let capturedUrl: string | undefined;
+    server.use(
+      http.get(`${BASE_URL}/coverage-choices:yabanci-saglik`, ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json([]);
+      })
+    );
+
+    await t.client.coverage.getYabanciSaglikCoverageChoices();
+
+    expect(capturedUrl).toContain('/coverage-choices:yabanci-saglik');
   });
 });

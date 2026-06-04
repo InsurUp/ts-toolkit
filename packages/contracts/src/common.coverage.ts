@@ -3,7 +3,7 @@
  * @description Coverage types, values, and choices used throughout the InsurUp platform for insurance coverage configuration
  */
 
-import type { ProductBranch } from './common.base.js';
+import type { InsuranceProductType, ProductBranch } from './common.base.js';
 
 /**
  * Represents different types of coverage values in insurance policies.
@@ -18,44 +18,10 @@ export type CoverageValue =
   | { $type: 'NOT_INCLUDED' }
   | { $type: 'MARKET_VALUE' }
   | { $type: 'DECIMAL'; value: number }
+  | { $type: 'NUMBER'; value: number }
   | { $type: 'PERCENT'; value: number }
   | { $type: 'LIMITLESS' }
   | { $type: 'HIGHEST_LIMIT' };
-
-/**
- * Generic class representing a collection of coverage options with a default selection.
- * Provides a standardized structure for defining available choices and default values for insurance coverage configurations.
- *
- * Varsayılan seçim ile teminat seçenekleri koleksiyonunu temsil eden genel sınıf.
- * Sigorta teminatı konfigürasyonları için mevcut seçenekleri ve varsayılan değerleri tanımlamak için standartlaştırılmış yapı sağlar.
- */
-export interface CoverageChoices<T> {
-  /**
-   * The recommended default coverage option that is pre-selected for customers.
-   * This value represents the most commonly chosen or recommended coverage level
-   * based on risk assessment, regulatory requirements, or business strategy.
-   * Customers can change this selection, but it serves as a starting point.
-   *
-   * Müşteriler için önceden seçilen önerilen varsayılan teminat seçeneği.
-   * Bu değer, risk değerlendirmesi, düzenleyici gereksinimler veya iş stratejisine
-   * dayalı olarak en yaygın seçilen veya önerilen teminat seviyesini temsil eder.
-   * Müşteriler bu seçimi değiştirebilir, ancak başlangıç noktası olarak hizmet eder.
-   */
-  readonly default: T;
-
-  /**
-   * Complete array of all available coverage options that customers can choose from.
-   * This includes the default option and all alternative coverage levels or types.
-   * The array defines the full range of choices available for a specific coverage aspect,
-   * enabling customers to customize their insurance according to their needs and budget.
-   *
-   * Müşterilerin seçebileceği tüm mevcut teminat seçeneklerinin tam dizisi.
-   * Bu varsayılan seçeneği ve tüm alternatif teminat seviyelerini veya türlerini içerir.
-   * Dizi, belirli bir teminat yönü için mevcut seçeneklerin tam aralığını tanımlar
-   * ve müşterilerin ihtiyaçlarına ve bütçelerine göre sigortalarını özelleştirmelerini sağlar.
-   */
-  readonly values: readonly T[];
-}
 
 /**
  * Union type for all insurance coverage types.
@@ -64,7 +30,17 @@ export interface CoverageChoices<T> {
  * Tüm sigorta teminat türleri için birleşim türü.
  * Sistemde mevcut farklı sigorta teminat türlerini temsil eder.
  */
-export type Coverage = KaskoCoverage | KonutCoverage | ImmCoverage | TssCoverage | EmptyCoverage;
+export type Coverage =
+  | KaskoCoverage
+  | TrafikCoverage
+  | KonutCoverage
+  | ImmCoverage
+  | TssCoverage
+  | OssCoverage
+  | SaglikCoverage
+  | SeyahatSaglikCoverage
+  | YabanciSaglikCoverage
+  | EmptyCoverage;
 
 /**
  * Represents comprehensive auto insurance coverage (Kasko) in Turkish insurance system.
@@ -84,6 +60,10 @@ export interface KaskoCoverage {
   readonly onarimServisTuru?: OnarimServisTuru;
   readonly yedekParcaTuru?: YedekParcaTuru;
   readonly camKirilmaMuafeyeti?: CoverageValue;
+  /** Glass repair preference (InsurGateway key 5137), e.g. for Türkiye Sigorta Kasko. */
+  readonly camOnarimTercihi?: CamOnarimTercihi;
+  /** Deductible ratio for Quick Sigorta Kasko products. */
+  readonly muafiyetOrani?: CoverageValue;
   readonly kiralikArac?: KiralikArac;
   readonly hukuksalKorumaAracaBagli?: CoverageValue;
   readonly ozelEsya?: CoverageValue;
@@ -118,13 +98,30 @@ export interface KaskoCoverage {
  */
 export interface KonutCoverage {
   readonly productBranch: ProductBranch.Konut;
-  readonly binaBedeli?: CoverageValue;
-  readonly esyaBedeli?: CoverageValue;
-  readonly elektronikCihazBedeli?: CoverageValue;
-  readonly izolasyonBedeli?: CoverageValue;
-  readonly camBedeli?: CoverageValue;
   readonly enflasyon?: CoverageValue;
-  readonly metrekareInsaMaliyeti?: CoverageValue;
+  readonly sigortaKapsami?: SigortaKapsami;
+  readonly binaYanginYildirimInfilak?: CoverageValue;
+  readonly yanginMaliMesuliyet?: CoverageValue;
+  readonly firtina?: CoverageValue;
+  readonly karAgirligi?: CoverageValue;
+  readonly duman?: CoverageValue;
+  readonly yerKaymasi?: CoverageValue;
+  readonly dolu?: CoverageValue;
+  readonly dahiliSu?: CoverageValue;
+  readonly karaVeHavaTasitlariCarpmasi?: CoverageValue;
+  readonly enkazKaldirmaMasraflari?: CoverageValue;
+  readonly ferdiKaza?: CoverageValue;
+  readonly hukuksalKoruma?: CoverageValue;
+  readonly selSuBaskini?: CoverageValue;
+  readonly camKirilmasi?: CoverageValue;
+  readonly hirsizlik?: CoverageValue;
+  readonly kiraKaybi?: CoverageValue;
+  readonly ikametgahDegisikligiMasraflari?: CoverageValue;
+  readonly elektronikCihaz?: CoverageValue;
+  readonly izolasyon?: CoverageValue;
+  readonly tesisatVeElektrikArizalari?: CoverageValue;
+  readonly cilingirHizmetleri?: CoverageValue;
+  readonly kombiVeKlimaBakimi?: CoverageValue;
 }
 
 /**
@@ -139,6 +136,8 @@ export interface ImmCoverage {
   readonly immLimitiAyrimsiz?: CoverageValue;
   readonly kiralikArac?: KiralikArac;
   readonly tasinanYuk?: TasinanYuk;
+  /** Optional assistance service (Asistans Hizmeti), modelled as a CoverageValue. */
+  readonly asistansHizmeti?: CoverageValue;
 }
 
 /**
@@ -154,6 +153,115 @@ export interface TssCoverage {
   readonly productBranch: ProductBranch.Tss;
   readonly hastaneAgi?: HastaneAgi;
   readonly saglikPaketi?: SaglikPaketi;
+  readonly disPaketi?: CoverageValue;
+  readonly diyetisyenHizmeti?: CoverageValue;
+  readonly yogunBakim?: CoverageValue;
+  readonly checkUpHizmeti?: CoverageValue;
+  readonly psikolojikDanismanlik?: CoverageValue;
+  readonly fizikTedavi?: CoverageValue;
+  readonly suniUzuv?: CoverageValue;
+  readonly ambulans?: CoverageValue;
+  readonly yatarakTedavi?: CoverageValue;
+  readonly ayaktaTedavi?: CoverageValue;
+  readonly doktorMuayene?: CoverageValue;
+  readonly ameliyat?: CoverageValue;
+  readonly ameliyatMalzeme?: CoverageValue;
+  readonly kemoterapi?: CoverageValue;
+  readonly radyoterapi?: CoverageValue;
+  readonly diyaliz?: CoverageValue;
+  readonly evdeBakim?: CoverageValue;
+  readonly yediGun24SaatTibbiDanismanlik?: CoverageValue;
+  readonly dogum?: CoverageValue;
+  readonly kucukMudahale?: CoverageValue;
+  readonly gozPaketi?: CoverageValue;
+}
+
+/**
+ * Represents mandatory motor third-party liability insurance (Trafik Sigortası) in Turkish insurance system.
+ *
+ * Türk sigorta sisteminde zorunlu trafik (mali sorumluluk) sigortası teminatını temsil eder.
+ */
+export interface TrafikCoverage {
+  readonly productBranch: ProductBranch.Trafik;
+  readonly maddiHasarAracBasina?: CoverageValue;
+  readonly maddiHasarKazaBasina?: CoverageValue;
+  readonly sakatlanmaVeOlumKisiBasina?: CoverageValue;
+  readonly sakatlanmaVeOlumKazaBasina?: CoverageValue;
+  readonly tedaviSaglikGiderleriKisiBasina?: CoverageValue;
+  readonly tedaviSaglikGiderleriKazaBasina?: CoverageValue;
+  readonly hukuksalKorumaAracaBagli?: CoverageValue;
+  readonly hukuksalKorumaSurucuyeBagli?: CoverageValue;
+  readonly immKombine?: CoverageValue;
+  readonly ferdiKaza?: CoverageValue;
+  readonly acilSaglik?: CoverageValue;
+  readonly cekiciHizmeti?: CoverageValue;
+  readonly aracBakimPlani?: CoverageValue;
+}
+
+/**
+ * Represents private health insurance (Özel Sağlık Sigortası) coverage.
+ *
+ * Özel Sağlık Sigortası (OSS) teminatını temsil eder.
+ */
+export interface OssCoverage {
+  readonly productBranch: ProductBranch.Oss;
+  readonly paketSecimi?: OssPaketSecimi;
+  readonly networkSecimi?: OssNetworkSecimi;
+  readonly dogumTeminati?: CoverageValue;
+  readonly ferdiKaza?: CoverageValue;
+  readonly disTeminati?: CoverageValue;
+}
+
+/**
+ * Represents health insurance (Sağlık Sigortası) coverage (the "Doktorum" packages).
+ *
+ * Sağlık Sigortası teminatını temsil eder ("Doktorum" paketleri).
+ */
+export interface SaglikCoverage {
+  readonly productBranch: ProductBranch.Saglik;
+  readonly paket?: DoktorumPaket;
+  readonly yatarakTedavi?: CoverageValue;
+  readonly onlineDoktor?: CoverageValue;
+  readonly onlineDiyetisen?: CoverageValue;
+  readonly onlinePsikolog?: CoverageValue;
+  readonly yerindeEvdeLaboratuvarHizmetleri?: CoverageValue;
+  readonly yerindeLaboratuvarHizmetleri?: CoverageValue;
+}
+
+/**
+ * Represents travel health insurance (Seyahat Sağlık Sigortası) coverage.
+ *
+ * Seyahat Sağlık Sigortası teminatını temsil eder.
+ */
+export interface SeyahatSaglikCoverage {
+  readonly productBranch: ProductBranch.Seyahat;
+  readonly tibbiTedavi?: CoverageValue;
+  readonly tibbiAmacliNakil?: CoverageValue;
+  readonly vefatCenazeNakli?: CoverageValue;
+  readonly konaklamaSuresininUzatilmasi?: CoverageValue;
+  readonly tibbiDanismanlik?: CoverageValue;
+  readonly taburcuSonrasiDonus?: CoverageValue;
+  readonly seyahatIptali?: CoverageValue;
+  readonly bagajKaybiHasari?: CoverageValue;
+  readonly acilMesajIletimi?: CoverageValue;
+  readonly refakatciSeyahati?: CoverageValue;
+  readonly hirsizlikGasp?: CoverageValue;
+  readonly gidaZehirlenmesi?: CoverageValue;
+  readonly ilacGonderimi?: CoverageValue;
+  readonly hukukiDanismanlik?: CoverageValue;
+  readonly bagajGecikmesi?: CoverageValue;
+  readonly kefalet?: CoverageValue;
+  readonly covidCoverage?: CoverageValue;
+}
+
+/**
+ * Represents foreign health insurance (Yabancı Sağlık Sigortası) coverage.
+ *
+ * Yabancı Sağlık Sigortası teminatını temsil eder.
+ */
+export interface YabanciSaglikCoverage {
+  readonly productBranch: ProductBranch.YabanciSaglik;
+  readonly hastaneAgi?: HastaneAgi;
 }
 
 /**
@@ -166,6 +274,33 @@ export interface TssCoverage {
 export interface EmptyCoverage {
   readonly productBranch: string;
 }
+
+/**
+ * A single row of a {@link CoverageTable}: a coverage definition optionally scoped to a specific
+ * insurance company and/or product integration type. Mirrors the backend `CoverageTableRow`.
+ *
+ * Bir {@link CoverageTable} satırı: isteğe bağlı olarak belirli bir sigorta şirketine ve/veya ürün
+ * entegrasyon türüne bağlı teminat tanımı. Backend `CoverageTableRow` ile eşleşir.
+ */
+export interface CoverageTableRow {
+  /** The insurance coverage definition for this row. */
+  readonly coverage: Coverage;
+  /** Optional insurance company this row applies to (null = generic). */
+  readonly insuranceCompanyId?: number | null;
+  /** Optional product integration type this row applies to (null = generic). */
+  readonly type?: InsuranceProductType | null;
+}
+
+/**
+ * A table of coverages organized by insurance company and product type (rows). All rows must belong
+ * to the same product branch. Serializes as a flat array of {@link CoverageTableRow}, matching the
+ * backend `CoverageTable` JSON shape.
+ *
+ * Sigorta şirketi ve ürün türüne göre düzenlenmiş teminat tablosu (satırlar). Tüm satırlar aynı ürün
+ * branşına ait olmalıdır. Backend `CoverageTable` JSON şekliyle eşleşecek şekilde düz bir
+ * {@link CoverageTableRow} dizisi olarak serileştirilir.
+ */
+export type CoverageTable = readonly CoverageTableRow[];
 
 /**
  * Types of repair services in Turkish insurance industry.
@@ -251,9 +386,14 @@ export type KiralikArac =
   | { $type: 'UNDEFINED' }
   | {
       $type: 'DEFINED';
-      yillikKullanimSayisi?: number;
-      tekSeferlikGunSayisi?: number;
-      aracSegment?: AracSegment;
+      yillikKullanimSayisi?: number | null;
+      tekSeferlikGunSayisi?: number | null;
+      /** Vehicle segment requirement; `null` means no specific segment ("Yok"). */
+      aracSegment?: AracSegment | null;
+      /** Parts coverage flag — true = "Pert Dahil", false = "Pert Hariç", null/undefined = standard. */
+      pertDahil?: boolean | null;
+      /** Special rental vehicle type requirements (electric, commercial). */
+      kiralikAracTipler?: readonly KiralikAracTip[];
     };
 
 /**
@@ -305,6 +445,157 @@ export enum AracSegment {
    * Sigortalı aracın segmenti ne ise, ikame aracın da aynı segmentte olması gerekir
    */
   SegmenteSegment = 'SEGMENTE_SEGMENT',
+}
+
+/**
+ * Special rental vehicle types for "Kiralık Araç" (rental vehicle) coverage.
+ * Defines vehicle categories that may carry different rental terms or conditions.
+ *
+ * "Kiralık Araç" teminatı için özel araç türleri.
+ * Farklı kiralama şartları veya koşulları olabilecek araç kategorilerini tanımlar.
+ */
+export enum KiralikAracTip {
+  /**
+   * Electric vehicle - powered by electric motors.
+   * Elektrikli araç - elektrik motorları ile çalışan araçlar.
+   */
+  ElektrikliArac = 'ELEKTRIKLI_ARAC',
+
+  /**
+   * Commercial vehicle - designed for business or commercial use.
+   * Ticari araç - iş veya ticari kullanım için tasarlanmış araçlar.
+   */
+  TicariArac = 'TICARI_ARAC',
+}
+
+/**
+ * Glass repair service preference for Kasko coverage (InsurGateway key 5137).
+ * Determines which type of glass repair service will be used, independently of the glass deductible.
+ *
+ * Kasko teminatı için cam onarım servisi tercihi (5137). Cam muafiyetinden bağımsız olarak
+ * hangi tür cam onarım servisinin kullanılacağını belirler.
+ */
+export enum CamOnarimTercihi {
+  /**
+   * Unspecified/undefined glass repair preference.
+   * Belirsiz/tanımsız cam onarım tercihi.
+   */
+  Belirsiz = 'BELIRSIZ',
+
+  /**
+   * Contracted glass repair service.
+   * Anlaşmalı cam servisi.
+   */
+  AnlasmaliCamServisi = 'ANLASMALI_CAM_SERVISI',
+
+  /**
+   * No glass repair preference (coverage not requested).
+   * Cam onarım tercihi yok.
+   */
+  Hayir = 'HAYIR',
+
+  /**
+   * Any glass repair service can be used.
+   * Tüm servisler kullanılabilir.
+   */
+  TumServisler = 'TUM_SERVISLER',
+}
+
+/**
+ * Insurance scope for home (Konut) insurance — whether the policy covers the building, the contents, or both.
+ *
+ * Konut sigortasında kapsam türü — poliçenin binayı, eşyayı veya her ikisini kapsadığını belirtir.
+ */
+export enum SigortaKapsami {
+  /**
+   * Unknown or undefined scope.
+   * Bilinmeyen veya tanımlanmamış kapsam.
+   */
+  Bilinmiyor = 'BILINMIYOR',
+
+  /**
+   * Both the residential building and the household contents.
+   * Hem konut (bina) hem de ev eşyası.
+   */
+  KonutVeEsya = 'KONUT_VE_ESYA',
+
+  /**
+   * Household contents only.
+   * Yalnızca ev eşyası.
+   */
+  SadeceEsya = 'SADECE_ESYA',
+
+  /**
+   * Residential building only.
+   * Yalnızca konut (bina).
+   */
+  SadeceKonut = 'SADECE_KONUT',
+}
+
+/**
+ * Health insurance package selection for {@link SaglikCoverage} ("Doktorum" packages).
+ *
+ * {@link SaglikCoverage} için sağlık sigortası paketi seçimi ("Doktorum" paketleri).
+ */
+export enum DoktorumPaket {
+  /** No package selected. / Paket seçilmemiş. */
+  None = 'NONE',
+
+  /** Package 1 — online doctor. / Paket 1 — online doktor. */
+  Paket1OnlineDoktor = 'PAKET_1_ONLINE_DOKTOR',
+
+  /** Package 2 — on-site laboratory services. / Paket 2 — yerinde laboratuvar hizmetleri. */
+  Paket2YerindeLaboratuvar = 'PAKET_2_YERINDE_LABORATUVAR_HIZMETLERI',
+
+  /** Package 3 — on-site/at-home laboratory services. / Paket 3 — yerinde/evde laboratuvar hizmetleri. */
+  Paket3YerindeEvdeLaboratuvar = 'PAKET_3_YERINDE_EVDE_LABORATUVAR_HIZMETLERI',
+}
+
+/**
+ * Package selection for private health insurance ({@link OssCoverage}).
+ *
+ * Özel sağlık sigortası ({@link OssCoverage}) için paket seçimi.
+ */
+export enum OssPaketSecimi {
+  /** Not specified. / Belirtilmedi. */
+  Belirtilmedi = 'BELIRTILMEDI',
+
+  /** Inpatient. / Yatarak. */
+  OssYatarak = 'OSS_YATARAK',
+
+  /** Outpatient, unlimited. / Ayakta, limitsiz. */
+  OssAyaktaLimitsiz = 'OSS_AYAKTA_LIMITSIZ',
+
+  /** Outpatient, limited. / Ayakta, limitli. */
+  OssAyaktaLimitli = 'OSS_AYAKTA_LIMITLI',
+
+  /** Outpatient. / Ayakta. */
+  OssAyakta = 'OSS_AYAKTA',
+
+  /** Inpatient and outpatient. / Yatarak ve ayakta. */
+  OssYatarakAyakta = 'OSS_YATARAK_AYAKTA',
+}
+
+/**
+ * Hospital network selection for private health insurance ({@link OssCoverage}).
+ *
+ * Özel sağlık sigortası ({@link OssCoverage}) için network (hastane ağı) seçimi.
+ */
+export enum OssNetworkSecimi {
+  /** Not specified. / Belirtilmedi. */
+  Belirtilmedi = 'BELIRTILMEDI',
+
+  /** Economic network. / Ekonomik network. */
+  OssEkonomikNetwork = 'OSS_EKONOMIK_NETWORK',
+
+  /** Standard network. / Standart network. */
+  OssStandartNetwork = 'OSS_STANDART_NETWORK',
+
+  /** Wide-coverage network. / Geniş kapsamlı network. */
+  OssGenisKapsamliNetwork = 'OSS_GENIS_KAPSAMLI_NETWORK',
+
+  /** Full network. / Full network. */
+  OssFullNetwork = 'OSS_FULL_NETWORK',
 }
 
 /**
