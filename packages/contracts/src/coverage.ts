@@ -4,8 +4,7 @@
  */
 
 import type {
-  Coverage,
-  CoverageChoices,
+  CoverageTable,
   CoverageValue,
   UserReference,
   OnarimServisTuru,
@@ -14,6 +13,11 @@ import type {
   HastaneAgi,
   SaglikPaketi,
   TasinanYuk,
+  CamOnarimTercihi,
+  SigortaKapsami,
+  InsuranceProductType,
+  ProductBranch,
+  VehicleUtilizationStyle,
 } from './common.js';
 
 /**
@@ -36,16 +40,41 @@ export interface CreateCoverageGroupRequest {
   readonly name: string;
 
   /**
-   * The insurance coverage definition that will be included in this coverage group.
-   * This defines the specific insurance protection, terms, conditions, and parameters
-   * that make up this coverage. The coverage can include various insurance types such
-   * as vehicle, property, health, or other specialized insurance coverages.
+   * Optional descriptive text explaining the purpose, scope, or intended customers of the coverage group.
    *
-   * Bu teminat grubuna dahil edilecek sigorta teminat tanımı. Bu, bu teminatı oluşturan
-   * belirli sigorta koruması, koşullar, şartlar ve parametreleri tanımlar. Teminat, araç,
-   * mülk, sağlık veya diğer özelleşmiş sigorta teminatları gibi çeşitli sigorta türlerini içerebilir.
+   * Teminat grubunun amacını, kapsamını veya hedef müşterilerini açıklayan isteğe bağlı metin.
    */
-  readonly coverage: Coverage;
+  readonly description?: string | null;
+
+  /**
+   * The product branch (Kasko, Konut, İMM, TSS, ...) this coverage group belongs to.
+   *
+   * Bu teminat grubunun ait olduğu ürün dalı (Kasko, Konut, İMM, TSS, ...).
+   */
+  readonly productBranch: ProductBranch;
+
+  /**
+   * The coverage definitions for this group, as a multi-row table keyed by insurance company and
+   * product type. Each row carries a coverage plus optional company/product scoping.
+   *
+   * Bu grup için teminat tanımları; sigorta şirketi ve ürün türüne göre çok satırlı tablo olarak.
+   * Her satır bir teminat ile birlikte isteğe bağlı şirket/ürün kapsamını taşır.
+   */
+  readonly coverageTable: CoverageTable;
+
+  /**
+   * Optional vehicle utilization style constraint for Kasko coverage groups.
+   *
+   * Kasko teminat grupları için isteğe bağlı araç kullanım stili kısıtı.
+   */
+  readonly vehicleUtilizationStyle?: VehicleUtilizationStyle | null;
+
+  /**
+   * Whether this is the default coverage group for the product branch (auto-selected for new proposals).
+   *
+   * Bu teminat grubunun ürün dalı için varsayılan grup olup olmadığı (yeni tekliflerde otomatik seçilir).
+   */
+  readonly isDefault?: boolean;
 }
 
 /**
@@ -79,17 +108,34 @@ export interface UpdateCoverageGroupRequest {
   readonly name: string;
 
   /**
-   * The updated insurance coverage definition for this coverage group. This replaces
-   * the existing coverage definition with new terms, conditions, parameters, or coverage
-   * types. Changes to coverage definitions should be made carefully as they may impact
-   * existing policies and product configurations.
+   * Optional descriptive text explaining the intent, scope, or notes for the coverage group.
    *
-   * Bu teminat grubu için güncellenmiş sigorta teminat tanımı. Bu, mevcut teminat
-   * tanımını yeni koşullar, şartlar, parametreler veya teminat türleri ile değiştirir.
-   * Mevcut poliçeleri ve ürün konfigürasyonlarını etkileyebileceği için teminat tanımlarındaki
-   * değişiklikler dikkatli bir şekilde yapılmalıdır.
+   * Teminat grubunun niyetini, kapsamını veya notlarını açıklayan isteğe bağlı metin.
    */
-  readonly coverage: Coverage;
+  readonly description?: string | null;
+
+  /**
+   * The updated coverage definitions for this group, as a multi-row table keyed by insurance company
+   * and product type. Changes may impact existing policies and product configurations.
+   *
+   * Bu grup için güncellenmiş teminat tanımları; sigorta şirketi ve ürün türüne göre çok satırlı tablo.
+   * Değişiklikler mevcut poliçeleri ve ürün konfigürasyonlarını etkileyebilir.
+   */
+  readonly coverageTable: CoverageTable;
+
+  /**
+   * Optional vehicle utilization style constraint for Kasko coverage groups.
+   *
+   * Kasko teminat grupları için isteğe bağlı araç kullanım stili kısıtı.
+   */
+  readonly vehicleUtilizationStyle?: VehicleUtilizationStyle | null;
+
+  /**
+   * Whether this is the default coverage group for the product branch (auto-selected for new proposals).
+   *
+   * Bu teminat grubunun ürün dalı için varsayılan grup olup olmadığı (yeni tekliflerde otomatik seçilir).
+   */
+  readonly isDefault?: boolean;
 }
 
 /**
@@ -182,16 +228,41 @@ export interface GetCoverageGroupByIdResult {
   readonly updatedBy?: UserReference;
 
   /**
-   * The insurance coverage definition that is contained within this coverage group.
-   * This defines the specific insurance protection, terms, conditions, and parameters
-   * that make up this coverage. The coverage can include various insurance types such
-   * as vehicle, property, health, or other specialized insurance coverages.
+   * Optional descriptive text explaining the purpose, scope, or configuration guidance for the group.
    *
-   * Bu teminat grubunda yer alan sigorta teminat tanımı. Bu, bu teminatı oluşturan
-   * belirli sigorta koruması, koşullar, şartlar ve parametreleri tanımlar. Teminat, araç,
-   * mülk, sağlık veya diğer özelleşmiş sigorta teminatları gibi çeşitli sigorta türlerini içerebilir.
+   * Teminat grubunun amacını, kapsamını veya konfigürasyon rehberini açıklayan isteğe bağlı metin.
    */
-  readonly coverage: Coverage;
+  readonly description?: string | null;
+
+  /**
+   * The product branch (Kasko, Konut, İMM, TSS, ...) this coverage group belongs to.
+   *
+   * Bu teminat grubunun ait olduğu ürün dalı (Kasko, Konut, İMM, TSS, ...).
+   */
+  readonly productBranch: ProductBranch;
+
+  /**
+   * The coverage definitions contained in this group, as a multi-row table keyed by insurance company
+   * and product type. Each row carries a coverage plus optional company/product scoping.
+   *
+   * Bu grupta yer alan teminat tanımları; sigorta şirketi ve ürün türüne göre çok satırlı tablo.
+   * Her satır bir teminat ile birlikte isteğe bağlı şirket/ürün kapsamını taşır.
+   */
+  readonly coverageTable: CoverageTable;
+
+  /**
+   * Optional vehicle utilization style constraint for Kasko coverage groups.
+   *
+   * Kasko teminat grupları için isteğe bağlı araç kullanım stili kısıtı.
+   */
+  readonly vehicleUtilizationStyle?: VehicleUtilizationStyle | null;
+
+  /**
+   * Whether this is the default coverage group for the product branch (auto-selected for new proposals).
+   *
+   * Bu teminat grubunun ürün dalı için varsayılan grup olup olmadığı (yeni tekliflerde otomatik seçilir).
+   */
+  readonly isDefault: boolean;
 }
 
 /**
@@ -263,15 +334,41 @@ export interface GetCoverageGroupsResultItem {
   readonly updatedBy?: UserReference;
 
   /**
-   * The insurance coverage definition that is contained within this coverage group.
-   * This provides the essential coverage information for understanding what type of
-   * insurance protection this group represents without requiring detailed retrieval.
+   * Optional descriptive text explaining the purpose, scope, or usage guidance for the group.
    *
-   * Bu teminat grubunda yer alan sigorta teminat tanımı. Bu, detaylı alma işlemi
-   * gerektirmeden bu grubun ne tür sigorta korumasını temsil ettiğini anlamak için
-   * temel teminat bilgisini sağlar.
+   * Teminat grubunun amacını, kapsamını veya kullanım rehberini açıklayan isteğe bağlı metin.
    */
-  readonly coverage: Coverage;
+  readonly description?: string | null;
+
+  /**
+   * The product branch (Kasko, Konut, İMM, TSS, ...) this coverage group belongs to.
+   *
+   * Bu teminat grubunun ait olduğu ürün dalı (Kasko, Konut, İMM, TSS, ...).
+   */
+  readonly productBranch: ProductBranch;
+
+  /**
+   * The coverage definitions contained in this group, as a multi-row table keyed by insurance company
+   * and product type. Each row carries a coverage plus optional company/product scoping.
+   *
+   * Bu grupta yer alan teminat tanımları; sigorta şirketi ve ürün türüne göre çok satırlı tablo.
+   * Her satır bir teminat ile birlikte isteğe bağlı şirket/ürün kapsamını taşır.
+   */
+  readonly coverageTable: CoverageTable;
+
+  /**
+   * Optional vehicle utilization style constraint for Kasko coverage groups.
+   *
+   * Kasko teminat grupları için isteğe bağlı araç kullanım stili kısıtı.
+   */
+  readonly vehicleUtilizationStyle?: VehicleUtilizationStyle | null;
+
+  /**
+   * Whether this is the default coverage group for the product branch (auto-selected for new proposals).
+   *
+   * Bu teminat grubunun ürün dalı için varsayılan grup olup olmadığı (yeni tekliflerde otomatik seçilir).
+   */
+  readonly isDefault: boolean;
 }
 
 /**
@@ -291,7 +388,7 @@ export interface KaskoCoverageChoices {
    * Bu limitler, zorunlu trafik sigortasının ötesinde ek üçüncü şahıs sorumluluk koruması sağlar
    * ve tam koruma için kapsamlı araç sigortası poliçesine entegre edilir.
    */
-  readonly immLimitiAyrimsiz: CoverageChoices<CoverageValue>;
+  readonly immLimitiAyrimsiz: readonly CoverageValue[];
 
   /**
    * Available options for repair service providers and quality levels.
@@ -304,7 +401,7 @@ export interface KaskoCoverageChoices {
    * genel onarım tesislerini içerir, her biri farklı kalite standartları ve maliyet seviyeleri sunar.
    * Seçim, onarım kalitesini, garanti kapsamını ve hasar ödeme tutarlarını etkiler.
    */
-  readonly onarimServisTuru: CoverageChoices<OnarimServisTuru>;
+  readonly onarimServisTuru: readonly OnarimServisTuru[];
 
   /**
    * Available options for the quality and type of spare parts used in repairs.
@@ -317,7 +414,7 @@ export interface KaskoCoverageChoices {
    * veya standart yedek parçaları içerir. Seçim, onarım kalitesini, araç değer korunumunu ve
    * prim maliyetlerini etkiler; OEM parçalar en yüksek kaliteyi sağlar ancak daha yüksek maliyetle.
    */
-  readonly yedekParcaTuru: CoverageChoices<YedekParcaTuru>;
+  readonly yedekParcaTuru: readonly YedekParcaTuru[];
 
   /**
    * Available options for rental vehicle coverage during repair or total loss periods.
@@ -330,7 +427,7 @@ export interface KaskoCoverageChoices {
    * Seçenekler farklı araç kategorileri, günlük kiralama limitleri, maksimum kiralama süreleri
    * ve sigortalı araca uygun belirli araç segmentlerini içerir.
    */
-  readonly kiralikArac: CoverageChoices<KiralikArac>;
+  readonly kiralikArac: readonly KiralikArac[];
 
   /**
    * Available coverage limits for vehicle key replacement and related costs.
@@ -343,7 +440,7 @@ export interface KaskoCoverageChoices {
    * elektronik anahtar kumandalı, uzaktan kumandalar ve yeniden programlama maliyetleri dahil.
    * Modern araç anahtarları gelişmiş güvenlik özellikleri nedeniyle değiştirmesi pahalı olabilir.
    */
-  readonly anahtarKaybi: CoverageChoices<CoverageValue>;
+  readonly anahtarKaybi: readonly CoverageValue[];
 
   /**
    * Available coverage limits for moral damages compensation.
@@ -356,7 +453,7 @@ export interface KaskoCoverageChoices {
    * fiziksel hasarlar ve mali kayıpların ötesinde araç olaylarının psikolojik etkisini
    * ele almaya yardımcı olur.
    */
-  readonly maneviTazminat: CoverageChoices<CoverageValue>;
+  readonly maneviTazminat: readonly CoverageValue[];
 
   /**
    * Available deductible options for glass breakage coverage.
@@ -369,7 +466,21 @@ export interface KaskoCoverageChoices {
    * için daha iyi müşteri deneyimi sağlar ancak daha yüksek primlerle sonuçlanabilir,
    * yüksek muafiyetler ise prim maliyetlerini azaltır.
    */
-  readonly camKirilmaMuafeyeti: CoverageChoices<CoverageValue>;
+  readonly camKirilmaMuafeyeti: readonly CoverageValue[];
+
+  /**
+   * Available glass repair preference options (InsurGateway key 5137), e.g. for Türkiye Sigorta Kasko.
+   *
+   * Mevcut cam onarım tercihi seçenekleri (5137), örn. Türkiye Sigorta Kasko.
+   */
+  readonly camOnarimTercihi: readonly CamOnarimTercihi[];
+
+  /**
+   * Available deductible ratio options for Quick Sigorta Kasko products.
+   *
+   * Quick Sigorta Kasko ürünleri için mevcut muafiyet oranı seçenekleri.
+   */
+  readonly muafiyetOrani: readonly CoverageValue[];
 
   /**
    * Available options for comprehensive personal accident coverage bundles.
@@ -384,7 +495,7 @@ export interface KaskoCoverageChoices {
    * seviyeleri sağlar ve önceden yapılandırılmış koruma paketleri sunarak müşteriler için
    * seçim sürecini basitleştirir.
    */
-  readonly ferdiKazaBundle: CoverageChoices<readonly CoverageValue[]>;
+  readonly ferdiKazaBundle: readonly (readonly CoverageValue[])[];
 }
 
 /**
@@ -398,80 +509,20 @@ export interface KonutCoverageChoices {
   /**
    * Available options for automatic inflation adjustment rates applied to coverage amounts.
    * Inflation protection ensures that coverage limits increase over time to maintain adequate
-   * protection against rising replacement costs for property and contents. Different rates
-   * provide varying levels of protection against inflation erosion of coverage values.
+   * protection against rising replacement costs for property and contents.
    *
    * Teminat tutarlarına uygulanan otomatik enflasyon ayarlama oranları için mevcut seçenekler.
    * Enflasyon koruması, konut ve içerik için artan yeniden inşa maliyetlerine karşı yeterli
-   * koruma sağlamak için teminat limitlerinin zaman içinde artmasını sağlar. Farklı oranlar,
-   * teminat değerlerinin enflasyon erozyonuna karşı değişen koruma seviyeleri sağlar.
+   * koruma sağlamak için teminat limitlerinin zaman içinde artmasını sağlar.
    */
-  readonly enflasyon: CoverageChoices<CoverageValue>;
+  readonly enflasyon: readonly CoverageValue[];
 
   /**
-   * Standard default coverage amount for household contents including furniture, appliances,
-   * personal belongings, and other movable property within the residence. This amount represents
-   * the baseline protection for typical household contents and can be adjusted based on the
-   * actual value of the insured's personal property inventory.
+   * Available insurance scope options (building, contents, or both). Plain values that must be sent as-is.
    *
-   * Mobilya, ev aletleri, kişisel eşyalar ve konut içindeki diğer taşınabilir eşyalar
-   * dahil ev eşyaları için standart varsayılan teminat tutarı. Bu tutar, tipik ev eşyaları
-   * için temel korumayı temsil eder ve sigortalının kişisel mal envanterinin gerçek değerine
-   * göre ayarlanabilir.
+   * Mevcut sigorta kapsamı seçenekleri (bina, eşya veya her ikisi). Aynen gönderilmesi gereken düz değerler.
    */
-  readonly esyaBedeliDefault: number;
-
-  /**
-   * Standard default coverage amount for electronic devices and equipment including computers,
-   * televisions, audio systems, and other electronic appliances. Electronic devices often have
-   * specific coverage needs due to their susceptibility to electrical damage and rapid
-   * technological depreciation, requiring separate consideration from general household contents.
-   *
-   * Bilgisayarlar, televizyonlar, ses sistemleri ve diğer elektronik cihazlar dahil
-   * elektronik cihaz ve ekipmanlar için standart varsayılan teminat tutarı. Elektronik cihazlar
-   * genellikle elektriksel hasara duyarlılıkları ve hızlı teknolojik amortismanları nedeniyle
-   * özel teminat ihtiyaçlarına sahiptir ve genel ev eşyalarından ayrı değerlendirme gerektirir.
-   */
-  readonly elektronikCihazBedeliDefault: number;
-
-  /**
-   * Standard default coverage amount for building insulation systems including thermal,
-   * sound, and moisture insulation materials and installations. Insulation coverage is important
-   * for maintaining energy efficiency and preventing water damage, with specific consideration
-   * for modern insulation technologies and installation costs.
-   *
-   * Termal, ses ve nem izolasyon malzemeleri ve kurulumları dahil bina izolasyon sistemleri
-   * için standart varsayılan teminat tutarı. İzolasyon teminatı, enerji verimliliğini korumak
-   * ve su hasarını önlemek için önemlidir; modern izolasyon teknolojileri ve kurulum maliyetleri
-   * için özel değerlendirme gerektirir.
-   */
-  readonly izolasyonBedeliDefault: number;
-
-  /**
-   * Standard default coverage amount for glass fixtures including windows, doors,
-   * mirrors, and other glass installations within the property. Glass coverage addresses
-   * the specific vulnerability of glass elements to breakage from various causes including
-   * accidents, weather events, and vandalism.
-   *
-   * Pencereler, kapılar, aynalar ve konut içindeki diğer cam kurulumları dahil
-   * cam armatürleri için standart varsayılan teminat tutarı. Cam teminatı, kazalar,
-   * hava olayları ve vandalizm dahil çeşitli nedenlerden kaynaklanan kırılmaya karşı
-   * cam elemanlarının belirli savunmasızlığını ele alır.
-   */
-  readonly camBedeliDefault: number;
-
-  /**
-   * Standard default construction cost per square meter used to calculate building value coverage.
-   * This value is multiplied by the property's square meter to determine the building coverage amount.
-   * The construction cost reflects current market rates for residential construction and is used
-   * as a baseline for determining adequate building coverage.
-   *
-   * Bina değeri teminatını hesaplamak için kullanılan standart varsayılan metrekare başına inşa maliyeti.
-   * Bu değer konutun metrekare ile çarpılarak bina teminat tutarı belirlenir. İnşa maliyeti, konut
-   * inşaatı için mevcut piyasa oranlarını yansıtır ve yeterli bina teminatı belirlenmesi için
-   * temel değer olarak kullanılır.
-   */
-  readonly metrekareInsaMaliyeti: number;
+  readonly sigortaKapsami: readonly SigortaKapsami[];
 }
 
 /**
@@ -495,7 +546,7 @@ export interface TssCoverageChoices {
    * kapsamlı ağlar gibi farklı katmanları içerir. Daha yüksek ağ katmanları daha iyi tesislere
    * ve hizmetlere erişim sağlar ancak genellikle daha yüksek prim maliyetleriyle sonuçlanır.
    */
-  readonly hastaneAgi: CoverageChoices<HastaneAgi>;
+  readonly hastaneAgi: readonly HastaneAgi[];
 
   /**
    * Available options for comprehensive health package configurations and benefit levels.
@@ -512,7 +563,7 @@ export interface TssCoverageChoices {
    * programları ile premium paketler. Paket seçimi, kapsanan tıbbi hizmetlerin kapsamını ve
    * fayda limitlerini belirler.
    */
-  readonly saglikPaketi: CoverageChoices<SaglikPaketi>;
+  readonly saglikPaketi: readonly SaglikPaketi[];
 }
 
 /**
@@ -534,7 +585,7 @@ export interface ImmCoverageChoices {
    * ve mal zararı talepleri için sigortanın ödeyeceği maksimum tutarı temsil eder.
    * Daha yüksek limitler daha iyi koruma sağlar ancak genellikle daha yüksek primlerle sonuçlanır.
    */
-  readonly immLimitiAyrimsiz: CoverageChoices<CoverageValue>;
+  readonly immLimitiAyrimsiz: readonly CoverageValue[];
 
   /**
    * Available options for rental vehicle coverage during repair periods.
@@ -547,7 +598,7 @@ export interface ImmCoverageChoices {
    * geçici ikame araç sağlar. Seçenekler farklı araç kategorileri, günlük limitler
    * ve maksimum kiralama sürelerini içerebilir.
    */
-  readonly kiralikArac: CoverageChoices<KiralikArac>;
+  readonly kiralikArac: readonly KiralikArac[];
 
   /**
    * Available classifications for the type of cargo or goods being transported
@@ -560,7 +611,15 @@ export interface ImmCoverageChoices {
    * teminat şartlarını ve prim hesaplamalarını etkiler. Bu sınıflandırma, belirli taşımacılık
    * ihtiyaçları için uygun teminatın sağlanmasına yardımcı olur.
    */
-  readonly tasinanYuk: CoverageChoices<TasinanYuk>;
+  readonly tasinanYuk: readonly TasinanYuk[];
+
+  /**
+   * Available assistance service (Asistans Hizmeti) options. Empty for companies/products that do not
+   * support this flag.
+   *
+   * Mevcut asistans hizmeti seçenekleri. Bu özelliği desteklemeyen şirket/ürünlerde boştur.
+   */
+  readonly asistansHizmeti: readonly CoverageValue[];
 }
 
 // ============================================================================
@@ -568,10 +627,17 @@ export interface ImmCoverageChoices {
 // ============================================================================
 
 /**
- * Wrapper for coverage choices grouped by insurance company
+ * Coverage choices provided by a specific insurance company, along with the product integration type.
+ *
+ * Belirli bir sigorta şirketi tarafından sağlanan teminat seçenekleri ve ürün entegrasyon türü.
  */
 export interface CompanyCoverageChoices<T> {
+  /** Unique identifier of the insurance company that offers these coverage choices. */
   readonly insuranceCompanyId: number;
-  readonly insuranceCompanyName: string;
-  readonly choices: T;
+
+  /** Technical integration type (WebService or Robot) used for this product. */
+  readonly productType: InsuranceProductType;
+
+  /** The coverage choices configuration for the specific insurance product type. */
+  readonly coverageChoices: T;
 }

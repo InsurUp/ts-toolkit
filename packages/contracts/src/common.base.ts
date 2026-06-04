@@ -428,6 +428,18 @@ export enum ProductBranch {
    * Kefalet sigortası
    */
   Kefalet = 'KEFALET',
+
+  /**
+   * Private Health Insurance (Özel Sağlık Sigortası)
+   * Özel sağlık sigortası
+   */
+  Oss = 'OZEL_SAGLIK',
+
+  /**
+   * Foreign Health Insurance (Yabancı Sağlık Sigortası)
+   * Yabancı sağlık sigortası
+   */
+  YabanciSaglik = 'YABANCI_SAGLIK',
 }
 
 // ============================================================================
