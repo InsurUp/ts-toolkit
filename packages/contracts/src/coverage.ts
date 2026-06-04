@@ -15,6 +15,8 @@ import type {
   TasinanYuk,
   CamOnarimTercihi,
   SigortaKapsami,
+  OssPaketSecimi,
+  OssNetworkSecimi,
   InsuranceProductType,
   ProductBranch,
   VehicleUtilizationStyle,
@@ -620,6 +622,48 @@ export interface ImmCoverageChoices {
    * Mevcut asistans hizmeti seçenekleri. Bu özelliği desteklemeyen şirket/ürünlerde boştur.
    */
   readonly asistansHizmeti: readonly CoverageValue[];
+}
+
+/**
+ * Defines the available coverage choices for private health insurance (Özel Sağlık / OSS) products.
+ *
+ * Özel Sağlık Sigortası (OSS) ürünleri için mevcut teminat seçeneklerini tanımlar.
+ */
+export interface OssCoverageChoices {
+  /** Available package selection options. / Mevcut paket seçimi seçenekleri. */
+  readonly paketSecimi: readonly OssPaketSecimi[];
+
+  /** Available hospital-network selection options. / Mevcut network (hastane ağı) seçimi seçenekleri. */
+  readonly networkSecimi: readonly OssNetworkSecimi[];
+
+  /** Available maternity (doğum) coverage options. / Mevcut doğum teminatı seçenekleri. */
+  readonly dogumTeminati: readonly CoverageValue[];
+
+  /** Available personal-accident coverage options. / Mevcut ferdi kaza seçenekleri. */
+  readonly ferdiKaza: readonly CoverageValue[];
+
+  /** Available dental (diş) coverage options. / Mevcut diş teminatı seçenekleri. */
+  readonly disTeminati: readonly CoverageValue[];
+}
+
+/**
+ * Defines the available coverage choices for travel health insurance (Seyahat Sağlık) products.
+ *
+ * Seyahat Sağlık Sigortası ürünleri için mevcut teminat seçeneklerini tanımlar.
+ */
+export interface SeyahatSaglikCoverageChoices {
+  /** Available Covid-19 coverage options (typically Included / NotIncluded). */
+  readonly covidTeminati: readonly CoverageValue[];
+}
+
+/**
+ * Defines the available coverage choices for foreign health insurance (Yabancı Sağlık) products.
+ *
+ * Yabancı Sağlık Sigortası ürünleri için mevcut teminat seçeneklerini tanımlar.
+ */
+export interface YabanciSaglikCoverageChoices {
+  /** Available hospital-network coverage level options. / Mevcut hastane ağı seviyesi seçenekleri. */
+  readonly hastaneAgi: readonly HastaneAgi[];
 }
 
 // ============================================================================

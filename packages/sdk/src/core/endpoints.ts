@@ -866,6 +866,21 @@ export const coverageChoices = {
     definition: 'coverage-choices:tss',
     render: (): string => 'coverage-choices:tss',
   },
+
+  getOssCoverageChoices: {
+    definition: 'coverage-choices:oss',
+    render: (): string => 'coverage-choices:oss',
+  },
+
+  getSeyahatSaglikCoverageChoices: {
+    definition: 'coverage-choices:seyahat-saglik',
+    render: (): string => 'coverage-choices:seyahat-saglik',
+  },
+
+  getYabanciSaglikCoverageChoices: {
+    definition: 'coverage-choices:yabanci-saglik',
+    render: (): string => 'coverage-choices:yabanci-saglik',
+  },
 } as const;
 
 /**

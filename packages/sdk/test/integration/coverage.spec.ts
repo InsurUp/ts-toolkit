@@ -166,4 +166,46 @@ describe('CoverageClient', () => {
 
     expect(capturedUrl).toContain('/coverage-choices:imm');
   });
+
+  it('getOssCoverageChoices hits oss endpoint', async () => {
+    let capturedUrl: string | undefined;
+    server.use(
+      http.get(`${BASE_URL}/coverage-choices:oss`, ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json([]);
+      })
+    );
+
+    await t.client.coverage.getOssCoverageChoices();
+
+    expect(capturedUrl).toContain('/coverage-choices:oss');
+  });
+
+  it('getSeyahatSaglikCoverageChoices hits seyahat-saglik endpoint', async () => {
+    let capturedUrl: string | undefined;
+    server.use(
+      http.get(`${BASE_URL}/coverage-choices:seyahat-saglik`, ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json([]);
+      })
+    );
+
+    await t.client.coverage.getSeyahatSaglikCoverageChoices();
+
+    expect(capturedUrl).toContain('/coverage-choices:seyahat-saglik');
+  });
+
+  it('getYabanciSaglikCoverageChoices hits yabanci-saglik endpoint', async () => {
+    let capturedUrl: string | undefined;
+    server.use(
+      http.get(`${BASE_URL}/coverage-choices:yabanci-saglik`, ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json([]);
+      })
+    );
+
+    await t.client.coverage.getYabanciSaglikCoverageChoices();
+
+    expect(capturedUrl).toContain('/coverage-choices:yabanci-saglik');
+  });
 });

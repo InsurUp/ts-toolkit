@@ -17,6 +17,9 @@ import type {
   KonutCoverageChoices,
   TssCoverageChoices,
   ImmCoverageChoices,
+  OssCoverageChoices,
+  SeyahatSaglikCoverageChoices,
+  YabanciSaglikCoverageChoices,
   CompanyCoverageChoices,
 } from '@insurup/contracts';
 import type { VehicleUtilizationStyle } from '@insurup/contracts';
@@ -164,6 +167,54 @@ export class InsurUpCoverageClient {
   ): Promise<InsurUpResult<CompanyCoverageChoices<ImmCoverageChoices>[]>> {
     return this.http.get<CompanyCoverageChoices<ImmCoverageChoices>[]>(
       coverageChoices.getImmCoverageChoices.render(),
+      options
+    );
+  }
+
+  /**
+   * Retrieves available OSS (private health insurance / Özel Sağlık) coverage options and configurations.
+   *
+   * Mevcut OSS (Özel Sağlık Sigortası) teminat seçenekleri ve yapılandırmalarını getirir.
+   *
+   * @returns OSS coverage choices grouped by insurance company / Sigorta şirketine göre gruplanmış OSS teminat seçenekleri
+   */
+  async getOssCoverageChoices(
+    options?: RequestOptions
+  ): Promise<InsurUpResult<CompanyCoverageChoices<OssCoverageChoices>[]>> {
+    return this.http.get<CompanyCoverageChoices<OssCoverageChoices>[]>(
+      coverageChoices.getOssCoverageChoices.render(),
+      options
+    );
+  }
+
+  /**
+   * Retrieves available Seyahat Sağlık (travel health insurance) coverage options and configurations.
+   *
+   * Mevcut Seyahat Sağlık (seyahat sağlık sigortası) teminat seçenekleri ve yapılandırmalarını getirir.
+   *
+   * @returns Travel health coverage choices grouped by insurance company / Sigorta şirketine göre gruplanmış seyahat sağlık teminat seçenekleri
+   */
+  async getSeyahatSaglikCoverageChoices(
+    options?: RequestOptions
+  ): Promise<InsurUpResult<CompanyCoverageChoices<SeyahatSaglikCoverageChoices>[]>> {
+    return this.http.get<CompanyCoverageChoices<SeyahatSaglikCoverageChoices>[]>(
+      coverageChoices.getSeyahatSaglikCoverageChoices.render(),
+      options
+    );
+  }
+
+  /**
+   * Retrieves available Yabancı Sağlık (foreign health insurance) coverage options and configurations.
+   *
+   * Mevcut Yabancı Sağlık (yabancı sağlık sigortası) teminat seçenekleri ve yapılandırmalarını getirir.
+   *
+   * @returns Foreign health coverage choices grouped by insurance company / Sigorta şirketine göre gruplanmış yabancı sağlık teminat seçenekleri
+   */
+  async getYabanciSaglikCoverageChoices(
+    options?: RequestOptions
+  ): Promise<InsurUpResult<CompanyCoverageChoices<YabanciSaglikCoverageChoices>[]>> {
+    return this.http.get<CompanyCoverageChoices<YabanciSaglikCoverageChoices>[]>(
+      coverageChoices.getYabanciSaglikCoverageChoices.render(),
       options
     );
   }
