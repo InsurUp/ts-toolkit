@@ -120,8 +120,16 @@ export interface UpdateCoverageGroupRequest {
    * The updated coverage definitions for this group, as a multi-row table keyed by insurance company
    * and product type. Changes may impact existing policies and product configurations.
    *
+   * Must contain at least one row, and every row must belong to the group's existing product branch —
+   * the branch is immutable on update. The backend rejects an empty table (it cannot infer the branch)
+   * and rows from a different branch. The SDK sends each coverage with its `$type` discriminator first;
+   * round-tripping a {@link GetCoverageGroupByIdResult} coverage table back through this field is safe.
+   *
    * Bu grup için güncellenmiş teminat tanımları; sigorta şirketi ve ürün türüne göre çok satırlı tablo.
    * Değişiklikler mevcut poliçeleri ve ürün konfigürasyonlarını etkileyebilir.
+   *
+   * En az bir satır içermeli ve her satır grubun mevcut ürün branşına ait olmalıdır — branş güncellemede
+   * değiştirilemez. Backend boş bir tabloyu (branşı çıkaramaz) ve farklı branştan satırları reddeder.
    */
   readonly coverageTable: CoverageTable;
 

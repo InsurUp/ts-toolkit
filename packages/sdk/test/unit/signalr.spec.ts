@@ -158,6 +158,7 @@ import { LogLevel } from '@microsoft/signalr';
 import { SignalRTransport } from '../../src/client/signalr';
 import { DefaultInsurUpClient } from '../../src/client/client';
 import type {
+  TrafikCoverage,
   ProposalProductCoverageEvent,
   ProposalProductFailedEvent,
   ProposalProductInProgressEvent,
@@ -230,10 +231,11 @@ const purchaseFailedEvent = (id: string): ProposalProductPurchaseFailedEvent => 
   ...baseEvent(id),
   errorMessage: 'card declined',
 });
+const trafikCoverage: TrafikCoverage = { $type: 'trafik', productBranch: ProductBranch.Trafik };
 const coverageEvent = (id: string): ProposalProductCoverageEvent => ({
   proposalId: id,
   proposalProductId: 'PP-1',
-  pdfCoverage: { productBranch: ProductBranch.Trafik },
+  pdfCoverage: trafikCoverage,
 });
 
 // ---------- Tests ----------

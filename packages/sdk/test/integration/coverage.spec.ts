@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { http, HttpResponse } from 'msw';
 import { ProductBranch } from '@insurup/sdk';
+import type { KaskoCoverage } from '@insurup/sdk';
 import { BASE_URL, server } from './server';
 import { setupIntegrationTest } from './setup';
 import { emptyCoverage, sampleCoverageGroup } from './fixtures/coverage';
@@ -50,6 +51,70 @@ describe('CoverageClient', () => {
 
     expect(receivedBody?.id).toBe('CG-9');
     expect(receivedBody?.name).toBe('Premium');
+  });
+
+  // Regression for #67: the deployed backend's polymorphic deserializer rejects (HTTP 500) any
+  // coverage object whose `$type` discriminator is missing or not the first property. Consumers
+  // that build coverages via spreads / field-by-field edits / mergeCoverage can't guarantee key
+  // order, so the SDK must re-order `$type` to the front at every depth before sending.
+  it('updateCoverageGroup hoists $type to the first key at every depth', async () => {
+    let rawBody: string | undefined;
+    server.use(
+      http.put(`${BASE_URL}/coverage-groups/:id`, async ({ request }) => {
+        rawBody = await request.text();
+        return new HttpResponse(null, { status: 204 });
+      })
+    );
+
+    // Deliberately out of order: $type trails both the coverage object and the nested value.
+    const coverage: KaskoCoverage = {
+      productBranch: ProductBranch.Kasko,
+      immLimitiAyrimsiz: { value: 250000, $type: 'DECIMAL' as const },
+      $type: 'kasko' as const,
+    };
+
+    await t.client.coverage.updateCoverageGroup({
+      id: 'CG-9',
+      name: 'Premium',
+      coverageTable: [{ coverage }],
+    });
+
+    const sent = JSON.parse(rawBody ?? '{}') as {
+      coverageTable: { coverage: Record<string, unknown> }[];
+    };
+    const sentCoverage = sent.coverageTable[0]!.coverage;
+    expect(Object.keys(sentCoverage)[0]).toBe('$type');
+    expect(sentCoverage['$type']).toBe('kasko');
+    expect(Object.keys(sentCoverage['immLimitiAyrimsiz'] as object)[0]).toBe('$type');
+  });
+
+  it('createCoverageGroup hoists $type to the first key at every depth', async () => {
+    let rawBody: string | undefined;
+    server.use(
+      http.post(`${BASE_URL}/coverage-groups`, async ({ request }) => {
+        rawBody = await request.text();
+        return new HttpResponse(null, { status: 204 });
+      })
+    );
+
+    const coverage: KaskoCoverage = {
+      productBranch: ProductBranch.Kasko,
+      immLimitiAyrimsiz: { value: 250000, $type: 'DECIMAL' as const },
+      $type: 'kasko' as const,
+    };
+
+    await t.client.coverage.createCoverageGroup({
+      name: 'Basic',
+      productBranch: ProductBranch.Kasko,
+      coverageTable: [{ coverage }],
+    });
+
+    const sent = JSON.parse(rawBody ?? '{}') as {
+      coverageTable: { coverage: Record<string, unknown> }[];
+    };
+    const sentCoverage = sent.coverageTable[0]!.coverage;
+    expect(Object.keys(sentCoverage)[0]).toBe('$type');
+    expect(Object.keys(sentCoverage['immLimitiAyrimsiz'] as object)[0]).toBe('$type');
   });
 
   it('deleteCoverageGroup sends DELETE', async () => {
