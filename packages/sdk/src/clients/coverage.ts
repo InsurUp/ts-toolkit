@@ -22,7 +22,42 @@ import type {
   YabanciSaglikCoverageChoices,
   CompanyCoverageChoices,
 } from '@insurup/contracts';
-import type { VehicleUtilizationStyle } from '@insurup/contracts';
+import type { VehicleUtilizationStyle, CoverageTable } from '@insurup/contracts';
+
+/**
+ * Re-serializes a value so the polymorphic `$type` discriminator leads every object at every depth.
+ *
+ * The deployed backend models coverages (`Coverage`, `CoverageValue`, `KiralikArac`) as .NET
+ * polymorphic types whose deserializer demands `$type` as the **first** property of each object. A
+ * missing or out-of-order discriminator throws server-side and surfaces as an HTTP 500. Consumers
+ * routinely build coverages via spreads, field-by-field edits, or `mergeCoverage`, none of which
+ * guarantee key order, so the SDK normalizes the outgoing coverage table here (see issue #67).
+ */
+function withDiscriminatorFirst<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value.map((item) => withDiscriminatorFirst(item)) as unknown as T;
+  }
+
+  if (value !== null && typeof value === 'object') {
+    const source = value as Record<string, unknown>;
+    const ordered: Record<string, unknown> = {};
+
+    if ('$type' in source) {
+      ordered['$type'] = source['$type'];
+    }
+
+    for (const key of Object.keys(source)) {
+      if (key === '$type') {
+        continue;
+      }
+      ordered[key] = withDiscriminatorFirst(source[key]);
+    }
+
+    return ordered as T;
+  }
+
+  return value;
+}
 
 /**
  * Provides coverage management operations for configuring insurance product coverages, managing coverage groups,
@@ -46,7 +81,11 @@ export class InsurUpCoverageClient {
     request: CreateCoverageGroupRequest,
     options?: RequestOptions
   ): Promise<InsurUpResult> {
-    return this.http.postNoContent(coverageGroups.create, request, options);
+    const body = {
+      ...request,
+      coverageTable: withDiscriminatorFirst<CoverageTable>(request.coverageTable),
+    };
+    return this.http.postNoContent(coverageGroups.create, body, options);
   }
 
   /**
@@ -61,7 +100,11 @@ export class InsurUpCoverageClient {
     request: UpdateCoverageGroupRequest,
     options?: RequestOptions
   ): Promise<InsurUpResult> {
-    return this.http.putNoContent(coverageGroups.update.render(request.id), request, options);
+    const body = {
+      ...request,
+      coverageTable: withDiscriminatorFirst<CoverageTable>(request.coverageTable),
+    };
+    return this.http.putNoContent(coverageGroups.update.render(request.id), body, options);
   }
 
   /**

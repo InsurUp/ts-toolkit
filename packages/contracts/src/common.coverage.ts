@@ -27,8 +27,19 @@ export type CoverageValue =
  * Union type for all insurance coverage types.
  * Represents the different types of insurance coverage available in the system.
  *
+ * Each member carries a `$type` discriminator that mirrors the backend's polymorphic
+ * `Coverage` contract. The deployed .NET deserializer requires `$type` to be the **first**
+ * property of every coverage object on the wire — a missing or out-of-order discriminator is
+ * rejected with an HTTP 500. The SDK's coverage-group create/update calls re-order `$type` to
+ * the front automatically, so consumers do not have to manage key order by hand (see issue #67).
+ *
  * Tüm sigorta teminat türleri için birleşim türü.
  * Sistemde mevcut farklı sigorta teminat türlerini temsil eder.
+ *
+ * Her üye, backend'in çok biçimli `Coverage` sözleşmesini yansıtan bir `$type` ayırıcısı taşır.
+ * Yayındaki .NET seri çözücüsü, `$type`'ın tel üzerinde her teminat nesnesinin **ilk** özelliği
+ * olmasını gerektirir; eksik veya sırasız bir ayırıcı HTTP 500 ile reddedilir. SDK'nın teminat
+ * grubu oluştur/güncelle çağrıları `$type`'ı otomatik olarak başa alır.
  */
 export type Coverage =
   | KaskoCoverage
@@ -50,6 +61,8 @@ export type Coverage =
  * Kasko, hırsızlık, çarpışma ve hasar dahil çeşitli risklere karşı koruyan kapsamlı bir teminattır.
  */
 export interface KaskoCoverage {
+  /** Polymorphic discriminator. Must serialize first; the SDK enforces this on write. */
+  readonly $type: 'kasko';
   readonly productBranch: ProductBranch.Kasko;
   readonly immLimitiAyrimsiz?: CoverageValue;
   readonly ferdiKazaVefat?: CoverageValue;
@@ -97,6 +110,8 @@ export interface KaskoCoverage {
  * Konut sigortası, konut konutları ve içeriklerini çeşitli risklere karşı kapsamlı koruma sağlar.
  */
 export interface KonutCoverage {
+  /** Polymorphic discriminator. Must serialize first; the SDK enforces this on write. */
+  readonly $type: 'konut';
   readonly productBranch: ProductBranch.Konut;
   readonly enflasyon?: CoverageValue;
   readonly sigortaKapsami?: SigortaKapsami;
@@ -132,6 +147,8 @@ export interface KonutCoverage {
  * İMM, zorunlu trafik sigortası gereksinimlerinin ötesinde ek sorumluluk teminatı sağlar.
  */
 export interface ImmCoverage {
+  /** Polymorphic discriminator. Must serialize first; the SDK enforces this on write. */
+  readonly $type: 'imm';
   readonly productBranch: ProductBranch.Imm;
   readonly immLimitiAyrimsiz?: CoverageValue;
   readonly kiralikArac?: KiralikArac;
@@ -150,6 +167,8 @@ export interface ImmCoverage {
  * özel sağlık hizmetlerine gelişmiş erişim ve düşük cepten ödemeler sunar.
  */
 export interface TssCoverage {
+  /** Polymorphic discriminator. Must serialize first; the SDK enforces this on write. */
+  readonly $type: 'tss';
   readonly productBranch: ProductBranch.Tss;
   readonly hastaneAgi?: HastaneAgi;
   readonly saglikPaketi?: SaglikPaketi;
@@ -182,6 +201,8 @@ export interface TssCoverage {
  * Türk sigorta sisteminde zorunlu trafik (mali sorumluluk) sigortası teminatını temsil eder.
  */
 export interface TrafikCoverage {
+  /** Polymorphic discriminator. Must serialize first; the SDK enforces this on write. */
+  readonly $type: 'trafik';
   readonly productBranch: ProductBranch.Trafik;
   readonly maddiHasarAracBasina?: CoverageValue;
   readonly maddiHasarKazaBasina?: CoverageValue;
@@ -204,6 +225,8 @@ export interface TrafikCoverage {
  * Özel Sağlık Sigortası (OSS) teminatını temsil eder.
  */
 export interface OssCoverage {
+  /** Polymorphic discriminator. Must serialize first; the SDK enforces this on write. */
+  readonly $type: 'oss';
   readonly productBranch: ProductBranch.Oss;
   readonly paketSecimi?: OssPaketSecimi;
   readonly networkSecimi?: OssNetworkSecimi;
@@ -218,6 +241,8 @@ export interface OssCoverage {
  * Sağlık Sigortası teminatını temsil eder ("Doktorum" paketleri).
  */
 export interface SaglikCoverage {
+  /** Polymorphic discriminator. Must serialize first; the SDK enforces this on write. */
+  readonly $type: 'saglik';
   readonly productBranch: ProductBranch.Saglik;
   readonly paket?: DoktorumPaket;
   readonly yatarakTedavi?: CoverageValue;
@@ -234,6 +259,8 @@ export interface SaglikCoverage {
  * Seyahat Sağlık Sigortası teminatını temsil eder.
  */
 export interface SeyahatSaglikCoverage {
+  /** Polymorphic discriminator. Must serialize first; the SDK enforces this on write. */
+  readonly $type: 'seyahatSaglik';
   readonly productBranch: ProductBranch.Seyahat;
   readonly tibbiTedavi?: CoverageValue;
   readonly tibbiAmacliNakil?: CoverageValue;
@@ -260,6 +287,8 @@ export interface SeyahatSaglikCoverage {
  * Yabancı Sağlık Sigortası teminatını temsil eder.
  */
 export interface YabanciSaglikCoverage {
+  /** Polymorphic discriminator. Must serialize first; the SDK enforces this on write. */
+  readonly $type: 'yabanciSaglik';
   readonly productBranch: ProductBranch.YabanciSaglik;
   readonly hastaneAgi?: HastaneAgi;
 }
@@ -272,6 +301,8 @@ export interface YabanciSaglikCoverage {
  * Belirli bir teminatın tanımlanmadığı teminat senaryoları için varsayılan veya null nesne deseni uygulaması olarak kullanılır.
  */
 export interface EmptyCoverage {
+  /** Polymorphic discriminator. Must serialize first; the SDK enforces this on write. */
+  readonly $type: 'empty';
   readonly productBranch: string;
 }
 
