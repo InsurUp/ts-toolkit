@@ -3,7 +3,8 @@
  * @description API endpoint definitions with identical names and render functions
  */
 
-import type { ConsentType } from '@insurup/contracts';
+import type { ConsentType, VehicleUtilizationStyle } from '@insurup/contracts';
+import { VehicleUtilizationStyleOrdinal } from '@insurup/contracts';
 
 /**
  * Contact form endpoints
@@ -843,12 +844,12 @@ export const filePolicyTransfers = {
 export const coverageChoices = {
   getKaskoCoverageChoices: {
     definition: 'coverage-choices:kasko',
-    render: (vehicleUtilizationStyle?: string): string =>
+    // The backend binds the enum from the query string by its integer ordinal,
+    // not its JSON wire value (see InsurUpApiEndpoints.cs / issue #69), so send
+    // the ordinal — sending the string (PRIVATE_CAR) fails model binding → 400.
+    render: (vehicleUtilizationStyle?: VehicleUtilizationStyle): string =>
       vehicleUtilizationStyle !== undefined
-        ? 'coverage-choices:kasko?vehicleUtilizationStyle={vehicleUtilizationStyle}'.replace(
-            '{vehicleUtilizationStyle}',
-            encodeURIComponent(vehicleUtilizationStyle)
-          )
+        ? `coverage-choices:kasko?vehicleUtilizationStyle=${VehicleUtilizationStyleOrdinal[vehicleUtilizationStyle]}`
         : 'coverage-choices:kasko',
   },
 
