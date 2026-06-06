@@ -27,143 +27,455 @@ import type { LossPayeeClause } from './common.property.js';
  */
 export enum VehicleUtilizationStyle {
   /**
-   * Vehicle utilization style is unknown or not yet determined.
-   * Araç kullanım tarzı bilinmiyor veya henüz belirlenmedi.
+   * Unknown / Bilinmeyen
    */
   Unknown = 'UNKNOWN',
 
   /**
-   * Private passenger car for personal transportation.
-   * Kişisel ulaşım için özel binek otomobil.
+   * Private Car / Özel Otomobil
    */
   PrivateCar = 'PRIVATE_CAR',
 
   /**
-   * Commercial taxi service for passenger transportation.
-   * Yolcu taşımacılığı için ticari taksi hizmeti.
+   * Taxi / Taksi
    */
   Taxi = 'TAXI',
 
   /**
-   * Route-based minibus service for scheduled passenger transport.
-   * Planlı yolcu taşımacılığı için güzergah bazlı minibüs hizmeti.
+   * Route-Based Minibus / Güzergah Bazlı Minibüs
    */
   RouteBasedMinibus = 'ROUTE_BASED_MINIBUS',
 
   /**
-   * Medium-sized bus for passenger transportation.
-   * Yolcu taşımacılığı için orta boy otobüs.
+   * Medium Bus / Orta Boy Otobüs
    */
   MediumBus = 'MEDIUM_BUS',
 
   /**
-   * Large bus for high-capacity passenger transportation.
-   * Yüksek kapasiteli yolcu taşımacılığı için büyük otobüs.
+   * Large Bus / Büyük Otobüs
    */
   LargeBus = 'LARGE_BUS',
 
   /**
-   * Pickup truck for cargo and utility purposes.
-   * Kargo ve hizmet amaçları için kamyonet.
+   * Pickup Truck / Pikap
    */
   PickupTruck = 'PICKUP_TRUCK',
 
   /**
-   * Panel van for cargo transportation.
-   * Kargo taşımacılığı için panel van.
+   * Closed-Bed Pickup / Kapalı Kasa Pikap
    */
-  PanelVan = 'PANEL_VAN',
+  ClosedBedPickup = 'CLOSED_BED_PICKUP',
 
   /**
-   * Truck for heavy cargo transportation.
-   * Ağır kargo taşımacılığı için kamyon.
+   * Truck / Kamyon
    */
   Truck = 'TRUCK',
 
   /**
-   * Tractor unit for pulling trailers.
-   * Römork çekmek için çekici.
+   * Construction Machinery / İnşaat Makinesi
+   */
+  ConstructionMachinery = 'CONSTRUCTION_MACHINERY',
+
+  /**
+   * Tractor / Traktör
    */
   Tractor = 'TRACTOR',
 
   /**
-   * Motorcycle for personal transportation.
-   * Kişisel ulaşım için motosiklet.
+   * Trailer / Römork
+   */
+  Trailer = 'TRAILER',
+
+  /**
+   * Motorcycle / Motosiklet
    */
   Motorcycle = 'MOTORCYCLE',
 
   /**
-   * Rental car for temporary use.
-   * Geçici kullanım için kiralık araç.
+   * Tanker / Tanker
+   */
+  Tanker = 'TANKER',
+
+  /**
+   * Tow Truck / Çekici
+   */
+  TowTruck = 'TOW_TRUCK',
+
+  /**
+   * Motorized Caravan / Motorlu Karavan
+   */
+  MotorizedCaravan = 'MOTORIZED_CARAVAN',
+
+  /**
+   * Towable Caravan / Çekilebilir Karavan
+   */
+  TowableCaravan = 'TOWABLE_CARAVAN',
+
+  /**
+   * Agricultural Machine (Excluding Tractor) / Traktör Hariç Tarım Makinesi
+   */
+  AgriculturalMachineExcludingTractor = 'AGRICULTURAL_MACHINE_EXCLUDING_TRACTOR',
+
+  /**
+   * Open-Body Truck / Açık Kasa Kamyon
+   */
+  OpenBodyTruck = 'OPEN_BODY_TRUCK',
+
+  /**
+   * Rental Car / Kiralık Otomobil
    */
   RentalCar = 'RENTAL_CAR',
 
   /**
-   * Armored vehicle for security and protection services.
-   * Güvenlik ve koruma hizmetleri için zırhlı araç.
+   * Armored Vehicle / Zırhlı Araç
    */
   ArmoredVehicle = 'ARMORED_VEHICLE',
 
   /**
-   * Shared taxi minibus (dolmuş) for public transportation.
-   * Toplu taşıma için dolmuş minibüs.
+   * Shared Taxi (Dolmuş) / Dolmuş
    */
   MinibusSharedTaxi = 'MINIBUS_SHARED_TAXI',
 
   /**
-   * Jeep for off-road and general purpose use.
-   * Arazi ve genel amaçlı kullanım için jeep.
+   * Jeep / Cip
    */
   Jeep = 'JEEP',
 
   /**
-   * Sport Activity Vehicle (SAV) jeep for recreational use.
-   * Rekreasyonel kullanım için Spor Aktivite Aracı (SAV) jeep.
+   * Jeep Sport Activity Vehicle (SAV) / Cip Spor Aktivite Aracı (SAV)
    */
   JeepSAV = 'JEEP_SAV',
 
   /**
-   * Sport Utility Vehicle (SUV) jeep for versatile use.
-   * Çok amaçlı kullanım için Spor Kullanım Aracı (SUV) jeep.
+   * Jeep Sport Utility Vehicle (SUV) / Cip Spor Kullanım Aracı (SUV)
    */
   JeepSUV = 'JEEP_SUV',
 
   /**
-   * Hearse for funeral services.
-   * Cenaze hizmetleri için cenaze arabası.
+   * Rental Jeep / Kiralık Cip
+   */
+  JeepRental = 'JEEP_RENTAL',
+
+  /**
+   * Jeep Used as Taxi / Taksi Olarak Kullanılan Cip
+   */
+  JeepTaxi = 'JEEP_TAXI',
+
+  /**
+   * Ambulance / Ambulans
+   */
+  Ambulance = 'AMBULANCE',
+
+  /**
+   * Fire Department Vehicle / İtfaiye Aracı
+   */
+  FirefighterCar = 'FIREFIGHTER_CAR',
+
+  /**
+   * Hearse / Cenaze Aracı
    */
   Hearse = 'HEARSE',
 
   /**
-   * Rental car with chauffeur service.
-   * Şoförlü kiralık araç hizmeti.
+   * Chauffeured Rental Car / Şoförlü Kiralık Araç
    */
   ChauffeuredRentalCar = 'CHAUFFEURED_RENTAL_CAR',
 
   /**
-   * Operational rental for business fleet use.
-   * İş filo kullanımı için operasyonel kiralık araç.
+   * Operational Rental / Operasyonel Kiralık Araç
    */
   OperationalRental = 'OPERATIONAL_RENTAL',
 
   /**
-   * Private minibus for personal or family use.
-   * Kişisel veya aile kullanımı için özel minibüs.
+   * Private Minibus / Özel Minibüs
    */
   PrivateMinibus = 'PRIVATE_MINIBUS',
 
   /**
-   * Route minibus for scheduled public transportation.
-   * Planlı toplu taşıma için güzergah minibüsü.
+   * Route Minibus / Güzergah Minibüsü
    */
   RouteMinibus = 'ROUTE_MINIBUS',
 
   /**
-   * Service minibus for employee or student transportation.
-   * Çalışan veya öğrenci taşımacılığı için servis minibüsü.
+   * Service Minibus / Servis Minibüsü
    */
   ServiceMinibus = 'SERVICE_MINIBUS',
+
+  /**
+   * Company Minibus / Şirket Minibüsü
+   */
+  CompanyMinibus = 'COMPANY_MINIBUS',
+
+  /**
+   * Rental Minibus / Kiralık Minibüs
+   */
+  RentalMinibus = 'RENTAL_MINIBUS',
+
+  /**
+   * Ambulance Minibus / Ambulans Minibüsü
+   */
+  AmbulanceMinibus = 'AMBULANCE_MINIBUS',
+
+  /**
+   * Minibus for Broadcasting / Yayın Minibüsü
+   */
+  MinibusBroadcastingVehicle = 'MINIBUS_BROADCASTING_VEHICLE',
+
+  /**
+   * Armored Transport Minibus / Zırhlı Nakliye Minibüsü
+   */
+  MinibusArmoredTransport = 'MINIBUS_ARMORED_TRANSPORT',
+
+  /**
+   * Small Bus (15-35 Passengers) / 15-35 Yolcu Kapasiteli Küçük Otobüs
+   */
+  SmallBus1535Passengers = 'SMALL_BUS_15_35_PASSENGERS',
+
+  /**
+   * Small Bus for Service / Servis için Küçük Otobüs
+   */
+  SmallBusService = 'SMALL_BUS_SERVICE',
+
+  /**
+   * Small Bus for City / Şehir içi Küçük Otobüs
+   */
+  SmallBusCity = 'SMALL_BUS_CITY',
+
+  /**
+   * Small Bus for Route / Güzergah için Küçük Otobüs
+   */
+  SmallBusRoute = 'SMALL_BUS_ROUTE',
+
+  /**
+   * Large Bus (Over 36 Passengers) / 36'dan Fazla Yolcu Kapasiteli Büyük Otobüs
+   */
+  LargeBus36Plus = 'LARGE_BUS_36_PLUS',
+
+  /**
+   * Dump Truck / Damperli Kamyon
+   */
+  DumpTruck = 'DUMP_TRUCK',
+
+  /**
+   * Refrigerated Truck / Frigorifik Kamyon
+   */
+  RefrigeratedTruck = 'REFRIGERATED_TRUCK',
+
+  /**
+   * Truck with Concrete Mixer / Beton Mikseri Kamyonu
+   */
+  TruckWithConcreteMixer = 'TRUCK_WITH_CONCRETE_MIXER',
+
+  /**
+   * Silo Truck / Silo Kamyonu
+   */
+  SiloTruck = 'SILO_TRUCK',
+
+  /**
+   * Truck with Concrete Pump / Beton Pompası Kamyonu
+   */
+  TruckWithConcretePump = 'TRUCK_WITH_CONCRETE_PUMP',
+
+  /**
+   * Rock Truck / Kaya Kamyonu
+   */
+  RockTruck = 'ROCK_TRUCK',
+
+  /**
+   * Truck with Crane / Vinçli Kamyon
+   */
+  TruckWithCrane = 'TRUCK_WITH_CRANE',
+
+  /**
+   * Heavy Machinery / Ağır Makineler
+   */
+  HeavyMachinery = 'HEAVY_MACHINERY',
+
+  /**
+   * Excavator / Ekskavatör
+   */
+  Excavator = 'EXCAVATOR',
+
+  /**
+   * Loader / Yükleyici
+   */
+  Loader = 'LOADER',
+
+  /**
+   * Bulldozer / Buldozer
+   */
+  Bulldozer = 'BULLDOZER',
+
+  /**
+   * Scraper / Skreyper
+   */
+  Scraper = 'SCRAPER',
+
+  /**
+   * Grader / Greyder
+   */
+  Grader = 'GRADER',
+
+  /**
+   * Road Roller / Yol Silindiri
+   */
+  RoadRoller = 'ROAD_ROLLER',
+
+  /**
+   * Mobile Crane / Mobil Vinç
+   */
+  MobileCrane = 'MOBILE_CRANE',
+
+  /**
+   * Indoor Forklift / İç mekan forklift
+   */
+  IndoorForklift = 'INDOOR_FORKLIFT',
+
+  /**
+   * Outdoor Forklift / Dış mekan forklift
+   */
+  OutdoorForklift = 'OUTDOOR_FORKLIFT',
+
+  /**
+   * Mobile Compressor / Mobil Kompresör
+   */
+  MobileCompressor = 'MOBILE_COMPRESSOR',
+
+  /**
+   * Mobile Pump / Mobil Pompa
+   */
+  MobilePump = 'MOBILE_PUMP',
+
+  /**
+   * Mobile Welding Machine / Mobil Kaynak Makinesi
+   */
+  MobileWeldingMachine = 'MOBILE_WELDING_MACHINE',
+
+  /**
+   * Combine Harvester / Biçerdöver
+   */
+  CombineHarvester = 'COMBINE_HARVESTER',
+
+  /**
+   * Tanker Acid Carrier / Asit Taşıyıcı Tanker
+   */
+  TankerAcidCarrier = 'TANKER_ACID_CARRIER',
+
+  /**
+   * Tanker Water/Fuel Carrier / Su/yakıt Taşıyıcı Tanker
+   */
+  TankerWaterFuelCarrier = 'TANKER_WATER_FUEL_CARRIER',
+
+  /**
+   * Tanker Explosive/Flammable Carrier / Patlayıcı/yanıcı madde Taşıyıcı Tanker
+   */
+  TankerExplosiveFlammable = 'TANKER_EXPLOSIVE_FLAMMABLE',
+
+  /**
+   * Tow Truck with Tractor / Çekici Traktör
+   */
+  TowTruckTractor = 'TOW_TRUCK_TRACTOR',
+
+  /**
+   * Tow Truck with Tanker / Tanker Çekici
+   */
+  TowTruckTanker = 'TOW_TRUCK_TANKER',
+
+  /**
+   * Panel/Glass Van Pickup / Panel/Camlı Van Kamyonet
+   */
+  PanelGlassVanKamyonet = 'PANEL_GLASS_VAN_MINUBUS',
 }
+
+/**
+ * Maps each {@link VehicleUtilizationStyle} to the integer ordinal the backend
+ * expects when the value is supplied as a query-string parameter.
+ *
+ * The backend enum is decorated with `[JsonStringEnumConverter]`, so the wire
+ * string (e.g. `PRIVATE_CAR`) only binds for JSON request bodies. ASP.NET
+ * query-string model binding instead parses the C# member name or the integer
+ * value, so query params must send the ordinal — mirroring
+ * `InsurUpApiEndpoints.cs` which renders `?vehicleUtilizationStyle={(int)value}`.
+ *
+ * Ordinals match the C# enum's explicit values (0-71, in declaration order).
+ *
+ * Her {@link VehicleUtilizationStyle} değerini, query-string parametresi olarak
+ * gönderildiğinde backend'in beklediği tamsayı ordinaline eşler.
+ */
+export const VehicleUtilizationStyleOrdinal: Record<VehicleUtilizationStyle, number> = {
+  [VehicleUtilizationStyle.Unknown]: 0,
+  [VehicleUtilizationStyle.PrivateCar]: 1,
+  [VehicleUtilizationStyle.Taxi]: 2,
+  [VehicleUtilizationStyle.RouteBasedMinibus]: 3,
+  [VehicleUtilizationStyle.MediumBus]: 4,
+  [VehicleUtilizationStyle.LargeBus]: 5,
+  [VehicleUtilizationStyle.PickupTruck]: 6,
+  [VehicleUtilizationStyle.ClosedBedPickup]: 7,
+  [VehicleUtilizationStyle.Truck]: 8,
+  [VehicleUtilizationStyle.ConstructionMachinery]: 9,
+  [VehicleUtilizationStyle.Tractor]: 10,
+  [VehicleUtilizationStyle.Trailer]: 11,
+  [VehicleUtilizationStyle.Motorcycle]: 12,
+  [VehicleUtilizationStyle.Tanker]: 13,
+  [VehicleUtilizationStyle.TowTruck]: 14,
+  [VehicleUtilizationStyle.MotorizedCaravan]: 15,
+  [VehicleUtilizationStyle.TowableCaravan]: 16,
+  [VehicleUtilizationStyle.AgriculturalMachineExcludingTractor]: 17,
+  [VehicleUtilizationStyle.OpenBodyTruck]: 18,
+  [VehicleUtilizationStyle.RentalCar]: 19,
+  [VehicleUtilizationStyle.ArmoredVehicle]: 20,
+  [VehicleUtilizationStyle.MinibusSharedTaxi]: 21,
+  [VehicleUtilizationStyle.Jeep]: 22,
+  [VehicleUtilizationStyle.JeepSAV]: 23,
+  [VehicleUtilizationStyle.JeepSUV]: 24,
+  [VehicleUtilizationStyle.JeepRental]: 25,
+  [VehicleUtilizationStyle.JeepTaxi]: 26,
+  [VehicleUtilizationStyle.Ambulance]: 27,
+  [VehicleUtilizationStyle.FirefighterCar]: 28,
+  [VehicleUtilizationStyle.Hearse]: 29,
+  [VehicleUtilizationStyle.ChauffeuredRentalCar]: 30,
+  [VehicleUtilizationStyle.OperationalRental]: 31,
+  [VehicleUtilizationStyle.PrivateMinibus]: 32,
+  [VehicleUtilizationStyle.RouteMinibus]: 33,
+  [VehicleUtilizationStyle.ServiceMinibus]: 34,
+  [VehicleUtilizationStyle.CompanyMinibus]: 35,
+  [VehicleUtilizationStyle.RentalMinibus]: 36,
+  [VehicleUtilizationStyle.AmbulanceMinibus]: 37,
+  [VehicleUtilizationStyle.MinibusBroadcastingVehicle]: 38,
+  [VehicleUtilizationStyle.MinibusArmoredTransport]: 39,
+  [VehicleUtilizationStyle.SmallBus1535Passengers]: 40,
+  [VehicleUtilizationStyle.SmallBusService]: 41,
+  [VehicleUtilizationStyle.SmallBusCity]: 42,
+  [VehicleUtilizationStyle.SmallBusRoute]: 43,
+  [VehicleUtilizationStyle.LargeBus36Plus]: 44,
+  [VehicleUtilizationStyle.DumpTruck]: 45,
+  [VehicleUtilizationStyle.RefrigeratedTruck]: 46,
+  [VehicleUtilizationStyle.TruckWithConcreteMixer]: 47,
+  [VehicleUtilizationStyle.SiloTruck]: 48,
+  [VehicleUtilizationStyle.TruckWithConcretePump]: 49,
+  [VehicleUtilizationStyle.RockTruck]: 50,
+  [VehicleUtilizationStyle.TruckWithCrane]: 51,
+  [VehicleUtilizationStyle.HeavyMachinery]: 52,
+  [VehicleUtilizationStyle.Excavator]: 53,
+  [VehicleUtilizationStyle.Loader]: 54,
+  [VehicleUtilizationStyle.Bulldozer]: 55,
+  [VehicleUtilizationStyle.Scraper]: 56,
+  [VehicleUtilizationStyle.Grader]: 57,
+  [VehicleUtilizationStyle.RoadRoller]: 58,
+  [VehicleUtilizationStyle.MobileCrane]: 59,
+  [VehicleUtilizationStyle.IndoorForklift]: 60,
+  [VehicleUtilizationStyle.OutdoorForklift]: 61,
+  [VehicleUtilizationStyle.MobileCompressor]: 62,
+  [VehicleUtilizationStyle.MobilePump]: 63,
+  [VehicleUtilizationStyle.MobileWeldingMachine]: 64,
+  [VehicleUtilizationStyle.CombineHarvester]: 65,
+  [VehicleUtilizationStyle.TankerAcidCarrier]: 66,
+  [VehicleUtilizationStyle.TankerWaterFuelCarrier]: 67,
+  [VehicleUtilizationStyle.TankerExplosiveFlammable]: 68,
+  [VehicleUtilizationStyle.TowTruckTractor]: 69,
+  [VehicleUtilizationStyle.TowTruckTanker]: 70,
+  [VehicleUtilizationStyle.PanelGlassVanKamyonet]: 71,
+};
 
 /**
  * Vehicle Fuel Types

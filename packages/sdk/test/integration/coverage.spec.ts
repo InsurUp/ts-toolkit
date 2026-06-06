@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { http, HttpResponse } from 'msw';
-import { ProductBranch } from '@insurup/sdk';
+import { ProductBranch, VehicleUtilizationStyle } from '@insurup/sdk';
 import type { KaskoCoverage } from '@insurup/sdk';
 import { BASE_URL, server } from './server';
 import { setupIntegrationTest } from './setup';
@@ -167,7 +167,7 @@ describe('CoverageClient', () => {
     }
   });
 
-  it('getKaskoCoverageChoices appends vehicleUtilizationStyle filter when provided', async () => {
+  it('getKaskoCoverageChoices omits the filter when no style is provided', async () => {
     let capturedUrl: string | undefined;
     server.use(
       http.get(`${BASE_URL}/coverage-choices:kasko`, ({ request }) => {
@@ -181,6 +181,32 @@ describe('CoverageClient', () => {
     const result = await t.client.coverage.getKaskoCoverageChoices();
 
     expect(capturedUrl).toContain('/coverage-choices:kasko');
+    expect(capturedUrl).not.toContain('vehicleUtilizationStyle');
+    expect(result.kind).toBe('success');
+    if (result.kind === 'success') {
+      expect(result.data).toHaveLength(1);
+    }
+  });
+
+  it('getKaskoCoverageChoices appends the integer ordinal for the vehicle utilization style', async () => {
+    let capturedUrl: string | undefined;
+    server.use(
+      http.get(`${BASE_URL}/coverage-choices:kasko`, ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json([
+          { insuranceCompanyId: 1, productType: 'WEB_SERVICE', coverageChoices: {} },
+        ]);
+      })
+    );
+
+    // PrivateCar serializes to ordinal 1, not its JSON wire value 'PRIVATE_CAR'.
+    const result = await t.client.coverage.getKaskoCoverageChoices(
+      VehicleUtilizationStyle.PrivateCar
+    );
+
+    expect(capturedUrl).toBeDefined();
+    expect(new URL(capturedUrl as string).searchParams.get('vehicleUtilizationStyle')).toBe('1');
+    expect(capturedUrl).not.toContain('PRIVATE_CAR');
     expect(result.kind).toBe('success');
     if (result.kind === 'success') {
       expect(result.data).toHaveLength(1);
