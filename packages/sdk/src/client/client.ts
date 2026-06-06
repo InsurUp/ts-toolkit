@@ -20,6 +20,7 @@ import { InsurUpPropertyClient } from '../clients/property.js';
 import { InsurUpPolicyClient } from '../clients/policy.js';
 import { InsurUpCaseClient } from '../clients/case.js';
 import { InsurUpWebhookClient } from '../clients/webhook.js';
+import { InsurUpPluginClient } from '../clients/plugin.js';
 import { InsurUpCoverageClient } from '../clients/coverage.js';
 import { InsurUpInsuranceClient } from '../clients/insurance.js';
 import { InsurUpProposalClient } from '../clients/proposal.js';
@@ -127,6 +128,15 @@ export class DefaultInsurUpClient<TContext = void> {
   public readonly webhooks: InsurUpWebhookClient;
 
   /**
+   * Plugin Management Client
+   *
+   * Provides server-side plugin management operations for installing and upgrading plugin bundles,
+   * selecting the active version, toggling enablement, configuring per-agent settings, and inspecting
+   * invocation logs within the InsurUp platform ecosystem.
+   */
+  public readonly plugins: InsurUpPluginClient;
+
+  /**
    * Coverage Management Client
    *
    * Provides coverage management operations for configuring insurance product coverages, managing coverage groups,
@@ -217,6 +227,7 @@ export class DefaultInsurUpClient<TContext = void> {
     this.policies = new InsurUpPolicyClient(this.http, this.graphql);
     this.cases = new InsurUpCaseClient(this.http, this.graphql);
     this.webhooks = new InsurUpWebhookClient(this.http, this.graphql);
+    this.plugins = new InsurUpPluginClient(this.http);
     this.coverage = new InsurUpCoverageClient(this.http);
     this.insurance = new InsurUpInsuranceClient(this.http);
     this.proposals = new InsurUpProposalClient(this.http, this.graphql, this.signalR);
