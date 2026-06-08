@@ -1042,6 +1042,71 @@ export const webhooks = {
 } as const;
 
 /**
+ * Plugin management endpoints
+ */
+export const plugins = {
+  getAll: 'plugins',
+  upload: 'plugins',
+
+  getById: {
+    definition: 'plugins/{PluginId}',
+    render: (pluginId: string): string =>
+      'plugins/{PluginId}'.replace('{PluginId}', encodeURIComponent(pluginId)),
+  },
+
+  delete: {
+    definition: 'plugins/{PluginId}',
+    render: (pluginId: string): string =>
+      'plugins/{PluginId}'.replace('{PluginId}', encodeURIComponent(pluginId)),
+  },
+
+  activate: {
+    definition: 'plugins/{PluginId}/activate',
+    render: (pluginId: string): string =>
+      'plugins/{PluginId}/activate'.replace('{PluginId}', encodeURIComponent(pluginId)),
+  },
+
+  enable: {
+    definition: 'plugins/{PluginId}/enable',
+    render: (pluginId: string): string =>
+      'plugins/{PluginId}/enable'.replace('{PluginId}', encodeURIComponent(pluginId)),
+  },
+
+  disable: {
+    definition: 'plugins/{PluginId}/disable',
+    render: (pluginId: string): string =>
+      'plugins/{PluginId}/disable'.replace('{PluginId}', encodeURIComponent(pluginId)),
+  },
+
+  updateConfig: {
+    definition: 'plugins/{PluginId}/config',
+    render: (pluginId: string): string =>
+      'plugins/{PluginId}/config'.replace('{PluginId}', encodeURIComponent(pluginId)),
+  },
+
+  setPriority: {
+    definition: 'plugins/{PluginId}/priority',
+    render: (pluginId: string): string =>
+      'plugins/{PluginId}/priority'.replace('{PluginId}', encodeURIComponent(pluginId)),
+  },
+
+  logs: {
+    definition: 'plugins/{PluginId}/logs',
+    render: (pluginId: string, options?: { limit?: number; hook?: string }): string => {
+      const base = 'plugins/{PluginId}/logs'.replace('{PluginId}', encodeURIComponent(pluginId));
+      const query: string[] = [];
+      if (options?.limit !== undefined) {
+        query.push('limit=' + encodeURIComponent(options.limit.toString()));
+      }
+      if (options?.hook !== undefined) {
+        query.push('hook=' + encodeURIComponent(options.hook));
+      }
+      return query.length > 0 ? base + '?' + query.join('&') : base;
+    },
+  },
+} as const;
+
+/**
  * OAuth client management endpoints
  */
 export const oauthClients = {
@@ -1284,6 +1349,7 @@ export const endpoints = {
   cases,
   coverageGroups,
   webhooks,
+  plugins,
   agentBranches,
   files,
   languages,

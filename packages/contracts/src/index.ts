@@ -17,6 +17,7 @@ export * from './files.js';
 export * from './languages.js';
 export * from './templates.js';
 export * from './webhooks.js';
+export * from './plugins.js';
 export * from './oauthClients.js';
 export * from './coverage.js';
 export * from './insurance.js';

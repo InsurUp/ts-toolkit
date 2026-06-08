@@ -30,6 +30,7 @@ export { InsurUpPropertyClient } from './clients/property.js';
 export { InsurUpPolicyClient } from './clients/policy.js';
 export { InsurUpCaseClient } from './clients/case.js';
 export { InsurUpWebhookClient } from './clients/webhook.js';
+export { InsurUpPluginClient } from './clients/plugin.js';
 export { InsurUpCoverageClient } from './clients/coverage.js';
 export { InsurUpInsuranceClient } from './clients/insurance.js';
 export { InsurUpProposalClient } from './clients/proposal.js';
