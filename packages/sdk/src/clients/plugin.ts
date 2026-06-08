@@ -115,6 +115,18 @@ export class InsurUpPluginClient {
   }
 
   /**
+   * Permanently removes the plugin and all of its versions. Cannot be undone.
+   *
+   * Eklentiyi ve tüm sürümlerini kalıcı olarak kaldırır. Geri alınamaz.
+   *
+   * @param pluginId Unique identifier of the plugin / Eklentinin benzersiz tanımlayıcısı
+   * @returns Operation result / İşlem sonucu
+   */
+  async deletePlugin(pluginId: string, options?: RequestOptions): Promise<InsurUpResult> {
+    return this.http.deleteNoContent(plugins.delete.render(pluginId), options);
+  }
+
+  /**
    * Sets the plugin's per-agent config. Values are validated against the active version's JSON Schema;
    * secret (`writeOnly`) fields are encrypted at rest.
    *

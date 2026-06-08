@@ -1054,6 +1054,12 @@ export const plugins = {
       'plugins/{PluginId}'.replace('{PluginId}', encodeURIComponent(pluginId)),
   },
 
+  delete: {
+    definition: 'plugins/{PluginId}',
+    render: (pluginId: string): string =>
+      'plugins/{PluginId}'.replace('{PluginId}', encodeURIComponent(pluginId)),
+  },
+
   activate: {
     definition: 'plugins/{PluginId}/activate',
     render: (pluginId: string): string =>
@@ -1086,14 +1092,14 @@ export const plugins = {
 
   logs: {
     definition: 'plugins/{PluginId}/logs',
-    render: (pluginId: string, options?: { limit?: number; hookName?: string }): string => {
+    render: (pluginId: string, options?: { limit?: number; hook?: string }): string => {
       const base = 'plugins/{PluginId}/logs'.replace('{PluginId}', encodeURIComponent(pluginId));
       const query: string[] = [];
       if (options?.limit !== undefined) {
         query.push('limit=' + encodeURIComponent(options.limit.toString()));
       }
-      if (options?.hookName !== undefined) {
-        query.push('hookName=' + encodeURIComponent(options.hookName));
+      if (options?.hook !== undefined) {
+        query.push('hook=' + encodeURIComponent(options.hook));
       }
       return query.length > 0 ? base + '?' + query.join('&') : base;
     },

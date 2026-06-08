@@ -8,32 +8,39 @@
  */
 
 /**
- * A hook a plugin version implements, identified by its numeric id (matches the backend `PluginHook`).
- * Event hooks are `on{EventName}` (0-16); sync hooks live in higher bands.
+ * A hook a plugin version implements, serialized as its wire name (matches the backend `PluginHook`,
+ * which uses `JsonStringEnumConverter` -> UPPER_SNAKE). Event hooks are `ON_*`; synchronous validation
+ * hooks are `VALIDATE_*`; synchronous transformation hooks are `TRANSFORM_*`. Append-only.
  *
- * Bir eklenti sürümünün uyguladığı kanca; sayısal kimliğiyle tanımlanır.
+ * Bir eklenti sürümünün uyguladığı kanca; tel adıyla (UPPER_SNAKE) temsil edilir.
  */
 export enum PluginHook {
-  OnProposalCreated = 0,
-  OnProposalProductPurchaseAttempted = 1,
-  OnProposalProductPremiumReceived = 2,
-  OnProposalProductCoverageReceived = 3,
-  OnPolicyCreatedOrUpdated = 4,
-  OnPolicyReceived = 5,
-  OnAsyncPolicyCreationResponded = 6,
-  OnCustomerUpdated = 7,
-  OnAssetCreated = 8,
-  OnAssetUpdated = 9,
-  OnAssetPolicyChanged = 10,
-  OnCaseCreated = 11,
-  OnCaseStateChanged = 12,
-  OnAgentCreated = 13,
-  OnAgentInsuranceCompanyUpdated = 14,
-  OnAgentInsuranceCompanyRemoved = 15,
-  OnAgentUserCreated = 16,
-  ValidateCustomer = 100_000,
-  MutateCustomer = 200_000,
-  DecorateIgwRequest = 300_000,
+  OnProposalCreated = 'ON_PROPOSAL_CREATED',
+  OnProposalProductPurchaseAttempted = 'ON_PROPOSAL_PRODUCT_PURCHASE_ATTEMPTED',
+  OnProposalProductPremiumReceived = 'ON_PROPOSAL_PRODUCT_PREMIUM_RECEIVED',
+  OnProposalProductCoverageReceived = 'ON_PROPOSAL_PRODUCT_COVERAGE_RECEIVED',
+  OnPolicyCreatedOrUpdated = 'ON_POLICY_CREATED_OR_UPDATED',
+  OnPolicyReceived = 'ON_POLICY_RECEIVED',
+  OnAsyncPolicyCreationResponded = 'ON_ASYNC_POLICY_CREATION_RESPONDED',
+  OnCustomerUpdated = 'ON_CUSTOMER_UPDATED',
+  OnAssetCreated = 'ON_ASSET_CREATED',
+  OnAssetUpdated = 'ON_ASSET_UPDATED',
+  OnAssetPolicyChanged = 'ON_ASSET_POLICY_CHANGED',
+  OnCaseCreated = 'ON_CASE_CREATED',
+  OnCaseStateChanged = 'ON_CASE_STATE_CHANGED',
+  OnAgentInsuranceCompanyUpdated = 'ON_AGENT_INSURANCE_COMPANY_UPDATED',
+  OnAgentInsuranceCompanyRemoved = 'ON_AGENT_INSURANCE_COMPANY_REMOVED',
+  OnAgentUserCreated = 'ON_AGENT_USER_CREATED',
+  ValidateCustomerCreate = 'VALIDATE_CUSTOMER_CREATE',
+  ValidateCustomerUpdate = 'VALIDATE_CUSTOMER_UPDATE',
+  ValidateProposalCreate = 'VALIDATE_PROPOSAL_CREATE',
+  ValidateProposalProductRevise = 'VALIDATE_PROPOSAL_PRODUCT_REVISE',
+  TransformCustomerCreate = 'TRANSFORM_CUSTOMER_CREATE',
+  TransformCustomerUpdate = 'TRANSFORM_CUSTOMER_UPDATE',
+  TransformIgwProposalCreate = 'TRANSFORM_IGW_PROPOSAL_CREATE',
+  TransformIgwPolicyCreate = 'TRANSFORM_IGW_POLICY_CREATE',
+  TransformIgwTramer = 'TRANSFORM_IGW_TRAMER',
+  TransformIgwMernis = 'TRANSFORM_IGW_MERNIS',
 }
 
 /**
@@ -42,7 +49,7 @@ export enum PluginHook {
  * Bir eklenti sürümünün hedeflediği çalışma zamanı.
  */
 export enum PluginRuntimeType {
-  JavaScriptJint = 1,
+  JavaScriptJint = 'JAVASCRIPT_JINT',
 }
 
 /**
@@ -52,13 +59,15 @@ export enum PluginRuntimeType {
  */
 export enum PluginOutcome {
   /** Ran to completion. */
-  Ok = 0,
+  Ok = 'OK',
   /** Threw an unhandled error inside the script. */
-  Faulted = 1,
+  Faulted = 'FAULTED',
   /** Exceeded its wall-clock budget. */
-  TimedOut = 2,
+  TimedOut = 'TIMED_OUT',
   /** Exceeded a statement/memory/read/http limit. */
-  LimitExceeded = 3,
+  LimitExceeded = 'LIMIT_EXCEEDED',
+  /** Skipped because the plugin's circuit breaker was open. */
+  Disabled = 'DISABLED',
 }
 
 /**
@@ -148,8 +157,8 @@ export interface PluginConsoleLine {
  * Kalıcı hale getirilmiş bir eklenti çalıştırma günlüğü kaydı.
  */
 export interface PluginInvocationLog {
-  /** The hook export that ran. */
-  readonly hookName: string;
+  /** The hook that ran. */
+  readonly hook: PluginHook;
   /** The plugin version that ran. */
   readonly pluginVersion: string;
   /** The invocation outcome. */
@@ -202,6 +211,6 @@ export interface SetPluginPriorityRequest {
 export interface GetPluginLogsOptions {
   /** Maximum number of entries to return (most recent first). Defaults to 100 server-side. */
   readonly limit?: number;
-  /** Optional hook-name filter (e.g. `onCustomerUpdated`). */
-  readonly hookName?: string;
+  /** Optional hook filter (e.g. `PluginHook.OnCustomerUpdated`). */
+  readonly hook?: PluginHook;
 }
