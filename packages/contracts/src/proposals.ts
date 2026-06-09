@@ -114,6 +114,58 @@ export enum ProposalProductState {
   Purchased = 'PURCHASED',
 }
 
+/**
+ * Earthquake Coverage Option
+ *
+ * Whether earthquake coverage is requested in a Konut (housing) proposal.
+ * Mirrors the backend `EarthquakeCoverageOption` enum, which carries no
+ * `JsonStringEnumConverter` and is therefore serialized as its numeric value
+ * over the wire.
+ *
+ * Konut sigortası teklifinde deprem teminatının istenip istenmediğini temsil eder.
+ * Tel üzerinde sayısal değeri ile serileştirilen arka uç `EarthquakeCoverageOption`
+ * enum'unu yansıtır.
+ */
+export enum EarthquakeCoverageOption {
+  /**
+   * Earthquake coverage is not requested.
+   * Deprem teminatı istenmemektedir.
+   */
+  No = 0,
+
+  /**
+   * Earthquake coverage is requested.
+   * Deprem teminatı istenmektedir.
+   */
+  Yes = 1,
+}
+
+/**
+ * Vacancy Duration Option
+ *
+ * How long a property has been vacant, for Konut (housing) proposals.
+ * Mirrors the backend `VacancyDurationOption` enum, which carries no
+ * `JsonStringEnumConverter` and is therefore serialized as its numeric value
+ * over the wire.
+ *
+ * Konut sigortası teklifleri için konutun boş kalma süresini temsil eder.
+ * Tel üzerinde sayısal değeri ile serileştirilen arka uç `VacancyDurationOption`
+ * enum'unu yansıtır.
+ */
+export enum VacancyDurationOption {
+  /**
+   * Property has been vacant for less than one month.
+   * Konut bir aydan az süredir boş.
+   */
+  LessThanOneMonth = 0,
+
+  /**
+   * Property has been vacant for more than one month.
+   * Konut bir aydan fazla süredir boş.
+   */
+  MoreThanOneMonth = 1,
+}
+
 // ============================================================================
 // PROPOSAL SNAPSHOT TYPES
 // ============================================================================
@@ -226,6 +278,13 @@ export type CreateProposalRequest =
       readonly $type: 'konut';
       readonly productBranch: ProductBranch.Konut;
       readonly propertyId: string;
+      readonly furniturePrice: number;
+      readonly electronicDevicePrice: number;
+      readonly insulationPrice: number;
+      readonly windowPrice: number;
+      readonly constructionCostPerSquareMeter?: number | null;
+      readonly earthquakeCoverageOption: EarthquakeCoverageOption;
+      readonly vacancyDurationOption: VacancyDurationOption;
       readonly coverage?: Extract<Coverage, { productBranch: ProductBranch.Konut }> | null;
     } & CreateProposalRequestBase)
   | ({
@@ -250,6 +309,12 @@ type CreateProposalRequestBase = {
   readonly insuredCustomerId: string;
   readonly coverageGroupIds?: string[] | null;
   readonly channel: Channel;
+  readonly agentBranchId?: string | null;
+  /**
+   * Policy start date, YYYY-MM-DD (DateOnly wire shape — same convention as
+   * CreateCustomerVehicleRequest.registrationDate).
+   */
+  readonly policyStartDate?: string | null;
 };
 
 /**
