@@ -23,6 +23,7 @@ import type {
   PersonWeight,
   ProposalSnapshotVehicle,
   ProposalSnapshotProperty,
+  CoverageTable,
 } from './common.js';
 import type { CustomerPhoneNumber } from './common.js';
 import type { Gender, Job, Surgery, Disease } from './customers.js';
@@ -542,6 +543,12 @@ export interface FetchProposalProductDocumentRequest {
    * Teklif içindeki ürünün benzersiz tanımlayıcısı
    */
   readonly proposalProductId: string;
+
+  /**
+   * Optional document language code (e.g. "tr", "en") for branches that issue multilingual documents
+   * Çok dilli belge sunan branşlar için isteğe bağlı belge dil kodu (örn. "tr", "en")
+   */
+  readonly language?: string | null;
 }
 
 /**
@@ -563,6 +570,12 @@ export interface FetchProposalInformationFormDocumentRequest {
    * Teklif içindeki ürünün benzersiz tanımlayıcısı
    */
   readonly proposalProductId: string;
+
+  /**
+   * Optional document language code (e.g. "tr", "en") for branches that issue multilingual documents
+   * Çok dilli belge sunan branşlar için isteğe bağlı belge dil kodu (örn. "tr", "en")
+   */
+  readonly language?: string | null;
 }
 
 /**
@@ -781,6 +794,47 @@ export interface RetryFailedProposalProductRequest {
   readonly proposalProductId: string;
 }
 
+/**
+ * Add Manual Product Request
+ *
+ * Request to attach a manually-quoted insurance product to an existing proposal,
+ * optionally with an agent-uploaded proposal PDF (sent as a multipart file).
+ *
+ * Mevcut bir teklife manuel fiyatlanmış sigorta ürünü ekleme talebi;
+ * isteğe bağlı olarak acente tarafından yüklenen teklif PDF'i ile (multipart dosya olarak gönderilir).
+ */
+export interface AddManualProductRequest {
+  /**
+   * The unique identifier of the proposal to attach the product to
+   * Ürünün ekleneceği teklifin benzersiz tanımlayıcısı
+   */
+  readonly proposalId: string;
+
+  /**
+   * Identifier of the insurance company providing the manual quote
+   * Manuel teklifi sunan sigorta şirketinin tanımlayıcısı
+   */
+  readonly insuranceCompanyId: number;
+
+  /**
+   * Identifier of the insurance product the manual quote belongs to
+   * Manuel teklifin ait olduğu sigorta ürününün tanımlayıcısı
+   */
+  readonly insuranceProductId: number;
+
+  /**
+   * Customer-paid total premium of the manual quote
+   * Manuel teklifin müşteri tarafından ödenen toplam primi
+   */
+  readonly grossPremium: number;
+
+  /**
+   * Insurance company's own proposal reference for the manual quote
+   * Manuel teklif için sigorta şirketinin kendi teklif referansı
+   */
+  readonly insuranceCompanyProposalNumber: string;
+}
+
 // ============================================================================
 // RESPONSE TYPES
 // ============================================================================
@@ -843,6 +897,12 @@ export interface GetProposalByIdResult {
    * Varsa, bu teklifi işleyen temsilciye referans
    */
   readonly representedBy?: UserReference | null;
+
+  /**
+   * Identifier of the agent branch this proposal is scoped to, if any
+   * Varsa, bu teklifin bağlı olduğu acente şubesinin tanımlayıcısı
+   */
+  readonly agentBranchId?: string | null;
 
   /**
    * Timestamp when this proposal was created
@@ -988,10 +1048,28 @@ export interface GetProposalByIdResult {
     readonly hasUndamagedDiscount: boolean;
 
     /**
+     * No-claims discount rate as a decimal fraction, when one is applied
+     * Uygulandığında ondalık oran olarak hasarsızlık indirim oranı
+     */
+    readonly hasUndamagedDiscountRate?: number | null;
+
+    /**
      * Indicates if this product quote has been revised
      * Bu ürün teklifinin revize edilip edilmediğini gösterir
      */
     readonly revised: boolean;
+
+    /**
+     * Indicates if this product was added manually by the agent rather than quoted automatically
+     * Bu ürünün otomatik fiyatlandırma yerine acente tarafından manuel eklenip eklenmediğini gösterir
+     */
+    readonly isManual: boolean;
+
+    /**
+     * Storage URL of the agent-uploaded PDF for manual products, when one was attached
+     * Manuel ürünler için acentenin yüklediği PDF'in depolama URL'si (eklendiyse)
+     */
+    readonly manualPdfUrl?: string | null;
 
     /**
      * Policy identifier if this product has been purchased
@@ -1022,6 +1100,12 @@ export interface GetProposalByIdResult {
      * Bu belirli ürün için talep edilen orijinal teminat
      */
     readonly initialCoverage?: Coverage | null;
+
+    /**
+     * Merged coverage view (priority: PDF > service provider > initial) — what the UI displays
+     * Birleştirilmiş teminat görünümü (öncelik: PDF > servis sağlayıcı > başlangıç) — UI'da gösterilen
+     */
+    readonly optimalCoverage?: Coverage | null;
 
     /**
      * Name of the insurance company providing this quote
@@ -1073,8 +1157,20 @@ export interface GetProposalByIdResult {
   readonly snapshot: ProposalSnapshot;
 
   /**
-   * Coverage groups available for this proposal type
-   * Bu teklif türü için mevcut teminat grupları
+   * Policy coverage start date selected at creation (ISO date), or null for "default to today"
+   * Oluşturma sırasında seçilen poliçe başlangıç tarihi (ISO tarih) veya "bugünden itibaren" için null
+   */
+  readonly policyStartDate?: string | null;
+
+  /**
+   * Policy coverage end date (ISO date), when known
+   * Bilindiğinde poliçe bitiş tarihi (ISO tarih)
+   */
+  readonly policyEndDate?: string | null;
+
+  /**
+   * Coverage groups the proposal was created with (snapshot of name + coverage table at creation time)
+   * Teklifin oluşturulduğu teminat grupları (oluşturma anındaki ad + teminat tablosu anlık görüntüsü)
    */
   readonly coverageGroups: readonly {
     /**
@@ -1084,16 +1180,22 @@ export interface GetProposalByIdResult {
     readonly id: string;
 
     /**
-     * Coverage configuration for this group
-     * Bu grup için teminat konfigürasyonu
+     * Coverage table as applied to this proposal
+     * Bu teklife uygulanan teminat tablosu
      */
-    readonly coverage: Coverage;
+    readonly coverageTable: CoverageTable;
 
     /**
      * Display name for this coverage group
      * Bu teminat grubunun görüntüleme adı
      */
     readonly name: string;
+
+    /**
+     * Optional descriptive note for this coverage group
+     * Bu teminat grubu için isteğe bağlı açıklayıcı not
+     */
+    readonly description?: string | null;
   }[];
 }
 

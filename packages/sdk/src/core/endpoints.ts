@@ -610,13 +610,21 @@ export const proposals = {
   },
 
   getProposalProductPremiumDetail: {
-    definition:
-      'proposals/{ProposalId}/products/{ProposalProductId}/premium-detail/{InstallmentNumber}',
+    definition: 'proposals/{ProposalId}/products/{ProposalProductId}/premiums/{InstallmentNumber}',
     render: (proposalId: string, proposalProductId: string, installmentNumber: number): string =>
-      'proposals/{ProposalId}/products/{ProposalProductId}/premium-detail/{InstallmentNumber}'
+      'proposals/{ProposalId}/products/{ProposalProductId}/premiums/{InstallmentNumber}'
         .replace('{ProposalId}', encodeURIComponent(proposalId))
         .replace('{ProposalProductId}', encodeURIComponent(proposalProductId))
         .replace('{InstallmentNumber}', encodeURIComponent(installmentNumber.toString())),
+  },
+
+  addManualProduct: {
+    definition: 'proposals/{ProposalId}/products/manual',
+    render: (proposalId: string): string =>
+      'proposals/{ProposalId}/products/manual'.replace(
+        '{ProposalId}',
+        encodeURIComponent(proposalId)
+      ),
   },
 
   purchaseProposalProductSync: {
@@ -658,9 +666,9 @@ export const proposals = {
   },
 
   fetchProposalInformationFormDocument: {
-    definition: 'proposals/{ProposalId}/products/{ProposalProductId}/information-form',
+    definition: 'proposals/{ProposalId}/products/{ProposalProductId}/information-form-document',
     render: (proposalId: string, proposalProductId: string): string =>
-      'proposals/{ProposalId}/products/{ProposalProductId}/information-form'
+      'proposals/{ProposalId}/products/{ProposalProductId}/information-form-document'
         .replace('{ProposalId}', encodeURIComponent(proposalId))
         .replace('{ProposalProductId}', encodeURIComponent(proposalProductId)),
   },
@@ -674,9 +682,10 @@ export const proposals = {
   },
 
   sendProposalInformationFormDocument: {
-    definition: 'proposals/{ProposalId}/products/{ProposalProductId}/information-form/send',
+    definition:
+      'proposals/{ProposalId}/products/{ProposalProductId}/information-form-document/send',
     render: (proposalId: string, proposalProductId: string): string =>
-      'proposals/{ProposalId}/products/{ProposalProductId}/information-form/send'
+      'proposals/{ProposalId}/products/{ProposalProductId}/information-form-document/send'
         .replace('{ProposalId}', encodeURIComponent(proposalId))
         .replace('{ProposalProductId}', encodeURIComponent(proposalProductId)),
   },
@@ -715,9 +724,9 @@ export const proposals = {
   },
 
   generateCustomerProposalDocumentPdf: {
-    definition: 'proposals/{ProposalId}/customer-document-pdf',
+    definition: 'proposals/{ProposalId}/products/customer-document-pdf',
     render: (proposalId: string): string =>
-      'proposals/{ProposalId}/customer-document-pdf'.replace(
+      'proposals/{ProposalId}/products/customer-document-pdf'.replace(
         '{ProposalId}',
         encodeURIComponent(proposalId)
       ),
