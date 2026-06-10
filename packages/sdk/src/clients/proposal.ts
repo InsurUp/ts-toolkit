@@ -42,6 +42,7 @@ import type {
   SendCompareProposalProductsPdfRequest,
   SetProposalRepresentativeRequest,
   RetryFailedProposalProductRequest,
+  AddManualProductRequest,
   GenerateCustomerProposalDocumentPdfRequest,
   GenerateCustomerProposalDocumentPdfResult,
   SetProposalBranchRequest,
@@ -145,6 +146,39 @@ export class InsurUpProposalClient {
     return this.http.postNoContent(
       endpoints.proposals.retryFailedProposalProduct.render(proposalId, proposalProductId),
       request,
+      options
+    );
+  }
+
+  /**
+   * Attaches a manually-quoted product to an existing proposal, optionally with an agent-uploaded
+   * proposal PDF. Sent as multipart form data; field names match the backend endpoint's
+   * PascalCase binding (same shape the official C# SDK sends).
+   *
+   * Mevcut bir teklife manuel fiyatlanmış ürün ekler; isteğe bağlı olarak acente tarafından
+   * yüklenen teklif PDF'i ile. Multipart form verisi olarak gönderilir.
+   *
+   * @param request - Manual product details / Manuel ürün detayları
+   * @param pdf - Optional proposal PDF to attach / Eklenecek isteğe bağlı teklif PDF'i
+   * @returns Operation result / İşlem sonucu
+   */
+  async addManualProduct(
+    request: AddManualProductRequest,
+    pdf?: { readonly content: Blob; readonly fileName: string },
+    options?: RequestOptions
+  ): Promise<InsurUpResult> {
+    const formData = new FormData();
+    formData.append('ProposalId', request.proposalId);
+    formData.append('InsuranceCompanyId', String(request.insuranceCompanyId));
+    formData.append('InsuranceProductId', String(request.insuranceProductId));
+    formData.append('GrossPremium', String(request.grossPremium));
+    formData.append('InsuranceCompanyProposalNumber', request.insuranceCompanyProposalNumber);
+    if (pdf) {
+      formData.append('file', pdf.content, pdf.fileName);
+    }
+    return this.http.postNoContent(
+      endpoints.proposals.addManualProduct.render(request.proposalId),
+      formData,
       options
     );
   }
@@ -311,9 +345,12 @@ export class InsurUpProposalClient {
     options?: RequestOptions
   ): Promise<InsurUpResult<FetchProposalProductDocumentResult>> {
     return this.http.get<FetchProposalProductDocumentResult>(
-      endpoints.proposals.fetchProposalProductDocument.render(
-        request.proposalId,
-        request.proposalProductId
+      appendLanguageQuery(
+        endpoints.proposals.fetchProposalProductDocument.render(
+          request.proposalId,
+          request.proposalProductId
+        ),
+        request.language
       ),
       options
     );
@@ -332,9 +369,12 @@ export class InsurUpProposalClient {
     options?: RequestOptions
   ): Promise<InsurUpResult<FetchProposalInformationFormDocumentResult>> {
     return this.http.get<FetchProposalInformationFormDocumentResult>(
-      endpoints.proposals.fetchProposalInformationFormDocument.render(
-        request.proposalId,
-        request.proposalProductId
+      appendLanguageQuery(
+        endpoints.proposals.fetchProposalInformationFormDocument.render(
+          request.proposalId,
+          request.proposalProductId
+        ),
+        request.language
       ),
       options
     );
@@ -607,4 +647,13 @@ export class InsurUpProposalClient {
       },
     } as InsurUpGraphQLResult<ProposalsConnection<TFields>>;
   }
+}
+
+/** Append the optional `language` query parameter the document endpoints accept. */
+function appendLanguageQuery(path: string, language: string | null | undefined): string {
+  if (!language) {
+    return path;
+  }
+  const separator = path.includes('?') ? '&' : '?';
+  return `${path}${separator}language=${encodeURIComponent(language)}`;
 }

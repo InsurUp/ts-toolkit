@@ -56,7 +56,7 @@ describe('ProposalClient', () => {
 
   it('getProposalProductPremiumDetail embeds installmentNumber in path', async () => {
     server.use(
-      http.get(`${BASE_URL}/proposals/:id/products/:pid/premium-detail/:n`, ({ params }) => {
+      http.get(`${BASE_URL}/proposals/:id/products/:pid/premiums/:n`, ({ params }) => {
         expect(params.id).toBe('PR-1');
         expect(params.pid).toBe('PP-1');
         expect(params.n).toBe('3');
