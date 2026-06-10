@@ -485,10 +485,13 @@ export interface ReviseProposalRequest {
   readonly proposalId: string;
 
   /**
-   * The updated coverage configuration, or null to keep existing coverage
-   * Güncellenmiş teminat konfigürasyonu veya mevcut teminatı korumak için null
+   * Coverage group identifiers to rerun the proposal with, or null/empty to
+   * keep the proposal's current coverage groups (mirrors the backend
+   * ReviseProposalEndpointRequest.CoverageGroupIds)
+   * Teklifin yeniden çalıştırılacağı teminat grubu tanımlayıcıları;
+   * mevcut teminat gruplarını korumak için null/boş
    */
-  readonly coverage?: Coverage | null;
+  readonly coverageGroupIds?: readonly string[] | null;
 }
 
 /**
@@ -1370,7 +1373,14 @@ export interface GenerateCompareProposalProductsPdfResult {
  */
 export interface SetProposalBranchRequest {
   readonly proposalId: string;
-  readonly branchId: string;
+
+  /**
+   * The agent branch to assign, or null to remove the current assignment.
+   * Wire field name mirrors the backend SetProposalBranchEndpointRequest.AgentBranchId —
+   * a differently-named field is silently ignored by the endpoint and clears the branch.
+   * Atanacak acente şubesi veya mevcut atamayı kaldırmak için null.
+   */
+  readonly agentBranchId: string | null;
 }
 
 // ============================================================================

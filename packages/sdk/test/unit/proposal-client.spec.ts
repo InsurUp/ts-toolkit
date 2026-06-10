@@ -152,4 +152,42 @@ describe('Proposal Client', () => {
       expect(url).toBe('https://test.api.com/api/proposals/PROP-1/products/PP-2/premiums/3');
     });
   });
+
+  describe('reviseProposal', () => {
+    it('posts coverageGroupIds in the body (backend ReviseProposalEndpointRequest shape)', async () => {
+      mockFetch.mockResolvedValueOnce(MockFetchResponseFactory.json({ proposalId: 'PROP-2' }));
+
+      await client.proposals.reviseProposal({
+        proposalId: 'PROP-1',
+        coverageGroupIds: ['CG-1', 'CG-2'],
+      });
+
+      const [url, init] = mockFetch.mock.calls[0] as [string, RequestInit];
+      expect(url).toBe('https://test.api.com/api/proposals/PROP-1/revise');
+      expect(init.method).toBe('POST');
+      expect(JSON.parse(init.body as string)).toEqual({
+        proposalId: 'PROP-1',
+        coverageGroupIds: ['CG-1', 'CG-2'],
+      });
+    });
+  });
+
+  describe('setProposalBranch', () => {
+    it('PUTs agentBranchId to the branch route (POST is 405 on the deployed endpoint)', async () => {
+      mockFetch.mockResolvedValueOnce(MockFetchResponseFactory.empty(200));
+
+      await client.proposals.setProposalBranch({
+        proposalId: 'PROP-1',
+        agentBranchId: 'BR-9',
+      });
+
+      const [url, init] = mockFetch.mock.calls[0] as [string, RequestInit];
+      expect(url).toBe('https://test.api.com/api/proposals/PROP-1/branch');
+      expect(init.method).toBe('PUT');
+      expect(JSON.parse(init.body as string)).toEqual({
+        proposalId: 'PROP-1',
+        agentBranchId: 'BR-9',
+      });
+    });
+  });
 });
