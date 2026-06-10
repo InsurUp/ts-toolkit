@@ -311,6 +311,17 @@ export interface InsuranceProduct {
    * gereksinimleri belirler.
    */
   readonly type: InsuranceProductType;
+
+  /**
+   * Whether the product is currently enabled for quoting.
+   * Mirrors the backend InsuranceProductModel.Enabled flag; UI pickers should
+   * hide disabled products (e.g. the manual-product dialog in the agent panel).
+   *
+   * Ürünün şu anda fiyatlandırma için etkin olup olmadığı.
+   * Arka uç InsuranceProductModel.Enabled bayrağını yansıtır; arayüz seçicileri
+   * devre dışı ürünleri gizlemelidir.
+   */
+  readonly enabled: boolean;
 }
 
 // ============================================================================
