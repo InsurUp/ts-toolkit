@@ -493,7 +493,9 @@ export class InsurUpProposalClient {
     request: SetProposalBranchRequest,
     options?: RequestOptions
   ): Promise<InsurUpResult> {
-    return this.http.postNoContent(
+    // The deployed endpoint registers PUT (SetProposalBranchEndpoint.Configure);
+    // POST returns 405.
+    return this.http.putNoContent(
       endpoints.proposals.setProposalBranch.render(request.proposalId),
       request,
       options
