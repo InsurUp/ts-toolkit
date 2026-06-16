@@ -11,42 +11,126 @@ export enum WebhookEvent {
    *
    * Teklif prim hesaplaması alındığında ve başarıyla işlendiğinde tetiklenir.
    */
-  ProposalPremiumReceived = 'proposal_premium.received',
+  ProposalPremiumReceived = 'PROPOSAL_PREMIUM_RECEIVED',
 
   /**
    * Triggered when a proposal premium purchase process is initiated.
    *
    * Teklif prim satın alma süreci başlatıldığında tetiklenir.
    */
-  ProposalPremiumPurchasing = 'proposal_premium.purchasing',
+  ProposalPremiumPurchasing = 'PROPOSAL_PREMIUM_PURCHASING',
 
   /**
    * Triggered when a proposal premium purchase process is completed successfully.
    *
    * Teklif prim satın alma süreci başarıyla tamamlandığında tetiklenir.
    */
-  ProposalPremiumPurchased = 'proposal_premium.purchased',
+  ProposalPremiumPurchased = 'PROPOSAL_PREMIUM_PURCHASED',
 
   /**
    * Triggered when a proposal premium purchase process fails.
    *
    * Teklif prim satın alma süreci başarısız olduğunda tetiklenir.
    */
-  ProposalPremiumPurchaseFailed = 'proposal_premium.purchase_failed',
+  ProposalPremiumPurchaseFailed = 'PROPOSAL_PREMIUM_PURCHASE_FAILED',
 
   /**
    * Triggered when an insurance policy is created in the system.
    *
    * Sistemde bir sigorta poliçesi oluşturulduğunda tetiklenir.
    */
-  PolicyCreated = 'policy.created',
+  PolicyCreated = 'POLICY_CREATED',
 
   /**
    * Triggered when an existing insurance policy is updated or modified.
    *
    * Mevcut bir sigorta poliçesi güncellendiğinde veya değiştirildiğinde tetiklenir.
    */
-  PolicyUpdated = 'policy.updated',
+  PolicyUpdated = 'POLICY_UPDATED',
+
+  /**
+   * Triggered when a new customer is created.
+   *
+   * Yeni bir müşteri oluşturulduğunda tetiklenir.
+   */
+  CustomerCreated = 'CUSTOMER_CREATED',
+
+  /**
+   * Triggered when an existing customer is updated.
+   *
+   * Mevcut bir müşteri güncellendiğinde tetiklenir.
+   */
+  CustomerUpdated = 'CUSTOMER_UPDATED',
+
+  /**
+   * Triggered when a customer grants KVKK (personal data protection) consent.
+   *
+   * Müşteri KVKK (kişisel verilerin korunması) izni verdiğinde tetiklenir.
+   */
+  CustomerKvkkConsentGiven = 'CUSTOMER_KVKK_CONSENT_GIVEN',
+
+  /**
+   * Triggered when a customer revokes KVKK consent.
+   *
+   * Müşteri KVKK iznini geri aldığında tetiklenir.
+   */
+  CustomerKvkkConsentRevoked = 'CUSTOMER_KVKK_CONSENT_REVOKED',
+
+  /**
+   * Triggered when a customer grants ETK (commercial electronic message) consent.
+   *
+   * Müşteri ETK (ticari elektronik ileti) izni verdiğinde tetiklenir.
+   */
+  CustomerEtkConsentGiven = 'CUSTOMER_ETK_CONSENT_GIVEN',
+
+  /**
+   * Triggered when a customer revokes ETK consent.
+   *
+   * Müşteri ETK iznini geri aldığında tetiklenir.
+   */
+  CustomerEtkConsentRevoked = 'CUSTOMER_ETK_CONSENT_REVOKED',
+
+  /**
+   * Triggered when a new vehicle is created for a customer.
+   *
+   * Bir müşteri için yeni bir araç oluşturulduğunda tetiklenir.
+   */
+  VehicleCreated = 'VEHICLE_CREATED',
+
+  /**
+   * Triggered when an existing vehicle is updated.
+   *
+   * Mevcut bir araç güncellendiğinde tetiklenir.
+   */
+  VehicleUpdated = 'VEHICLE_UPDATED',
+
+  /**
+   * Triggered when a new property is created for a customer.
+   *
+   * Bir müşteri için yeni bir gayrimenkul oluşturulduğunda tetiklenir.
+   */
+  PropertyCreated = 'PROPERTY_CREATED',
+
+  /**
+   * Triggered when an existing property is updated.
+   *
+   * Mevcut bir gayrimenkul güncellendiğinde tetiklenir.
+   */
+  PropertyUpdated = 'PROPERTY_UPDATED',
+
+  /**
+   * Triggered when a new case is created.
+   *
+   * Yeni bir talep oluşturulduğunda tetiklenir.
+   */
+  CaseCreated = 'CASE_CREATED',
+
+  /**
+   * Triggered when a case's state (main or sub) changes.
+   *
+   * Bir talebin durumu (ana veya alt) değiştiğinde tetiklenir.
+   */
+  CaseStateChanged = 'CASE_STATE_CHANGED',
 }
 
 // Webhook Contracts
@@ -84,6 +168,15 @@ export interface CreateWebhookRequest {
    * olaylar yapılandırılmış URL'ye bildirim tetikleyecek, bu da veri akışı üzerinde hassas kontrol sağlar.
    */
   readonly events: WebhookEvent[];
+
+  /**
+   * Agent branch IDs this webhook is scoped to. An empty array (the default) means
+   * the webhook fires for all of the agent's branches.
+   *
+   * Bu webhook'un kapsandığı acente şube ID'leri. Boş dizi (varsayılan) webhook'un
+   * acentenin tüm şubeleri için tetikleneceği anlamına gelir.
+   */
+  readonly agentBranchIds?: string[];
 
   /**
    * Optional secret key used to generate HMAC signatures for webhook payloads, enabling
@@ -165,6 +258,15 @@ export interface GetWebhookByIdResult {
   readonly events: WebhookEvent[];
 
   /**
+   * Agent branch IDs this webhook is scoped to. An empty array means the webhook
+   * fires for all of the agent's branches.
+   *
+   * Bu webhook'un kapsandığı acente şube ID'leri. Boş dizi webhook'un acentenin
+   * tüm şubeleri için tetikleneceği anlamına gelir.
+   */
+  readonly agentBranchIds: string[];
+
+  /**
    * Optional secret key configured for this webhook to enable payload verification through HMAC signatures.
    * When a secret is configured, InsurUp includes signature headers with webhook deliveries that can be
    * validated by the receiving system to ensure authenticity and integrity of the webhook notifications.
@@ -222,6 +324,15 @@ export interface GetWebhooksResult {
    * Olay yönlendirmesini yönetmek ve bildirim boşluklarını önlemek için olmazsa olmazdır.
    */
   readonly events: WebhookEvent[];
+
+  /**
+   * Agent branch IDs this webhook is scoped to. An empty array means the webhook
+   * fires for all of the agent's branches.
+   *
+   * Bu webhook'un kapsandığı acente şube ID'leri. Boş dizi webhook'un acentenin
+   * tüm şubeleri için tetikleneceği anlamına gelir.
+   */
+  readonly agentBranchIds: string[];
 
   /**
    * Indicates the presence of a secret key configuration for webhook payload verification.
@@ -294,6 +405,15 @@ export interface UpdateWebhookRequest {
    * InsurUp platformu içindeki diğer önemli etkinlikleri içerebilir.
    */
   readonly events: WebhookEvent[];
+
+  /**
+   * Updated agent branch IDs this webhook is scoped to. An empty array means the
+   * webhook fires for all of the agent's branches.
+   *
+   * Bu webhook'un kapsandığı güncellenmiş acente şube ID'leri. Boş dizi webhook'un
+   * acentenin tüm şubeleri için tetikleneceği anlamına gelir.
+   */
+  readonly agentBranchIds?: string[];
 
   /**
    * Updated optional secret key used to generate HMAC signatures for webhook payloads.
