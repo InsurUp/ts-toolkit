@@ -19,6 +19,10 @@ import type {
   CreateManualPolicyRequest,
   CreateManualPolicyResult,
   UpdateManualPolicyRequest,
+  SearchPolicyForClaimRequest,
+  SearchPolicyForClaimResult,
+  ClaimPolicyRequest,
+  AddPolicyEndorsementRequest,
   GetPolicyCountAndPremiumAnalyticsRequest,
   GetPolicyCountAndPremiumAnalyticsResult,
   GetPolicyRenewalAnalyticsRequest,
@@ -95,7 +99,7 @@ export class InsurUpPolicyClient {
     options?: RequestOptions
   ): Promise<InsurUpResult<GetPolicyDetailResult>> {
     return this.http.get<GetPolicyDetailResult>(
-      endpoints.policies.getPolicyDetail.render(request.policyId),
+      endpoints.policies.getPolicyDetail.render(request.policyId, request.version),
       options
     );
   }
@@ -168,7 +172,7 @@ export class InsurUpPolicyClient {
     request: SetPolicyBranchRequest,
     options?: RequestOptions
   ): Promise<InsurUpResult> {
-    return this.http.postNoContent(
+    return this.http.putNoContent(
       endpoints.policies.setPolicyBranch.render(request.policyId),
       request,
       options
@@ -208,6 +212,53 @@ export class InsurUpPolicyClient {
   ): Promise<InsurUpResult> {
     return this.http.putNoContent(
       endpoints.policies.updateManualPolicy.render(request.policyId),
+      request,
+      options
+    );
+  }
+  /**
+   * Searches for an existing unowned policy that the current agent user can claim.
+   *
+   * @param request Policy claim search criteria
+   * @returns Policy claim search result
+   */
+  async searchPolicyForClaim(
+    request: SearchPolicyForClaimRequest,
+    options?: RequestOptions
+  ): Promise<InsurUpResult<SearchPolicyForClaimResult>> {
+    return this.http.post<SearchPolicyForClaimResult>(
+      endpoints.policies.searchPolicyForClaim.definition,
+      request,
+      options
+    );
+  }
+
+  /**
+   * Assigns an unowned policy to the current agent user and optionally to a selected branch.
+   *
+   * @param request Policy claim request
+   * @returns Operation result
+   */
+  async claimPolicy(request: ClaimPolicyRequest, options?: RequestOptions): Promise<InsurUpResult> {
+    return this.http.postNoContent(
+      endpoints.policies.claimPolicy.render(request.policyId),
+      request,
+      options
+    );
+  }
+
+  /**
+   * Appends a manual endorsement as the next version of an existing policy.
+   *
+   * @param request Manual endorsement request
+   * @returns Operation result
+   */
+  async addPolicyEndorsement(
+    request: AddPolicyEndorsementRequest,
+    options?: RequestOptions
+  ): Promise<InsurUpResult> {
+    return this.http.postNoContent(
+      endpoints.policies.addPolicyEndorsement.render(request.policyId),
       request,
       options
     );

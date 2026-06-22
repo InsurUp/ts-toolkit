@@ -12,10 +12,12 @@ import type {
   Channel,
   UserReference,
   Coverage,
+  AssetType,
   ProposalSnapshotVehicle,
   ProposalSnapshotProperty,
 } from './common.js';
 import type { CustomerPhoneNumber } from './common.js';
+import type { PolicyVersionType } from './graphql/policies.js';
 import type { ProposalSnapshotCustomer } from './proposals.js';
 
 // ============================================================================
@@ -156,10 +158,35 @@ type PolicySnapshotElectronicDevice = Record<string, never>;
 export interface GetPolicyDetailRequest {
   /**
    * The unique identifier of the insurance policy for which detailed information is requested.
-   *
-   * Ayrıntılı bilgisi istenen sigorta poliçesinin benzersiz tanımlayıcısı.
    */
   readonly policyId: string;
+
+  /** Optional policy version to retrieve. When omitted, the latest version is returned. */
+  readonly version?: number;
+}
+
+/**
+ * Policy version source.
+ */
+export enum PolicyVersionSource {
+  Unknown = 'UNKNOWN',
+  AgentPanel = 'AGENT_PANEL',
+  PolicyTransfer = 'POLICY_TRANSFER',
+  Manual = 'MANUAL',
+}
+
+/**
+ * Summary item for a version stored on a policy.
+ */
+export interface PolicyVersionSummary {
+  readonly version: number;
+  readonly versionType: PolicyVersionType;
+  readonly timestamp: string;
+  readonly source: PolicyVersionSource;
+  readonly updateReasonText: string | null;
+  readonly hasSnapshotChange: boolean;
+  readonly hasCoverageChange: boolean;
+  readonly hasPremiumChange: boolean;
 }
 
 /**
@@ -210,7 +237,7 @@ export interface GetPolicyDetailResult {
    *
    * Sigorta ürününün tanımlayıcısı.
    */
-  readonly productId: number;
+  readonly productId: number | null;
 
   /**
    * The identifier of the insurance company providing the coverage.
@@ -238,14 +265,14 @@ export interface GetPolicyDetailResult {
    *
    * Vergi ve ücretler öncesi net prim tutarı.
    */
-  readonly netPremium: number;
+  readonly netPremium: number | null;
 
   /**
    * The total premium amount including all taxes and fees.
    *
    * Tüm vergi ve ücretler dahil toplam prim tutarı.
    */
-  readonly grossPremium: number;
+  readonly grossPremium: number | null;
 
   /**
    * The commission amount paid to the agent, if applicable.
@@ -268,6 +295,18 @@ export interface GetPolicyDetailResult {
    */
   readonly currency: Currency;
 
+  /** Exchange rate used to convert policy monetary amounts to Turkish Lira. */
+  readonly exchangeRate: number;
+
+  /** Net premium converted to Turkish Lira. */
+  readonly netPremiumTL: number | null;
+
+  /** Gross premium converted to Turkish Lira. */
+  readonly grossPremiumTL: number | null;
+
+  /** Commission converted to Turkish Lira. */
+  readonly commissionTL: number | null;
+
   /**
    * The proposal number assigned by the insurance company.
    *
@@ -287,7 +326,7 @@ export interface GetPolicyDetailResult {
    *
    * Harici sigorta hizmetlerindeki poliçe için referans tanımlayıcısı.
    */
-  readonly insuranceServicesPolicyReference: string;
+  readonly insuranceServicesPolicyReference: string | null;
 
   /**
    * The date and time when the policy was created.
@@ -379,6 +418,27 @@ export interface GetPolicyDetailResult {
    * Bu poliçenin satıldığı satış kanalı.
    */
   readonly channel: Channel;
+
+  /** Additional policy metadata. */
+  readonly metadata: Readonly<Record<string, unknown>> | null;
+
+  /** Branch assigned to the policy. */
+  readonly agentBranchId: string | null;
+
+  /** Net premium difference introduced by the current version. */
+  readonly netPremiumChange: number | null;
+
+  /** Gross premium difference introduced by the current version. */
+  readonly grossPremiumChange: number | null;
+
+  /** Commission difference introduced by the current version. */
+  readonly commissionChange: number | null;
+
+  /** Current policy version number. */
+  readonly currentVersion: number;
+
+  /** Available policy versions. */
+  readonly versions: readonly PolicyVersionSummary[] | null;
 }
 
 // ============================================================================
@@ -503,6 +563,53 @@ export interface SetPolicyBranchRequest {
 }
 
 // ============================================================================
+// POLICY CLAIM TYPES
+// ============================================================================
+
+/**
+ * Request to search for an existing policy that can be claimed by the current agent user.
+ */
+export interface SearchPolicyForClaimRequest {
+  readonly insuranceCompanyId: number;
+  readonly policyNumber: string;
+  readonly endorsementNumber: number;
+  readonly renewalNumber: number;
+}
+
+/**
+ * Response for policy claim search.
+ */
+export interface SearchPolicyForClaimResult {
+  readonly found: boolean;
+  readonly owned: boolean;
+  readonly ownedBySelf: boolean;
+  readonly policyId: string | null;
+  readonly requiresBranchSelection: boolean;
+  readonly candidateBranchIds: readonly string[];
+  readonly endorsementAhead: boolean;
+  readonly lastEndorsementNumber: number | null;
+}
+
+/**
+ * Request to claim ownership of an unowned policy.
+ */
+export interface ClaimPolicyRequest {
+  readonly policyId: string;
+  readonly agentBranchId?: string | null;
+}
+
+/**
+ * Request to append a manual endorsement to an existing policy.
+ */
+export interface AddPolicyEndorsementRequest {
+  readonly policyId: string;
+  readonly netPremium?: number | null;
+  readonly grossPremium?: number | null;
+  readonly commission?: number | null;
+  readonly reason: string;
+}
+
+// ============================================================================
 // MANUAL POLICY TYPES
 // ============================================================================
 
@@ -510,13 +617,29 @@ export interface SetPolicyBranchRequest {
  * Request to create manual policy
  */
 export interface CreateManualPolicyRequest {
-  readonly customerId: string;
-  readonly insuranceCompanyId: number;
-  readonly productBranch: ProductBranch;
   readonly policyNumber: string;
+  readonly insuranceCompanyId: number;
+  readonly productId?: number | null;
+  readonly productBranch: ProductBranch;
+  readonly insuredCustomerId: string;
+  readonly insurerCustomerId: string;
+  readonly coverage?: Coverage | null;
   readonly startDate: string;
   readonly endDate: string;
-  readonly premium: number;
+  readonly arrangementDate?: string | null;
+  readonly netPremium?: number | null;
+  readonly grossPremium?: number | null;
+  readonly commission?: number | null;
+  readonly renewalNumber: number;
+  readonly daskPolicyNumber?: string | null;
+  readonly proposalId?: string | null;
+  readonly currency?: Currency;
+  readonly exchangeRate?: number;
+  readonly paymentType?: PaymentOption;
+  readonly assetId?: string | null;
+  readonly assetType?: AssetType | null;
+  readonly metadata?: Readonly<Record<string, unknown>> | null;
+  readonly agentBranchId?: string | null;
 }
 
 /**
@@ -532,9 +655,25 @@ export interface CreateManualPolicyResult {
 export interface UpdateManualPolicyRequest {
   readonly policyId: string;
   readonly policyNumber?: string;
+  readonly insuranceCompanyId?: number | null;
+  readonly productId?: number | null;
+  readonly productBranch?: ProductBranch | null;
+  readonly insuredCustomerId?: string | null;
+  readonly insurerCustomerId?: string | null;
+  readonly coverage?: Coverage | null;
   readonly startDate?: string;
   readonly endDate?: string;
-  readonly premium?: number;
+  readonly arrangementDate?: string | null;
+  readonly netPremium?: number | null;
+  readonly grossPremium?: number | null;
+  readonly commission?: number | null;
+  readonly daskPolicyNumber?: string | null;
+  readonly proposalId?: string | null;
+  readonly currency?: Currency | null;
+  readonly exchangeRate?: number | null;
+  readonly paymentType?: PaymentOption | null;
+  readonly assetId?: string | null;
+  readonly assetType?: AssetType | null;
 }
 
 // ============================================================================

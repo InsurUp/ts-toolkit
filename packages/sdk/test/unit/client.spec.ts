@@ -142,6 +142,10 @@ describe('DefaultInsurUpClient', () => {
         'fetchPolicyDocument',
         'sendPolicyDocumentToCustomer',
         'setPolicyRepresentative',
+        'setPolicyBranch',
+        'searchPolicyForClaim',
+        'claimPolicy',
+        'addPolicyEndorsement',
       ],
       cases: [
         'createCancelCase',

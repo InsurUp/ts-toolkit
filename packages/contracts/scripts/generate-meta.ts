@@ -147,6 +147,15 @@ async function writeFormatted(path: string, content: string): Promise<void> {
   writeFileSync(path, formatted, 'utf-8');
 }
 
+function toGlobPath(path: string): string {
+  return path.replace(/\\/g, '/');
+}
+
+function isWithinDir(path: string, dir: string): boolean {
+  const normalizedPath = toGlobPath(path);
+  const normalizedDir = toGlobPath(dir).replace(/\/$/, '');
+  return normalizedPath === normalizedDir || normalizedPath.startsWith(`${normalizedDir}/`);
+}
 // Parse CLI args: first = primary dir, rest = extra dirs
 const args = process.argv.slice(2).map((d) => resolve(ROOT, d));
 if (args.length === 0) {
@@ -169,7 +178,7 @@ const project = new Project({
 
 // Add extra directory source files to the project so ts-morph can resolve them
 for (const dir of extraDirs) {
-  project.addSourceFilesAtPaths(join(dir, '*.ts'));
+  project.addSourceFilesAtPaths(toGlobPath(join(dir, '*.ts')));
 }
 
 interface FieldEntry {
@@ -224,7 +233,7 @@ const fileMap = new Map<string, MetaInterface[]>();
 const scanDirs = [primaryDir, ...extraDirs];
 
 for (const scanDir of scanDirs) {
-  for (const sourceFile of project.getSourceFiles(join(scanDir, '*.ts'))) {
+  for (const sourceFile of project.getSourceFiles(toGlobPath(join(scanDir, '*.ts')))) {
     const filePath = sourceFile.getFilePath();
 
     // Skip already-generated files and the meta-types file
@@ -401,7 +410,7 @@ for (const [filePath, metas] of fileMap) {
 
   const lines: string[] = [HEADER, `import type { ModelMeta } from "${importPath}";\n`];
 
-  const isPrimaryDir = filePath.startsWith(primaryDir);
+  const isPrimaryDir = isWithinDir(filePath, primaryDir);
 
   for (const meta of metas) {
     const varName = `${meta.interfaceName}Meta`;
