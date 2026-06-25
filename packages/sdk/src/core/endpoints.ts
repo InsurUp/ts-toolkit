@@ -743,8 +743,12 @@ export const proposals = {
 export const policies = {
   getPolicyDetail: {
     definition: 'policies/{PolicyId}',
-    render: (policyId: string): string =>
-      'policies/{PolicyId}'.replace('{PolicyId}', encodeURIComponent(policyId)),
+    render: (policyId: string, version?: number): string => {
+      const base = 'policies/{PolicyId}'.replace('{PolicyId}', encodeURIComponent(policyId));
+      return version !== undefined
+        ? base + '?version=' + encodeURIComponent(version.toString())
+        : base;
+    },
   },
 
   fetchPolicyDocument: {
@@ -780,21 +784,36 @@ export const policies = {
     render: (policyId: string): string =>
       'policies/manual/{PolicyId}'.replace('{PolicyId}', encodeURIComponent(policyId)),
   },
+  searchPolicyForClaim: {
+    definition: 'policies/search-for-claim',
+  },
+
+  claimPolicy: {
+    definition: 'policies/{PolicyId}/claim',
+    render: (policyId: string): string =>
+      'policies/{PolicyId}/claim'.replace('{PolicyId}', encodeURIComponent(policyId)),
+  },
+
+  addPolicyEndorsement: {
+    definition: 'policies/{PolicyId}/endorsements',
+    render: (policyId: string): string =>
+      'policies/{PolicyId}/endorsements'.replace('{PolicyId}', encodeURIComponent(policyId)),
+  },
 
   getPolicyCountAndPremiumAnalytics: {
-    definition: 'policies/analytics/count-and-premium',
+    definition: 'policies/count-and-premium-analytics',
   },
 
   getPolicyRenewalAnalytics: {
-    definition: 'policies/analytics/renewal',
+    definition: 'policies/renewal-analytics',
   },
 
   getPolicyDistributionByBranch: {
-    definition: 'policies/analytics/distribution-by-branch',
+    definition: 'policies/distribution-by-branch-analytics',
   },
 
   getRepresentativeEarningsAnalytics: {
-    definition: 'policies/analytics/representative-earnings',
+    definition: 'policies/representative-earnings-analytics',
   },
 } as const;
 
