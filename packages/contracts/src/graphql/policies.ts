@@ -11,6 +11,7 @@ import type {
   PickFields,
   GetQueryOptions,
   StringOperationFilterInput,
+  ObjectIdOperationFilterInput,
   IntOperationFilterInput,
   FloatOperationFilterInput,
   BooleanOperationFilterInput,
@@ -147,7 +148,7 @@ export enum PolicyVersionType {
 export interface QueryPoliciesResultFilterInput {
   and?: QueryPoliciesResultFilterInput[] | null;
   or?: QueryPoliciesResultFilterInput[] | null;
-  id?: StringOperationFilterInput | null;
+  id?: ObjectIdOperationFilterInput | null;
   insurerCustomerId?: UuidOperationFilterInput | null;
   insuredCustomerId?: UuidOperationFilterInput | null;
   installmentNumber?: IntOperationFilterInput | null;
