@@ -320,6 +320,13 @@ export interface CoverageTableRow {
   readonly insuranceCompanyId?: number | null;
   /** Optional product integration type this row applies to (null = generic). */
   readonly type?: InsuranceProductType | null;
+  /**
+   * Optional insurance product this row applies to. Requires `insuranceCompanyId` and `type`;
+   * a row without it is company-level.
+   * Satırın uygulandığı sigorta ürünü. `insuranceCompanyId` ve `type` ile birlikte verilir;
+   * ürünsüz satır şirket seviyesidir.
+   */
+  readonly productId?: number | null;
 }
 
 /**

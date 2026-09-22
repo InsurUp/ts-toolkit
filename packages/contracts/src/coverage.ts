@@ -690,6 +690,14 @@ export interface CompanyCoverageChoices<T> {
   /** Technical integration type (WebService or Robot) used for this product. */
   readonly productType: InsuranceProductType;
 
+  /**
+   * Insurance product the choices belong to. One entry per product: a company with several
+   * products appears once per product, so key by this, not by `insuranceCompanyId`.
+   * Seçeneklerin ait olduğu sigorta ürünü. Ürün başına bir kayıt gelir; şirket bazında değil,
+   * bu alanla anahtarlayın. Eski sunucular alanı göndermez.
+   */
+  readonly productId?: number;
+
   /** The coverage choices configuration for the specific insurance product type. */
   readonly coverageChoices: T;
 }
