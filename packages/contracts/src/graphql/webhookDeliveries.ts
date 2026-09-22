@@ -11,6 +11,7 @@ import type {
   PickFields,
   GetQueryOptions,
   StringOperationFilterInput,
+  ObjectIdOperationFilterInput,
   IntOperationFilterInput,
   BooleanOperationFilterInput,
   DateTimeOperationFilterInput,
@@ -44,8 +45,8 @@ export interface QueryWebhookDeliveryResult {
 export interface QueryWebhookDeliveryResultFilterInput {
   and?: QueryWebhookDeliveryResultFilterInput[] | null;
   or?: QueryWebhookDeliveryResultFilterInput[] | null;
-  id?: StringOperationFilterInput | null;
-  webhookId?: StringOperationFilterInput | null;
+  id?: ObjectIdOperationFilterInput | null;
+  webhookId?: ObjectIdOperationFilterInput | null;
   event?: EnumOperationFilterInput<WebhookEvent> | null;
   sentAt?: DateTimeOperationFilterInput | null;
   statusCode?: IntOperationFilterInput | null;

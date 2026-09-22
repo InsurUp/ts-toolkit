@@ -264,6 +264,21 @@ export interface UuidOperationFilterInput {
   nlte?: string | null;
 }
 
+/**
+ * Filter input for string ids stored as a MongoDB `ObjectId` on the server
+ * (e.g. proposal/policy/case/webhook-delivery `id`, webhook-delivery `webhookId`).
+ * Only the equality family is exposed: an `ObjectId` `_id` cannot be matched with an
+ * Atlas Search wildcard/regex clause, so substring operators (`contains`/`startsWith`/
+ * `endsWith` and negations) are rejected by the server schema as validation errors.
+ * Mirrors `filtering_ObjectIdOperationFilterInput`.
+ */
+export interface ObjectIdOperationFilterInput {
+  eq?: string | null;
+  neq?: string | null;
+  in?: (string | null)[] | null;
+  nin?: (string | null)[] | null;
+}
+
 // === Search Operation Inputs ===
 
 /**

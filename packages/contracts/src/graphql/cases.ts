@@ -11,6 +11,7 @@ import type {
   PickFields,
   GetQueryOptions,
   StringOperationFilterInput,
+  ObjectIdOperationFilterInput,
   IntOperationFilterInput,
   UuidOperationFilterInput,
   DateTimeOperationFilterInput,
@@ -154,7 +155,7 @@ export interface QueryCaseModel {
 export interface QueryCaseModelFilterInput {
   and?: QueryCaseModelFilterInput[] | null;
   or?: QueryCaseModelFilterInput[] | null;
-  id?: StringOperationFilterInput | null;
+  id?: ObjectIdOperationFilterInput | null;
   ref?: StringOperationFilterInput | null;
   type?: EnumOperationFilterInput<CaseType> | null;
   status?: EnumOperationFilterInput<CaseStatus> | null;

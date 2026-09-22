@@ -10,7 +10,7 @@ import type {
   DeepFieldKeys,
   PickFields,
   GetQueryOptions,
-  StringOperationFilterInput,
+  ObjectIdOperationFilterInput,
   IntOperationFilterInput,
   DateTimeOperationFilterInput,
   LocalDateOperationFilterInput,
@@ -42,7 +42,7 @@ export interface QueryPolicyTransfersResult {
 export interface QueryPolicyTransfersResultFilterInput {
   and?: QueryPolicyTransfersResultFilterInput[] | null;
   or?: QueryPolicyTransfersResultFilterInput[] | null;
-  id?: StringOperationFilterInput | null;
+  id?: ObjectIdOperationFilterInput | null;
   startDate?: LocalDateOperationFilterInput | null;
   endDate?: LocalDateOperationFilterInput | null;
   createdAt?: DateTimeOperationFilterInput | null;

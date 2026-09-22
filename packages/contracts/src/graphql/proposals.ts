@@ -11,6 +11,7 @@ import type {
   PickFields,
   GetQueryOptions,
   StringOperationFilterInput,
+  ObjectIdOperationFilterInput,
   IntOperationFilterInput,
   FloatOperationFilterInput,
   UuidOperationFilterInput,
@@ -94,7 +95,7 @@ export interface QueryProposalsResult {
 export interface QueryProposalsResultFilterInput {
   and?: QueryProposalsResultFilterInput[] | null;
   or?: QueryProposalsResultFilterInput[] | null;
-  id?: StringOperationFilterInput | null;
+  id?: ObjectIdOperationFilterInput | null;
   productBranch?: EnumOperationFilterInput<ProductBranch> | null;
   state?: EnumOperationFilterInput<ProposalState> | null;
   insurerCustomerId?: UuidOperationFilterInput | null;
