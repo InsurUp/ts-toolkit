@@ -58,6 +58,11 @@ export interface PriorityRuleHit {
   score: number;
 }
 
+export interface RequestedProduct {
+  proposalId: string;
+  proposalProductId: string;
+}
+
 /** @meta */
 export interface QueryCaseModel {
   agentBranch?: CaseAgentBranchInfo | null;
@@ -98,6 +103,7 @@ export interface QueryCaseModel {
   lastUpdatedByType?: UserType | null;
   priorityScore?: number | null;
   priorityRuleHits?: PriorityRuleHit[] | null;
+  requestedProducts?: RequestedProduct[] | null;
   customerId?: string | null;
   customerName?: string | null;
   customerType?: CustomerType | null;
@@ -378,6 +384,9 @@ export const ALL_CASE_FIELDS = [
   'priorityRuleHits.description',
   'priorityRuleHits.ruleName',
   'priorityRuleHits.score',
+  // Nested requestedProducts fields
+  'requestedProducts.proposalId',
+  'requestedProducts.proposalProductId',
 ] as const satisfies readonly CaseFieldKey[];
 
 /**
