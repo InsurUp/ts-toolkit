@@ -1029,6 +1029,33 @@ export const agentRoles = {
 } as const;
 
 /**
+ * Endpoints about the signed-in person rather than an agency they act in
+ */
+export const me = {
+  getMyContexts: 'me/contexts',
+  getMyAgents: 'me/agents',
+  getMyInvites: 'me/invites',
+
+  acceptInvite: {
+    definition: 'me/invites/{InviteId}/accept',
+    render: (inviteId: string): string =>
+      'me/invites/{InviteId}/accept'.replace('{InviteId}', encodeURIComponent(inviteId)),
+  },
+
+  declineInvite: {
+    definition: 'me/invites/{InviteId}/decline',
+    render: (inviteId: string): string =>
+      'me/invites/{InviteId}/decline'.replace('{InviteId}', encodeURIComponent(inviteId)),
+  },
+
+  leaveAgent: {
+    definition: 'me/agents/{AgentId}/leave',
+    render: (agentId: string): string =>
+      'me/agents/{AgentId}/leave'.replace('{AgentId}', encodeURIComponent(agentId)),
+  },
+} as const;
+
+/**
  * Webhook endpoints
  */
 export const webhooks = {

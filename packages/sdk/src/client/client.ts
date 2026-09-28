@@ -28,6 +28,7 @@ import { InsurUpFileClient } from '../clients/file.js';
 import { InsurUpLanguageClient } from '../clients/language.js';
 import { InsurUpTemplateClient } from '../clients/template.js';
 import { InsurUpOAuthClientClient } from '../clients/oauthClient.js';
+import { InsurUpMeClient } from '../clients/me.js';
 
 /**
  * Main unified client providing comprehensive access to all InsurUp platform operations.
@@ -193,6 +194,8 @@ export class DefaultInsurUpClient<TContext = void> {
    */
   public readonly oauthClients: InsurUpOAuthClientClient;
 
+  public readonly me: InsurUpMeClient;
+
   public readonly options: InsurUpClientOptions<TContext>;
 
   constructor(options?: InsurUpClientOptions<TContext>) {
@@ -235,6 +238,16 @@ export class DefaultInsurUpClient<TContext = void> {
     this.languages = new InsurUpLanguageClient(this.http);
     this.templates = new InsurUpTemplateClient(this.http);
     this.oauthClients = new InsurUpOAuthClientClient(this.http);
+    this.me = new InsurUpMeClient(this.http);
+  }
+
+  /**
+   * Sets the agency every following request acts for (`X-Agent-Id`). `null` removes the header.
+   *
+   * Sonraki isteklerin hangi acente adına yapılacağını belirler (`X-Agent-Id`). `null` başlığı kaldırır.
+   */
+  setAgentId(agentId: string | null): void {
+    this.http.setAgentId(agentId);
   }
 
   /**

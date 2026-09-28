@@ -68,6 +68,7 @@ export type RequiredClientOptions = Required<
     | 'retry'
     | 'hubsBaseUrl'
     | 'signalRLogLevel'
+    | 'agentId'
   >
 > & {
   tokenProvider?: TokenProvider;
