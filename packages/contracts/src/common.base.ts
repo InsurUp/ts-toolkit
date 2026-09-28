@@ -440,6 +440,18 @@ export enum ProductBranch {
    * Yabancı sağlık sigortası
    */
   YabanciSaglik = 'YABANCI_SAGLIK',
+
+  /**
+   * Incoming travel health insurance (foreigners visiting Türkiye)
+   * Türkiye'ye gelen yabancılar için seyahat sağlık sigortası
+   */
+  IncomingSeyahatSaglik = 'INCOMING_SEYAHAT_SAGLIK',
+
+  /**
+   * Critical illness insurance (Tehlikeli Hastalıklar)
+   * Tehlikeli hastalıklar sigortası
+   */
+  TehlikeliHastaliklar = 'TEHLIKELI_HASTALIKLAR',
 }
 
 // ============================================================================

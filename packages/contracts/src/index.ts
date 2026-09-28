@@ -22,6 +22,7 @@ export * from './plugins.js';
 export * from './oauthClients.js';
 export * from './coverage.js';
 export * from './insurance.js';
+export * from './travel.js';
 export * from './proposals.js';
 export * from './proposal-events.js';
 

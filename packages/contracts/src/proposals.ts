@@ -28,6 +28,7 @@ import type {
 import type { CustomerPhoneNumber } from './common.js';
 import type { Gender, Job, Surgery, Disease } from './customers.js';
 import type { DaskOldPolicy } from './common.js';
+import type { TravelCountry, TravelOption, TravelReason } from './travel.js';
 
 // ============================================================================
 // PROPOSAL ENUMS
@@ -297,18 +298,78 @@ export type CreateProposalRequest =
       readonly $type: 'tss';
       readonly productBranch: ProductBranch.Tss;
       readonly coverage?: Extract<Coverage, { productBranch: ProductBranch.Tss }> | null;
+      /**
+       * Ids of additional insured customers (family members). Each must be a CRM relative of
+       * `insuredCustomerId`; the relation type is resolved server-side. Children must be under 20.
+       * Aile üyesi ek sigortalı müşteri id'leri; yakınlık sunucuda CRM kaydından çözülür.
+       */
+      readonly additionalInsuredCustomers?: readonly string[];
+    } & CreateProposalRequestBase)
+  | ({
+      readonly $type: 'oss';
+      readonly productBranch: ProductBranch.Oss;
+      /** Same rules as TSS `additionalInsuredCustomers` / TSS ile aynı kurallar */
+      readonly additionalInsuredCustomers?: readonly string[];
     } & CreateProposalRequestBase)
   | ({
       readonly $type: 'imm';
       readonly productBranch: ProductBranch.Imm;
       readonly vehicleId: string;
       readonly coverage?: Extract<Coverage, { productBranch: ProductBranch.Imm }> | null;
+    } & CreateProposalRequestBase)
+  | ({
+      readonly $type: 'seyahat-saglik';
+      readonly productBranch: ProductBranch.Seyahat;
+      /** YYYY-MM-DD (DateOnly) */
+      readonly travelStartDate: string;
+      /** YYYY-MM-DD (DateOnly) */
+      readonly travelEndDate: string;
+      readonly travelOption: TravelOption;
+      readonly country?: TravelCountry | null;
+      /** Backend default: `TOURIST_TRIP` */
+      readonly travelReason?: TravelReason;
+    } & CreateProposalRequestBase)
+  | ({
+      readonly $type: 'incoming-travel-health';
+      readonly productBranch: ProductBranch.IncomingSeyahatSaglik;
+      /** YYYY-MM-DD (DateOnly) */
+      readonly travelStartDate: string;
+      /** YYYY-MM-DD (DateOnly) */
+      readonly travelEndDate: string;
+      readonly travelCity: InsuranceParameter;
+      readonly addressId: string;
+    } & CreateProposalRequestBase)
+  | ({
+      readonly $type: 'saglik';
+      readonly productBranch: ProductBranch.Saglik;
+    } & CreateProposalRequestBase)
+  | ({
+      readonly $type: 'ferdi_kaza';
+      readonly productBranch: ProductBranch.FerdiKaza;
+      readonly vehicleId?: string | null;
+    } & CreateProposalRequestBase)
+  | ({
+      readonly $type: 'yabanci-saglik';
+      readonly productBranch: ProductBranch.YabanciSaglik;
+      readonly addressId: string;
+      readonly residenceCity: InsuranceParameter;
+    } & CreateProposalRequestBase)
+  | ({
+      readonly $type: 'pet';
+      readonly productBranch: ProductBranch.Pet;
+      /** Id of the insured pet; must belong to `insuredCustomerId` / Sigortalının evcil hayvanı */
+      readonly petId: string;
+    } & CreateProposalRequestBase)
+  | ({
+      readonly $type: 'tehlikeli-hastaliklar';
+      readonly productBranch: ProductBranch.TehlikeliHastaliklar;
     } & CreateProposalRequestBase);
 
 type CreateProposalRequestBase = {
   readonly insurerCustomerId: string;
   readonly insuredCustomerId: string;
   readonly coverageGroupIds?: string[] | null;
+  readonly coverageTable?: CoverageTable | null;
   readonly channel: Channel;
   readonly agentBranchId?: string | null;
   /**
@@ -316,6 +377,11 @@ type CreateProposalRequestBase = {
    * CreateCustomerVehicleRequest.registrationDate).
    */
   readonly policyStartDate?: string | null;
+  /**
+   * Bypasses the Kasko/Trafik renewal-period precheck after the agent accepts the
+   * "Yenileme Dönemi Dışında" warning. Ignored by other branches.
+   */
+  readonly forceBypassRenewalPeriod?: boolean;
 };
 
 /**
