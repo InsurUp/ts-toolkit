@@ -11,6 +11,7 @@ import type {
   PickFields,
   GetQueryOptions,
   StringOperationFilterInput,
+  ObjectIdOperationFilterInput,
   IntOperationFilterInput,
   DateTimeOperationFilterInput,
   EnumOperationFilterInput,
@@ -53,7 +54,7 @@ export interface QueryFilePolicyTransfersResult {
 export interface QueryFilePolicyTransfersResultFilterInput {
   and?: QueryFilePolicyTransfersResultFilterInput[] | null;
   or?: QueryFilePolicyTransfersResultFilterInput[] | null;
-  id?: StringOperationFilterInput | null;
+  id?: ObjectIdOperationFilterInput | null;
   createdAt?: DateTimeOperationFilterInput | null;
   sourceType?: EnumOperationFilterInput<FilePolicyTransferSourceType> | null;
   insuranceCompanyName?: StringOperationFilterInput | null;

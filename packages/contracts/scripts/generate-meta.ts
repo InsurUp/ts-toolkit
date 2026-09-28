@@ -35,6 +35,7 @@ type Kind =
   | 'float'
   | 'boolean'
   | 'uuid'
+  | 'objectId'
   | 'dateTime'
   | 'dateOnly'
   | 'enum';
@@ -55,6 +56,10 @@ const COMPARABLE_OPS = [
 ] as const satisfies readonly FilterOperator[];
 
 const ENUM_OPS = ['eq', 'neq', 'in', 'nin'] as const satisfies readonly FilterOperator[];
+
+// String ids stored as a MongoDB `ObjectId` only support the equality family — an
+// `ObjectId` `_id` cannot be matched with an Atlas Search wildcard/regex clause.
+const OBJECT_ID_OPS = ['eq', 'neq', 'in', 'nin'] as const satisfies readonly FilterOperator[];
 
 const STRING_OPS = [
   'eq',
@@ -95,6 +100,7 @@ const FILTER_OPERATORS_BY_KIND = {
   float: COMPARABLE_OPS,
   boolean: BOOLEAN_OPS,
   uuid: COMPARABLE_OPS,
+  objectId: OBJECT_ID_OPS,
   dateTime: COMPARABLE_OPS,
   dateOnly: COMPARABLE_OPS,
   enum: ENUM_OPS,
@@ -132,6 +138,7 @@ const OPERATOR_TYPE_TO_KIND: Readonly<Record<string, Kind>> = {
   FloatOperationFilterInput: 'float',
   BooleanOperationFilterInput: 'boolean',
   UuidOperationFilterInput: 'uuid',
+  ObjectIdOperationFilterInput: 'objectId',
   DateTimeOperationFilterInput: 'dateTime',
   LocalDateOperationFilterInput: 'dateOnly',
   EnumOperationFilterInput: 'enum',

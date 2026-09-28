@@ -11,126 +11,126 @@ export enum WebhookEvent {
    *
    * Teklif prim hesaplaması alındığında ve başarıyla işlendiğinde tetiklenir.
    */
-  ProposalPremiumReceived = 'PROPOSAL_PREMIUM_RECEIVED',
+  ProposalPremiumReceived = 'proposal_premium.received',
 
   /**
    * Triggered when a proposal premium purchase process is initiated.
    *
    * Teklif prim satın alma süreci başlatıldığında tetiklenir.
    */
-  ProposalPremiumPurchasing = 'PROPOSAL_PREMIUM_PURCHASING',
+  ProposalPremiumPurchasing = 'proposal_premium.purchasing',
 
   /**
    * Triggered when a proposal premium purchase process is completed successfully.
    *
    * Teklif prim satın alma süreci başarıyla tamamlandığında tetiklenir.
    */
-  ProposalPremiumPurchased = 'PROPOSAL_PREMIUM_PURCHASED',
+  ProposalPremiumPurchased = 'proposal_premium.purchased',
 
   /**
    * Triggered when a proposal premium purchase process fails.
    *
    * Teklif prim satın alma süreci başarısız olduğunda tetiklenir.
    */
-  ProposalPremiumPurchaseFailed = 'PROPOSAL_PREMIUM_PURCHASE_FAILED',
+  ProposalPremiumPurchaseFailed = 'proposal_premium.purchase_failed',
 
   /**
    * Triggered when an insurance policy is created in the system.
    *
    * Sistemde bir sigorta poliçesi oluşturulduğunda tetiklenir.
    */
-  PolicyCreated = 'POLICY_CREATED',
+  PolicyCreated = 'policy.created',
 
   /**
    * Triggered when an existing insurance policy is updated or modified.
    *
    * Mevcut bir sigorta poliçesi güncellendiğinde veya değiştirildiğinde tetiklenir.
    */
-  PolicyUpdated = 'POLICY_UPDATED',
+  PolicyUpdated = 'policy.updated',
 
   /**
    * Triggered when a new customer is created.
    *
    * Yeni bir müşteri oluşturulduğunda tetiklenir.
    */
-  CustomerCreated = 'CUSTOMER_CREATED',
+  CustomerCreated = 'customer.created',
 
   /**
    * Triggered when an existing customer is updated.
    *
    * Mevcut bir müşteri güncellendiğinde tetiklenir.
    */
-  CustomerUpdated = 'CUSTOMER_UPDATED',
+  CustomerUpdated = 'customer.updated',
 
   /**
    * Triggered when a customer grants KVKK (personal data protection) consent.
    *
    * Müşteri KVKK (kişisel verilerin korunması) izni verdiğinde tetiklenir.
    */
-  CustomerKvkkConsentGiven = 'CUSTOMER_KVKK_CONSENT_GIVEN',
+  CustomerKvkkConsentGiven = 'customer.kvkk_consent_given',
 
   /**
    * Triggered when a customer revokes KVKK consent.
    *
    * Müşteri KVKK iznini geri aldığında tetiklenir.
    */
-  CustomerKvkkConsentRevoked = 'CUSTOMER_KVKK_CONSENT_REVOKED',
+  CustomerKvkkConsentRevoked = 'customer.kvkk_consent_revoked',
 
   /**
    * Triggered when a customer grants ETK (commercial electronic message) consent.
    *
    * Müşteri ETK (ticari elektronik ileti) izni verdiğinde tetiklenir.
    */
-  CustomerEtkConsentGiven = 'CUSTOMER_ETK_CONSENT_GIVEN',
+  CustomerEtkConsentGiven = 'customer.etk_consent_given',
 
   /**
    * Triggered when a customer revokes ETK consent.
    *
    * Müşteri ETK iznini geri aldığında tetiklenir.
    */
-  CustomerEtkConsentRevoked = 'CUSTOMER_ETK_CONSENT_REVOKED',
+  CustomerEtkConsentRevoked = 'customer.etk_consent_revoked',
 
   /**
    * Triggered when a new vehicle is created for a customer.
    *
    * Bir müşteri için yeni bir araç oluşturulduğunda tetiklenir.
    */
-  VehicleCreated = 'VEHICLE_CREATED',
+  VehicleCreated = 'vehicle.created',
 
   /**
    * Triggered when an existing vehicle is updated.
    *
    * Mevcut bir araç güncellendiğinde tetiklenir.
    */
-  VehicleUpdated = 'VEHICLE_UPDATED',
+  VehicleUpdated = 'vehicle.updated',
 
   /**
    * Triggered when a new property is created for a customer.
    *
    * Bir müşteri için yeni bir gayrimenkul oluşturulduğunda tetiklenir.
    */
-  PropertyCreated = 'PROPERTY_CREATED',
+  PropertyCreated = 'property.created',
 
   /**
    * Triggered when an existing property is updated.
    *
    * Mevcut bir gayrimenkul güncellendiğinde tetiklenir.
    */
-  PropertyUpdated = 'PROPERTY_UPDATED',
+  PropertyUpdated = 'property.updated',
 
   /**
    * Triggered when a new case is created.
    *
    * Yeni bir talep oluşturulduğunda tetiklenir.
    */
-  CaseCreated = 'CASE_CREATED',
+  CaseCreated = 'case.created',
 
   /**
    * Triggered when a case's state (main or sub) changes.
    *
    * Bir talebin durumu (ana veya alt) değiştiğinde tetiklenir.
    */
-  CaseStateChanged = 'CASE_STATE_CHANGED',
+  CaseStateChanged = 'case.state_changed',
 }
 
 // Webhook Contracts
