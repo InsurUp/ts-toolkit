@@ -15,6 +15,7 @@ export * from './agents.js';
 export * from './agentBranches.js';
 export * from './files.js';
 export * from './languages.js';
+export * from './me.js';
 export * from './templates.js';
 export * from './webhooks.js';
 export * from './plugins.js';

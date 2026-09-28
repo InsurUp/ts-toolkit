@@ -211,6 +211,15 @@ export interface InsurUpClientOptions<TContext = void> {
   readonly customHeaders?: Readonly<Record<string, string>>;
 
   /**
+   * The agency requests act for, sent as the `X-Agent-Id` header. Required when the signed-in
+   * person belongs to several agencies; change it later with `setAgentId`.
+   *
+   * İsteklerin hangi acente adına yapılacağı (`X-Agent-Id` başlığı). Kişi birden fazla acenteye
+   * üyeyse zorunludur; sonradan `setAgentId` ile değiştirilir.
+   */
+  readonly agentId?: string;
+
+  /**
    * User agent string for HTTP requests
    * Note: In browser environments, this may be ignored due to CORS restrictions
    *

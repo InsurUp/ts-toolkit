@@ -27,6 +27,11 @@ export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 export type RequestBody = unknown | FormData;
 
 /**
+ * Header naming the agency a request acts for (core `CustomHeaderNames.AgentId`)
+ */
+const AGENT_ID_HEADER = 'X-Agent-Id';
+
+/**
  * Error type that built-in retry can understand
  */
 interface RetryableError extends Error {
@@ -40,9 +45,22 @@ interface RetryableError extends Error {
  */
 export class HttpTransport {
   private readonly options: RequiredClientOptions;
+  private agentId: string | null;
 
   constructor(options?: InsurUpClientOptions) {
     this.options = mergeWithDefaults(options);
+    this.agentId = options?.agentId ?? null;
+  }
+
+  /**
+   * Sets the agency every following request acts for, sent as the `X-Agent-Id` header.
+   * `null` removes the header.
+   *
+   * Sonraki tüm isteklerin hangi acente adına yapılacağını `X-Agent-Id` başlığıyla belirler.
+   * `null` başlığı kaldırır.
+   */
+  setAgentId(agentId: string | null): void {
+    this.agentId = agentId;
   }
 
   /**
@@ -69,7 +87,11 @@ export class HttpTransport {
     let requestConfig: RequestConfig = {
       url,
       method,
-      headers: { ...this.options.customHeaders, ...options?.headers },
+      headers: {
+        ...this.options.customHeaders,
+        ...(this.agentId ? { [AGENT_ID_HEADER]: this.agentId } : {}),
+        ...options?.headers,
+      },
       body,
     };
 
