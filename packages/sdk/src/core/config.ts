@@ -69,6 +69,7 @@ export type RequiredClientOptions = Required<
     | 'hubsBaseUrl'
     | 'signalRLogLevel'
     | 'agentId'
+    | 'userType'
   >
 > & {
   tokenProvider?: TokenProvider;
