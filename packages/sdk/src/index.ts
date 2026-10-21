@@ -73,6 +73,7 @@ export { InsurUpError, extractError } from './core/errors.js';
 
 export type {
   InsurUpClientOptions,
+  ContextUserType,
   TokenProvider,
   RequestConfig,
   RequestInterceptor,

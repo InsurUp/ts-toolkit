@@ -3,10 +3,16 @@
  * @description Configuration for the SDK client
  */
 
+import type { UserType } from '@insurup/contracts';
 import type { LogLevel as SignalRLogLevel } from '@microsoft/signalr';
 
 import type { InsurUpAuth } from '../auth/types.js';
 import type { InsurUpResult } from './result.js';
+
+/**
+ * The contexts core can be asked to select with the `X-User-Type` header
+ */
+export type ContextUserType = UserType.AdminPanel | UserType.Agent;
 
 /**
  * Logging levels for request/response debugging
@@ -218,6 +224,18 @@ export interface InsurUpClientOptions<TContext = void> {
    * üyeyse zorunludur; sonradan `setAgentId` ile değiştirilir.
    */
   readonly agentId?: string;
+
+  /**
+   * The kind of context requests are made in, sent as the `X-User-Type` header. One account can be
+   * an InsurUp staff member and an agency member at once, and without this core resolves the agency
+   * membership. It selects, it never grants: `AdminPanel` resolves only the admin-panel user and
+   * `Agent` only the membership, never falling back to the other. Change it later with `setUserType`.
+   *
+   * İsteklerin hangi tür bağlamda yapılacağı (`X-User-Type` başlığı). Bir hesap aynı anda hem InsurUp
+   * çalışanı hem acente üyesi olabilir; verilmezse acente üyeliği seçilir. Seçim yapar, yetki vermez.
+   * Sonradan `setUserType` ile değiştirilir.
+   */
+  readonly userType?: ContextUserType;
 
   /**
    * User agent string for HTTP requests

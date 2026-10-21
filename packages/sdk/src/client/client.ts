@@ -6,7 +6,7 @@
 import { HttpTransport } from './http.js';
 import { GraphQLTransport } from './graphql.js';
 import { SignalRTransport } from './signalr.js';
-import type { InsurUpClientOptions, TokenProvider } from '../core/options.js';
+import type { ContextUserType, InsurUpClientOptions, TokenProvider } from '../core/options.js';
 
 // Import specialized clients
 import { InsurUpAgentClient } from '../clients/agent.js';
@@ -248,6 +248,15 @@ export class DefaultInsurUpClient<TContext = void> {
    */
   setAgentId(agentId: string | null): void {
     this.http.setAgentId(agentId);
+  }
+
+  /**
+   * Sets the kind of context every following request is made in (`X-User-Type`). `null` removes the header.
+   *
+   * Sonraki isteklerin hangi tür bağlamda yapılacağını belirler (`X-User-Type`). `null` başlığı kaldırır.
+   */
+  setUserType(userType: ContextUserType | null): void {
+    this.http.setUserType(userType);
   }
 
   /**

@@ -12,7 +12,13 @@ import {
   createDeserializationError,
   createUnexpectedNoContentError,
 } from '../core/errors.js';
-import type { InsurUpClientOptions, RequestConfig, RequestOptions } from '../core/options.js';
+import { UserType } from '@insurup/contracts';
+import type {
+  ContextUserType,
+  InsurUpClientOptions,
+  RequestConfig,
+  RequestOptions,
+} from '../core/options.js';
 import { mergeWithDefaults, type RequiredClientOptions } from '../core/config.js';
 import { withRetry } from '../core/retry.js';
 
@@ -32,6 +38,19 @@ export type RequestBody = unknown | FormData;
 const AGENT_ID_HEADER = 'X-Agent-Id';
 
 /**
+ * Header naming the kind of context a request is made in (core `CustomHeaderNames.UserType`)
+ */
+const USER_TYPE_HEADER = 'X-User-Type';
+
+/**
+ * Core parses its own enum names, not the GraphQL values `UserType` holds
+ */
+const USER_TYPE_HEADER_VALUES = {
+  [UserType.AdminPanel]: 'AdminPanel',
+  [UserType.Agent]: 'Agent',
+} as const;
+
+/**
  * Error type that built-in retry can understand
  */
 interface RetryableError extends Error {
@@ -46,10 +65,12 @@ interface RetryableError extends Error {
 export class HttpTransport {
   private readonly options: RequiredClientOptions;
   private agentId: string | null;
+  private userType: ContextUserType | null;
 
   constructor(options?: InsurUpClientOptions) {
     this.options = mergeWithDefaults(options);
     this.agentId = options?.agentId ?? null;
+    this.userType = options?.userType ?? null;
   }
 
   /**
@@ -61,6 +82,17 @@ export class HttpTransport {
    */
   setAgentId(agentId: string | null): void {
     this.agentId = agentId;
+  }
+
+  /**
+   * Sets the kind of context every following request is made in, sent as the `X-User-Type` header.
+   * `null` removes the header.
+   *
+   * Sonraki tüm isteklerin hangi tür bağlamda yapılacağını `X-User-Type` başlığıyla belirler.
+   * `null` başlığı kaldırır.
+   */
+  setUserType(userType: ContextUserType | null): void {
+    this.userType = userType;
   }
 
   /**
@@ -90,6 +122,7 @@ export class HttpTransport {
       headers: {
         ...this.options.customHeaders,
         ...(this.agentId ? { [AGENT_ID_HEADER]: this.agentId } : {}),
+        ...(this.userType ? { [USER_TYPE_HEADER]: USER_TYPE_HEADER_VALUES[this.userType] } : {}),
         ...options?.headers,
       },
       body,
