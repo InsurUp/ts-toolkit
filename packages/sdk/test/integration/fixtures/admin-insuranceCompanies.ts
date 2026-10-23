@@ -51,6 +51,8 @@ export const sampleConnectionField: GetCompanyConnectionFieldResult = {
   descriptionResourceKey: null,
   value: 'WEB',
   order: 2,
+  purpose: InsuranceCompanyConnectionFieldPurpose.AgentNumber,
+  hidden: true,
 };
 
 export const sampleCreateConnectionFieldRequest: CreateCompanyConnectionFieldRequest = {
