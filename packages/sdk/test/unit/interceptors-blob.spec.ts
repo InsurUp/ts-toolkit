@@ -4,6 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { UserType } from '@insurup/contracts';
 import { HttpTransport } from '../../src/client/http';
 import type { RequestConfig, ResponseInterceptor } from '../../src/core/options';
 import type { InsurUpResult } from '../../src/core/result';
@@ -503,6 +504,67 @@ describe('HttpTransport Blob Download', () => {
         headers: expect.objectContaining({
           'X-Custom-Header': 'custom-value',
         }),
+      })
+    );
+  });
+
+  it('should send the agent and user type context headers for blob requests', async () => {
+    const transport = new HttpTransport({
+      baseUrl: 'https://test.api.com/api/',
+      timeoutMs: 5000,
+      logLevel: 'none',
+      agentId: 'AGENT-1',
+      userType: UserType.Agent,
+    });
+
+    const pdfResponse = () => ({
+      ok: true,
+      status: 200,
+      headers: { get: () => 'application/pdf' },
+      blob: () => Promise.resolve(new Blob(['test'], { type: 'application/pdf' })),
+    });
+    mockFetch.mockResolvedValueOnce(pdfResponse());
+
+    await transport.getBlob('/documents/test.pdf');
+
+    expect(mockFetch).toHaveBeenLastCalledWith(
+      'https://test.api.com/api/documents/test.pdf',
+      expect.objectContaining({
+        headers: expect.objectContaining({ 'X-Agent-Id': 'AGENT-1', 'X-User-Type': 'Agent' }),
+      })
+    );
+
+    transport.setAgentId('AGENT-2');
+    transport.setUserType(null);
+    mockFetch.mockResolvedValueOnce(pdfResponse());
+    await transport.getBlob('/documents/test.pdf');
+
+    const [, init] = mockFetch.mock.calls.at(-1) ?? [];
+    expect(init.headers['X-Agent-Id']).toBe('AGENT-2');
+    expect(init.headers).not.toHaveProperty('X-User-Type');
+  });
+
+  it('should let a per-request header override a context header for blob requests', async () => {
+    const transport = new HttpTransport({
+      baseUrl: 'https://test.api.com/api/',
+      timeoutMs: 5000,
+      logLevel: 'none',
+      userType: UserType.AdminPanel,
+    });
+
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      headers: { get: () => 'application/pdf' },
+      blob: () => Promise.resolve(new Blob(['test'], { type: 'application/pdf' })),
+    });
+
+    await transport.getBlob('/documents/test.pdf', { headers: { 'X-User-Type': 'Agent' } });
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'https://test.api.com/api/documents/test.pdf',
+      expect.objectContaining({
+        headers: expect.objectContaining({ 'X-User-Type': 'Agent' }),
       })
     );
   });

@@ -96,6 +96,16 @@ export class HttpTransport {
   }
 
   /**
+   * The `X-Agent-Id` and `X-User-Type` headers of the current context; every request sends them.
+   */
+  private contextHeaders(): Record<string, string> {
+    return {
+      ...(this.agentId ? { [AGENT_ID_HEADER]: this.agentId } : {}),
+      ...(this.userType ? { [USER_TYPE_HEADER]: USER_TYPE_HEADER_VALUES[this.userType] } : {}),
+    };
+  }
+
+  /**
    * Sends an HTTP request and returns the parsed result
    * @template T The expected response type (void for no-content operations)
    * @param method HTTP method
@@ -121,8 +131,7 @@ export class HttpTransport {
       method,
       headers: {
         ...this.options.customHeaders,
-        ...(this.agentId ? { [AGENT_ID_HEADER]: this.agentId } : {}),
-        ...(this.userType ? { [USER_TYPE_HEADER]: USER_TYPE_HEADER_VALUES[this.userType] } : {}),
+        ...this.contextHeaders(),
         ...options?.headers,
       },
       body,
@@ -482,7 +491,10 @@ export class HttpTransport {
    */
   async getBlob(path: string, options?: RequestOptions): Promise<InsurUpResult<Blob>> {
     const url = `${this.options.baseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
-    const requestHeaders = await this.buildHeaders(options?.headers);
+    const requestHeaders = await this.buildHeaders({
+      ...this.contextHeaders(),
+      ...options?.headers,
+    });
 
     // Build request config for interceptors
     let requestConfig: RequestConfig = {
