@@ -54,6 +54,14 @@ describe('user type context (X-User-Type)', () => {
     expect(lastHeaders()).not.toHaveProperty('X-User-Type');
   });
 
+  it('is sent on admin client calls', async () => {
+    const client = new DefaultInsurUpClient({ baseUrl: BASE_URL, userType: UserType.AdminPanel });
+
+    await client.admin.cache.flush();
+
+    expect(lastHeaders()['X-User-Type']).toBe('AdminPanel');
+  });
+
   it('is overridden by a per-request header', async () => {
     const client = new DefaultInsurUpClient({ baseUrl: BASE_URL, userType: UserType.AdminPanel });
 

@@ -29,6 +29,7 @@ import { InsurUpLanguageClient } from '../clients/language.js';
 import { InsurUpTemplateClient } from '../clients/template.js';
 import { InsurUpOAuthClientClient } from '../clients/oauthClient.js';
 import { InsurUpMeClient } from '../clients/me.js';
+import { InsurUpAdminClient } from '../clients/admin.js';
 
 /**
  * Main unified client providing comprehensive access to all InsurUp platform operations.
@@ -196,6 +197,15 @@ export class DefaultInsurUpClient<TContext = void> {
 
   public readonly me: InsurUpMeClient;
 
+  /**
+   * Admin Panel Client
+   *
+   * Provides every admin panel operation, grouped by area (users, roles, agencies and billing, catalog,
+   * content, observability, alerts and insights). Needs an admin panel user's token; create the client with
+   * `userType: UserType.AdminPanel`.
+   */
+  public readonly admin: InsurUpAdminClient;
+
   public readonly options: InsurUpClientOptions<TContext>;
 
   constructor(options?: InsurUpClientOptions<TContext>) {
@@ -239,6 +249,7 @@ export class DefaultInsurUpClient<TContext = void> {
     this.templates = new InsurUpTemplateClient(this.http);
     this.oauthClients = new InsurUpOAuthClientClient(this.http);
     this.me = new InsurUpMeClient(this.http);
+    this.admin = new InsurUpAdminClient(this.http);
   }
 
   /**

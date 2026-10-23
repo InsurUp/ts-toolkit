@@ -279,7 +279,7 @@ graph TB
 
 The SDK uses a **compositional architecture**:
 
-- `DefaultInsurUpClient` aggregates 18 specialized clients
+- `DefaultInsurUpClient` aggregates 20 specialized clients, plus the `admin` group
 - All clients share `HttpTransport` and `GraphQLTransport` instances
 - GraphQL queries support filtering, searching, sorting, and type-safe field selection
 - Request/response interceptors hook into the transport layer
@@ -524,6 +524,43 @@ Access specialized clients through the main client instance:
 | `client.files`         | File uploads and management                  |
 | `client.languages`     | Localization support                         |
 | `client.templates`     | Document and email templates                 |
+| `client.plugins`       | Plugin bundles, versions, config and logs    |
+| `client.me`            | The signed-in person's agencies and invites  |
+| `client.admin`         | Admin panel operations (see below)           |
+
+### Admin panel
+
+`client.admin` groups every admin panel endpoint by area. It needs an admin panel user's token; create the client with `userType: UserType.AdminPanel` so a person who also belongs to an agency acts as the admin panel user.
+
+```typescript
+import { DefaultInsurUpClient, UserType } from '@insurup/sdk';
+
+const client = new DefaultInsurUpClient({
+  userType: UserType.AdminPanel,
+  tokenProvider: () => accessToken,
+});
+
+const me = await client.admin.users.getMe();
+const logs = await client.admin.observability.searchLogs({ filter, limit: 200 });
+```
+
+| Client                            | Description                                                        |
+| --------------------------------- | ------------------------------------------------------------------ |
+| `client.admin.users`              | Admin panel users: invitations, profiles, deactivation, passwords  |
+| `client.admin.roles`              | Admin panel roles and permissions                                  |
+| `client.admin.invites`            | The signed-in person's admin panel invitations and membership      |
+| `client.admin.agents`             | Agencies: activation, subscriptions, billing and invoices          |
+| `client.admin.agentUsers`         | Agency users across agencies                                       |
+| `client.admin.subscriptionPlans`  | Subscription plans                                                 |
+| `client.admin.agentSetup`         | Agency setup requests                                              |
+| `client.admin.products`           | Products: enablement, sync, installment options, proposal rules    |
+| `client.admin.insuranceCompanies` | Insurance companies and their connection fields                    |
+| `client.admin.resourceKeys`       | Resource keys (localized texts)                                    |
+| `client.admin.releaseNotes`       | Release notes                                                      |
+| `client.admin.cache`              | The platform cache                                                 |
+| `client.admin.observability`      | Logs, metrics, traces, InsurGateway calls, database statistics     |
+| `client.admin.alerts`             | Alert rules, notification channels, silences, history              |
+| `client.admin.insights`           | Business insights: agencies, features, sales, channels, operations |
 
 ---
 

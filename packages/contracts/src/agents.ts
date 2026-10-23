@@ -187,6 +187,12 @@ export enum AgentUserState {
   Active = 'ACTIVE',
   /** User account is inactive or disabled / Kullanıcı hesabı inaktif veya devre dışı */
   Inactive = 'INACTIVE',
+  /** The invited person refused the invitation / Davet edilen kişi daveti reddetti */
+  Declined = 'DECLINED',
+  /** The active member left the agency of their own accord / Aktif üye acenteden kendi isteğiyle ayrıldı */
+  Left = 'LEFT',
+  /** The agency withdrew the membership before it was used / Acente üyeliği kullanılmadan geri çekti */
+  Revoked = 'REVOKED',
 }
 
 /**
@@ -1682,6 +1688,8 @@ export interface B2CConfigFieldBase {
  */
 export interface TextB2CConfigField extends B2CConfigFieldBase {
   readonly type: B2CConfigFieldType.Text;
+  /** Polymorphic discriminator; must be the object's first property when sent. */
+  readonly $type: 'text';
 }
 
 /**
@@ -1689,6 +1697,8 @@ export interface TextB2CConfigField extends B2CConfigFieldBase {
  */
 export interface MultiLineTextB2CConfigField extends B2CConfigFieldBase {
   readonly type: B2CConfigFieldType.MultiLineText;
+  /** Polymorphic discriminator; must be the object's first property when sent. */
+  readonly $type: 'multi-line-text';
 }
 
 /**
@@ -1696,6 +1706,8 @@ export interface MultiLineTextB2CConfigField extends B2CConfigFieldBase {
  */
 export interface NumberB2CConfigField extends B2CConfigFieldBase {
   readonly type: B2CConfigFieldType.Number;
+  /** Polymorphic discriminator; must be the object's first property when sent. */
+  readonly $type: 'number';
 }
 
 /**
@@ -1703,6 +1715,8 @@ export interface NumberB2CConfigField extends B2CConfigFieldBase {
  */
 export interface BooleanB2CConfigField extends B2CConfigFieldBase {
   readonly type: B2CConfigFieldType.Boolean;
+  /** Polymorphic discriminator; must be the object's first property when sent. */
+  readonly $type: 'boolean';
 }
 
 /**
@@ -1711,6 +1725,8 @@ export interface BooleanB2CConfigField extends B2CConfigFieldBase {
 export interface FileB2CConfigField extends B2CConfigFieldBase {
   readonly type: B2CConfigFieldType.File;
   readonly allowedExtensions: readonly string[];
+  /** Polymorphic discriminator; must be the object's first property when sent. */
+  readonly $type: 'file';
 }
 
 /**
@@ -1718,6 +1734,8 @@ export interface FileB2CConfigField extends B2CConfigFieldBase {
  */
 export interface ColorB2CConfigField extends B2CConfigFieldBase {
   readonly type: B2CConfigFieldType.Color;
+  /** Polymorphic discriminator; must be the object's first property when sent. */
+  readonly $type: 'color';
 }
 
 /**
@@ -1725,6 +1743,8 @@ export interface ColorB2CConfigField extends B2CConfigFieldBase {
  */
 export interface ProductBranchB2CConfigField extends B2CConfigFieldBase {
   readonly type: B2CConfigFieldType.ProductBranch;
+  /** Polymorphic discriminator; must be the object's first property when sent. */
+  readonly $type: 'product-branch';
 }
 
 /**
@@ -1732,6 +1752,8 @@ export interface ProductBranchB2CConfigField extends B2CConfigFieldBase {
  */
 export interface IconB2CConfigField extends B2CConfigFieldBase {
   readonly type: B2CConfigFieldType.Icon;
+  /** Polymorphic discriminator; must be the object's first property when sent. */
+  readonly $type: 'icon';
 }
 
 /**
@@ -1739,6 +1761,8 @@ export interface IconB2CConfigField extends B2CConfigFieldBase {
  */
 export interface InsuranceCompanyB2CConfigField extends B2CConfigFieldBase {
   readonly type: B2CConfigFieldType.InsuranceCompany;
+  /** Polymorphic discriminator; must be the object's first property when sent. */
+  readonly $type: 'insurance-company';
 }
 
 /**
@@ -1746,6 +1770,8 @@ export interface InsuranceCompanyB2CConfigField extends B2CConfigFieldBase {
  */
 export interface InsuranceProductB2CConfigField extends B2CConfigFieldBase {
   readonly type: B2CConfigFieldType.InsuranceProduct;
+  /** Polymorphic discriminator; must be the object's first property when sent. */
+  readonly $type: 'insurance-product';
 }
 
 /**
@@ -1754,6 +1780,8 @@ export interface InsuranceProductB2CConfigField extends B2CConfigFieldBase {
 export interface ObjectB2CConfigField extends B2CConfigFieldBase {
   readonly type: B2CConfigFieldType.Object;
   readonly children: readonly B2CConfigField[];
+  /** Polymorphic discriminator; must be the object's first property when sent. */
+  readonly $type: 'object';
 }
 
 /**
@@ -1762,6 +1790,8 @@ export interface ObjectB2CConfigField extends B2CConfigFieldBase {
 export interface ArrayB2CConfigField extends B2CConfigFieldBase {
   readonly type: B2CConfigFieldType.Array;
   readonly itemType: B2CConfigField;
+  /** Polymorphic discriminator; must be the object's first property when sent. */
+  readonly $type: 'array';
 }
 
 /**

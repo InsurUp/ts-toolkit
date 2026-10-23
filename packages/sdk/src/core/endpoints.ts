@@ -5,6 +5,7 @@
 
 import type { ConsentType, VehicleUtilizationStyle } from '@insurup/contracts';
 import { VehicleUtilizationStyleOrdinal } from '@insurup/contracts';
+import { withQuery } from './query.js';
 
 /**
  * Contact form endpoints
@@ -1384,6 +1385,382 @@ export const b2c = {
 } as const;
 
 /**
+ * Paging query parameters of the admin list endpoints (1-based page)
+ */
+interface AdminPagingQuery {
+  readonly page?: number;
+  readonly pageSize?: number;
+}
+
+/**
+ * Admin panel endpoints, grouped like the `admin.*` sub-clients
+ */
+export const admin = {
+  users: {
+    getAll: 'admin-panel-users',
+    invite: 'admin-panel-users',
+    me: 'admin-panel-users/me',
+    updateMyPassword: 'admin-panel-users/me/password',
+    forgotPassword: 'admin-panel-users/forgot-password',
+    resetPassword: 'admin-panel-users/reset-password',
+    checkForgotPasswordToken: 'admin-panel-users/check-forgot-password-token',
+    byId: {
+      definition: 'admin-panel-users/{Id}',
+      render: (id: string): string =>
+        'admin-panel-users/{Id}'.replace('{Id}', encodeURIComponent(id)),
+    },
+    deactivate: {
+      definition: 'admin-panel-users/{UserId}/deactivate',
+      render: (userId: string): string =>
+        'admin-panel-users/{UserId}/deactivate'.replace('{UserId}', encodeURIComponent(userId)),
+    },
+    reSendInvite: {
+      definition: 'admin-panel-users/{AdminPanelUserId}/re-send-invite',
+      render: (adminPanelUserId: string): string =>
+        'admin-panel-users/{AdminPanelUserId}/re-send-invite'.replace(
+          '{AdminPanelUserId}',
+          encodeURIComponent(adminPanelUserId)
+        ),
+    },
+    migrate: {
+      definition: 'admin-panel-users/{UserId}/migrate',
+      render: (userId: string): string =>
+        'admin-panel-users/{UserId}/migrate'.replace('{UserId}', encodeURIComponent(userId)),
+    },
+  },
+
+  roles: {
+    getAll: 'admin-panel-roles',
+    create: 'admin-panel-roles',
+    byId: {
+      definition: 'admin-panel-roles/{Id}',
+      render: (id: string): string =>
+        'admin-panel-roles/{Id}'.replace('{Id}', encodeURIComponent(id)),
+    },
+  },
+
+  invites: {
+    getMine: 'me/admin-panel/invites',
+    leave: 'me/admin-panel/leave',
+    accept: {
+      definition: 'me/admin-panel/invites/{InviteId}/accept',
+      render: (inviteId: string): string =>
+        'me/admin-panel/invites/{InviteId}/accept'.replace(
+          '{InviteId}',
+          encodeURIComponent(inviteId)
+        ),
+    },
+    decline: {
+      definition: 'me/admin-panel/invites/{InviteId}/decline',
+      render: (inviteId: string): string =>
+        'me/admin-panel/invites/{InviteId}/decline'.replace(
+          '{InviteId}',
+          encodeURIComponent(inviteId)
+        ),
+    },
+  },
+
+  agents: {
+    getAll: {
+      definition: 'agents',
+      render: (query?: AdminPagingQuery): string =>
+        withQuery('agents', { page: query?.page, pageSize: query?.pageSize }),
+    },
+    activate: {
+      definition: 'agents/{AgentId}/activate',
+      render: (agentId: string): string =>
+        'agents/{AgentId}/activate'.replace('{AgentId}', encodeURIComponent(agentId)),
+    },
+    disable: {
+      definition: 'agents/{AgentId}/disable',
+      render: (agentId: string): string =>
+        'agents/{AgentId}/disable'.replace('{AgentId}', encodeURIComponent(agentId)),
+    },
+    updateSubscription: {
+      definition: 'agents/{AgentId}/update-subscription',
+      render: (agentId: string): string =>
+        'agents/{AgentId}/update-subscription'.replace('{AgentId}', encodeURIComponent(agentId)),
+    },
+    getBillingSummary: {
+      definition: 'agents/{AgentId}/billing',
+      render: (agentId: string): string =>
+        'agents/{AgentId}/billing'.replace('{AgentId}', encodeURIComponent(agentId)),
+    },
+    getPayments: {
+      definition: 'agents/{AgentId}/billing/payments',
+      render: (agentId: string, query?: AdminPagingQuery): string =>
+        withQuery(
+          'agents/{AgentId}/billing/payments'.replace('{AgentId}', encodeURIComponent(agentId)),
+          { page: query?.page, pageSize: query?.pageSize }
+        ),
+    },
+    getBillingActivities: {
+      definition: 'agents/{AgentId}/billing/activities',
+      render: (agentId: string, query?: AdminPagingQuery): string =>
+        withQuery(
+          'agents/{AgentId}/billing/activities'.replace('{AgentId}', encodeURIComponent(agentId)),
+          { page: query?.page, pageSize: query?.pageSize }
+        ),
+    },
+    recordManualPayment: {
+      definition: 'agents/{AgentId}/billing/manual-payment',
+      render: (agentId: string): string =>
+        'agents/{AgentId}/billing/manual-payment'.replace('{AgentId}', encodeURIComponent(agentId)),
+    },
+    setBillingMode: {
+      definition: 'agents/{AgentId}/billing/mode',
+      render: (agentId: string): string =>
+        'agents/{AgentId}/billing/mode'.replace('{AgentId}', encodeURIComponent(agentId)),
+    },
+    setPriceOverride: {
+      definition: 'agents/{AgentId}/billing/price-override',
+      render: (agentId: string): string =>
+        'agents/{AgentId}/billing/price-override'.replace('{AgentId}', encodeURIComponent(agentId)),
+    },
+    issuePaymentInvoice: {
+      definition: 'agents/{AgentId}/billing/payments/{PaymentId}/invoice/issue',
+      render: (agentId: string, paymentId: string): string =>
+        'agents/{AgentId}/billing/payments/{PaymentId}/invoice/issue'
+          .replace('{AgentId}', encodeURIComponent(agentId))
+          .replace('{PaymentId}', encodeURIComponent(paymentId)),
+    },
+    attachPaymentManualInvoice: {
+      definition: 'agents/{AgentId}/billing/payments/{PaymentId}/invoice/manual',
+      render: (agentId: string, paymentId: string): string =>
+        'agents/{AgentId}/billing/payments/{PaymentId}/invoice/manual'
+          .replace('{AgentId}', encodeURIComponent(agentId))
+          .replace('{PaymentId}', encodeURIComponent(paymentId)),
+    },
+    getPaymentInvoicePdf: {
+      definition: 'agents/{AgentId}/billing/payments/{PaymentId}/invoice/pdf',
+      render: (agentId: string, paymentId: string): string =>
+        'agents/{AgentId}/billing/payments/{PaymentId}/invoice/pdf'
+          .replace('{AgentId}', encodeURIComponent(agentId))
+          .replace('{PaymentId}', encodeURIComponent(paymentId)),
+    },
+  },
+
+  agentUsers: {
+    migrateLegacy: 'agent-users/migrate-legacy',
+  },
+
+  subscriptionPlans: {
+    getAll: 'subscription-plans',
+    create: 'subscription-plans',
+    byId: {
+      definition: 'subscription-plans/{SubscriptionPlanId}',
+      render: (subscriptionPlanId: string | number): string =>
+        'subscription-plans/{SubscriptionPlanId}'.replace(
+          '{SubscriptionPlanId}',
+          encodeURIComponent(String(subscriptionPlanId))
+        ),
+    },
+  },
+
+  agentSetup: {
+    getAll: {
+      definition: 'agent-setup-requests',
+      render: (query?: AdminPagingQuery): string =>
+        withQuery('agent-setup-requests', { page: query?.page, pageSize: query?.pageSize }),
+    },
+  },
+
+  products: {
+    sync: 'products/sync',
+    enable: {
+      definition: 'products/{ProductId}/enable',
+      render: (productId: string | number): string =>
+        'products/{ProductId}/enable'.replace('{ProductId}', encodeURIComponent(String(productId))),
+    },
+    disable: {
+      definition: 'products/{ProductId}/disable',
+      render: (productId: string | number): string =>
+        'products/{ProductId}/disable'.replace(
+          '{ProductId}',
+          encodeURIComponent(String(productId))
+        ),
+    },
+    installmentOptions: {
+      definition: 'products/{ProductId}/installment-options',
+      render: (productId: string | number): string =>
+        'products/{ProductId}/installment-options'.replace(
+          '{ProductId}',
+          encodeURIComponent(String(productId))
+        ),
+    },
+    installmentOption: {
+      definition: 'products/{ProductId}/installment-options/{InstallmentNumber}',
+      render: (productId: string | number, installmentNumber: number): string =>
+        'products/{ProductId}/installment-options/{InstallmentNumber}'
+          .replace('{ProductId}', encodeURIComponent(String(productId)))
+          .replace('{InstallmentNumber}', encodeURIComponent(String(installmentNumber))),
+    },
+    proposalConditions: {
+      definition: 'products/{ProductId}/proposal-conditions',
+      render: (productId: string | number): string =>
+        'products/{ProductId}/proposal-conditions'.replace(
+          '{ProductId}',
+          encodeURIComponent(String(productId))
+        ),
+    },
+  },
+
+  insuranceCompanies: {
+    byId: {
+      definition: 'insurance-companies/{Id}',
+      render: (id: string | number): string =>
+        'insurance-companies/{Id}'.replace('{Id}', encodeURIComponent(String(id))),
+    },
+    connectionFields: {
+      definition: 'insurance-companies/{InsuranceCompanyId}/connection-fields',
+      render: (insuranceCompanyId: string | number): string =>
+        'insurance-companies/{InsuranceCompanyId}/connection-fields'.replace(
+          '{InsuranceCompanyId}',
+          encodeURIComponent(String(insuranceCompanyId))
+        ),
+    },
+    connectionField: {
+      definition: 'insurance-companies/{InsuranceCompanyId}/connection-fields/{Key}',
+      render: (insuranceCompanyId: string | number, key: string): string =>
+        'insurance-companies/{InsuranceCompanyId}/connection-fields/{Key}'
+          .replace('{InsuranceCompanyId}', encodeURIComponent(String(insuranceCompanyId)))
+          .replace('{Key}', encodeURIComponent(key)),
+    },
+  },
+
+  resourceKeys: {
+    create: 'resource-keys',
+    createMany: 'resource-keys/bulk',
+    byKey: {
+      definition: 'resource-keys/{Key}',
+      render: (key: string): string =>
+        'resource-keys/{Key}'.replace('{Key}', encodeURIComponent(key)),
+    },
+  },
+
+  releaseNotes: {
+    create: 'release-notes',
+    byVersion: {
+      definition: 'release-notes/{Version}',
+      render: (version: string): string =>
+        'release-notes/{Version}'.replace('{Version}', encodeURIComponent(version)),
+    },
+  },
+
+  cache: {
+    flush: 'cache/flush',
+  },
+
+  observability: {
+    getCapabilities: 'observability/capabilities',
+    searchLogs: 'observability/logs/search',
+    countLogs: 'observability/logs/counts',
+    getLogHistogram: 'observability/logs/histogram',
+    getLogFieldValues: 'observability/logs/field-values',
+    resolveLogCorrelation: 'observability/logs/correlation',
+    groupLogs: 'observability/logs/groups',
+    queryMetrics: 'observability/metrics/query',
+    searchTraces: 'observability/traces/search',
+    getTraceOperations: {
+      definition: 'observability/traces/operations',
+      render: (service: string): string =>
+        withQuery('observability/traces/operations', { service }),
+    },
+    getTrace: {
+      definition: 'observability/traces/{TraceId}',
+      render: (traceId: string): string =>
+        'observability/traces/{TraceId}'.replace('{TraceId}', encodeURIComponent(traceId)),
+    },
+    getTraceSpan: {
+      definition: 'observability/traces/{TraceId}/spans/{SpanId}',
+      render: (traceId: string, spanId: string): string =>
+        'observability/traces/{TraceId}/spans/{SpanId}'
+          .replace('{TraceId}', encodeURIComponent(traceId))
+          .replace('{SpanId}', encodeURIComponent(spanId)),
+    },
+    getIgwIndexStatus: 'observability/igw-calls/index-status',
+    getIgwCall: {
+      definition: 'observability/igw-calls/{LogId}',
+      render: (logId: string): string =>
+        'observability/igw-calls/{LogId}'.replace('{LogId}', encodeURIComponent(logId)),
+    },
+    getSlowQueries: 'observability/database/slow-queries',
+    getSlowQuery: 'observability/database/slow-queries/detail',
+    getSlowQuerySample: 'observability/database/slow-queries/sample',
+    getDatabaseCollections: 'observability/database/collections',
+    getDatabaseCollection: {
+      definition: 'observability/database/collections/{Database}/{Collection}',
+      render: (database: string, collection: string): string =>
+        'observability/database/collections/{Database}/{Collection}'
+          .replace('{Database}', encodeURIComponent(database))
+          .replace('{Collection}', encodeURIComponent(collection)),
+    },
+  },
+
+  alerts: {
+    getAlerts: 'observability/alerts',
+    getHistory: 'observability/alerts/history',
+    rules: 'observability/alerts/rules',
+    previewRule: 'observability/alerts/rules/preview',
+    channels: 'observability/alerts/channels',
+    createSilence: 'observability/alerts/silences',
+    rule: {
+      definition: 'observability/alerts/rules/{RuleId}',
+      render: (ruleId: string): string =>
+        'observability/alerts/rules/{RuleId}'.replace('{RuleId}', encodeURIComponent(ruleId)),
+    },
+    acknowledge: {
+      definition: 'observability/alerts/rules/{RuleId}/acknowledge',
+      render: (ruleId: string): string =>
+        'observability/alerts/rules/{RuleId}/acknowledge'.replace(
+          '{RuleId}',
+          encodeURIComponent(ruleId)
+        ),
+    },
+    channel: {
+      definition: 'observability/alerts/channels/{ChannelId}',
+      render: (channelId: string): string =>
+        'observability/alerts/channels/{ChannelId}'.replace(
+          '{ChannelId}',
+          encodeURIComponent(channelId)
+        ),
+    },
+    testChannel: {
+      definition: 'observability/alerts/channels/{ChannelId}/test',
+      render: (channelId: string): string =>
+        'observability/alerts/channels/{ChannelId}/test'.replace(
+          '{ChannelId}',
+          encodeURIComponent(channelId)
+        ),
+    },
+    getSilences: {
+      definition: 'observability/alerts/silences',
+      render: (includeExpired?: boolean): string =>
+        withQuery('observability/alerts/silences', { includeExpired }),
+    },
+    expireSilence: {
+      definition: 'observability/alerts/silences/{SilenceId}/expire',
+      render: (silenceId: string): string =>
+        'observability/alerts/silences/{SilenceId}/expire'.replace(
+          '{SilenceId}',
+          encodeURIComponent(silenceId)
+        ),
+    },
+  },
+
+  insights: {
+    getOverview: 'observability/insights/overview',
+    getAgents: 'observability/insights/agents',
+    getAgent: 'observability/insights/agent',
+    getFeatures: 'observability/insights/features',
+    getSales: 'observability/insights/sales',
+    getChannels: 'observability/insights/channels',
+    getOperations: 'observability/insights/operations',
+    getAssistant: 'observability/insights/assistant',
+  },
+} as const;
+
+/**
  * Main endpoints export object
  */
 export const endpoints = {
@@ -1411,4 +1788,5 @@ export const endpoints = {
   templates,
   b2c,
   proposals,
+  admin,
 } as const;
