@@ -482,7 +482,7 @@ export const VehicleUtilizationStyleOrdinal: Record<VehicleUtilizationStyle, num
  *
  * Defines the various fuel types that vehicles can use, which affects insurance risk assessment,
  * premium calculations, and coverage terms. Different fuel types have varying risk profiles,
- * environmental considerations, and replacement costs that insurers must account for when
+ * environmental considerations, and replacement costs that insurance companies must account for when
  * determining coverage and pricing.
  *
  * Araçların kullanabileceği çeşitli yakıt türlerini tanımlar, bu da sigorta risk değerlendirmesi,
