@@ -43,5 +43,8 @@ export type {
 // GraphQL types
 export * from './graphql/index.js';
 
+// Admin panel types
+export * from './admin/index.js';
+
 // Note: Additional contract modules will be added as they are implemented
 // This file will be expanded with more exports as we port more contract types

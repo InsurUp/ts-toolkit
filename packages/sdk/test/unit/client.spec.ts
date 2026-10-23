@@ -155,4 +155,25 @@ describe('DefaultInsurUpClient', () => {
       ],
     })
   );
+
+  describe(
+    'Admin Client Architecture',
+    IntegrationTestHelper.validateClientArchitecture(() => client.admin, {
+      users: ['getAll', 'getById', 'getMe', 'invite', 'update', 'deactivate', 'migrate'],
+      roles: ['getAll', 'getById', 'create', 'update', 'delete'],
+      invites: ['getMine', 'accept', 'decline', 'leave'],
+      agents: ['getAll', 'activate', 'disable', 'getBillingSummary', 'attachPaymentManualInvoice'],
+      agentUsers: ['migrateLegacy'],
+      subscriptionPlans: ['getAll', 'getById', 'create', 'update'],
+      agentSetup: ['create', 'getAll', 'getById', 'disable'],
+      products: ['enable', 'disable', 'sync', 'replaceProposalConditions'],
+      insuranceCompanies: ['update', 'getConnectionFields', 'updateConnectionField'],
+      resourceKeys: ['getByKey', 'create', 'createMany', 'update', 'delete'],
+      releaseNotes: ['create', 'update', 'delete'],
+      cache: ['flush'],
+      observability: ['getCapabilities', 'searchLogs', 'queryMetrics', 'getTrace', 'getIgwCall'],
+      alerts: ['getAlerts', 'getRules', 'createRule', 'getSilences', 'expireSilence'],
+      insights: ['getOverview', 'getAgents', 'getFeatures', 'getAssistant'],
+    })
+  );
 });

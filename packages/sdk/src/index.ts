@@ -39,6 +39,22 @@ export { InsurUpLanguageClient } from './clients/language.js';
 export { InsurUpTemplateClient } from './clients/template.js';
 export { InsurUpOAuthClientClient } from './clients/oauthClient.js';
 export { InsurUpMeClient } from './clients/me.js';
+export { InsurUpAdminClient } from './clients/admin.js';
+export { InsurUpAdminUsersClient } from './clients/admin/users.js';
+export { InsurUpAdminRolesClient } from './clients/admin/roles.js';
+export { InsurUpAdminInvitesClient } from './clients/admin/invites.js';
+export { InsurUpAdminAgentsClient } from './clients/admin/agents.js';
+export { InsurUpAdminAgentUsersClient } from './clients/admin/agentUsers.js';
+export { InsurUpAdminSubscriptionPlansClient } from './clients/admin/subscriptionPlans.js';
+export { InsurUpAdminAgentSetupClient } from './clients/admin/agentSetup.js';
+export { InsurUpAdminProductsClient } from './clients/admin/products.js';
+export { InsurUpAdminInsuranceCompaniesClient } from './clients/admin/insuranceCompanies.js';
+export { InsurUpAdminResourceKeysClient } from './clients/admin/resourceKeys.js';
+export { InsurUpAdminReleaseNotesClient } from './clients/admin/releaseNotes.js';
+export { InsurUpAdminCacheClient } from './clients/admin/cache.js';
+export { InsurUpAdminObservabilityClient } from './clients/admin/observability.js';
+export { InsurUpAdminAlertsClient } from './clients/admin/alerts.js';
+export { InsurUpAdminInsightsClient } from './clients/admin/insights.js';
 
 // Core types and results
 export type {

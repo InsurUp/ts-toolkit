@@ -452,6 +452,66 @@ export enum ProductBranch {
    * Tehlikeli hastalıklar sigortası
    */
   TehlikeliHastaliklar = 'TEHLIKELI_HASTALIKLAR',
+
+  /** Extended warranty insurance / Garanti uzatma sigortası */
+  GarantiUzatma = 'GARANTI_UZATMA',
+
+  /** SME package insurance / KOBİ paket sigortası */
+  KobiPaket = 'KOBI_PAKET',
+
+  /** Household goods package insurance / Eşya paket sigortası */
+  EsyaPaket = 'ESYA_PAKET',
+
+  /** Machinery breakdown insurance / Makine kırılması sigortası */
+  MakineKirilmasi = 'MAKINE_KIRILMASI',
+
+  /** Loss of profit insurance / Kâr kaybı sigortası */
+  KarKaybi = 'KAR_KAYBI',
+
+  /** Fire open-cover (subscription) insurance / Yangın abonman sigortası */
+  YanginAbonman = 'YANGIN_ABONMAN',
+
+  /** Fire legal liability insurance / Yangın mali mesuliyet sigortası */
+  YanginMaliMesuliyet = 'YANGIN_MALI_MESULIYET',
+
+  /** Fuel station package insurance / Akaryakıt paket sigortası */
+  AkaryakitPaket = 'AKARYAKIT_PAKET',
+
+  /** Common areas package insurance / Ortak alan paket sigortası */
+  OrtakAlanPaket = 'ORTAK_ALAN_PAKET',
+
+  /** Hotel package insurance / Otel paket sigortası */
+  OtelPaket = 'OTEL_PAKET',
+
+  /** Travel health insurance including epidemics / Salgın hastalıklar dahil seyahat sağlık sigortası */
+  SalginHastaliklarDahilSeyahatSaglik = 'SALGIN_HASTALIKLAR_DAHIL_SEYAHAT_SAGLIK',
+
+  /** "Turuncu" health insurance for foreign nationals / Yabancı uyruklulara özel turuncu sağlık sigortası */
+  YabanciUyruklularaOzelTuruncuSaglik = 'YABANCI_UYRUKLULARA_OZEL_TURUNCU_SAGLIK',
+
+  /** Domestic carrier liability insurance / Yurt içi taşıyıcı sorumluluk sigortası */
+  YurticiTasiyiciSorumluluk = 'YURTICI_TASIYICI_SORUMLULUK',
+
+  /** Freight forwarder liability insurance / Nakliye aracılığı sorumluluk sigortası */
+  NakliyeAraciligiSorumluluk = 'NAKLIYE_ARACILIGI_SORUMLULUK',
+
+  /**
+   * Compulsory seat personal accident insurance for road passenger transport /
+   * Karayolu yolcu taşımacılığı zorunlu koltuk ferdi kaza sigortası
+   */
+  KarayoluYolcuTasimaciligiZorunluKoltukFerdiKaza = 'KARAYOLU_YOLCU_TASIMACILIGI_ZORUNLU_KOLTUK_FERDI_KAZA',
+
+  /** Compulsory personal accident insurance for mine workers / Maden çalışanları zorunlu ferdi kaza sigortası */
+  MadenCalisanlariZorunluFerdiKazaSigortasi = 'MADEN_CALISANLARI_ZORUNLU_FERDI_KAZA_SIGORTASI',
+
+  /** "Doğal Destek" personal accident insurance / Doğal destek ferdi kaza sigortası */
+  DogalDestekFerdiKaza = 'DOGAL_DESTEK_FERDI_KAZA',
+
+  /** "Güven" personal accident insurance / Güven ferdi kaza sigortası */
+  GuvenFerdiKaza = 'GUVEN_FERDI_KAZA',
+
+  /** Cargo (goods in transit) insurance / Nakliyat emtia sigortası */
+  NakliyatEmtea = 'NAKLIYAT_EMTEA',
 }
 
 // ============================================================================

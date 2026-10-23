@@ -202,11 +202,50 @@ export interface InsuranceCompany {
    * yaparken müşterilere hangi ödeme yöntemlerinin sunulacağını belirler.
    */
   readonly supportedPaymentOptions: readonly PaymentOption[];
+
+  /**
+   * The company's branch-aware payment-option rules. `supportedPaymentOptions` is derived from these
+   * (methods enabled in every branch); read this list instead.
+   *
+   * Şirketin branşa göre ödeme seçeneği kuralları. `supportedPaymentOptions` bunlardan türetilir
+   * (her branşta açık olan yöntemler); bunun yerine bu liste okunmalıdır.
+   */
+  readonly paymentOptions: readonly InsuranceCompanyPaymentOption[];
+}
+
+/**
+ * One payment-option rule of an insurance company. For a (branch, payment option) pair the rule whose
+ * `branches` contains the branch wins, otherwise the rule with `branches: null` applies, otherwise the
+ * payment option is not offered.
+ *
+ * Bir sigorta şirketinin tek bir ödeme seçeneği kuralı. Bir (branş, ödeme seçeneği) çifti için `branches`
+ * listesinde branşı içeren kural geçerlidir; yoksa `branches: null` olan kural uygulanır; o da yoksa ödeme
+ * seçeneği sunulmaz.
+ */
+export interface InsuranceCompanyPaymentOption {
+  /** Branches the rule applies to; `null` makes it the company-wide rule for the payment option. */
+  readonly branches: readonly ProductBranch[] | null;
+  /** Payment option the rule configures. */
+  readonly paymentOption: PaymentOption;
+  /** Whether the payment option is offered for the rule's branches. */
+  readonly enabled: boolean;
+  /** Resource key of the text shown when the option is disabled, or `null`. */
+  readonly disabledDescriptionResourceKey: string | null;
 }
 
 // ============================================================================
 // INSURANCE PRODUCTS
 // ============================================================================
+
+/**
+ * Language a product can issue its documents in. Sent as a number.
+ *
+ * Ürünün belgelerini düzenleyebildiği dil. Sayı olarak gönderilir.
+ */
+export enum DocumentLanguage {
+  Turkish = 0,
+  English = 1,
+}
 
 /**
  * Represents an insurance product model containing product information and metadata.
@@ -322,6 +361,22 @@ export interface InsuranceProduct {
    * devre dışı ürünleri gizlemelidir.
    */
   readonly enabled: boolean;
+
+  /**
+   * The insurance company's own code for the product (e.g. "F06"), or `null` when unknown. The online and
+   * offline variants of one carrier product can share a code.
+   *
+   * Sigorta şirketinin ürün için kullandığı kod (örn. "F06"); bilinmiyorsa `null`. Aynı şirket ürününün
+   * online ve offline varyantları aynı kodu paylaşabilir.
+   */
+  readonly code: string | null;
+
+  /**
+   * Languages the product's documents can be issued in. Turkish is always included.
+   *
+   * Ürün belgelerinin düzenlenebildiği diller. Türkçe her zaman bulunur.
+   */
+  readonly supportedDocumentLanguages: readonly DocumentLanguage[];
 }
 
 // ============================================================================
