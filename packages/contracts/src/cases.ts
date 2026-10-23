@@ -105,7 +105,7 @@ export enum CaseSubState {
   FailReferredToLegal = 'FAIL_REFERRED_TO_LEGAL',
   FailCustomerUnsatisfied = 'FAIL_CUSTOMER_UNSATISFIED',
   FailMissingDocuments = 'FAIL_MISSING_DOCUMENTS',
-  FailInsurerDenied = 'FAIL_INSURER_DENIED',
+  FailInsuranceCompanyDenied = 'FAIL_INSURANCE_COMPANY_DENIED',
   FailConditionsNotMet = 'FAIL_CONDITIONS_NOT_MET',
   OpenInitial = 'OPEN_INITIAL',
   OpenCollectingInformation = 'OPEN_COLLECTING_INFORMATION',
@@ -577,7 +577,7 @@ export enum EndorsementCaseSubType {
    * Endorsement to transfer no-claim discount history from a previous insurance company.
    * Requires verification of claim-free periods, validation of bonus entitlements, and
    * premium adjustments based on the transferred discount levels. Essential for competitive
-   * pricing and customer retention when switching insurers.
+   * pricing and customer retention when switching insurance companies.
    *
    * Önceki bir sigorta şirketinden hasarsızlık indirimi geçmişinin transferi için zeyilname.
    * Hasarsız dönemlerin doğrulanmasını, bonus haklarının onaylanmasını ve transfer edilen
