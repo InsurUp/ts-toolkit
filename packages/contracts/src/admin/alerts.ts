@@ -171,6 +171,11 @@ export interface AlertLogQuery {
   readonly groupBy: readonly LogGroupField[];
   /** Whether only the entries that logged a `duration` count: one per finished operation. */
   readonly timedOnly: boolean;
+  /**
+   * Keeps only the groups none of whose entries were logged in this many days before the window, 1 to 30: grouped by
+   * `ERROR_KIND`, a rule that tells when something starts failing in a new way. Null keeps every group.
+   */
+  readonly unseenDays?: number | null;
 }
 
 /**

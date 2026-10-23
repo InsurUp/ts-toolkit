@@ -89,6 +89,12 @@ export enum LogGroupField {
   Agent = 'AGENT',
   /** The database and collection a slow query ran on; value key `dbNamespace`. Slow-query alert rules only. */
   DbNamespace = 'DB_NAMESPACE',
+  /**
+   * What went wrong, with the values taken out: the exception's type and message, or the logging class and the message
+   * of an entry without one, its ids, numbers and quoted values replaced, so one failure about many records is one
+   * kind; value key `errorKind`.
+   */
+  ErrorKind = 'ERROR_KIND',
 }
 
 /**
@@ -161,6 +167,12 @@ export enum MetricSignal {
   Minio = 'MINIO',
   /** A service's health checks, by check: each one's status and how long it ran. */
   Health = 'HEALTH',
+  /** The scheduled jobs, by job: how long ago each last succeeded. */
+  Jobs = 'JOBS',
+  /** The nightly policy transfer windows, by agent: the failed ones nothing will run again, and the stuck runs. */
+  PolicyTransfers = 'POLICY_TRANSFERS',
+  /** The agents' webhook deliveries, by agent and outcome. */
+  Webhooks = 'WEBHOOKS',
 }
 
 /**
@@ -299,6 +311,19 @@ export enum MetricMeasure {
   Status = 'STATUS',
   /** How long a health check ran: its average over the window, the longest of the instances a series groups, ms. */
   CheckDuration = 'CHECK_DURATION',
+  /**
+   * The containers a swarm service's busiest replica slot started within the window, stopped ones included. A deploy
+   * starts each slot once, so a slot that started more is restarting.
+   */
+  Restarts = 'RESTARTS',
+  /** The log entries VictoriaLogs took in over the window; with none, every log rule is blind. */
+  LogsIngested = 'LOGS_INGESTED',
+  /** How long ago a scheduled job last succeeded, s: it keeps growing while the job fails, hangs or isn't run. */
+  LastSuccessAgeSeconds = 'LAST_SUCCESS_AGE_SECONDS',
+  /** The policy transfer windows whose last run failed in the last day and won't run again. */
+  FailedWindows = 'FAILED_WINDOWS',
+  /** The policy transfer runs left Started for hours. */
+  StuckTriggers = 'STUCK_TRIGGERS',
 }
 
 /**
@@ -361,6 +386,10 @@ export enum MetricDimension {
   Job = 'JOB',
   /** A health check, such as `mongo` or `auth-server`; label key `healthCheck`. */
   HealthCheck = 'HEALTH_CHECK',
+  /** A scheduled job, by its type's full name; label key `jobName`. */
+  JobName = 'JOB_NAME',
+  /** An agent, by its ID; label key `agent`. */
+  Agent = 'AGENT',
 }
 
 /**
