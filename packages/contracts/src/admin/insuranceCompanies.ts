@@ -71,9 +71,11 @@ export interface GetCompanyConnectionFieldsResult {
 }
 
 /**
- * One connection field of an insurance company. The API does not return its `purpose` or `hidden` flag.
+ * One connection field of an insurance company. `purpose` and `hidden` are missing from servers released before
+ * they were added (core #1762); an update overwrites both, so an edit form must ask for them when they are.
  *
- * Bir sigorta şirketinin tek bir bağlantı alanı. API alanın `purpose` ve `hidden` değerlerini döndürmez.
+ * Bir sigorta şirketinin tek bir bağlantı alanı. `purpose` ve `hidden`, eklenmeden önce yayınlanmış sunucularda
+ * (core #1762) yoktur; güncelleme ikisinin de üzerine yazdığından düzenleme formu bu durumda onları sormalıdır.
  */
 export interface GetCompanyConnectionFieldResult {
   /** Key of the field, unique within the company. */
@@ -90,6 +92,10 @@ export interface GetCompanyConnectionFieldResult {
   readonly value: string | null;
   /** Display order; lower comes first. */
   readonly order: number;
+  /** What the field is used for; missing from servers before core #1762. */
+  readonly purpose?: InsuranceCompanyConnectionFieldPurpose;
+  /** Whether the field is hidden from agencies; missing from servers before core #1762. */
+  readonly hidden?: boolean;
 }
 
 /**
