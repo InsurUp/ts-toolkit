@@ -178,6 +178,11 @@ export enum MetricSignal {
    * certificates no endpoint probe reaches.
    */
   Certificates = 'CERTIFICATES',
+  /**
+   * MongoDB's replica sets, by replica set: the members down, how far behind a secondary is, the members that changed
+   * state, and how long the oplog reaches back.
+   */
+  MongoDb = 'MONGODB',
 }
 
 /**
@@ -329,6 +334,14 @@ export enum MetricMeasure {
   FailedWindows = 'FAILED_WINDOWS',
   /** The policy transfer runs left Started for hours. */
   StuckTriggers = 'STUCK_TRIGGERS',
+  /** The members of a replica set some member reports unhealthy: down, unreachable, or not answering its heartbeats. */
+  MembersDown = 'MEMBERS_DOWN',
+  /** How far the furthest-behind secondary trails the primary, s. */
+  ReplicationLagSeconds = 'REPLICATION_LAG_SECONDS',
+  /** How many times members changed state within the window: an election moves at least the old and the new primary. */
+  StateChanges = 'STATE_CHANGES',
+  /** How far back the shortest oplog of a replica set reaches, h: how long a member can be away and still catch up. */
+  OplogWindowHours = 'OPLOG_WINDOW_HOURS',
 }
 
 /**
@@ -400,6 +413,8 @@ export enum MetricDimension {
    * `certificate`.
    */
   Certificate = 'CERTIFICATE',
+  /** A MongoDB replica set, such as `shard1rs` or `cfg1rs`; label key `replicaSet`. */
+  ReplicaSet = 'REPLICA_SET',
 }
 
 /**
