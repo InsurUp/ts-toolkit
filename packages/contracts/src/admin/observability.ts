@@ -173,6 +173,16 @@ export enum MetricSignal {
   PolicyTransfers = 'POLICY_TRANSFERS',
   /** The agents' webhook deliveries, by agent and outcome. */
   Webhooks = 'WEBHOOKS',
+  /**
+   * The certificates the services mount, by certificate: how many days each has left. The internal client and server
+   * certificates no endpoint probe reaches.
+   */
+  Certificates = 'CERTIFICATES',
+  /**
+   * MongoDB's replica sets, by replica set: the members down, how far behind a secondary is, the members that changed
+   * state, and how long the oplog reaches back.
+   */
+  MongoDb = 'MONGODB',
 }
 
 /**
@@ -324,6 +334,14 @@ export enum MetricMeasure {
   FailedWindows = 'FAILED_WINDOWS',
   /** The policy transfer runs left Started for hours. */
   StuckTriggers = 'STUCK_TRIGGERS',
+  /** The members of a replica set some member reports unhealthy: down, unreachable, or not answering its heartbeats. */
+  MembersDown = 'MEMBERS_DOWN',
+  /** How far the furthest-behind secondary trails the primary, s. */
+  ReplicationLagSeconds = 'REPLICATION_LAG_SECONDS',
+  /** How many times members changed state within the window: an election moves at least the old and the new primary. */
+  StateChanges = 'STATE_CHANGES',
+  /** How far back the shortest oplog of a replica set reaches, h: how long a member can be away and still catch up. */
+  OplogWindowHours = 'OPLOG_WINDOW_HOURS',
 }
 
 /**
@@ -390,6 +408,13 @@ export enum MetricDimension {
   JobName = 'JOB_NAME',
   /** An agent, by its ID; label key `agent`. */
   Agent = 'AGENT',
+  /**
+   * A certificate, by the stable key of the docker secret holding it, such as `rabbitmq_tls_server_cert`; label key
+   * `certificate`.
+   */
+  Certificate = 'CERTIFICATE',
+  /** A MongoDB replica set, such as `shard1rs` or `cfg1rs`; label key `replicaSet`. */
+  ReplicaSet = 'REPLICA_SET',
 }
 
 /**
