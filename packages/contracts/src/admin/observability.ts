@@ -193,7 +193,10 @@ export enum MetricSignal {
 export enum MetricMeasure {
   /** Requests, consumed messages, or proposal creations, premiums and purchases whatever their outcome. */
   Requests = 'REQUESTS',
-  /** 5xx responses, messages whose consumer threw, or proposal steps that failed or got no answer in time. */
+  /**
+   * 5xx responses, messages whose consumer threw, proposal steps that failed or got no answer in time, or MongoDB's
+   * server asserts.
+   */
   Errors = 'ERRORS',
   /** Outgoing requests that got no response. */
   Failures = 'FAILURES',
@@ -211,7 +214,7 @@ export enum MetricMeasure {
   DeliveryLatencyAverage = 'DELIVERY_LATENCY_AVERAGE',
   /** 95th-percentile time between a message's send and its consumption, ms. */
   DeliveryLatencyP95 = 'DELIVERY_LATENCY_P95',
-  /** Requests or consumptions in progress. */
+  /** Requests, consumptions or database operations in progress. */
   Active = 'ACTIVE',
   /** Open outgoing connections. */
   OpenConnections = 'OPEN_CONNECTIONS',
@@ -270,7 +273,10 @@ export enum MetricMeasure {
   ErrorPercent = 'ERROR_PERCENT',
   /** 95th-percentile wait of a database checkout for a connection, ms. */
   QueueTimeP95 = 'QUEUE_TIME_P95',
-  /** Database checkouts that gave up waiting for a connection, or proposal steps that got no answer in time. */
+  /**
+   * Database checkouts that gave up waiting for a connection, proposal steps that got no answer in time, or MongoDB
+   * operations stopped for running past their time limit.
+   */
   Timeouts = 'TIMEOUTS',
   /** Database connections lent out. */
   PoolUsed = 'POOL_USED',
@@ -291,7 +297,10 @@ export enum MetricMeasure {
    * no consumer: nothing consumes them again until someone moves them back.
    */
   ParkedMessages = 'PARKED_MESSAGES',
-  /** Memory in use, percent: of a server's, of a container's limit, or of Redis's maxmemory. */
+  /**
+   * Memory in use, percent: of a server's, of a container's limit, of Redis's maxmemory, or of MongoDB's storage engine
+   * cache.
+   */
   MemoryUsedPercent = 'MEMORY_USED_PERCENT',
   /** Space in use, percent: of a filesystem, or of the MinIO cluster's usable capacity. */
   DiskUsedPercent = 'DISK_USED_PERCENT',
@@ -307,13 +316,16 @@ export enum MetricMeasure {
   FailingProbes = 'FAILING_PROBES',
   /** Days until the earliest certificate a probe was served expires; negative once it has. */
   CertificateDaysLeft = 'CERTIFICATE_DAYS_LEFT',
-  /** Scrape targets Prometheus couldn't reach at its last attempt. */
+  /** Scrape targets Prometheus couldn't reach at its last attempt, or MongoDB nodes its exporter couldn't. */
   TargetsDown = 'TARGETS_DOWN',
   /** Samples Prometheus failed to forward to its remote-write targets. */
   RemoteWriteFailures = 'REMOTE_WRITE_FAILURES',
   /** Drives the MinIO cluster reports offline. */
   OfflineDrives = 'OFFLINE_DRIVES',
-  /** Redis's connected clients, percent of its maxclients. */
+  /**
+   * Connections in use, percent: Redis's connected clients of its maxclients, or a MongoDB node's open connections of
+   * the ones it could take.
+   */
   ConnectionsPercent = 'CONNECTIONS_PERCENT',
   /** RabbitMQ's resource alarms raised: memory high watermark, free disk low, file descriptors exhausted. */
   ResourceAlarms = 'RESOURCE_ALARMS',
@@ -323,7 +335,7 @@ export enum MetricMeasure {
   CheckDuration = 'CHECK_DURATION',
   /**
    * The containers a swarm service's busiest replica slot started within the window, stopped ones included. A deploy
-   * starts each slot once, so a slot that started more is restarting.
+   * starts each slot once, so a slot that started more is restarting. Of MongoDB, the times its nodes restarted.
    */
   Restarts = 'RESTARTS',
   /** The log entries VictoriaLogs took in over the window; with none, every log rule is blind. */
@@ -342,6 +354,45 @@ export enum MetricMeasure {
   StateChanges = 'STATE_CHANGES',
   /** How far back the shortest oplog of a replica set reaches, h: how long a member can be away and still catch up. */
   OplogWindowHours = 'OPLOG_WINDOW_HOURS',
+  /** The operations waiting for a lock, the most of the members a series groups. */
+  QueuedOperations = 'QUEUED_OPERATIONS',
+  /**
+   * The share of the storage engine's cache holding changes not yet written to disk, %: past about 20% writes start
+   * waiting for eviction.
+   */
+  CacheDirtyPercent = 'CACHE_DIRTY_PERCENT',
+  /** Documents inserted, returned, updated and deleted. */
+  Documents = 'DOCUMENTS',
+  /** Documents scanned per document returned: far above 1, queries read what an index would have skipped. */
+  QueryTargeting = 'QUERY_TARGETING',
+  /** Queries that read a whole collection, with no index to narrow them; an oplog tail isn't one. */
+  CollectionScans = 'COLLECTION_SCANS',
+  /** Queries that sorted their results in memory, with no index to read them in order. */
+  InMemorySorts = 'IN_MEMORY_SORTS',
+  /** Network bytes received. */
+  BytesReceived = 'BYTES_RECEIVED',
+  /** Network bytes sent. */
+  BytesSent = 'BYTES_SENT',
+  /** Cursors open. */
+  OpenCursors = 'OPEN_CURSORS',
+  /** Writes that collided with another on the same document and were retried. */
+  WriteConflicts = 'WRITE_CONFLICTS',
+  /** Transactions committed. */
+  TransactionsCommitted = 'TRANSACTIONS_COMMITTED',
+  /** Transactions aborted. */
+  TransactionsAborted = 'TRANSACTIONS_ABORTED',
+  /**
+   * The storage engine's read or write tickets in use, %, the busier of the two: at 100% operations queue for one.
+   */
+  TicketsUsedPercent = 'TICKETS_USED_PERCENT',
+  /** Bytes read from disk into the storage engine's cache. */
+  BytesReadIntoCache = 'BYTES_READ_INTO_CACHE',
+  /** Bytes written from the storage engine's cache to disk. */
+  BytesWrittenFromCache = 'BYTES_WRITTEN_FROM_CACHE',
+  /** How long the storage engine's last checkpoint took to write the cache's changes to disk, ms. */
+  CheckpointDuration = 'CHECKPOINT_DURATION',
+  /** Connections opened: far above the open ones, clients keep reconnecting. */
+  ConnectionsCreated = 'CONNECTIONS_CREATED',
 }
 
 /**
