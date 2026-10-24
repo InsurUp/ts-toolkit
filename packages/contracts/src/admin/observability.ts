@@ -173,6 +173,11 @@ export enum MetricSignal {
   PolicyTransfers = 'POLICY_TRANSFERS',
   /** The agents' webhook deliveries, by agent and outcome. */
   Webhooks = 'WEBHOOKS',
+  /**
+   * The certificates the services mount, by certificate: how many days each has left. The internal client and server
+   * certificates no endpoint probe reaches.
+   */
+  Certificates = 'CERTIFICATES',
 }
 
 /**
@@ -390,6 +395,11 @@ export enum MetricDimension {
   JobName = 'JOB_NAME',
   /** An agent, by its ID; label key `agent`. */
   Agent = 'AGENT',
+  /**
+   * A certificate, by the stable key of the docker secret holding it, such as `rabbitmq_tls_server_cert`; label key
+   * `certificate`.
+   */
+  Certificate = 'CERTIFICATE',
 }
 
 /**
