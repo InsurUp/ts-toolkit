@@ -3,7 +3,12 @@
  * @description API endpoint definitions with identical names and render functions
  */
 
-import type { ConsentType, VehicleUtilizationStyle } from '@insurup/contracts';
+import type {
+  ConsentType,
+  ListErrorGroupsQuery,
+  ListInvestigationsQuery,
+  VehicleUtilizationStyle,
+} from '@insurup/contracts';
 import { VehicleUtilizationStyleOrdinal } from '@insurup/contracts';
 import { withQuery } from './query.js';
 
@@ -1744,6 +1749,67 @@ export const admin = {
         'observability/alerts/silences/{SilenceId}/expire'.replace(
           '{SilenceId}',
           encodeURIComponent(silenceId)
+        ),
+    },
+  },
+
+  errors: {
+    list: {
+      definition: 'observability/errors',
+      render: (query?: ListErrorGroupsQuery): string => {
+        const base = withQuery('observability/errors', {
+          service: query?.service,
+          search: query?.search,
+          cursor: query?.cursor,
+          limit: query?.limit,
+        });
+        const statuses = (query?.status ?? []).map(
+          (status) => `status=${encodeURIComponent(status)}`
+        );
+        if (statuses.length === 0) {
+          return base;
+        }
+        return `${base}${base.includes('?') ? '&' : '?'}${statuses.join('&')}`;
+      },
+    },
+    group: {
+      definition: 'observability/errors/{ErrorGroupId}',
+      render: (errorGroupId: string): string =>
+        'observability/errors/{ErrorGroupId}'.replace(
+          '{ErrorGroupId}',
+          encodeURIComponent(errorGroupId)
+        ),
+    },
+    investigate: {
+      definition: 'observability/errors/{ErrorGroupId}/investigate',
+      render: (errorGroupId: string): string =>
+        'observability/errors/{ErrorGroupId}/investigate'.replace(
+          '{ErrorGroupId}',
+          encodeURIComponent(errorGroupId)
+        ),
+    },
+    settings: 'observability/error-tracking/settings',
+  },
+
+  investigations: {
+    list: {
+      definition: 'observability/investigations',
+      render: (query?: ListInvestigationsQuery): string =>
+        withQuery('observability/investigations', {
+          kind: query?.kind,
+          ruleId: query?.ruleId,
+          notificationId: query?.notificationId,
+          errorGroupId: query?.errorGroupId,
+          cursor: query?.cursor,
+          limit: query?.limit,
+        }),
+    },
+    investigation: {
+      definition: 'observability/investigations/{InvestigationId}',
+      render: (investigationId: string): string =>
+        'observability/investigations/{InvestigationId}'.replace(
+          '{InvestigationId}',
+          encodeURIComponent(investigationId)
         ),
     },
   },

@@ -9,8 +9,10 @@ import { InsurUpAdminAgentsClient } from './admin/agents.js';
 import { InsurUpAdminAgentUsersClient } from './admin/agentUsers.js';
 import { InsurUpAdminAlertsClient } from './admin/alerts.js';
 import { InsurUpAdminCacheClient } from './admin/cache.js';
+import { InsurUpAdminErrorsClient } from './admin/errors.js';
 import { InsurUpAdminInsightsClient } from './admin/insights.js';
 import { InsurUpAdminInsuranceCompaniesClient } from './admin/insuranceCompanies.js';
+import { InsurUpAdminInvestigationsClient } from './admin/investigations.js';
 import { InsurUpAdminInvitesClient } from './admin/invites.js';
 import { InsurUpAdminObservabilityClient } from './admin/observability.js';
 import { InsurUpAdminProductsClient } from './admin/products.js';
@@ -71,6 +73,12 @@ export class InsurUpAdminClient {
   /** Alert rules, notification channels, silences and alert history. */
   public readonly alerts: InsurUpAdminAlertsClient;
 
+  /** The platform's errors grouped by fingerprint, their triage, and whether new ones are investigated. */
+  public readonly errors: InsurUpAdminErrorsClient;
+
+  /** The AI's investigations of alerts and errors. */
+  public readonly investigations: InsurUpAdminInvestigationsClient;
+
   /** Business insights: overview, agencies, features, sales, channels, operations and assistant usage. */
   public readonly insights: InsurUpAdminInsightsClient;
 
@@ -89,6 +97,8 @@ export class InsurUpAdminClient {
     this.cache = new InsurUpAdminCacheClient(http);
     this.observability = new InsurUpAdminObservabilityClient(http);
     this.alerts = new InsurUpAdminAlertsClient(http);
+    this.errors = new InsurUpAdminErrorsClient(http);
+    this.investigations = new InsurUpAdminInvestigationsClient(http);
     this.insights = new InsurUpAdminInsightsClient(http);
   }
 }
