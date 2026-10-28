@@ -106,4 +106,6 @@ export const sampleSettings: ErrorTrackingSettingsResult = {
   maxPerDay: 20,
   updatedAt: null,
   updatedBy: null,
+  investigatorAvailable: true,
+  scanAvailable: true,
 };

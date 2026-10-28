@@ -221,6 +221,10 @@ export interface ErrorTrackingSettingsResult {
   readonly updatedAt: string | null;
   /** Who last changed them; null when nobody did. */
   readonly updatedBy: UserReference | null;
+  /** Whether an investigator is configured in this environment; without one nothing is investigated. */
+  readonly investigatorAvailable?: boolean;
+  /** Whether the logs are scanned for errors in this environment; without it the list stays empty. */
+  readonly scanAvailable?: boolean;
 }
 
 // ---------------------------------------------------------------------------

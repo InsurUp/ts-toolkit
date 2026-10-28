@@ -182,6 +182,8 @@ describe('AdminErrorsClient', () => {
     if (result.kind === 'success') {
       expect(result.data.investigateNewErrors).toBe(false);
       expect(result.data.maxPerHour).toBe(5);
+      expect(result.data.investigatorAvailable).toBe(true);
+      expect(result.data.scanAvailable).toBe(true);
     }
   });
 
