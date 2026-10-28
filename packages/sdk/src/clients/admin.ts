@@ -14,6 +14,7 @@ import { InsurUpAdminInsightsClient } from './admin/insights.js';
 import { InsurUpAdminInsuranceCompaniesClient } from './admin/insuranceCompanies.js';
 import { InsurUpAdminInvestigationsClient } from './admin/investigations.js';
 import { InsurUpAdminInvitesClient } from './admin/invites.js';
+import { InsurUpAdminMessagesClient } from './admin/messages.js';
 import { InsurUpAdminObservabilityClient } from './admin/observability.js';
 import { InsurUpAdminProductsClient } from './admin/products.js';
 import { InsurUpAdminReleaseNotesClient } from './admin/releaseNotes.js';
@@ -76,8 +77,11 @@ export class InsurUpAdminClient {
   /** The platform's errors grouped by fingerprint, their triage, and whether new ones are investigated. */
   public readonly errors: InsurUpAdminErrorsClient;
 
-  /** The AI's investigations of alerts and errors. */
+  /** The AI's investigations of alerts, errors and parked queues. */
   public readonly investigations: InsurUpAdminInvestigationsClient;
+
+  /** The RabbitMQ queues, a peek at their messages, and the replay, purge and investigation of parked ones. */
+  public readonly messages: InsurUpAdminMessagesClient;
 
   /** Business insights: overview, agencies, features, sales, channels, operations and assistant usage. */
   public readonly insights: InsurUpAdminInsightsClient;
@@ -99,6 +103,7 @@ export class InsurUpAdminClient {
     this.alerts = new InsurUpAdminAlertsClient(http);
     this.errors = new InsurUpAdminErrorsClient(http);
     this.investigations = new InsurUpAdminInvestigationsClient(http);
+    this.messages = new InsurUpAdminMessagesClient(http);
     this.insights = new InsurUpAdminInsightsClient(http);
   }
 }

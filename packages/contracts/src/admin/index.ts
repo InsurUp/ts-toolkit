@@ -17,4 +17,5 @@ export * from './observability.js';
 export * from './alerts.js';
 export * from './errors.js';
 export * from './investigations.js';
+export * from './messages.js';
 export * from './insights.js';
