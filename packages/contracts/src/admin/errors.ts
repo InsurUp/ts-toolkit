@@ -65,6 +65,10 @@ export enum ErrorTimelineKind {
   InvestigationFailed = 'INVESTIGATION_FAILED',
   /** An investigation was due but wasn't started, for instance because a limit was reached. */
   InvestigationSkipped = 'INVESTIGATION_SKIPPED',
+  /** Someone cleared the cause. */
+  CauseCleared = 'CAUSE_CLEARED',
+  /** Someone cleared the resolution. */
+  ResolutionCleared = 'RESOLUTION_CLEARED',
 }
 
 // ---------------------------------------------------------------------------

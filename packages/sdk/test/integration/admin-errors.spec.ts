@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { http, HttpResponse } from 'msw';
-import { AuthorKind, ErrorGroupStatus, InvestigationKind } from '@insurup/contracts';
+import {
+  AuthorKind,
+  ErrorGroupStatus,
+  ErrorTimelineKind,
+  InvestigationKind,
+} from '@insurup/contracts';
 import type {
   UpdateErrorGroupRequest,
   UpdateErrorTrackingSettingsRequest,
@@ -99,6 +104,32 @@ describe('AdminErrorsClient', () => {
       expect(result.data.cause?.author.kind).toBe(AuthorKind.Ai);
       expect(result.data.timeline).toHaveLength(2);
       expect(result.data.investigations[0]?.kind).toBe(InvestigationKind.Error);
+    }
+  });
+
+  it('get reads a cleared cause and a cleared resolution from the timeline', async () => {
+    const cleared = {
+      ...sampleErrorGroup,
+      cause: null,
+      timeline: [
+        { ...sampleErrorGroup.timeline[0], kind: 'RESOLUTION_CLEARED' },
+        { ...sampleErrorGroup.timeline[0], kind: 'CAUSE_CLEARED' },
+        ...sampleErrorGroup.timeline,
+      ],
+    };
+    server.use(http.get(`${ERRORS}/:errorGroupId`, () => HttpResponse.json(cleared)));
+
+    const result = await t.client.admin.errors.get(sampleErrorGroupId);
+
+    expect(result.kind).toBe('success');
+    if (result.kind === 'success') {
+      expect(result.data.cause).toBeNull();
+      expect(result.data.timeline.map((entry) => entry.kind)).toEqual([
+        ErrorTimelineKind.ResolutionCleared,
+        ErrorTimelineKind.CauseCleared,
+        ErrorTimelineKind.CauseWritten,
+        ErrorTimelineKind.FirstSeen,
+      ]);
     }
   });
 
