@@ -168,6 +168,29 @@ describe('AdminAlertsClient', () => {
       }
     });
 
+    it('createRule sends the investigate flag inside the definition', async () => {
+      let receivedBody: unknown;
+      server.use(
+        http.post(`${ALERTS}/rules`, async ({ request }) => {
+          receivedBody = await request.json();
+          return HttpResponse.json({
+            ...sampleAlertRule,
+            definition: { ...sampleRuleDefinition, investigate: true },
+          });
+        })
+      );
+
+      const result = await t.client.admin.alerts.createRule({
+        definition: { ...sampleRuleDefinition, investigate: true },
+      });
+
+      expect(receivedBody).toEqual({ definition: { ...sampleRuleDefinition, investigate: true } });
+      expect(result.kind).toBe('success');
+      if (result.kind === 'success') {
+        expect(result.data.definition.investigate).toBe(true);
+      }
+    });
+
     it('createRule maps 400 with validationErrors to InputValidation', async () => {
       server.use(
         http.post(`${ALERTS}/rules`, () =>

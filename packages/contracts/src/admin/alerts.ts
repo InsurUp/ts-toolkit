@@ -224,6 +224,11 @@ export interface AlertRuleDefinition {
    * rarely used route failing once doesn't read as 100%; null weighs every series.
    */
   readonly minimumCount: number | null;
+  /**
+   * Whether the AI investigates the rule's alerts when they fire, and answers in the alert's Slack thread. Absent from
+   * cores that predate it, which read it as false.
+   */
+  readonly investigate?: boolean;
 }
 
 // ---------------------------------------------------------------------------
