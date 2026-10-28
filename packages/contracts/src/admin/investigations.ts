@@ -21,6 +21,8 @@ export enum InvestigationKind {
   Alert = 'ALERT',
   /** An error group. */
   Error = 'ERROR',
+  /** A parked queue: an `_error` or `_skipped` queue holding messages. */
+  Queue = 'QUEUE',
 }
 
 /**
@@ -71,7 +73,7 @@ export interface InvestigationSummaryResult {
   readonly state: InvestigationState;
   /** The admin who started it; null when the platform did. */
   readonly requestedBy: UserReference | null;
-  /** The alert rule's name, or the error group's title. */
+  /** The alert rule's name, the error group's title, or the parked queue's name. */
   readonly title: string;
   /** The alert's rule, for an alert. */
   readonly ruleId: string | null;
@@ -79,6 +81,8 @@ export interface InvestigationSummaryResult {
   readonly notificationId: string | null;
   /** The error group, for an error. */
   readonly errorGroupId: string | null;
+  /** The parked queue, for a queue; absent from cores older than the Messages page. */
+  readonly parkedQueueId?: string | null;
   /** When it was started (ISO-8601). */
   readonly createdAt: string;
   /** When the investigator picked it up (ISO-8601). */
@@ -134,7 +138,7 @@ export interface ListInvestigationsResult {
  * Hangi incelemelerin listeleneceği. Tüm filtreler isteğe bağlıdır.
  */
 export interface ListInvestigationsQuery {
-  /** Only alerts' or only errors'. */
+  /** Only alerts', only errors' or only parked queues'. */
   readonly kind?: InvestigationKind;
   /** Only one alert rule's. */
   readonly ruleId?: string;

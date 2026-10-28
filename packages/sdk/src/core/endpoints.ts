@@ -7,6 +7,8 @@ import type {
   ConsentType,
   ListErrorGroupsQuery,
   ListInvestigationsQuery,
+  ListMessageQueuesQuery,
+  ListParkedQueuesQuery,
   VehicleUtilizationStyle,
 } from '@insurup/contracts';
 import { VehicleUtilizationStyleOrdinal } from '@insurup/contracts';
@@ -1812,6 +1814,54 @@ export const admin = {
           encodeURIComponent(investigationId)
         ),
     },
+  },
+
+  messages: {
+    queues: {
+      definition: 'observability/messages/queues',
+      render: (query?: ListMessageQueuesQuery): string =>
+        withQuery('observability/messages/queues', {
+          kind: query?.kind,
+          search: query?.search,
+        }),
+    },
+    peek: {
+      definition: 'observability/messages/queues/{Name}/peek',
+      render: (name: string): string =>
+        'observability/messages/queues/{Name}/peek'.replace('{Name}', encodeURIComponent(name)),
+    },
+    replay: {
+      definition: 'observability/messages/queues/{Name}/replay',
+      render: (name: string): string =>
+        'observability/messages/queues/{Name}/replay'.replace('{Name}', encodeURIComponent(name)),
+    },
+    purge: {
+      definition: 'observability/messages/queues/{Name}/purge',
+      render: (name: string): string =>
+        'observability/messages/queues/{Name}/purge'.replace('{Name}', encodeURIComponent(name)),
+    },
+    parkedList: {
+      definition: 'observability/messages/parked',
+      render: (query?: ListParkedQueuesQuery): string =>
+        withQuery('observability/messages/parked', { state: query?.state }),
+    },
+    parked: {
+      definition: 'observability/messages/parked/{ParkedQueueId}',
+      render: (parkedQueueId: string): string =>
+        'observability/messages/parked/{ParkedQueueId}'.replace(
+          '{ParkedQueueId}',
+          encodeURIComponent(parkedQueueId)
+        ),
+    },
+    investigate: {
+      definition: 'observability/messages/parked/{ParkedQueueId}/investigate',
+      render: (parkedQueueId: string): string =>
+        'observability/messages/parked/{ParkedQueueId}/investigate'.replace(
+          '{ParkedQueueId}',
+          encodeURIComponent(parkedQueueId)
+        ),
+    },
+    settings: 'observability/messages/settings',
   },
 
   insights: {

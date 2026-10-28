@@ -56,6 +56,7 @@ export { InsurUpAdminObservabilityClient } from './clients/admin/observability.j
 export { InsurUpAdminAlertsClient } from './clients/admin/alerts.js';
 export { InsurUpAdminErrorsClient } from './clients/admin/errors.js';
 export { InsurUpAdminInvestigationsClient } from './clients/admin/investigations.js';
+export { InsurUpAdminMessagesClient } from './clients/admin/messages.js';
 export { InsurUpAdminInsightsClient } from './clients/admin/insights.js';
 
 // Core types and results
