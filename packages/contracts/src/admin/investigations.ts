@@ -85,8 +85,11 @@ export interface InvestigationSummaryResult {
   readonly startedAt: string | null;
   /** When it completed or failed (ISO-8601). */
   readonly completedAt: string | null;
-  /** The draft pull request the investigator opened, when it opened one. */
-  readonly pullRequestUrl: string | null;
+  /**
+   * The draft pull requests the investigator opened, on any of InsurUp's repositories (core, the admin panel, this SDK,
+   * compose); empty when it opened none.
+   */
+  readonly pullRequestUrls: readonly string[];
   /** Why it failed, when it did. */
   readonly failure: string | null;
 }

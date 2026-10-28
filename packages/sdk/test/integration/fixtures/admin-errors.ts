@@ -56,7 +56,10 @@ export const sampleErrorInvestigation: InvestigationSummaryResult = {
   createdAt: '2026-10-26T12:19:00Z',
   startedAt: '2026-10-26T12:19:05Z',
   completedAt: '2026-10-26T12:27:40Z',
-  pullRequestUrl: 'https://github.com/InsurUp/core/pull/1900',
+  pullRequestUrls: [
+    'https://github.com/InsurUp/core/pull/1900',
+    'https://github.com/InsurUp/ts-toolkit/pull/96',
+  ],
   failure: null,
 };
 
