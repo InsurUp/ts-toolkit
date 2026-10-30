@@ -1,5 +1,5 @@
 /**
- * @fileoverview Admin Insurance Companies Client - Company settings and connection fields
+ * @fileoverview Admin Insurance Companies Client - Adding companies, company settings and connection fields
  */
 
 import type { HttpTransport } from '../../client/http.js';
@@ -8,8 +8,10 @@ import type { RequestOptions } from '../../core/options.js';
 import { admin } from '../../core/endpoints.js';
 import type {
   CreateCompanyConnectionFieldRequest,
+  CreateInsuranceCompanyRequest,
   GetCompanyConnectionFieldResult,
   GetCompanyConnectionFieldsResult,
+  InsuranceCompany,
   UpdateCompanyConnectionFieldRequest,
   UpdateInsuranceCompanyRequest,
 } from '@insurup/contracts';
@@ -23,6 +25,20 @@ import type {
  */
 export class InsurUpAdminInsuranceCompaniesClient {
   constructor(private readonly http: HttpTransport) {}
+
+  /**
+   * Adds an insurance company to the catalogue and returns it, with no payment options or connection fields yet.
+   *
+   * Kataloğa bir sigorta şirketi ekler ve onu henüz ödeme seçeneği ve bağlantı alanı olmadan döndürür.
+   *
+   * @param request The company / Şirket
+   */
+  async create(
+    request: CreateInsuranceCompanyRequest,
+    options?: RequestOptions
+  ): Promise<InsurUpResult<InsuranceCompany>> {
+    return this.http.post<InsuranceCompany>(admin.insuranceCompanies.create, request, options);
+  }
 
   /**
    * Updates a company's name, logo, enablement and payment-option rules.

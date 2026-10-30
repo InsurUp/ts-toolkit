@@ -7,6 +7,26 @@
 import type { InsuranceCompanyPaymentOption } from '../insurance.js';
 
 /**
+ * Body of `admin.insuranceCompanies.create`: an insurance company added to the catalogue by hand, with no payment
+ * options or connection fields yet. Until it is mapped to a provider's company (`admin.insurGateway.mapInsuranceCompany`),
+ * none of its products can be mapped.
+ *
+ * `admin.insuranceCompanies.create` gövdesi: kataloğa elle eklenen, henüz ödeme seçeneği ve bağlantı alanı olmayan
+ * sigorta şirketi. Bir sağlayıcının şirketiyle eşleştirilene kadar (`admin.insurGateway.mapInsuranceCompany`) hiçbir
+ * ürünü eşleştirilemez.
+ */
+export interface CreateInsuranceCompanyRequest {
+  /** The id to give it; omitted, the next free id from 100000 up. */
+  readonly id?: number | null;
+  /** Display name of the company. */
+  readonly name: string;
+  /** Logo URL, or `null` for none. */
+  readonly logo?: string | null;
+  /** Whether the company is offered at all. Defaults to `false`. */
+  readonly enabled?: boolean;
+}
+
+/**
  * Body of `admin.insuranceCompanies.update`. The company comes from the method's `id` argument, which
  * the SDK also writes into the body.
  *

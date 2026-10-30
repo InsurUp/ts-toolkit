@@ -15,6 +15,51 @@ import {
 const t = setupIntegrationTest();
 
 describe('AdminInsuranceCompaniesClient', () => {
+  it('create POSTs the company and returns it', async () => {
+    let methodSeen: string | undefined;
+    let receivedBody: unknown;
+    server.use(
+      http.post(`${BASE_URL}/insurance-companies`, async ({ request }) => {
+        methodSeen = request.method;
+        receivedBody = await request.json();
+        return HttpResponse.json({
+          id: 100000,
+          name: 'Yeni Sigorta',
+          logo: null,
+          enabled: false,
+          paymentOptions: [],
+          supportedPaymentOptions: [],
+        });
+      })
+    );
+
+    const result = await t.client.admin.insuranceCompanies.create({ name: 'Yeni Sigorta' });
+
+    expect(methodSeen).toBe('POST');
+    expect(receivedBody).toEqual({ name: 'Yeni Sigorta' });
+    expect(result.kind).toBe('success');
+    if (result.kind === 'success') {
+      expect(result.data.id).toBe(100000);
+      expect(result.data.paymentOptions).toEqual([]);
+    }
+  });
+
+  it('create maps 400 to InputValidation', async () => {
+    server.use(
+      http.post(`${BASE_URL}/insurance-companies`, () =>
+        validationError([{ propertyName: 'Name', errorMessage: "'Name' must not be empty." }])
+      )
+    );
+
+    const result = await t.client.admin.insuranceCompanies.create({ name: '' });
+
+    expect(result.kind).toBe('server-error');
+    if (result.kind === 'server-error') {
+      expect(result.status).toBe(400);
+      expect(result.type).toBe(InsurUpServerErrorType.InputValidation);
+    }
+  });
+
   it('update PUTs the settings with the company id in the path and the body', async () => {
     let methodSeen: string | undefined;
     let receivedBody: unknown;

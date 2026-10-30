@@ -11,6 +11,8 @@ export * from './subscriptionPlans.js';
 export * from './agentSetup.js';
 export * from './products.js';
 export * from './insuranceCompanies.js';
+export * from './routingRules.js';
+export * from './insurGateway.js';
 export * from './resourceKeys.js';
 export * from './releaseNotes.js';
 export * from './observability.js';
