@@ -103,4 +103,26 @@ export class InsurUpAdminInsurGatewayClient {
       options
     );
   }
+
+  /**
+   * Removes a catalogue insurance company's InsurGateway mapping, and with it InsurGateway's record of the company,
+   * its connection field keys and payment options included. Refused (ResourceInvalidState) while any of the company's
+   * products is still mapped to InsurGateway (`INSURGATEWAY_INSURANCE_COMPANY_HAS_MAPPED_PRODUCTS`: unmap them first) or
+   * while any agent still has a connection to the company (`INSURGATEWAY_INSURANCE_COMPANY_HAS_AGENT_CONNECTIONS`).
+   *
+   * Bir katalog sigorta şirketinin InsurGateway eşleşmesini ve onunla birlikte InsurGateway'in şirket kaydını
+   * (bağlantı alanı anahtarları ve ödeme seçenekleri dahil) kaldırır. Şirketin InsurGateway ile eşleştirilmiş ürünü
+   * varken (önce onların eşleşmesini kaldırın) ya da şirkete bağlı bir acente varken reddedilir.
+   *
+   * @param insuranceCompanyId Catalogue insurance company id / Katalog sigorta şirketi kimliği
+   */
+  async unmapInsuranceCompany(
+    insuranceCompanyId: number,
+    options?: RequestOptions
+  ): Promise<InsurUpResult> {
+    return this.http.deleteNoContent(
+      admin.insurGateway.insuranceCompanyMapping.render(insuranceCompanyId),
+      options
+    );
+  }
 }
