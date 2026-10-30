@@ -149,4 +149,55 @@ describe('AdminInsurGatewayClient', () => {
     expect(receivedBody).toEqual({ insuranceCompanyId: 100000, insurGatewayCompanyId: 120 });
     expect(result.kind).toBe('success');
   });
+
+  it('unmapInsuranceCompany DELETEs the mapping by company id', async () => {
+    let methodSeen: string | undefined;
+    server.use(
+      http.delete(`${companiesPath}/:companyId/mapping`, ({ request, params }) => {
+        methodSeen = request.method;
+        expect(params.companyId).toBe('100000');
+        return new HttpResponse(null, { status: 204 });
+      })
+    );
+
+    const result = await t.client.admin.insurGateway.unmapInsuranceCompany(100000);
+
+    expect(methodSeen).toBe('DELETE');
+    expect(result.kind).toBe('success');
+  });
+
+  it('unmapInsuranceCompany maps the mapped-products refusal to ResourceInvalidState', async () => {
+    server.use(
+      http.delete(`${companiesPath}/:companyId/mapping`, () =>
+        problemResponse({
+          status: 409,
+          type: 'https://api.insurup.com/problems/resource-invalid-state',
+          title: 'Conflict',
+          codes: [
+            'RESOURCE_INVALID_STATE_WITH_ERROR',
+            'INSURGATEWAY_INSURANCE_COMPANY_HAS_MAPPED_PRODUCTS',
+          ],
+        })
+      )
+    );
+
+    const result = await t.client.admin.insurGateway.unmapInsuranceCompany(100000);
+
+    expect(result.kind).toBe('server-error');
+    if (result.kind === 'server-error') {
+      expect(result.type).toBe(InsurUpServerErrorType.ResourceInvalidState);
+      expect(result.codes).toContain('INSURGATEWAY_INSURANCE_COMPANY_HAS_MAPPED_PRODUCTS');
+    }
+  });
+
+  it('unmapInsuranceCompany maps 404 to ResourceNotFound', async () => {
+    server.use(http.delete(`${companiesPath}/:companyId/mapping`, () => notFound()));
+
+    const result = await t.client.admin.insurGateway.unmapInsuranceCompany(100001);
+
+    expect(result.kind).toBe('server-error');
+    if (result.kind === 'server-error') {
+      expect(result.type).toBe(InsurUpServerErrorType.ResourceNotFound);
+    }
+  });
 });
