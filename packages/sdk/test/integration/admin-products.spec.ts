@@ -1,9 +1,14 @@
 import { describe, it, expect } from 'vitest';
 import { http, HttpResponse } from 'msw';
-import { PaymentOption, ProductProposalConditionOperator } from '@insurup/contracts';
+import {
+  InsuranceProductType,
+  PaymentOption,
+  ProductBranch,
+  ProductProposalConditionOperator,
+} from '@insurup/contracts';
 import { InsurUpServerErrorType } from '../../src/core/result';
 import { BASE_URL, server } from './server';
-import { notFound, setupIntegrationTest, validationError } from './setup';
+import { conflict, notFound, setupIntegrationTest, validationError } from './setup';
 import { sampleInstallmentOption, sampleProposalConditions } from './fixtures/admin-products';
 
 const t = setupIntegrationTest();
@@ -52,6 +57,100 @@ describe('AdminProductsClient', () => {
     expect(result.kind).toBe('server-error');
     if (result.kind === 'server-error') {
       expect(result.status).toBe(404);
+      expect(result.type).toBe(InsurUpServerErrorType.ResourceNotFound);
+    }
+  });
+
+  it('create POSTs the product and returns it', async () => {
+    let methodSeen: string | undefined;
+    let receivedBody: unknown;
+    server.use(
+      http.post(`${BASE_URL}/products`, async ({ request }) => {
+        methodSeen = request.method;
+        receivedBody = await request.json();
+        return HttpResponse.json({
+          id: 100000,
+          name: 'Yeni Kasko',
+          insuranceCompanyId: 49,
+          branch: 'KASKO',
+          type: 'WEB_SERVICE',
+          enabled: false,
+          code: 'YK-1',
+          supportedDocumentLanguages: [0],
+        });
+      })
+    );
+
+    const result = await t.client.admin.products.create({
+      name: 'Yeni Kasko',
+      insuranceCompanyId: 49,
+      productBranch: ProductBranch.Kasko,
+      type: InsuranceProductType.WebService,
+      code: 'YK-1',
+    });
+
+    expect(methodSeen).toBe('POST');
+    expect(receivedBody).toEqual({
+      name: 'Yeni Kasko',
+      insuranceCompanyId: 49,
+      productBranch: 'KASKO',
+      type: 'WEB_SERVICE',
+      code: 'YK-1',
+    });
+    expect(result.kind).toBe('success');
+    if (result.kind === 'success') {
+      expect(result.data.id).toBe(100000);
+      expect(result.data.branch).toBe(ProductBranch.Kasko);
+    }
+  });
+
+  it('create maps 409 to ResourceDuplicate', async () => {
+    server.use(http.post(`${BASE_URL}/products`, () => conflict('Product 2471 exists')));
+
+    const result = await t.client.admin.products.create({
+      id: 2471,
+      name: 'Kopya',
+      insuranceCompanyId: 49,
+      productBranch: ProductBranch.Trafik,
+      type: InsuranceProductType.Robot,
+    });
+
+    expect(result.kind).toBe('server-error');
+    if (result.kind === 'server-error') {
+      expect(result.status).toBe(409);
+      expect(result.type).toBe(InsurUpServerErrorType.ResourceDuplicate);
+    }
+  });
+
+  it('update PUTs the name and code with the product id in the path and the body', async () => {
+    let methodSeen: string | undefined;
+    let receivedBody: unknown;
+    server.use(
+      http.put(`${BASE_URL}/products/:productId`, async ({ request, params }) => {
+        methodSeen = request.method;
+        expect(params.productId).toBe('100000');
+        receivedBody = await request.json();
+        return new HttpResponse(null, { status: 204 });
+      })
+    );
+
+    const result = await t.client.admin.products.update(100000, {
+      name: 'Yeni Kasko 2',
+      code: null,
+    });
+
+    expect(methodSeen).toBe('PUT');
+    expect(receivedBody).toEqual({ name: 'Yeni Kasko 2', code: null, productId: 100000 });
+    expect(result.kind).toBe('success');
+  });
+
+  it('update maps 404 to ResourceNotFound', async () => {
+    server.use(http.put(`${BASE_URL}/products/:productId`, () => notFound()));
+
+    const result = await t.client.admin.products.update(987654, { name: 'X' });
+
+    expect(result.kind).toBe('server-error');
+    if (result.kind === 'server-error') {
       expect(result.type).toBe(InsurUpServerErrorType.ResourceNotFound);
     }
   });

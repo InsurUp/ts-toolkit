@@ -1,10 +1,51 @@
 /**
- * @fileoverview Admin Products Contracts - Installment options and proposal conditions of insurance products
+ * @fileoverview Admin Products Contracts - The catalogue's products, their installment options and proposal conditions
  * @description Request/result types of the admin panel's `products/*` endpoints. The product list itself
  * is `InsuranceProduct`, read with `insurance.getAllProducts()`.
  */
 
-import type { PaymentOption } from '../common.js';
+import type { InsuranceProductType, PaymentOption, ProductBranch } from '../common.js';
+
+/**
+ * Body of `admin.products.create`: a product added to the catalogue by hand. Its insurance company, branch and type
+ * are fixed once it is created. Until it is mapped to a provider's product (`admin.insurGateway.mapProduct`), no
+ * provider quotes or sells it.
+ *
+ * `admin.products.create` gövdesi: kataloğa elle eklenen ürün. Sigorta şirketi, branşı ve tipi oluşturulunca
+ * değişmez. Bir sağlayıcının ürünüyle eşleştirilene kadar (`admin.insurGateway.mapProduct`) hiçbir sağlayıcı teklif
+ * vermez, satmaz.
+ */
+export interface CreateInsuranceProductRequest {
+  /** The id to give it; omitted, the next free id from 100000 up. */
+  readonly id?: number | null;
+  /** Display name of the product. */
+  readonly name: string;
+  /** The catalogue insurance company the product belongs to. */
+  readonly insuranceCompanyId: number;
+  /** The branch the product is in. */
+  readonly productBranch: ProductBranch;
+  /** Web service or robot. */
+  readonly type: InsuranceProductType;
+  /** Whether agencies can quote and sell it. Defaults to `false`. */
+  readonly enabled?: boolean;
+  /** The insurance company's own code for the product, or `null`. */
+  readonly code?: string | null;
+}
+
+/**
+ * Body of `admin.products.update`. Only the name and the code change: a product's insurance company, branch and type
+ * are fixed when it is created. The product comes from the method's `productId` argument, which the SDK also writes
+ * into the body.
+ *
+ * `admin.products.update` gövdesi. Yalnızca ad ve kod değişir: ürünün sigorta şirketi, branşı ve tipi oluşturulurken
+ * belirlenir. Ürün, metodun `productId` argümanından gelir; SDK onu gövdeye de yazar.
+ */
+export interface UpdateInsuranceProductRequest {
+  /** Display name of the product. */
+  readonly name: string;
+  /** The insurance company's own code for the product, or `null` for none. */
+  readonly code?: string | null;
+}
 
 /**
  * An installment plan a product offers: how many installments, paid with which payment option.

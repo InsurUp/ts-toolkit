@@ -1,5 +1,6 @@
 /**
- * @fileoverview Admin Products Client - Insurance product enablement, sync, installment options and proposal conditions
+ * @fileoverview Admin Products Client - The catalogue's products: adding, renaming, enablement, sync, installment
+ * options and proposal conditions
  */
 
 import type { HttpTransport } from '../../client/http.js';
@@ -7,19 +8,58 @@ import type { InsurUpResult } from '../../core/result.js';
 import type { RequestOptions } from '../../core/options.js';
 import { admin } from '../../core/endpoints.js';
 import type {
+  CreateInsuranceProductRequest,
   CreateProductInstallmentOptionRequest,
+  InsuranceProduct,
   ProductInstallmentOption,
   ProductProposalCondition,
   ReplaceProductProposalConditionsRequest,
+  UpdateInsuranceProductRequest,
 } from '@insurup/contracts';
 
 /**
- * Operations on insurance products. The product list is read with `insurance.getAllProducts()`.
+ * Operations on the catalogue's insurance products. The product list is read with `insurance.getAllProducts()`.
  *
- * Sigorta ürünleri üzerindeki işlemler. Ürün listesi `insurance.getAllProducts()` ile okunur.
+ * Kataloğun sigorta ürünleri üzerindeki işlemler. Ürün listesi `insurance.getAllProducts()` ile okunur.
  */
 export class InsurUpAdminProductsClient {
   constructor(private readonly http: HttpTransport) {}
+
+  /**
+   * Adds a product to the catalogue and returns it. Its insurance company, branch and type are fixed from then on, and
+   * no provider quotes it until it is mapped to one of the provider's products.
+   *
+   * Kataloğa bir ürün ekler ve onu döndürür. Sigorta şirketi, branşı ve tipi bundan sonra değişmez; bir sağlayıcının
+   * ürünüyle eşleştirilene kadar hiçbir sağlayıcı teklif vermez.
+   *
+   * @param request The product / Ürün
+   */
+  async create(
+    request: CreateInsuranceProductRequest,
+    options?: RequestOptions
+  ): Promise<InsurUpResult<InsuranceProduct>> {
+    return this.http.post<InsuranceProduct>(admin.products.create, request, options);
+  }
+
+  /**
+   * Renames a product or changes its code; the providers it is mapped to get the change.
+   *
+   * Bir ürünün adını veya kodunu değiştirir; eşleştirildiği sağlayıcılar değişikliği alır.
+   *
+   * @param productId Product id / Ürün kimliği
+   * @param request The new name and code / Yeni ad ve kod
+   */
+  async update(
+    productId: number,
+    request: UpdateInsuranceProductRequest,
+    options?: RequestOptions
+  ): Promise<InsurUpResult> {
+    return this.http.putNoContent(
+      admin.products.byId.render(productId),
+      { ...request, productId },
+      options
+    );
+  }
 
   /**
    * Enables a product, so agencies can quote and sell it again.
@@ -48,9 +88,12 @@ export class InsurUpAdminProductsClient {
   }
 
   /**
-   * Pulls the product catalog from InsurGateway and updates the stored products.
+   * Has every provider bring its own data about the catalogue up to date now, such as InsurGateway's robot products.
+   * The catalogue itself changes only through `create`, `update` and the enablement calls: a sync never adds a product.
    *
-   * Ürün kataloğunu InsurGateway'den çeker ve kayıtlı ürünleri günceller.
+   * Her sağlayıcının katalog hakkındaki kendi verisini (InsurGateway'in robot ürünleri gibi) hemen güncellemesini
+   * sağlar. Kataloğun kendisi yalnızca `create`, `update` ve etkinleştirme çağrılarıyla değişir: senkronizasyon ürün
+   * eklemez.
    */
   async sync(options?: RequestOptions): Promise<InsurUpResult> {
     return this.http.postNoContent(admin.products.sync, undefined, options);

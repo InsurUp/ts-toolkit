@@ -1573,6 +1573,12 @@ export const admin = {
   },
 
   products: {
+    create: 'products',
+    byId: {
+      definition: 'products/{ProductId}',
+      render: (productId: string | number): string =>
+        'products/{ProductId}'.replace('{ProductId}', encodeURIComponent(String(productId))),
+    },
     sync: 'products/sync',
     enable: {
       definition: 'products/{ProductId}/enable',
@@ -1613,6 +1619,7 @@ export const admin = {
   },
 
   insuranceCompanies: {
+    create: 'insurance-companies',
     byId: {
       definition: 'insurance-companies/{Id}',
       render: (id: string | number): string =>
@@ -1632,6 +1639,37 @@ export const admin = {
         'insurance-companies/{InsuranceCompanyId}/connection-fields/{Key}'
           .replace('{InsuranceCompanyId}', encodeURIComponent(String(insuranceCompanyId)))
           .replace('{Key}', encodeURIComponent(key)),
+    },
+  },
+
+  routingRules: {
+    all: 'insurance-services/routing-rules',
+    byId: {
+      definition: 'insurance-services/routing-rules/{Id}',
+      render: (id: string): string =>
+        'insurance-services/routing-rules/{Id}'.replace('{Id}', encodeURIComponent(id)),
+    },
+  },
+
+  insurGateway: {
+    products: 'insurance-services/insurgateway/products',
+    insuranceCompanies: 'insurance-services/insurgateway/insurance-companies',
+    productMapping: {
+      definition: 'insurance-services/insurgateway/products/{ProductId}/mapping',
+      render: (productId: string | number): string =>
+        'insurance-services/insurgateway/products/{ProductId}/mapping'.replace(
+          '{ProductId}',
+          encodeURIComponent(String(productId))
+        ),
+    },
+    insuranceCompanyMapping: {
+      definition:
+        'insurance-services/insurgateway/insurance-companies/{InsuranceCompanyId}/mapping',
+      render: (insuranceCompanyId: string | number): string =>
+        'insurance-services/insurgateway/insurance-companies/{InsuranceCompanyId}/mapping'.replace(
+          '{InsuranceCompanyId}',
+          encodeURIComponent(String(insuranceCompanyId))
+        ),
     },
   },
 

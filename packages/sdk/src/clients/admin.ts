@@ -12,6 +12,7 @@ import { InsurUpAdminCacheClient } from './admin/cache.js';
 import { InsurUpAdminErrorsClient } from './admin/errors.js';
 import { InsurUpAdminInsightsClient } from './admin/insights.js';
 import { InsurUpAdminInsuranceCompaniesClient } from './admin/insuranceCompanies.js';
+import { InsurUpAdminInsurGatewayClient } from './admin/insurGateway.js';
 import { InsurUpAdminInvestigationsClient } from './admin/investigations.js';
 import { InsurUpAdminInvitesClient } from './admin/invites.js';
 import { InsurUpAdminMessagesClient } from './admin/messages.js';
@@ -20,6 +21,7 @@ import { InsurUpAdminProductsClient } from './admin/products.js';
 import { InsurUpAdminReleaseNotesClient } from './admin/releaseNotes.js';
 import { InsurUpAdminResourceKeysClient } from './admin/resourceKeys.js';
 import { InsurUpAdminRolesClient } from './admin/roles.js';
+import { InsurUpAdminRoutingRulesClient } from './admin/routingRules.js';
 import { InsurUpAdminSubscriptionPlansClient } from './admin/subscriptionPlans.js';
 import { InsurUpAdminUsersClient } from './admin/users.js';
 
@@ -53,11 +55,17 @@ export class InsurUpAdminClient {
   /** Agency setup requests. */
   public readonly agentSetup: InsurUpAdminAgentSetupClient;
 
-  /** Insurance products: enablement, sync, installment options and proposal conditions. */
+  /** The catalogue's insurance products: adding, renaming, enablement, sync, installment options and proposal conditions. */
   public readonly products: InsurUpAdminProductsClient;
 
-  /** Insurance companies and their connection fields. */
+  /** The catalogue's insurance companies and their connection fields. */
   public readonly insuranceCompanies: InsurUpAdminInsuranceCompaniesClient;
+
+  /** The routing rules that pick each operation's insurance service provider. */
+  public readonly routingRules: InsurUpAdminRoutingRulesClient;
+
+  /** Which of InsurGateway's products and companies each catalogue product and company is. */
+  public readonly insurGateway: InsurUpAdminInsurGatewayClient;
 
   /** Resource keys (localized texts). */
   public readonly resourceKeys: InsurUpAdminResourceKeysClient;
@@ -96,6 +104,8 @@ export class InsurUpAdminClient {
     this.agentSetup = new InsurUpAdminAgentSetupClient(http);
     this.products = new InsurUpAdminProductsClient(http);
     this.insuranceCompanies = new InsurUpAdminInsuranceCompaniesClient(http);
+    this.routingRules = new InsurUpAdminRoutingRulesClient(http);
+    this.insurGateway = new InsurUpAdminInsurGatewayClient(http);
     this.resourceKeys = new InsurUpAdminResourceKeysClient(http);
     this.releaseNotes = new InsurUpAdminReleaseNotesClient(http);
     this.cache = new InsurUpAdminCacheClient(http);

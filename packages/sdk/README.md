@@ -553,8 +553,10 @@ const logs = await client.admin.observability.searchLogs({ filter, limit: 200 })
 | `client.admin.agentUsers`         | Agency users across agencies                                       |
 | `client.admin.subscriptionPlans`  | Subscription plans                                                 |
 | `client.admin.agentSetup`         | Agency setup requests                                              |
-| `client.admin.products`           | Products: enablement, sync, installment options, proposal rules    |
-| `client.admin.insuranceCompanies` | Insurance companies and their connection fields                    |
+| `client.admin.products`           | Products: adding, renaming, enablement, sync, installments, rules  |
+| `client.admin.insuranceCompanies` | Insurance companies: adding, settings, connection fields           |
+| `client.admin.routingRules`       | Which insurance service provider each operation goes to            |
+| `client.admin.insurGateway`       | Mapping catalogue products and companies to InsurGateway's         |
 | `client.admin.resourceKeys`       | Resource keys (localized texts)                                    |
 | `client.admin.releaseNotes`       | Release notes                                                      |
 | `client.admin.cache`              | The platform cache                                                 |
