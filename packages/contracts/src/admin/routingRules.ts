@@ -72,6 +72,13 @@ export enum InsuranceServiceProvider {
    * Eski InsurGateway.
    */
   InsurGateway = 'INSUR_GATEWAY',
+  /**
+   * The InsurGateway platform, run inside InsurUp. It quotes only the products mapped to one of its products
+   * (`admin.insurGatewayPlatform`).
+   * InsurUp içinde çalışan InsurGateway platformu. Yalnızca kendi ürünlerinden biriyle eşleştirilmiş ürünler için
+   * teklif alır.
+   */
+  InsurGatewayPlatform = 'INSUR_GATEWAY_PLATFORM',
 }
 
 /**

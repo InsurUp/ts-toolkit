@@ -13,6 +13,7 @@ export * from './products.js';
 export * from './insuranceCompanies.js';
 export * from './routingRules.js';
 export * from './insurGateway.js';
+export * from './insurGatewayPlatform.js';
 export * from './resourceKeys.js';
 export * from './releaseNotes.js';
 export * from './observability.js';

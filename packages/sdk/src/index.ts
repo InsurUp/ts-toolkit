@@ -51,6 +51,7 @@ export { InsurUpAdminProductsClient } from './clients/admin/products.js';
 export { InsurUpAdminInsuranceCompaniesClient } from './clients/admin/insuranceCompanies.js';
 export { InsurUpAdminRoutingRulesClient } from './clients/admin/routingRules.js';
 export { InsurUpAdminInsurGatewayClient } from './clients/admin/insurGateway.js';
+export { InsurUpAdminInsurGatewayPlatformClient } from './clients/admin/insurGatewayPlatform.js';
 export { InsurUpAdminResourceKeysClient } from './clients/admin/resourceKeys.js';
 export { InsurUpAdminReleaseNotesClient } from './clients/admin/releaseNotes.js';
 export { InsurUpAdminCacheClient } from './clients/admin/cache.js';
