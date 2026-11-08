@@ -1673,6 +1673,28 @@ export const admin = {
     },
   },
 
+  insurGatewayPlatform: {
+    products: 'insurance-services/insurgateway-platform/products',
+    insuranceCompanies: 'insurance-services/insurgateway-platform/insurance-companies',
+    productMapping: {
+      definition: 'insurance-services/insurgateway-platform/products/{ProductId}/mapping',
+      render: (productId: string | number): string =>
+        'insurance-services/insurgateway-platform/products/{ProductId}/mapping'.replace(
+          '{ProductId}',
+          encodeURIComponent(String(productId))
+        ),
+    },
+    insuranceCompanyMapping: {
+      definition:
+        'insurance-services/insurgateway-platform/insurance-companies/{InsuranceCompanyId}/mapping',
+      render: (insuranceCompanyId: string | number): string =>
+        'insurance-services/insurgateway-platform/insurance-companies/{InsuranceCompanyId}/mapping'.replace(
+          '{InsuranceCompanyId}',
+          encodeURIComponent(String(insuranceCompanyId))
+        ),
+    },
+  },
+
   resourceKeys: {
     create: 'resource-keys',
     createMany: 'resource-keys/bulk',

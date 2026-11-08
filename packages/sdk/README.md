@@ -544,25 +544,26 @@ const me = await client.admin.users.getMe();
 const logs = await client.admin.observability.searchLogs({ filter, limit: 200 });
 ```
 
-| Client                            | Description                                                        |
-| --------------------------------- | ------------------------------------------------------------------ |
-| `client.admin.users`              | Admin panel users: invitations, profiles, deactivation, passwords  |
-| `client.admin.roles`              | Admin panel roles and permissions                                  |
-| `client.admin.invites`            | The signed-in person's admin panel invitations and membership      |
-| `client.admin.agents`             | Agencies: activation, subscriptions, billing and invoices          |
-| `client.admin.agentUsers`         | Agency users across agencies                                       |
-| `client.admin.subscriptionPlans`  | Subscription plans                                                 |
-| `client.admin.agentSetup`         | Agency setup requests                                              |
-| `client.admin.products`           | Products: adding, renaming, enablement, sync, installments, rules  |
-| `client.admin.insuranceCompanies` | Insurance companies: adding, settings, connection fields           |
-| `client.admin.routingRules`       | Which insurance service provider each operation goes to            |
-| `client.admin.insurGateway`       | Mapping catalogue products and companies to InsurGateway's         |
-| `client.admin.resourceKeys`       | Resource keys (localized texts)                                    |
-| `client.admin.releaseNotes`       | Release notes                                                      |
-| `client.admin.cache`              | The platform cache                                                 |
-| `client.admin.observability`      | Logs, metrics, traces, InsurGateway calls, database statistics     |
-| `client.admin.alerts`             | Alert rules, notification channels, silences, history              |
-| `client.admin.insights`           | Business insights: agencies, features, sales, channels, operations |
+| Client                              | Description                                                             |
+| ----------------------------------- | ----------------------------------------------------------------------- |
+| `client.admin.users`                | Admin panel users: invitations, profiles, deactivation, passwords       |
+| `client.admin.roles`                | Admin panel roles and permissions                                       |
+| `client.admin.invites`              | The signed-in person's admin panel invitations and membership           |
+| `client.admin.agents`               | Agencies: activation, subscriptions, billing and invoices               |
+| `client.admin.agentUsers`           | Agency users across agencies                                            |
+| `client.admin.subscriptionPlans`    | Subscription plans                                                      |
+| `client.admin.agentSetup`           | Agency setup requests                                                   |
+| `client.admin.products`             | Products: adding, renaming, enablement, sync, installments, rules       |
+| `client.admin.insuranceCompanies`   | Insurance companies: adding, settings, connection fields                |
+| `client.admin.routingRules`         | Which insurance service provider each operation goes to                 |
+| `client.admin.insurGateway`         | Mapping catalogue products and companies to InsurGateway's              |
+| `client.admin.insurGatewayPlatform` | Mapping catalogue products and companies to the InsurGateway platform's |
+| `client.admin.resourceKeys`         | Resource keys (localized texts)                                         |
+| `client.admin.releaseNotes`         | Release notes                                                           |
+| `client.admin.cache`                | The platform cache                                                      |
+| `client.admin.observability`        | Logs, metrics, traces, InsurGateway calls, database statistics          |
+| `client.admin.alerts`               | Alert rules, notification channels, silences, history                   |
+| `client.admin.insights`             | Business insights: agencies, features, sales, channels, operations      |
 
 ---
 

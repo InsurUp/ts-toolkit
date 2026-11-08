@@ -13,6 +13,7 @@ import { InsurUpAdminErrorsClient } from './admin/errors.js';
 import { InsurUpAdminInsightsClient } from './admin/insights.js';
 import { InsurUpAdminInsuranceCompaniesClient } from './admin/insuranceCompanies.js';
 import { InsurUpAdminInsurGatewayClient } from './admin/insurGateway.js';
+import { InsurUpAdminInsurGatewayPlatformClient } from './admin/insurGatewayPlatform.js';
 import { InsurUpAdminInvestigationsClient } from './admin/investigations.js';
 import { InsurUpAdminInvitesClient } from './admin/invites.js';
 import { InsurUpAdminMessagesClient } from './admin/messages.js';
@@ -67,6 +68,9 @@ export class InsurUpAdminClient {
   /** Which of InsurGateway's products and companies each catalogue product and company is. */
   public readonly insurGateway: InsurUpAdminInsurGatewayClient;
 
+  /** Which of the InsurGateway platform's products and companies each catalogue product and company is. */
+  public readonly insurGatewayPlatform: InsurUpAdminInsurGatewayPlatformClient;
+
   /** Resource keys (localized texts). */
   public readonly resourceKeys: InsurUpAdminResourceKeysClient;
 
@@ -106,6 +110,7 @@ export class InsurUpAdminClient {
     this.insuranceCompanies = new InsurUpAdminInsuranceCompaniesClient(http);
     this.routingRules = new InsurUpAdminRoutingRulesClient(http);
     this.insurGateway = new InsurUpAdminInsurGatewayClient(http);
+    this.insurGatewayPlatform = new InsurUpAdminInsurGatewayPlatformClient(http);
     this.resourceKeys = new InsurUpAdminResourceKeysClient(http);
     this.releaseNotes = new InsurUpAdminReleaseNotesClient(http);
     this.cache = new InsurUpAdminCacheClient(http);
