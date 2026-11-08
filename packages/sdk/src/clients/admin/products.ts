@@ -42,12 +42,13 @@ export class InsurUpAdminProductsClient {
   }
 
   /**
-   * Renames a product or changes its code; the providers it is mapped to get the change.
+   * Renames a product, changes its code, or takes it online or offline; the providers it is mapped to get the change.
    *
-   * Bir ürünün adını veya kodunu değiştirir; eşleştirildiği sağlayıcılar değişikliği alır.
+   * Bir ürünün adını veya kodunu değiştirir ya da onu online veya offline yapar; eşleştirildiği sağlayıcılar değişikliği
+   * alır.
    *
    * @param productId Product id / Ürün kimliği
-   * @param request The new name and code / Yeni ad ve kod
+   * @param request The new name and code, and whether it is online / Yeni ad, kod ve online olup olmadığı
    */
   async update(
     productId: number,

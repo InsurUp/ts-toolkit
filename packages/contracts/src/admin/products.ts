@@ -28,23 +28,30 @@ export interface CreateInsuranceProductRequest {
   readonly type: InsuranceProductType;
   /** Whether agencies can quote and sell it. Defaults to `false`. */
   readonly enabled?: boolean;
+  /**
+   * Whether agencies get proposals for it from the insurance company; an offline product is sold by a manual proposal.
+   * Defaults to `false`.
+   */
+  readonly online?: boolean;
   /** The insurance company's own code for the product, or `null`. */
   readonly code?: string | null;
 }
 
 /**
- * Body of `admin.products.update`. Only the name and the code change: a product's insurance company, branch and type
- * are fixed when it is created. The product comes from the method's `productId` argument, which the SDK also writes
- * into the body.
+ * Body of `admin.products.update`. Only the name, the code and whether it is online change: a product's insurance
+ * company, branch and type are fixed when it is created. The product comes from the method's `productId` argument,
+ * which the SDK also writes into the body.
  *
- * `admin.products.update` gövdesi. Yalnızca ad ve kod değişir: ürünün sigorta şirketi, branşı ve tipi oluşturulurken
- * belirlenir. Ürün, metodun `productId` argümanından gelir; SDK onu gövdeye de yazar.
+ * `admin.products.update` gövdesi. Yalnızca ad, kod ve online olup olmadığı değişir: ürünün sigorta şirketi, branşı ve
+ * tipi oluşturulurken belirlenir. Ürün, metodun `productId` argümanından gelir; SDK onu gövdeye de yazar.
  */
 export interface UpdateInsuranceProductRequest {
   /** Display name of the product. */
   readonly name: string;
   /** The insurance company's own code for the product, or `null` for none. */
   readonly code?: string | null;
+  /** Whether agencies get proposals for it from the insurance company; left out, it stays as it is. */
+  readonly online?: boolean;
 }
 
 /**
