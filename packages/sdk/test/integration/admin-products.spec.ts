@@ -75,7 +75,6 @@ describe('AdminProductsClient', () => {
           branch: 'KASKO',
           type: 'WEB_SERVICE',
           enabled: false,
-          online: true,
           code: 'YK-1',
           supportedDocumentLanguages: [0],
         });
@@ -87,7 +86,6 @@ describe('AdminProductsClient', () => {
       insuranceCompanyId: 49,
       productBranch: ProductBranch.Kasko,
       type: InsuranceProductType.WebService,
-      online: true,
       code: 'YK-1',
     });
 
@@ -97,14 +95,12 @@ describe('AdminProductsClient', () => {
       insuranceCompanyId: 49,
       productBranch: 'KASKO',
       type: 'WEB_SERVICE',
-      online: true,
       code: 'YK-1',
     });
     expect(result.kind).toBe('success');
     if (result.kind === 'success') {
       expect(result.data.id).toBe(100000);
       expect(result.data.branch).toBe(ProductBranch.Kasko);
-      expect(result.data.online).toBe(true);
     }
   });
 
@@ -124,24 +120,6 @@ describe('AdminProductsClient', () => {
       expect(result.status).toBe(409);
       expect(result.type).toBe(InsurUpServerErrorType.ResourceDuplicate);
     }
-  });
-
-  it('update PUTs whether the product is online, and leaves it out when not given', async () => {
-    const bodies: unknown[] = [];
-    server.use(
-      http.put(`${BASE_URL}/products/:productId`, async ({ request }) => {
-        bodies.push(await request.json());
-        return new HttpResponse(null, { status: 204 });
-      })
-    );
-
-    await t.client.admin.products.update(100000, { name: 'Yeni Kasko', online: false });
-    await t.client.admin.products.update(100000, { name: 'Yeni Kasko' });
-
-    expect(bodies).toEqual([
-      { name: 'Yeni Kasko', online: false, productId: 100000 },
-      { name: 'Yeni Kasko', productId: 100000 },
-    ]);
   });
 
   it('update PUTs the name and code with the product id in the path and the body', async () => {

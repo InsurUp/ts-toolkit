@@ -8,11 +8,11 @@
 import type { InsuranceProductType, ProductBranch } from '../common.js';
 
 /**
- * A product InsurGateway sells now, with the catalogue product mapped to it and the catalogue insurance company mapped
- * to its InsurGateway company, if any.
+ * A product InsurGateway sells now, with the catalogue product mapped to it and whether that one is online through
+ * InsurGateway, and the catalogue insurance company mapped to its InsurGateway company, if any.
  *
- * InsurGateway'in şu an sattığı bir ürün; varsa onunla eşleştirilmiş katalog ürünü ve InsurGateway şirketiyle
- * eşleştirilmiş katalog sigorta şirketi.
+ * InsurGateway'in şu an sattığı bir ürün; varsa onunla eşleştirilmiş katalog ürünü ve onun InsurGateway üzerinden
+ * online olup olmadığı, ve InsurGateway şirketiyle eşleştirilmiş katalog sigorta şirketi.
  */
 export interface InsurGatewayProduct {
   /** InsurGateway's id of the product. */
@@ -29,6 +29,10 @@ export interface InsurGatewayProduct {
   readonly type: InsuranceProductType;
   /** The catalogue product mapped to it, or `null`. */
   readonly productId: number | null;
+  /**
+   * Whether agencies get proposals for the mapped catalogue product through InsurGateway, or `null` when none is mapped.
+   */
+  readonly online: boolean | null;
   /** The catalogue insurance company mapped to its InsurGateway company, or `null`. */
   readonly insuranceCompanyId: number | null;
 }

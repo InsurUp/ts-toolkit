@@ -44,25 +44,29 @@ export class InsurUpAdminInsurGatewayClient {
   }
 
   /**
-   * Maps a catalogue product to one of InsurGateway's products, or moves its mapping there. The product's company must
-   * be mapped to the InsurGateway company the InsurGateway product belongs to, and no other product may be mapped to
-   * that InsurGateway product.
+   * Maps a catalogue product to one of InsurGateway's products, or moves its mapping there, and sets whether agencies
+   * get proposals for it through InsurGateway. The product's company must be mapped to the InsurGateway company the
+   * InsurGateway product belongs to, and no other product may be mapped to that InsurGateway product.
    *
-   * Bir katalog ürününü InsurGateway'deki bir ürünle eşleştirir ya da eşleşmesini oraya taşır. Ürünün şirketi,
-   * InsurGateway ürününün ait olduğu InsurGateway şirketiyle eşleştirilmiş olmalı ve o InsurGateway ürünüyle başka
-   * ürün eşleştirilmemiş olmalıdır.
+   * Bir katalog ürününü InsurGateway'deki bir ürünle eşleştirir ya da eşleşmesini oraya taşır ve acentelerin ürün için
+   * InsurGateway üzerinden teklif alıp almadığını ayarlar. Ürünün şirketi, InsurGateway ürününün ait olduğu
+   * InsurGateway şirketiyle eşleştirilmiş olmalı ve o InsurGateway ürünüyle başka ürün eşleştirilmemiş olmalıdır.
    *
    * @param productId Catalogue product id / Katalog ürün kimliği
    * @param insurGatewayProductId InsurGateway's id of the product / Ürünün InsurGateway kimliği
+   * @param online Whether agencies get proposals for it through InsurGateway; left out, a mapped product keeps what it
+   *   had and a newly mapped one is offline / Acentelerin InsurGateway üzerinden teklif alıp almadığı; verilmezse
+   *   eşleşmiş ürün değerini korur, yeni eşleşen ürün offline olur
    */
   async mapProduct(
     productId: number,
     insurGatewayProductId: number,
+    online?: boolean,
     options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.putNoContent(
       admin.insurGateway.productMapping.render(productId),
-      { productId, insurGatewayProductId },
+      { productId, insurGatewayProductId, online },
       options
     );
   }

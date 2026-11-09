@@ -14,6 +14,7 @@ export const sampleInsurGatewayProducts: InsurGatewayProduct[] = [
     code: null,
     type: InsuranceProductType.Robot,
     productId: 2471,
+    online: true,
     insuranceCompanyId: 49,
   },
   {
@@ -24,6 +25,7 @@ export const sampleInsurGatewayProducts: InsurGatewayProduct[] = [
     code: 'YK-1',
     type: InsuranceProductType.WebService,
     productId: null,
+    online: null,
     insuranceCompanyId: 49,
   },
 ];

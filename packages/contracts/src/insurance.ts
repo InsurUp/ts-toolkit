@@ -363,13 +363,15 @@ export interface InsuranceProduct {
   readonly enabled: boolean;
 
   /**
-   * Whether the product is online: agencies get proposals for it from the insurance company, whichever insurance
-   * service provider quotes it. An offline product is sold by a manual proposal. Only online products are offered in
-   * an agency's insurance company and partaj (account) product lists. The admin panel sets it.
+   * Whether the product is online: agencies get proposals for it from the insurance company through any insurance
+   * service provider. Each provider's mapping of the product says whether it quotes it; the admin panel sets that on
+   * the mapping (`admin.insurGateway.mapProduct`). An offline product is sold by a manual proposal. Only online products
+   * are offered in an agency's insurance company and partaj (account) product lists.
    *
-   * Ürünün online olup olmadığı: acenteler ürün için sigorta şirketinden teklif alır; hangi sigorta servis sağlayıcısı
-   * fiyatlarsa fiyatlasın. Offline ürün manuel teklifle satılır. Acentenin sigorta şirketi ve partaj ürün listelerinde
-   * yalnızca online ürünler sunulur. Admin panelinden ayarlanır.
+   * Ürünün online olup olmadığı: acenteler ürün için herhangi bir sigorta servis sağlayıcısı üzerinden sigorta
+   * şirketinden teklif alır. Her sağlayıcının ürün eşleşmesi teklif alıp almadığını söyler; admin paneli bunu eşleşmede
+   * ayarlar (`admin.insurGateway.mapProduct`). Offline ürün manuel teklifle satılır. Acentenin sigorta şirketi ve partaj
+   * ürün listelerinde yalnızca online ürünler sunulur.
    */
   readonly online: boolean;
 
