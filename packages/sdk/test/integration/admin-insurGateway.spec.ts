@@ -25,7 +25,9 @@ describe('AdminInsurGatewayClient', () => {
       expect(result.data).toHaveLength(2);
       expect(result.data[0]?.productBranch).toBe(ProductBranch.Trafik);
       expect(result.data[0]?.type).toBe(InsuranceProductType.Robot);
+      expect(result.data[0]?.online).toBe(true);
       expect(result.data[1]?.productId).toBeNull();
+      expect(result.data[1]?.online).toBeNull();
     }
   });
 
@@ -81,6 +83,26 @@ describe('AdminInsurGatewayClient', () => {
     expect(methodSeen).toBe('PUT');
     expect(receivedBody).toEqual({ productId: 100000, insurGatewayProductId: 3001 });
     expect(result.kind).toBe('success');
+  });
+
+  it('mapProduct PUTs whether the product is online, and leaves it out when not given', async () => {
+    const bodies: unknown[] = [];
+    server.use(
+      http.put(`${productsPath}/:productId/mapping`, async ({ request }) => {
+        bodies.push(await request.json());
+        return new HttpResponse(null, { status: 204 });
+      })
+    );
+
+    await t.client.admin.insurGateway.mapProduct(100000, 3001, true);
+    await t.client.admin.insurGateway.mapProduct(100000, 3001, false);
+    await t.client.admin.insurGateway.mapProduct(100000, 3001);
+
+    expect(bodies).toEqual([
+      { productId: 100000, insurGatewayProductId: 3001, online: true },
+      { productId: 100000, insurGatewayProductId: 3001, online: false },
+      { productId: 100000, insurGatewayProductId: 3001 },
+    ]);
   });
 
   it("mapProduct maps an unmapped company's refusal to ResourceInvalidState", async () => {
