@@ -155,24 +155,6 @@ describe('AdminProductsClient', () => {
     }
   });
 
-  it('sync POSTs without a body and accepts an empty 200', async () => {
-    let methodSeen: string | undefined;
-    let bodyText: string | undefined;
-    server.use(
-      http.post(`${BASE_URL}/products/sync`, async ({ request }) => {
-        methodSeen = request.method;
-        bodyText = await request.text();
-        return new HttpResponse(null, { status: 200 });
-      })
-    );
-
-    const result = await t.client.admin.products.sync();
-
-    expect(methodSeen).toBe('POST');
-    expect(bodyText).toBe('');
-    expect(result.kind).toBe('success');
-  });
-
   it('getInstallmentOptions GETs the product options', async () => {
     server.use(
       http.get(`${BASE_URL}/products/:productId/installment-options`, ({ params }) => {

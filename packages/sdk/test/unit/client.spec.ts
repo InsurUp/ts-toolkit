@@ -166,7 +166,7 @@ describe('DefaultInsurUpClient', () => {
       agentUsers: ['migrateLegacy'],
       subscriptionPlans: ['getAll', 'getById', 'create', 'update'],
       agentSetup: ['create', 'getAll', 'getById', 'disable'],
-      products: ['enable', 'disable', 'sync', 'replaceProposalConditions'],
+      products: ['enable', 'disable', 'replaceProposalConditions'],
       insuranceCompanies: ['update', 'getConnectionFields', 'updateConnectionField'],
       resourceKeys: ['getByKey', 'create', 'createMany', 'update', 'delete'],
       releaseNotes: ['create', 'update', 'delete'],

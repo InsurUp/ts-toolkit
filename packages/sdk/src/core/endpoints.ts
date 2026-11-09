@@ -1579,7 +1579,6 @@ export const admin = {
       render: (productId: string | number): string =>
         'products/{ProductId}'.replace('{ProductId}', encodeURIComponent(String(productId))),
     },
-    sync: 'products/sync',
     enable: {
       definition: 'products/{ProductId}/enable',
       render: (productId: string | number): string =>
