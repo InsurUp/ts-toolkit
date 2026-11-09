@@ -1,7 +1,7 @@
 import type { HttpTransport } from '../client/http.js';
 import type { InsurUpResult } from '../core/result.js';
 import type { RequestOptions } from '../core/options.js';
-import { agents } from '../core/endpoints.js';
+import { agents, callCenter } from '../core/endpoints.js';
 import type {
   GetCurrentAgentResult,
   UpdateCurrentAgentRequest,
@@ -14,6 +14,8 @@ import type {
   ReSyncAgentInsuranceCompanyWithInsuranceRequest,
   GetB2CConfigFieldsResult,
   UpdateB2CConfigFieldsRequest,
+  StartCallCenterCallRequest,
+  GetCallCenterAgentsResult,
 } from '@insurup/contracts';
 import { b2c } from '../core/endpoints.js';
 
@@ -216,5 +218,33 @@ export class InsurUpAgentClient {
     options?: RequestOptions
   ): Promise<InsurUpResult> {
     return this.http.putNoContent(b2c.configFields.updateAll, request, options);
+  }
+
+  /**
+   * Starts an outbound call through the agent's call center integration.
+   *
+   * Acentenin çağrı merkezi entegrasyonu üzerinden giden arama başlatır.
+   *
+   * @param request Country code and phone number to call
+   * @returns Operation result
+   */
+  async startCallCenterCall(
+    request: StartCallCenterCallRequest,
+    options?: RequestOptions
+  ): Promise<InsurUpResult> {
+    return this.http.postNoContent(callCenter.startCall, request, options);
+  }
+
+  /**
+   * Retrieves the agents reported by the call center provider.
+   *
+   * Çağrı merkezi sağlayıcısının bildirdiği temsilcileri getirir.
+   *
+   * @returns Call center agents
+   */
+  async getCallCenterAgents(
+    options?: RequestOptions
+  ): Promise<InsurUpResult<GetCallCenterAgentsResult>> {
+    return this.http.get<GetCallCenterAgentsResult>(callCenter.getAgents, options);
   }
 }
