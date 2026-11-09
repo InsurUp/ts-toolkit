@@ -1,6 +1,6 @@
 /**
- * @fileoverview Admin Products Client - The catalogue's products: adding, renaming, enablement, sync, installment
- * options and proposal conditions
+ * @fileoverview Admin Products Client - The catalogue's products: adding, renaming, enablement, installment options
+ * and proposal conditions
  */
 
 import type { HttpTransport } from '../../client/http.js';
@@ -85,18 +85,6 @@ export class InsurUpAdminProductsClient {
       { productId },
       options
     );
-  }
-
-  /**
-   * Has every provider bring its own data about the catalogue up to date now, such as InsurGateway's robot products.
-   * The catalogue itself changes only through `create`, `update` and the enablement calls: a sync never adds a product.
-   *
-   * Her sağlayıcının katalog hakkındaki kendi verisini (InsurGateway'in robot ürünleri gibi) hemen güncellemesini
-   * sağlar. Kataloğun kendisi yalnızca `create`, `update` ve etkinleştirme çağrılarıyla değişir: senkronizasyon ürün
-   * eklemez.
-   */
-  async sync(options?: RequestOptions): Promise<InsurUpResult> {
-    return this.http.postNoContent(admin.products.sync, undefined, options);
   }
 
   /**
