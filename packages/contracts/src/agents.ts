@@ -171,6 +171,7 @@ export enum SmsImplementation {
 export enum CallCenterImplementation {
   None = 'None',
   AloTech = 'AloTech',
+  Telcorex = 'Telcorex',
 }
 
 /**
@@ -242,11 +243,42 @@ export type CallCenterAgentOptions =
       readonly clientId: string;
       readonly campaignKeyMappings: CampaignKeyMapping[];
       readonly listName: string;
+    } & CallCenterAgentOptionsBase)
+  | ({
+      readonly implementation: CallCenterImplementation.Telcorex;
+      readonly username: string;
+      /** Input only; the server never returns it / Yalnızca girdi; sunucu asla döndürmez */
+      readonly password?: string;
+      /** Response only; ignored on input / Yalnızca yanıt; girdide yok sayılır */
+      readonly hasPassword: boolean;
+      readonly trunkNumber: string | null;
+      readonly agentMappings: TelcorexAgentMapping[];
     } & CallCenterAgentOptionsBase);
 
 type CallCenterAgentOptionsBase = {
   readonly tenant: string;
 };
+
+/**
+ * Maps an agent user to the extension number used by the Telcorex call center.
+ *
+ * Bir acente kullanıcısını Telcorex çağrı merkezinde kullanılan dahili numarayla eşler.
+ */
+export interface TelcorexAgentMapping {
+  /**
+   * Agent user identifier.
+   *
+   * Acente kullanıcısı kimliği.
+   */
+  readonly agentUserId: string;
+
+  /**
+   * Telcorex agent number.
+   *
+   * Telcorex temsilci numarası.
+   */
+  readonly agentNumber: string;
+}
 
 /**
  * Campaign key mapping for AloTech call center integration.
@@ -1834,4 +1866,39 @@ export interface UpdateB2CConfigFieldsRequest {
  */
 export interface MigrateAllAgentUsersResult {
   readonly migratedCount: number;
+}
+
+// ============================================================================
+// CALL CENTER TYPES
+// ============================================================================
+
+/**
+ * Request to start an outbound call through the agent's call center.
+ *
+ * Acentenin çağrı merkezi üzerinden giden arama başlatma isteği.
+ */
+export interface StartCallCenterCallRequest {
+  readonly countryCode: number;
+  readonly phoneNumber: string;
+}
+
+/**
+ * A call center agent as reported by the call center provider.
+ *
+ * Çağrı merkezi sağlayıcısının bildirdiği çağrı merkezi temsilcisi.
+ */
+export interface CallCenterAgentItem {
+  readonly agentNumber: string;
+  readonly firstName: string;
+  readonly lastName: string;
+  readonly active: boolean;
+}
+
+/**
+ * Response containing the call center agents.
+ *
+ * Çağrı merkezi temsilcilerini içeren yanıt.
+ */
+export interface GetCallCenterAgentsResult {
+  readonly agents: readonly CallCenterAgentItem[];
 }

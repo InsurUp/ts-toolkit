@@ -90,6 +90,14 @@ export const agents = {
 } as const;
 
 /**
+ * Call center endpoints
+ */
+export const callCenter = {
+  startCall: 'call-center/calls',
+  getAgents: 'call-center/agents',
+} as const;
+
+/**
  * Insurance company endpoints
  */
 export const insuranceCompanies = {
